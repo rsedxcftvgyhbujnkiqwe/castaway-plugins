@@ -40,6 +40,7 @@ int g_iVotesNeeded;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
+bool g_bScrambleTeamsInProgress;
 bool g_bCanScramble;
 bool g_bIsArena;
 Handle g_tRoundResetTimer;
@@ -75,6 +76,21 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 	}
 }
 
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+	if (!event.GetBool("silent"))
+	{
+		if (g_bScrambleTeamsInProgress)
+		{
+			event.BroadcastDisabled = true;
+		}
+		else
+		{
+			event.BroadcastDisabled = false;
+		}
+	}
+}
+
 public void OnPluginStart()
 {
 	CreateConVar("nano_votescramble_version", PLUGIN_VERSION, "Vote Scramble Version", FCVAR_DONTRECORD);
@@ -97,10 +113,28 @@ public void OnPluginStart()
 	RegAdminCmd("sm_forcescramble", Cmd_ForceScramble, ADMFLAG_VOTE, "Force a team scramble vote.");
 
 	HookEvent("teamplay_win_panel", Event_RoundWin);
-
 	HookEvent("teamplay_round_start", Event_RoundStart);
+	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
 	// CreateTimer(60.0, Timer_CountMinutes, _, TIMER_REPEAT);
+
+	AutoExecConfig(true);
+}
+
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
+	{
+		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+	}
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
+	{
+		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+	}
 }
 
 public void OnMapStart()
@@ -112,6 +146,7 @@ public void OnMapStart()
 	// g_iMinutesSinceLastScramble = 0;
 	g_bVoteCooldown = false;
 	g_bScrambleTeams = false;
+	g_bScrambleTeamsInProgress = false;
 	g_bCanScramble = false;
 	g_bIsArena = false;
 	g_iPlayerManager = GetPlayerResourceEntity();
@@ -151,7 +186,13 @@ public Action Cmd_ForceScramble(int client, int args)
 
 public Action Cmd_VoteScramble(int client, int args)
 {
-	AttemptVoteScramble(client);
+	AttemptVoteScramble(client, false);
+	return Plugin_Handled;
+}
+
+public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, const char[] voteArgument)
+{
+	AttemptVoteScramble(client, true);
 	return Plugin_Handled;
 }
 
@@ -161,22 +202,36 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	{
 		ReplySource old = SetCmdReplySource(SM_REPLY_TO_CHAT);
 
-		AttemptVoteScramble(client);
+		AttemptVoteScramble(client, false);
 
 		SetCmdReplySource(old);
 	}
 }
 
-void AttemptVoteScramble(int client)
+void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 {
 	if (g_bScrambleTeams)
 	{
-		ReplyToCommand(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		}
+		else 
+		{
+			ReplyToCommand(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+		}
 		return;
 	}
 	if (g_bVoteCooldown)
 	{
-		ReplyToCommand(client, "Sorry, votescramble is currently on cool-down.");
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "Sorry, votescramble is currently on cool-down.");
+		}
+		else
+		{
+			ReplyToCommand(client, "Sorry, votescramble is currently on cool-down.");
+		}
 		return;
 	}
 
@@ -185,7 +240,14 @@ void AttemptVoteScramble(int client)
 
 	if (g_bVoted[client])
 	{
-		ReplyToCommand(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		}
+		else
+		{
+			ReplyToCommand(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		}
 		return;
 	}
 
@@ -393,6 +455,7 @@ int GetTeamScoreDiff(ArrayList clientList, int &score_red, int &score_blue)
 
 void ScrambleTeams()
 {
+	g_bScrambleTeamsInProgress = true;
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
 	ArrayList clientList = new ArrayList(sizeof(ScoreData));
@@ -470,6 +533,8 @@ void ScrambleTeams()
 	//reset scores
 	SetTeamScore(RED,0);
 	SetTeamScore(BLU,0);
+
+	g_bScrambleTeamsInProgress = false;
 
 }
 
