@@ -1491,14 +1491,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
-		ItemIsEnabled("eyelander") &&
+		(ItemIsEnabled("eyelander") || ItemIsEnabled("skullcutter") || ItemIsEnabled("persuader")) &&
 		StrEqual(class, "tf_weapon_sword") &&
-		(index == 132 || index == 266 || index == 482 || index == 1082)
+		(index == 132 || index == 266 || index == 482 || index == 1082 || index == 172 || index == 404)
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
 		//these atributes revert back to the old deploy and hoslter speed before Tough Break update
+		//note: persian persuader used to have different stats before Tough Break update in addition to the faster switch speed,
+		//but i think putting a blanket switch speed revert for all the swords is fine enough.
 		TF2Items_SetAttribute(item1, 0, 781, 0.00); // remove the is_a_sword attribute (This Weapon has a large melee range and deploys and holsters slower)
 		TF2Items_SetAttribute(item1, 1, 264, 1.00); // add back sword melee range. 50% increased melee attack range. 48 HU -> 72 HU
 	}
@@ -1604,19 +1606,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
-		ItemIsEnabled("persuader") &&
-		StrEqual(class, "tf_weapon_sword") &&
-		(index == 404)
-	) {
-		item1 = TF2Items_CreateItem(0);
-		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		//these atributes revert back to the old deploy and hoslter speed before Tough Break update
-		TF2Items_SetAttribute(item1, 0, 781, 0.00); // remove the is_a_sword attribute (This Weapon has a large melee range and deploys and holsters slower)
-		TF2Items_SetAttribute(item1, 1, 264, 1.00); // add back sword melee range. 50% increased melee attack range. 48 HU -> 72 HU
-	}
-
-	else if (
 		ItemIsEnabled("pocket") &&
 		StrEqual(class, "tf_weapon_handgun_scout_secondary") &&
 		(index == 773)
@@ -1691,19 +1680,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 0, 241, 1.0); // reload time increased hidden
 		TF2Items_SetAttribute(item1, 1, 534, 1.4); // airblast vulnerability multiplier hidden
 		TF2Items_SetAttribute(item1, 2, 535, 1.4); // damage force increase hidden
-	}
-
-	else if (
-		ItemIsEnabled("skullcutter") &&
-		StrEqual(class, "tf_weapon_sword") &&
-		(index == 172)
-	) {
-		item1 = TF2Items_CreateItem(0);
-		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		//these atributes revert back to the old deploy and hoslter speed before Tough Break update
-		TF2Items_SetAttribute(item1, 0, 781, 0.00); // remove the is_a_sword attribute (This Weapon has a large melee range and deploys and holsters slower)
-		TF2Items_SetAttribute(item1, 1, 264, 1.00); // add back sword melee range. 50% increased melee attack range. 48 HU -> 72 HU
 	}
 
 	else if (
