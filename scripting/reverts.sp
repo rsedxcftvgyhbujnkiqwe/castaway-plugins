@@ -181,7 +181,7 @@ public void OnPluginStart() {
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
-	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability");
+	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vulnerability, old deploy and holster speeds");
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-inferno, flinch resist at any charge level");
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
@@ -198,6 +198,7 @@ public void OnPluginStart() {
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back together, no healing, no mark-for-death");
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken");
+	ItemDefine("Eyelander", "eyelander", "Reverted deploy and holster speeds to pre-Tough Break");
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties");
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge");
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death");
@@ -207,6 +208,7 @@ public void OnPluginStart() {
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts");
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
+	ItemDefine("Persian Persuader", "persuader", "Reverted deploy and holster speeds to pre-Tough Break");
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
@@ -219,6 +221,7 @@ public void OnPluginStart() {
 	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
+	ItemDefine("Scotsman's Skullcutter", "skullcutter", "Reverted deploy and holster speeds to pre-Tough Break");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits");
@@ -230,6 +233,7 @@ public void OnPluginStart() {
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
+	ItemDefine("Warrior's Spirit", "warspirit", "Reverted to pre-Tough Break, +10 HP on hit, -20 max health on wearer");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up");
 #endif
@@ -1408,8 +1412,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, 3);
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
+		//these atributes revert back to the old deploy and hoslter speed before Tough Break update
+		TF2Items_SetAttribute(item1, 1, 781, 0.00); // remove the is_a_sword attribute (This Weapon has a large melee range and deploys and holsters slower)
+		TF2Items_SetAttribute(item1, 2, 264, 1.00); // add back sword melee range. 50% increased melee attack range. 48 HU -> 72 HU
 		//health handled elsewhere
 	}
 
@@ -1482,6 +1489,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 852, 1.20); // dmg taken increased
 		TF2Items_SetAttribute(item1, 1, 855, 0.0); // mod maxhealth drain rate
+	}
+
+	else if (
+		(ItemIsEnabled("eyelander") || ItemIsEnabled("skullcutter") || ItemIsEnabled("persuader")) &&
+		StrEqual(class, "tf_weapon_sword") &&
+		(index == 132 || index == 266 || index == 482 || index == 1082 || index == 172 || index == 404)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		//these atributes revert back to the old deploy and hoslter speed before Tough Break update
+		//note: persian persuader used to have different stats before Tough Break update in addition to the faster switch speed,
+		//but i think putting a blanket switch speed revert for all the swords is fine enough.
+		TF2Items_SetAttribute(item1, 0, 781, 0.00); // remove the is_a_sword attribute (This Weapon has a large melee range and deploys and holsters slower)
+		TF2Items_SetAttribute(item1, 1, 264, 1.00); // add back sword melee range. 50% increased melee attack range. 48 HU -> 72 HU
 	}
 
 	else if (
@@ -1765,6 +1787,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("warspirit") &&
+		StrEqual(class, "tf_weapon_fists") &&
+		(index == 310)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +50 health restored on kill
+		TF2Items_SetAttribute(item1, 1, 412, 1.00); // remove 30% dmg vulnerability
+		TF2Items_SetAttribute(item1, 2, 110, 10.0); // reverted to +10 HP on hit
+		//health handled elsewhere
+	}
+
+	else if (
 		ItemIsEnabled("zatoichi") &&
 		StrEqual(class, "tf_weapon_katana")
 	) {
@@ -2025,6 +2061,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			) {
 				players[client].bonus_health -= 15;
 			}
+			else if(
+				ItemIsEnabled("warspirit") &&
+				PlayerHasItem(client,"tf_weapon_fists",310)
+			) {
+				players[client].bonus_health -= 20;
+			}            
 		}
 	}
 
