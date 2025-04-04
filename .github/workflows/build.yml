@@ -1,0 +1,43 @@
+name: build
+
+on: push
+
+jobs:
+    build:
+        name: Build plugins
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+            
+            - name: Setup SourceMod
+              run: |
+                export LATEST_SOURCEMOD=$(curl https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux)
+                export LATEST_NATIVEVOTES=$(curl https://api.github.com/repos/sapphonie/sourcemod-nativevotes-updated/releases/latest | jq -r '.assets[] | select ( .name == "nativevotes_sm_1.12.zip" ).browser_download_url')
+                wget -O sourcemod.tar.gz https://sm.alliedmods.net/smdrop/1.12/$LATEST_SOURCEMOD
+                mkdir sourcemod
+                cd sourcemod
+                tar xf ../sourcemod.tar.gz
+                wget -O nativevotes.zip $LATEST_NATIVEVOTES
+                unzip nativevotes.zip
+                cd addons/sourcemod/scripting
+                mv compile.sh ../../../../scripting
+                mv spcomp* ../../../../scripting
+                mv include/*.inc ../../../../scripting/include
+                mv nativevotes ../../../../scripting
+            
+            - name: Build plugins
+              run: |
+                cd scripting
+                ./compile.sh *.sp
+            - name: Package plugins
+              run: |
+                mkdir -p artifact/plugins
+                mkdir artifact/gamedata
+                mv scripting/compiled/*.smx artifact/plugins/
+                mv gamedata/*.txt artifact/gamedata/
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                path: artifact
