@@ -2681,7 +2681,11 @@ Action SDKHookCB_OnTakeDamage(
 					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085) &&
 					attacker != victim &&
-					TF2_GetClientTeam(attacker) != TF2_GetClientTeam(victim)
+					TF2_GetClientTeam(attacker) != TF2_GetClientTeam(victim) &&
+					TF2_IsPlayerInCondition(victim, TFCond_Disguised) == false &&
+					TF2_IsPlayerInCondition(victim, TFCond_Ubercharged) == false
+					// reverted black box will heal on Bonked Scouts
+					// for some reason adding TF2_IsPlayerInCondition(victim, TFCond_Bonked) makes the healing not work
 				) {
 					// Show that attacker got healed.
 					Handle event = CreateEvent("player_healonhit", true);
