@@ -102,6 +102,12 @@ enum struct Player {
 //item sets
 #define ItemSet_Saharan 1
 
+//Get the smaller integral value; used for powerjack overheal calculation
+int intMin(int x, int y)
+{
+    return x > y ? y : x;
+}
+
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -213,6 +219,7 @@ public void OnPluginStart() {
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
 #if defined VERDIUS_PATCHES
@@ -1623,6 +1630,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("powerjack") &&
+		StrEqual(class, "tf_weapon_fireaxe") &&
+		(index == 214)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+		// health bonus with overheal handled elsewhere
+	}
+
+	else if (
 		ItemIsEnabled("razorback") &&
 		StrEqual(class, "tf_wearable_razorback")
 	) {
@@ -1981,6 +2000,42 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
+
+			{
+				// Powerjack heal on kill with overheal copied from NotnHeavy's code
+
+				if (
+					client != attacker &&
+					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
+					GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
+					IsPlayerAlive(attacker)
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled("powerjack") &&
+							StrEqual(class, "tf_weapon_fireaxe") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214
+						) {
+							health_cur = GetClientHealth(attacker);
+							int pyro_overheal_max = 260;
+							{
+								event1 = CreateEvent("player_healonhit", true);
+								SetEventInt(event1, "amount", intMin(pyro_overheal_max - health_cur, 75));
+								SetEventInt(event1, "entindex", attacker);
+								SetEventInt(event1, "weapon_def_index", -1);
+								FireEvent(event1);
+								// Set health
+								SetEntityHealth(attacker, intMin(GetClientHealth(attacker) + 75, pyro_overheal_max));
+							}
+						}
+					}
+				}
+			}
+
 		}
 	}
 
