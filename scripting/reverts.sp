@@ -222,7 +222,7 @@ public void OnPluginStart() {
 	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
 	ItemDefine("Rocket Jumper", "rocketjmp", "Grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
 	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
-	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again");
+	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
@@ -1657,6 +1657,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 2, 83, 1.0); // cloak consume rate decreased
 		TF2Items_SetAttribute(item1, 3, 726, 0.1); // cloak consume on feign death activate
 		TF2Items_SetAttribute(item1, 4, 810, 0.0); // mod cloak no regen from items
+	}
+
+	else if (
+		ItemIsEnabled("sandman") &&
+		StrEqual(class, "tf_weapon_bat_wood") &&
+		(index == 44)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 278, 1.50); //effect bar recharge rate increased attribute; this number increases ball recharge time from 10s to 15s
 	}
 
 	else if (
