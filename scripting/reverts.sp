@@ -2695,8 +2695,17 @@ Action SDKHookCB_OnTakeDamage(
 
 					// Set health.
 					int new_health = GetClientHealth(attacker) + 15;
+					int current_health = GetClientHealth(attacker);
 
-					SetEntityHealth(attacker, players[attacker].max_health < new_health ? players[attacker].max_health : new_health);
+					if(players[attacker].max_health > new_health) {
+						SetEntityHealth(attacker, new_health);						
+					}				
+					else if(players[attacker].max_health > current_health) { 
+						SetEntityHealth(attacker, players[attacker].max_health); //check if the current health is 14HP less than the max health
+					}	
+					else if(players[attacker].max_health < current_health) { 
+						SetEntityHealth(attacker, current_health); //don't remove overheal (still shows +15 HP on hit)
+					}					
 				}
 			}
 
