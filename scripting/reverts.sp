@@ -2857,6 +2857,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
+			/*
 			if (
 				ItemIsEnabled("pocket") &&
 				(damage_type & (DMG_BURN | DMG_IGNITE)) &&
@@ -2866,6 +2867,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				damage *= 1.50;
 				returnValue = Plugin_Changed;
 			}
+			*/
 		}
 		{
 			if (
@@ -2895,6 +2897,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	}
 	else
 	{
+		/*
 		if (
 			ItemIsEnabled("pocket") &&
 			(damage_type & DMG_FALL && !attacker) &&
@@ -2903,6 +2906,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// Fall damage negation.
 			return Plugin_Handled;
 		}
+		*/
 	}
 
 	return returnValue;
