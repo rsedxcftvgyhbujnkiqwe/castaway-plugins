@@ -2073,6 +2073,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			//perform health fuckery
 			players[client].bonus_health = 0;
+			/*
 			if(
 				ItemIsEnabled("pocket") &&
 				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
@@ -2091,6 +2092,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			) {
 				players[client].bonus_health -= 20;
 			}
+			*/
 		}
 	}
 
