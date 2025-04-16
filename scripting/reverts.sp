@@ -1425,14 +1425,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		bool swords = ItemIsEnabled("swords");
-		TF2Items_SetNumAttributes(item1, swords ? 3 : 1);
+		TF2Items_SetNumAttributes(item1, swords ? 5 : 3);
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
 		//sword holster code handled here
 		if(swords) {
 			TF2Items_SetAttribute(item1, 1, 781, 0.0); // is a sword
 			TF2Items_SetAttribute(item1, 2, 264, 1.0); // melee range multiplier
+			TF2Items_SetAttribute(item1, 3, 128, 0.0); // provide on active
+			TF2Items_SetAttribute(item1, 4, 125, -15.0); // max health additive penalty
+		} else {
+			TF2Items_SetAttribute(item1, 1, 128, 0.0); // provide on active
+			TF2Items_SetAttribute(item1, 2, 125, -15.0); // max health additive penalty
 		}
-		//health handled elsewhere
 	}
 
 	else if (
@@ -1613,13 +1617,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetNumAttributes(item1, 8);
 		TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 		TF2Items_SetAttribute(item1, 1, 16, 0.0); // heal on hit
 		TF2Items_SetAttribute(item1, 2, 3, 1.0); // clip size
-
 		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
-		// max health, no fall damage, & fire vulnerability handled elsewhere
+		TF2Items_SetAttribute(item1, 4, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 5, 26, 15.0); // max health additive bonus
+		TF2Items_SetAttribute(item1, 6, 275, 1.0); // cancel falling damage
+		TF2Items_SetAttribute(item1, 7, 61, 1.50); // dmg taken from fire increased
 	}
 
 	else if (
@@ -1793,11 +1799,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 412, 1.0); // damage vuln
 		TF2Items_SetAttribute(item1, 1, 180, 0.0); // heal on kill
 		TF2Items_SetAttribute(item1, 2, 110, 10.0); // heal on hit
-		//health handled elsewhere
+		TF2Items_SetAttribute(item1, 3, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 4, 125, -20.0); // max health additive penalty
 	}
 
 	else if (
