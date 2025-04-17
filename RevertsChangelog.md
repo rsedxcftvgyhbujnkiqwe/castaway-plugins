@@ -5,6 +5,7 @@
 ### April 17, 2025
 - **Fixed reverted Black Box overheal bug where hitting an enemy removes the Soldier's overheal.**
 - **Ball recharge time for the reverted Sandman is now 15 seconds long for historical accuracy (pre-Inferno).**
+- **Claidheamh Mor +0.5s charge time increase now applies to other weapons.**
 - **Reverted Powerjack to pre-Gun Mettle version, same stats as the modern one but with +75 HP on kill with overheal.**
 
 	- *The Powerjack*
