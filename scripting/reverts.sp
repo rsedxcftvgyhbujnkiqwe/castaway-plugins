@@ -2036,7 +2036,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214
 						) {
 							health_cur = GetClientHealth(attacker);
-							int pyro_overheal_max = 260;
+							int pyro_overheal_max = 260; // this needs to be adjusted in case the backburner is reverted to the release version
 							{
 								event1 = CreateEvent("player_healonhit", true);
 								SetEventInt(event1, "amount", intMin(pyro_overheal_max - health_cur, 75));
@@ -2044,7 +2044,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 								SetEventInt(event1, "weapon_def_index", -1);
 								FireEvent(event1);
 								// Set health
-								SetEntityHealth(attacker, intMin(GetClientHealth(attacker) + 75, pyro_overheal_max));
+								if(health_cur <= pyro_overheal_max) {
+									SetEntityHealth(attacker, intMin(GetClientHealth(attacker) + 75, pyro_overheal_max));
+								}
+								// prevent removing extra hp beyond normal max overheal in case the pyro uses the 2x overheal spell during halloween
+								// pyro will not get extra hp when killing an enemy. this is a niche case for halloween
+								else if(health_cur > pyro_overheal_max) {
+									SetEntityHealth(attacker, health_cur);
+								}
 							}
 						}
 					}
