@@ -1427,15 +1427,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		bool swords = ItemIsEnabled("swords");
 		TF2Items_SetNumAttributes(item1, swords ? 5 : 3);
 		TF2Items_SetAttribute(item1, 0, 412, 1.00); // dmg taken
+		TF2Items_SetAttribute(item1, 1, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 2, 125, -15.0); // max health additive penalty
 		//sword holster code handled here
 		if(swords) {
-			TF2Items_SetAttribute(item1, 1, 781, 0.0); // is a sword
-			TF2Items_SetAttribute(item1, 2, 264, 1.0); // melee range multiplier
-			TF2Items_SetAttribute(item1, 3, 128, 0.0); // provide on active
-			TF2Items_SetAttribute(item1, 4, 125, -15.0); // max health additive penalty
-		} else {
-			TF2Items_SetAttribute(item1, 1, 128, 0.0); // provide on active
-			TF2Items_SetAttribute(item1, 2, 125, -15.0); // max health additive penalty
+			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
+			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
 		}
 	}
 
