@@ -32,7 +32,7 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define ITEMS_MAX 60
+#define ITEMS_MAX 100
 #define ITEM_MENU_TIME (60*3)
 #define BALANCE_CIRCUIT_METAL 10
 #define BALANCE_CIRCUIT_DAMAGE 10.0
