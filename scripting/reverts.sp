@@ -97,6 +97,8 @@ enum struct Player {
 	int bonus_health;
 	int old_health;
 	int max_health;
+	int ticks_since_feign_ready;
+	float damage_taken_during_feign;
 }
 
 //item sets
@@ -196,7 +198,7 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level");
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
-	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
+	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit");
@@ -1677,7 +1679,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 0, 35, 1.8); // mult cloak meter regen rate
 		TF2Items_SetAttribute(item1, 1, 82, 1.6); // cloak consume rate increased
 		TF2Items_SetAttribute(item1, 2, 83, 1.0); // cloak consume rate decreased
-		TF2Items_SetAttribute(item1, 3, 726, 0.1); // cloak consume on feign death activate
+		TF2Items_SetAttribute(item1, 3, 726, 1.0); // cloak consume on feign death activate
 		TF2Items_SetAttribute(item1, 4, 810, 0.0); // mod cloak no regen from items
 	}
 
@@ -2385,10 +2387,10 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
 						if (ItemIsEnabled("ringer")) {
-							SetConVarFloat(cvar_ref_tf_feign_death_duration, 4.0);
-							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 4.0);
+							SetConVarFloat(cvar_ref_tf_feign_death_duration, 6.5);
+							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 6.5);
 							SetConVarFloat(cvar_ref_tf_feign_death_activate_damage_scale, 0.10);
-							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 0.20);
+							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 1.0);
 						} else {
 							SetConVarReset(cvar_ref_tf_feign_death_duration);
 							SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
@@ -2396,6 +2398,27 @@ Action SDKHookCB_OnTakeDamage(
 							SetConVarReset(cvar_ref_tf_feign_death_damage_scale);
 						}
 					}
+				}
+				
+				// dead ringer dmg mods
+				// NOTE! MOVE THIS TO A BETTER PLACE!
+				if (
+					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+					players[victim].spy_is_feigning == false
+				) {
+					players[victim].ticks_since_feign_ready = GetGameTickCount();
+				}
+				
+				if (players[victim].spy_is_feigning) {
+					players[victim].damage_taken_during_feign += damage;
+				}
+				
+				if (
+					players[victim].spy_is_feigning &&
+					GetFeignBuffsEnd(victim) >= GetGameTickCount()
+				) {
+					damage *= 0.10;
+					return Plugin_Changed;
 				}
 			}
 		}
@@ -3077,6 +3100,11 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	}
 
 	return true;
+}
+
+int GetFeignBuffsEnd(int client)
+{
+    return players[client].ticks_since_feign_ready + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
 }
 
 bool PlayerIsInvulnerable(int client) {
