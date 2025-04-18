@@ -868,6 +868,7 @@ public void OnGameFrame() {
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
 								players[idx].spy_is_feigning = true;
+								players[idx].damage_taken_during_feign = 0.0;
 							}
 						} else {
 							if (
@@ -912,6 +913,17 @@ public void OnGameFrame() {
 						}
 
 						players[idx].spy_cloak_meter = cloak;
+					}
+
+					{
+						// deadringer cancel condition when feign buff ends
+						
+						if (
+							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered) &&
+							GetFeignBuffsEnd(idx) >= GetGameTickCount()
+						) {
+							TF2_RemoveCondition(idx, TFCond_DeadRingered);
+						}
 					}
 
 					{
@@ -1207,7 +1219,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 					TF2_RemoveCondition(client, TFCond_SpeedBuffAlly);
 				}
-
+				
 				if (
 					condition == TFCond_AfterburnImmune &&
 					TF2_IsPlayerInCondition(client, TFCond_FireImmune) == false // didn't use spycicle
