@@ -916,17 +916,6 @@ public void OnGameFrame() {
 					}
 
 					{
-						// deadringer cancel condition when feign buff ends
-						
-						if (
-							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered) &&
-							GetFeignBuffsEnd(idx) >= GetGameTickCount()
-						) {
-							TF2_RemoveCondition(idx, TFCond_DeadRingered);
-						}
-					}
-
-					{
 						// spycicle recharge
 
 						if (ItemIsEnabled("spycicle")) {
@@ -2431,6 +2420,8 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					damage *= 0.10;
 					return Plugin_Changed;
+				} else {
+					TF2_RemoveCondition(victim, TFCond_DeadRingered);
 				}
 			}
 		}
