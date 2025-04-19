@@ -471,6 +471,9 @@ int GetTeamScoreDiff(ArrayList clientList, int &score_red, int &score_blue)
 void ScrambleTeams()
 {
 	g_bScrambleTeamsInProgress = true;
+	Event scramble_team_alert = CreateEvent("teamplay_alert");
+	scramble_team_alert.SetInt("alert_type", 0);
+	scramble_team_alert.Fire();
 	// replica of the way scrambles are performed in the TF2 code
 	// src/game/shared/tf/tf_gamerules.cpp:L16071
 	ArrayList clientList = new ArrayList(sizeof(ScoreData));
