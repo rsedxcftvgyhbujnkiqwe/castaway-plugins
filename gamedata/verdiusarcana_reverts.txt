@@ -45,7 +45,7 @@
 			"CTFProjectile_BallOfFire::Burn"
 			{
 				"library" "server"
-				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F" // Oh god the signature is loooooong!
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F" // Long Signatures go loooooong!
 				"linux"   "@_ZN24CTFProjectile_BallOfFire4BurnEP11CBaseEntity"
 			}
 			"CTFPistol_ScoutPrimary::SecondaryAttack"
@@ -57,7 +57,7 @@
 			"CTFPistol_ScoutPrimary::Push"
 			{
 				"library" "server"
-				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xC1" // Oh god the signature is loooooong!
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xC1" // Long Signatures go loooooong!
 				"linux"   "@_ZN22CTFPistol_ScoutPrimary4PushEv"
 			}
 			"CTFMinigun::GetProjectileDamage"
@@ -96,7 +96,7 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x85\xFF\x74\x2A\x8B\x07\x8B\xCF\x8B\x80"
 				"linux"	"@_ZN12CTFGameRules21PlayerMayCapturePointEP11CBasePlayeriPci"
 			}
-			// Here and prepared incase dalakohs revert becomes a thing.
+			// Here and prepared incase there is a wish to revert Dalakohs Bar.
 			"CTFLunchBox::ApplyBiteEffects"
 			{
 				"library" "server"
@@ -121,8 +121,8 @@
 					"linux"
 					{
 						"offset"	"7"
-						"verify"    "\x8B\x5D\x08\x6A\x13\x8D\x83\xE0" // Verify the bytes..
-						"patch"     "\xEB\x1F\x90\x90\x90\x90\x90\x90" // Short jump to the nearest LEAVE
+						"verify"  "\x8B\x5D\x08\x6A\x13\x8D\x83\xE0" // Verify the bytes..
+						"patch"   "\xEB\x1F\x90\x90\x90\x90\x90\x90" // Short jump to the nearest LEAVE
 					}
 				}
 
@@ -141,7 +141,7 @@
 					{
 						"offset"	"941"
 						"verify"	"\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
-						"patch"		"\x68\x00\x00\x40\x40" // Change it to push 3.0f
+						"patch"	"\x68\x00\x00\x40\x40" // Change it to push 3.0f
 					}
 					// Windows compiler turned it into something that points at a address instead
 					// of directly pushing the float value, so we prepare the windows version of the patch for
@@ -150,7 +150,7 @@
 					{
 						"offset"	"1049"
 						"verify"	"\xD9\x05\x2A\x2A\x2A\x2A" // Verify that FLD instruction is there, address bytes MUST be wildcarded.
-						"patch"		"\xD9\x05\x00\x00\x00\x00" // Set the address part to 4 "00", will change after patch enable to point to our address
+						"patch"	"\xD9\x05\x00\x00\x00\x00" // Set the address part to 4 "00", will change after patch enable to point to our address
 					}
 				}
 
@@ -165,7 +165,7 @@
 				//  Extra notes: Compared to most other patches the last text after 
 				//  The _ is not
 				//  very descriptive, this is because the patches are ordered as the
-				//  original jumps appear in the assembly.
+				//  original jumps appear in the assembly for future patching (Linux).
 
 
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA"
@@ -216,8 +216,8 @@
 					"linux"
 					{
 						"offset"	"2389"
-						"verify"    "\x75\x2A" // Verify that it is a Short JMP, wildcard the offset.
-						"patch"     "\x75\x02" // Short jump to the nearest LEAVE
+						"verify"  "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
+						"patch"   "\x75\x02" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ"
@@ -226,8 +226,8 @@
 					"linux"
 					{
 						"offset"	"2393"
-						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
-						"patch"     "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte.
+						"verify"  "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
+						"patch"   "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
 					}
 				}
 
@@ -252,7 +252,7 @@
 					{
 						"offset"	"16"
 						"verify"	"\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"		"\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
+						"patch"	"\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
 					}
 
 					// Same shit as CTFMinigun::GetWeaponSpread go read the comments for that mess.
@@ -271,7 +271,7 @@
 					{
 						"offset"	"16"
 						"verify"	"\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"		"\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
+						"patch"	"\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
 					}
 					// Due to Windows pushing ESI but only popping it deep in the math soup,
 					// I had to write a custom early return to clean up and manually POP ESI,
@@ -304,13 +304,13 @@
 					{
 						"offset"	"592"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
 						"offset"	"93"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 				}
 				
@@ -322,13 +322,13 @@
 					{
 						"offset"	"708"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
 						"offset"	"379"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}	
 				}
 				
@@ -340,13 +340,13 @@
 					{
 						"offset"	"896"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
 						"offset"	"578"
 						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}	
 				}
 
@@ -378,7 +378,7 @@
 				}
 
 				// ╔══════════════════════════════════════════════╗
-				// ║ Sniper										  ║
+				// ║ Sniper								║
 				// ╚══════════════════════════════════════════════╝
 
 				// ================================================
@@ -386,9 +386,11 @@
 				// to provide the full flinch resistance, removal.
 
 				// New patch: Just fake the AL by setting it to 1
-				// By using B0 01 (MOV AL, 1)
+				// By using B0 01 (MOV AL, 1) making the game belivie
+				// we are always fully charged. This has no effect
+				// on damage etc since we are not inside a damage function.
 
-				// All the nops are neccesary to keep the byte count correct and avoid
+				// All the nops (Linux) are neccesary to keep the byte count correct and avoid
 				// fucking with the stack for things that are no longer there (the call to IsFullyCharged)
 
 				// It's absolutely neccesary to NOP the SUB ESP,0xc, the PUSH EDI and
@@ -402,10 +404,11 @@
 					"linux"
 					{
 						"offset" 	"149"
-						"verify" 	"\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // Verify that function preamble is there.
+						"verify" 	"\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // Verify that function preamble is there
 						"patch" 	"\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP all of it, but fake AL to be true using 2 bytes.
 					}
-					//Just needed a simple Short Jump instead (target was within +- 127 bytes).
+					// Verify for windows is a bit shorter as all we need to do is replace the call instead of the entire function preamble
+					// with a MOV AL,1 (Fakes AL). Compilers are weird. 
 					"windows"
 					{
 						"offset" 	"84"
