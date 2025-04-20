@@ -2391,7 +2391,7 @@ Action SDKHookCB_OnTakeDamage(
 							SetConVarFloat(cvar_ref_tf_feign_death_duration, 6.5);
 							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 6.5);
 							SetConVarFloat(cvar_ref_tf_feign_death_activate_damage_scale, 0.10);
-							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 1.0);
+							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 0.10);
 						} else {
 							SetConVarReset(cvar_ref_tf_feign_death_duration);
 							SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
@@ -2401,8 +2401,7 @@ Action SDKHookCB_OnTakeDamage(
 					}
 				}
 				
-				// dead ringer dmg mods
-				// NOTE! MOVE THIS TO A BETTER PLACE!
+				// dead ringer damage tracking
 				if (
 					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 					players[victim].spy_is_feigning == false
@@ -2414,13 +2413,12 @@ Action SDKHookCB_OnTakeDamage(
 					players[victim].damage_taken_during_feign += damage;
 				}
 				
+				// move this check elsewhere
 				if (
 					players[victim].spy_is_feigning &&
-					GetFeignBuffsEnd(victim) >= GetGameTickCount()
+					GetFeignBuffsEnd(victim) < GetGameTickCount() &&
+					TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 				) {
-					damage *= 0.10;
-					return Plugin_Changed;
-				} else {
 					TF2_RemoveCondition(victim, TFCond_DeadRingered);
 				}
 			}
