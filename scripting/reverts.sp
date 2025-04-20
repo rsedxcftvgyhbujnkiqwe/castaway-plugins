@@ -916,6 +916,17 @@ public void OnGameFrame() {
 					}
 
 					{
+						// deadringer cancel condition when feign buff ends
+						if (
+							players[idx].spy_is_feigning &&
+							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
+							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
+						) {
+							TF2_RemoveCondition(idx, TFCond_DeadRingered);
+						}
+					}
+
+					{
 						// spycicle recharge
 
 						if (ItemIsEnabled("spycicle")) {
@@ -2411,15 +2422,6 @@ Action SDKHookCB_OnTakeDamage(
 				
 				if (players[victim].spy_is_feigning) {
 					players[victim].damage_taken_during_feign += damage;
-				}
-				
-				// move this check elsewhere
-				if (
-					players[victim].spy_is_feigning &&
-					GetFeignBuffsEnd(victim) < GetGameTickCount() &&
-					TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-				) {
-					TF2_RemoveCondition(victim, TFCond_DeadRingered);
 				}
 			}
 		}
