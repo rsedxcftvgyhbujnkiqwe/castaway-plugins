@@ -2367,6 +2367,7 @@ Action SDKHookCB_OnTakeDamage(
 	int health_cur;
 	int health_max;
 	int weapon1;
+	Action returnValue = Plugin_Continue;
 
 	if (
 		victim >= 1 &&
@@ -2399,29 +2400,6 @@ Action SDKHookCB_OnTakeDamage(
 							SetConVarReset(cvar_ref_tf_feign_death_damage_scale);
 						}
 					}
-				}
-				
-				// dead ringer dmg mods
-				// NOTE! MOVE THIS TO A BETTER PLACE!
-				if (
-					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-					players[victim].spy_is_feigning == false
-				) {
-					players[victim].ticks_since_feign_ready = GetGameTickCount();
-				}
-				
-				if (players[victim].spy_is_feigning) {
-					players[victim].damage_taken_during_feign += damage;
-				}
-				
-				if (
-					players[victim].spy_is_feigning &&
-					GetFeignBuffsEnd(victim) >= GetGameTickCount()
-				) {
-					damage *= 0.10;
-					return Plugin_Changed;
-				} else {
-					TF2_RemoveCondition(victim, TFCond_DeadRingered);
 				}
 			}
 		}
@@ -2470,7 +2448,12 @@ Action SDKHookCB_OnTakeDamage(
 	) {
 		// damage from players only
 
-		if (weapon > MaxClients) {
+		// evil, but i need the ability to break
+		for (
+			bool hasRun = false;
+			(weapon > MaxClients) && (hasRun == false);
+			hasRun = true
+		) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
 			{
@@ -2486,7 +2469,8 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// melee damage is always 35
 						damage = 35.0;
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 
 					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
@@ -2508,7 +2492,8 @@ Action SDKHookCB_OnTakeDamage(
 							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
 						}
 
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -2526,7 +2511,8 @@ Action SDKHookCB_OnTakeDamage(
 						damage < 51.0
 					) {
 						damage = 60.0;
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -2544,7 +2530,8 @@ Action SDKHookCB_OnTakeDamage(
 					)
 				) {
 					damage_type = (damage_type | DMG_CRIT);
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -2559,7 +2546,8 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					if (TF2_IsPlayerInCondition(attacker, TFCond_Disguised) == false) {
 						damage = (damage * 1.20);
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -2581,7 +2569,8 @@ Action SDKHookCB_OnTakeDamage(
 
 					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
 
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -2677,7 +2666,8 @@ Action SDKHookCB_OnTakeDamage(
 						damage = 15.0;
 					}
 
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -2713,7 +2703,8 @@ Action SDKHookCB_OnTakeDamage(
 					// ...is this even needed?
 					if (damage_type & DMG_CRIT != 0) {
 						damage_type = (damage_type & ~DMG_CRIT);
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -2729,7 +2720,6 @@ Action SDKHookCB_OnTakeDamage(
 
 						if (StrEqual(class, "tf_weapon_katana")) {
 							if (
-								ItemIsEnabled("zatoichi") ||
 								ItemIsEnabled("zatoichi")
 							) {
 								damage1 = (float(GetEntProp(victim, Prop_Send, "m_iHealth")) * 3.0);
@@ -2745,7 +2735,8 @@ Action SDKHookCB_OnTakeDamage(
 						}
 					}
 
-					return Plugin_Continue;
+					returnValue = Plugin_Continue;
+					break;
 				}
 			}
 
@@ -2764,7 +2755,8 @@ Action SDKHookCB_OnTakeDamage(
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
 
-					return Plugin_Continue;
+					returnValue = Plugin_Continue;
+					break;
 				}
 			}
 
@@ -2832,7 +2824,8 @@ Action SDKHookCB_OnTakeDamage(
 								(players[victim].bison_hit_frame + 1) == GetGameTickCount()
 							) {
 								// don't allow bison to hit more than once every other frame
-								return Plugin_Stop;
+								returnValue = Plugin_Stop;
+								break;
 							}
 
 							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
@@ -2844,7 +2837,8 @@ Action SDKHookCB_OnTakeDamage(
 
 							if (TR_DidHit()) {
 								// there's a wall between the projectile and the target, cancel the hit
-								return Plugin_Stop;
+								returnValue = Plugin_Stop;
+								break;
 							}
 
 							if (StrEqual(class, "tf_weapon_raygun")) {
@@ -2853,7 +2847,8 @@ Action SDKHookCB_OnTakeDamage(
 
 								if (GetVectorDistance(pos1, pos2) > 55.0) {
 									// target is too far from the projectile, cancel the hit
-									return Plugin_Stop;
+									returnValue = Plugin_Stop;
+									break;
 								}
 
 								players[victim].bison_hit_frame = GetGameTickCount();
@@ -2914,14 +2909,43 @@ Action SDKHookCB_OnTakeDamage(
 							}
 						}
 
-						return Plugin_Continue;
+						returnValue = Plugin_Continue;
+						break;
 					}
 				}
 			}
 		}
 	}
 
-	return Plugin_Continue;
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy
+	) {
+		// dead ringer dmg mods
+		if (
+			GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+			players[victim].spy_is_feigning == false
+		) {
+			players[victim].ticks_since_feign_ready = GetGameTickCount();
+		}
+		
+		if (players[victim].spy_is_feigning) {
+			players[victim].damage_taken_during_feign += damage;
+		}
+		
+		if (
+			players[victim].spy_is_feigning &&
+			GetFeignBuffsEnd(victim) >= GetGameTickCount()
+		) {
+			damage *= 0.10;
+			returnValue = Plugin_Changed;
+		} else {
+			TF2_RemoveCondition(victim, TFCond_DeadRingered);
+		}
+	}
+
+	return returnValue;
 }
 
 Action SDKHookCB_OnTakeDamageAlive(
