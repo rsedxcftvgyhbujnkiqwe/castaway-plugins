@@ -2023,7 +2023,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					client != attacker &&
 					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
 					GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
-					IsPlayerAlive(attacker)
+					IsPlayerAlive(attacker) &&
+					// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
+					GetEventInt(event,"customkill") != TF_CUSTOM_BURNING &&			// checks if victim is burning caused by flamethrower and dragon's fury
+					GetEventInt(event,"customkill") != TF_CUSTOM_BURNING_FLARE &&		// checks if victim is burning caused by flare guns
+					GetEventInt(event,"customkill") != TF_CUSTOM_BURNING_ARROW		// for when the pyro reflects a burning huntsman arrow?
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
