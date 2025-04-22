@@ -3420,8 +3420,6 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 #endif
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
-	int owner;
-	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	return MRES_Ignored;
 }
 
