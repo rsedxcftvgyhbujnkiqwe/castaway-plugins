@@ -93,7 +93,6 @@ enum struct Player {
 	int scout_airdash_value;
 	int scout_airdash_count;
 	float backstab_time;
-	int ticks_since_attack;
 	int bonus_health;
 	int old_health;
 	int max_health;
@@ -1251,44 +1250,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
-
-	{
-		//crit a cola minicrit removal
-		if (
-			ItemIsEnabled("critcola") &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_MarkedForDeathSilent &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
-			abs(GetGameTickCount() - players[client].ticks_since_attack) <= 2 && //occasional drift
-			players[client].ticks_since_attack > 0 //just in case
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-}
-
-public void TF2_OnConditionRemoved(int client, TFCond condition) {
-	{
-		//edge case for crit a cola
-		if (
-			ItemIsEnabled("critcola") &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_CritCola &&
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-}
-
-public void TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
-{
-	if(TF2_GetPlayerClass(client) == TFClass_Scout && (StrContains(classname, "tf_weapon")==0 || StrContains(classname, "saxxy")==0))
-	{
-		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-	return;
 }
 
 public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Handle& item) {
@@ -1455,6 +1416,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
 			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
 		}
+	}
+
+	else if (
+		ItemIsEnabled("critcola") &&
+		StrEqual(class, "tf_weapon_lunchbox_drink") &&
+		(index == 163)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 814, 0.0); // mod_mark_attacker_for_death
 	}
 
 	else if (
@@ -2664,7 +2636,6 @@ Action SDKHookCB_OnTakeDamage(
 									}
 								}
 
-								//this doesn't work sometimes?????
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
 
 								players[victim].stunball_fix_time_bonk = GetGameTime();
@@ -2963,19 +2934,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			/*
-			if (
-				ItemIsEnabled("pocket") &&
-				(damage_type & (DMG_BURN | DMG_IGNITE)) &&
-				PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
-			) {
-				// 50% fire damage vulnerability.
-				damage *= 1.50;
-				returnValue = Plugin_Changed;
-			}
-			*/
-		}
-		{
 			if (
 				ItemIsEnabled("brassbeast") &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
@@ -3000,19 +2958,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				SetEntityHealth(victim, 500);
 			}
 		}
-	}
-	else
-	{
-		/*
-		if (
-			ItemIsEnabled("pocket") &&
-			(damage_type & DMG_FALL && !attacker) &&
-			PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
-		) {
-			// Fall damage negation.
-			return Plugin_Handled;
-		}
-		*/
 	}
 
 	return returnValue;
@@ -3477,7 +3422,6 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	players[owner].ticks_since_attack = GetGameTickCount();
 	return MRES_Ignored;
 }
 
@@ -3612,7 +3556,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			return MRES_Supercede;
 		}
 	}
-	players[owner].ticks_since_attack = GetGameTickCount();
 	return MRES_Ignored;
 }
 
