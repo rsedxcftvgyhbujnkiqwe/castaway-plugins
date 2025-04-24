@@ -33,6 +33,20 @@ To disable weapons which use memory patches, uncomment the following line near t
 //#undef VERDIUS_PATCHES
 ```
 
+Additionally, before you compile the reverts.sp file, check what operating system you are currently using (Linux or Windows).
+
+If you are are using Linux, make sure you comment the WINDOWS32 line and uncomment the LINUX32 line near the top of the reverts.sp file:
+```
+//#define WINDOWS32
+#define LINUX32
+```
+And vice versa if you are using Windows:
+```
+#define WINDOWS32
+//#define LINUX32
+```
+
+
 The following weapons use memory patches for their reverts:
 - All Heavy Miniguns (Minigun, Tomislav, Brass Beast, Natascha, Huo-Long Heater, etc.)
 - Cozy Camper
@@ -40,6 +54,7 @@ The following weapons use memory patches for their reverts:
 - Disciplinary Action
 - Quick-Fix
 - Wrangler
+- Rescue Ranger
 
 ### Toggling Reverts
 
