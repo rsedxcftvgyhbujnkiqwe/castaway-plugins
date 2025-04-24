@@ -2,20 +2,6 @@
 {
 	"tf"
 	{
-
-
-		"Offsets"
-		{
-			// Credit to Darkimmortal for this one, very hacky but workable way of checking if we are on Windows or Linux.
-			// https://forums.alliedmods.net/showthread.php?t=98900&page=3
-			// We think of it as a boolean, 1 for windows 0 for Linux
-			"getOsPlatform"
-               {
-                    "windows" "1"   //Windows
-                    "linux"   "0"   //Linux
-               }
-		}
-
 		"Signatures"
 		{
 			"CTFPlayerShared::OnAttack"

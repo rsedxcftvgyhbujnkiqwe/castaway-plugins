@@ -15,13 +15,32 @@
 //uncomment to disable VerdiusArcana's memory patch reverts. requires sourcescramble if enabled (on by default)!!! 
 //#undef VERDIUS_PATCHES
 
+// If you want to use VerdiusArcana's memory patch reverts. Please select the operating system to compile for.
+// This is neccesary because some reverts require such radically different solutions between the OS's that
+// merely using the gamedata file and stock usage of SourceScramble is not enough. 
+// Whichever you uncomment is the OS the reverts.sp will be compiled for.
+// Make sure you don't forget that the final name will be reverts.smx there's no indication in the name what OS it is for.
+// (If you uncommented #undef VERDIUS_PATCHES then leave both commented!!!) Default from repo is to compile for Linux!
+//#define WINDOWS32
+#define LINUX32
+
 #pragma semicolon 1
 #pragma newdecls required
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
+// Add a OS suffix if VerdiusArcanas patches are used
+// so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
+// if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
+// compiled for the correct OS.
+#if defined WINDOWS32
+#define PLUGIN_VERSION "1.3.2-win32"
+#elseif defined LINUX32
+#define PLUGIN_VERSION "1.3.2-linux32"
+#else
 #define PLUGIN_VERSION "1.3.2"
+#endif
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
 public Plugin myinfo = {
@@ -128,37 +147,26 @@ Handle cvar_ref_tf_parachute_aircontrol;
 Handle cvar_ref_tf_parachute_maxspeed_onfire_z;
 Handle cvar_ref_tf_scout_hype_mod;
 #if defined VERDIUS_PATCHES
-
-// Os BOOL, Used for things like the
-// Windows Version of Disciplinary Action Revert.
-bool ServerRunningWindows = false;
-
 MemoryPatch Verdius_RevertDisciplinaryAction;
-
-// Since sourcemod does not have
-// a builtin #define for OS platform (for sourcepawn syntax)
-// and we want people to be able to use this plugin
-// on their servers without knowing coding/scripting,
-// a unfortunate side effect is wasted bytes on
-// creating special windows vars that won't be used
-// on linux (and vice-versa) + extra if checks for windows. 
-// It is what it is... - VerdiusArcana
-
-// Windows port of Disciplinary Action requires 
-// that we perform a "Address of Natives" so we point
-// it to the address of our float.
+// If Windows, prepare additional vars for Disciplinary Action.
+#if defined WINDOWS32
 float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
 // Address of our float:
 Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
+#endif
 
-
+// The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
+// Check if we are compiling for Linux, if not then use the Windows one.
+#if defined LINUX32
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JA;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JZ;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ2;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_FinalJNZ;
-// Prepare a MemoryPatch Var for Windows for the Dragonsfury Revert.
+#else
+// Dragons Fury Memorypatch for Windows.
 MemoryPatch Verdius_RevertTraceReqDragonsFury_NOP_JZ;
+#endif
 
 MemoryPatch Verdius_RevertFirstSecondDamageLossOnMiniguns;
 MemoryPatch Verdius_RevertFirstSecondAccuracyLossOnMiniguns;
@@ -350,25 +358,21 @@ public void OnPluginStart() {
 		conf = LoadGameConfigFile("verdiusarcana_reverts");
 
 		if (conf == null) SetFailState("Failed to load Verdius conf");
-		// Now set our windows bool. We must check this moving forwards
-		// If the Windows version of the MemoryPatches are to be a thing.
-		int platform = GameConfGetOffset(conf, "getOsPlatform");
-		if (platform == 1) {
-			ServerRunningWindows = true;
-		}
 
 		Verdius_RevertDisciplinaryAction = 
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
+#if defined WINDOWS32
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
-		if (isServerRunningWindows()) AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
-
+		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
+#endif
+#if defined WINDOWS32
 		// Dragons fury need only one MemoryPatch on Windows.
-		if (isServerRunningWindows()) {
+
 			Verdius_RevertTraceReqDragonsFury_NOP_JZ = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
-		} else {
+#else
 		Verdius_RevertTraceReqDragonsFury_JA = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
@@ -384,8 +388,7 @@ public void OnPluginStart() {
 		Verdius_RevertTraceReqDragonsFury_FinalJNZ = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
-		}
-		
+#endif		
 		Verdius_RevertFirstSecondDamageLossOnMiniguns = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
@@ -423,15 +426,15 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
 		
 		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
-		if (isServerRunningWindows()) {
+#if defined WINDOWS32
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_NOP_JZ");
-		} else {
+#else
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ");
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JZ");
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ2");
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_FinalJNZ");
-		}
+#endif
 
 		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondDamageLossOnMiniguns");
 		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondAccuracyLossOnMiniguns");
@@ -483,10 +486,6 @@ bool ValidateAndNullCheck(MemoryPatch patch) {
 	return (patch.Validate() && patch != null);
 }
 
-bool isServerRunningWindows() {
-	return ServerRunningWindows;
-}
-
 public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled("disciplinary"),"disciplinary");
 	VerdiusTogglePatches(ItemIsEnabled("dragonfury"),"dragonfury");
@@ -514,40 +513,38 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 void VerdiusTogglePatches(bool enable, char[] name) {
 	if (StrEqual(name,"disciplinary")){
 		if (enable) {			
-			if (isServerRunningWindows()) {
+#if defined WINDOWS32
 				Verdius_RevertDisciplinaryAction.Enable();
 				// The Windows port of Disciplinary Action Revert requires a extra step.
 				StoreToAddress(Verdius_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
-			} else {
+#else
 				Verdius_RevertDisciplinaryAction.Enable();
-			}
+#endif
 		} else {
 			Verdius_RevertDisciplinaryAction.Disable();
 		}
 	}
 	else if (StrEqual(name,"dragonfury")){
 		if (enable) {
-			if (isServerRunningWindows()) {
+#if defined WINDOWS32
 				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Enable();
-			} else {
+#else
 				Verdius_RevertTraceReqDragonsFury_JA.Enable();
 				Verdius_RevertTraceReqDragonsFury_JZ.Enable();
 				Verdius_RevertTraceReqDragonsFury_JNZ.Enable();
 				Verdius_RevertTraceReqDragonsFury_JNZ2.Enable();
 				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
-			}
-			
+#endif			
 		} else {
-			if (isServerRunningWindows()) {
+#if defined WINDOWS32
 				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Disable();
-			} else {
+#else
 				Verdius_RevertTraceReqDragonsFury_JA.Disable();
 				Verdius_RevertTraceReqDragonsFury_JZ.Disable();
 				Verdius_RevertTraceReqDragonsFury_JNZ.Disable();
 				Verdius_RevertTraceReqDragonsFury_JNZ2.Disable();
 				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Disable();
-			}
-			
+#endif		
 		}
 	}
 	else if (StrEqual(name,"miniramp")){
