@@ -99,6 +99,9 @@ enum struct Player {
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
 	bool is_under_hype;
+	bool is_under_critcola;
+	int critcola_ammo;
+	int critcola_end_frame;
 }
 
 //item sets
@@ -659,10 +662,48 @@ public void OnGameFrame() {
 					}
 
 					{
-						// allow mini-crit buff to last indefinitely
+						if (ItemIsEnabled("critcola") || ItemIsEnabled("sodapop"))
+						{
+							// allow mini-crit buff to last indefinitely
 
-						if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
-							SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 90.0);
+							if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+							}
+						}
+
+						if (ItemIsEnabled("critcola"))
+						{
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (
+									StrEqual(class, "tf_weapon_lunchbox_drink") &&
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 163
+								) {
+									ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 5);
+
+									if (
+										players[idx].is_under_critcola == false &&
+										(players[idx].critcola_ammo - ammo) > 0
+									) {
+										players[idx].is_under_critcola = true;
+										players[idx].critcola_end_frame = GetGameTickCount() + RoundFloat((8.0 + 1.2) * 66.0);
+										//PrintToChatAll("%N drank crit-a-cola at tick %d", idx, GetGameTickCount());
+									}
+
+									players[idx].critcola_ammo = ammo;
+								}
+							}
+							
+							if (
+								players[idx].is_under_critcola == true &&
+								players[idx].critcola_end_frame < GetGameTickCount()
+							) {
+								players[idx].is_under_critcola = false;
+								//PrintToChatAll("%N's crit-a-cola ended at tick %d", idx, GetGameTickCount());
+							}
 						}
 					}
 
@@ -770,6 +811,7 @@ public void OnGameFrame() {
 				} else {
 					// reset if player isn't scout
 					players[idx].is_under_hype = false;
+					players[idx].is_under_critcola = false;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Soldier) {
@@ -2073,6 +2115,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				}
 			}
 
+			{
+				// end crit-a-cola if dead
+				players[client].critcola_end_frame = GetGameTickCount();
+			}
 		}
 	}
 
@@ -2178,6 +2224,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				players[client].bonus_health -= 20;
 			}
 			*/
+		}
+
+		{
+			// end crit-a-cola if resupplied
+			players[client].critcola_end_frame = GetGameTickCount();
 		}
 	}
 
@@ -2957,8 +3008,14 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			if (TF2_IsPlayerInCondition(victim, TFCond_CritCola) && TF2_GetPlayerClass(victim) == TFClass_Scout && ItemIsEnabled("critcola")) // 10% damage vulnerability while using Crit-a-Cola.
+			if (
+				ItemIsEnabled("critcola") &&
+				players[victim].is_under_critcola == true &&
+				TF2_IsPlayerInCondition(victim, TFCond_CritCola) &&
+				TF2_GetPlayerClass(victim) == TFClass_Scout
+			)
 			{
+				// 10% damage vulnerability while using Crit-a-Cola.
 				damage *= 1.10;
 				returnValue = Plugin_Changed;
 			}
@@ -3653,8 +3710,15 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 	if (
 		entity >= 1 && entity <= MaxClients
 	) {
-		if (IsValidEntity(entity) && TF2_IsPlayerInCondition(entity, TFCond_CritCola) && TF2_GetPlayerClass(entity) == TFClass_Scout && ItemIsEnabled("critcola")) // Crit-a-Cola speed boost.
+		if (
+			ItemIsEnabled("critcola") &&
+			IsValidEntity(entity) &&
+			players[entity].is_under_critcola == true &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Scout
+		) 
 		{
+			// Crit-a-Cola speed boost.
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}
