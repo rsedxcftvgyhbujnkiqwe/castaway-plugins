@@ -20,7 +20,7 @@
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
+#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
 #define PLUGIN_VERSION "1.3.2"
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
@@ -219,7 +219,7 @@ public void OnPluginStart() {
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts");
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
-	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains");
+	ItemDefine("Pomson 6000", "pomson", "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, has no drain fall-off");
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
@@ -1619,6 +1619,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("pomson") &&
+		StrEqual(class, "tf_weapon_drg_pomson") &&
+		(index == 588)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+	}
+
+	else if (
 		ItemIsEnabled("powerjack") &&
 		StrEqual(class, "tf_weapon_fireaxe") &&
 		(index == 214)
@@ -2819,7 +2830,8 @@ Action SDKHookCB_OnTakeDamage(
 								return Plugin_Stop;
 							}
 
-							if (StrEqual(class, "tf_weapon_raygun")) {
+							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly
+							if (StrEqual(class, "tf_weapon_raygun") || StrEqual(class, "tf_weapon_drg_pomson")) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
 
