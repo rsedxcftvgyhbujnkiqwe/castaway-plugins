@@ -239,7 +239,7 @@ public void OnPluginStart() {
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
 	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots");
-	ItemDefine("Tide Turner", "turner", "Reverted to gunmettle, deal full crits like other shields again, 25% fire resist and 25% blast resist");
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-tough break, deal full crits like other shields again, 25% fire resist and 25% blast resist");
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
