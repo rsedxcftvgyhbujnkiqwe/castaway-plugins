@@ -658,6 +658,14 @@ public void OnGameFrame() {
 					}
 
 					{
+						// mini-crit buff lasts indefinitely
+
+						if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+							SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 90.0);
+						}
+					}
+
+					{
 						// shortstop shove
 
 						if (ItemIsEnabled("shortstop")) {
