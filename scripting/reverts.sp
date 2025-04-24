@@ -20,7 +20,7 @@
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
+#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
 #define PLUGIN_VERSION "1.3.2"
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
@@ -239,7 +239,7 @@ public void OnPluginStart() {
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
 	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots");
-	ItemDefine("Tide Turner", "turner", "Can deal full crits like other shields again");
+	ItemDefine("Tide Turner", "turner", "Reverted to gunmettle, deal full crits like other shields again, 25% fire resist and 25% blast resist");
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
@@ -1777,8 +1777,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, 3);
 		TF2Items_SetAttribute(item1, 0, 676, 0.0); // lose demo charge on damage when charging
+		TF2Items_SetAttribute(item1, 1, 60, 0.75); // 25% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 2, 64, 0.75); // 25% explosive damage resistance on wearer
 	}
 
 	else if (
