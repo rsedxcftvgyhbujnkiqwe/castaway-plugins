@@ -98,6 +98,7 @@ enum struct Player {
 	int max_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
+	bool is_under_hype;
 }
 
 //item sets
@@ -658,7 +659,7 @@ public void OnGameFrame() {
 					}
 
 					{
-						// mini-crit buff lasts indefinitely
+						// allow mini-crit buff to last indefinitely
 
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
 							SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 90.0);
@@ -724,10 +725,11 @@ public void OnGameFrame() {
 
 								if (
 									StrEqual(class, "tf_weapon_soda_popper") &&
-									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
+									players[idx].is_under_hype == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
-										TF2_AddCondition(idx, TFCond_CritHype, 10.0, 0);
+									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
+										TF2_AddCondition(idx, TFCond_CritCola, 10.0, 0);
+										players[idx].is_under_hype = true;
 									}
 
 									if (
@@ -748,9 +750,26 @@ public void OnGameFrame() {
 										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
 									}
 								}
+
+								if (players[idx].is_under_hype) {
+									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
+									
+									if (hype <= 0.0)
+									{
+										players[idx].is_under_hype = false;
+									}
+									else
+									{
+										hype -= 10 * GetTickInterval();
+										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
+									}
+								}
 							}
 						}
 					}
+				} else {
+					// reset if player isn't scout
+					players[idx].is_under_hype = false;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Soldier) {
@@ -1033,6 +1052,7 @@ public void OnGameFrame() {
 				players[idx].spy_is_feigning = false;
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
+				players[idx].is_under_hype = false;
 			}
 		}
 	}
@@ -2586,6 +2606,7 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 
+			/*
 			{
 				// soda popper minicrits
 
@@ -2597,6 +2618,7 @@ Action SDKHookCB_OnTakeDamage(
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
 			}
+			*/
 
 			{
 				// sandman stun
