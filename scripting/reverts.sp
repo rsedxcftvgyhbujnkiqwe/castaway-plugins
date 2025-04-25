@@ -737,8 +737,7 @@ public void OnGameFrame() {
 								) {
 									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
 										// Fall back to hype condition if the player has a drink item
-										bool has_lunchbox = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", 46) ||
-															PlayerHasItem(idx, "tf_weapon_lunchbox_drink", 163);
+										bool has_lunchbox = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", -1);
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
 										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
@@ -2197,8 +2196,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			if (players[client].is_under_hype)
 			{
-				bool has_lunchbox = PlayerHasItem(client, "tf_weapon_lunchbox_drink", 46) ||
-									PlayerHasItem(client, "tf_weapon_lunchbox_drink", 163);
+				bool has_lunchbox = PlayerHasItem(client, "tf_weapon_lunchbox_drink", -1);
 				if (has_lunchbox)
 				{
 					players[client].is_under_hype = false;
@@ -3140,7 +3138,8 @@ bool PlayerHasItem(int client, char[] classname, int item_index) {
 			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 			if(
 				StrEqual(classname, class) &&
-				(item_index == index)
+				((item_index == index) ||
+				 (item_index == -1))
 			) {
 				return true;
 			}
