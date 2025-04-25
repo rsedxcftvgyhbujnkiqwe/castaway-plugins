@@ -736,10 +736,11 @@ public void OnGameFrame() {
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
 									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
-										// Fall back to hype condition if the player has Crit-a-Cola
-										bool has_critcola = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", 163);
-										TF2_AddCondition(idx, has_critcola ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
-										players[idx].is_under_hype = has_critcola ? false : true;
+										// Fall back to hype condition if the player has a drink item
+										bool has_lunchbox = PlayerHasItem(idx, "tf_weapon_lunchbox_drink", 46) ||
+															PlayerHasItem(idx, "tf_weapon_lunchbox_drink", 163);
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
+										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
 
 									if (
@@ -2192,13 +2193,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			// if player has crit-a-cola, end minicrits and apply hype
+			// if player has a drink item, end minicrits and apply hype
 
 			if (players[client].is_under_hype)
 			{
-				bool has_critcola = PlayerHasItem(client, "tf_weapon_lunchbox_drink", 163);
-
-				if (has_critcola)
+				bool has_lunchbox = PlayerHasItem(client, "tf_weapon_lunchbox_drink", 46) ||
+									PlayerHasItem(client, "tf_weapon_lunchbox_drink", 163);
+				if (has_lunchbox)
 				{
 					players[client].is_under_hype = false;
 					TF2_AddCondition(client, TFCond_CritHype, 10.0, 0);
