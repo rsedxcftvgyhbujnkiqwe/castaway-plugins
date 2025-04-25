@@ -235,7 +235,7 @@ public void OnPluginStart() {
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits");
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits");
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
 	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
@@ -713,7 +713,7 @@ public void OnGameFrame() {
 							TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 						) {
 							// allow mini-crit buff to last indefinitely
-							// if player is under hype but the cond was removed (e.g. via resupply), re-add it
+							// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
 
 							if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
 								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
@@ -761,6 +761,7 @@ public void OnGameFrame() {
 									}
 								}
 
+								// hype meter drain on minicrit condition
 								if (players[idx].is_under_hype) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
 									
