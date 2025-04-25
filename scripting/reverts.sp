@@ -224,7 +224,7 @@ public void OnPluginStart() {
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-toughbreak, heals +75 flat, no metal cost, 130 cost long ranged pickups");
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups");
 #endif
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again");
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times");
