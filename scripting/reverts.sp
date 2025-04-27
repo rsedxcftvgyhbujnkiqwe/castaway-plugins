@@ -958,6 +958,7 @@ public void OnGameFrame() {
 					{
 						// deadringer cancel condition when feign buff ends
 						if (
+							ItemIsEnabled("ringer") &&
 							players[idx].spy_is_feigning &&
 							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
 							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
@@ -2491,15 +2492,17 @@ Action SDKHookCB_OnTakeDamage(
 				}
 				
 				// dead ringer damage tracking
-				if (
-					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-					players[victim].spy_is_feigning == false
-				) {
-					players[victim].ticks_since_feign_ready = GetGameTickCount();
-				}
-				
-				if (players[victim].spy_is_feigning) {
-					players[victim].damage_taken_during_feign += damage;
+				if (ItemIsEnabled("ringer")) {
+					if (
+						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+						players[victim].spy_is_feigning == false
+					) {
+						players[victim].ticks_since_feign_ready = GetGameTickCount();
+					}
+					
+					if (players[victim].spy_is_feigning) {
+						players[victim].damage_taken_during_feign += damage;
+					}
 				}
 			}
 		}
