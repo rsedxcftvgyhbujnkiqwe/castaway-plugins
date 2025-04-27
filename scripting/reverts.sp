@@ -717,22 +717,14 @@ public void OnGameFrame() {
 					{
 						// sodapopper stuff
 
-						if (
-							ItemIsEnabled("sodapop") &&
-							players[idx].is_under_hype &&
-							TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
-						) {
-							// allow mini-crit buff to last indefinitely
-							// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
-
-							if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+						if (ItemIsEnabled("sodapop"))
+						{
+							if (players[idx].is_under_hype)
+							{
+								// allow mini-crit buff to last indefinitely
 								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
-							} else {
-								TF2_AddCondition(idx, TFCond_CritCola, 10.0, 0);
 							}
-						}
 
-						if (ItemIsEnabled("sodapop")) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
 
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
@@ -745,10 +737,10 @@ public void OnGameFrame() {
 									players[idx].is_under_hype == false &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
+									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
 										// Fall back to hype condition if the player has a drink item
 										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
-										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
 										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
 
@@ -782,7 +774,7 @@ public void OnGameFrame() {
 									}
 									else
 									{
-										hype -= 10 * GetTickInterval();
+										hype -= 9.375 * GetTickInterval(); // m_fEnergyDrinkConsumeRate*0.75f
 										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
 									}
 								}
@@ -1243,6 +1235,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	}
 
 	{
+		// if player somehow activated hype condition, remove it, unless they have a drink item
+
+		if (
+			ItemIsEnabled("sodapop") &&
+			condition == TFCond_CritHype &&
+			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
+		) {
+			TF2_RemoveCondition(client, TFCond_CritHype);
+		}
+	}
+
+	{
 		// dead ringer stuff
 
 		if (
@@ -1298,6 +1302,20 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_RemoveCondition(client, TFCond_AfterburnImmune);
 
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
+		}
+	}
+}
+
+public void TF2_OnConditionRemoved(int client, TFCond condition) {
+	{
+		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
+		if (
+			ItemIsEnabled("sodapop") &&
+			condition == TFCond_CritCola &&
+			players[client].is_under_hype == true &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
+		) {
+			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
 }
@@ -2234,7 +2252,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				if (has_lunchbox)
 				{
 					players[client].is_under_hype = false;
-					TF2_AddCondition(client, TFCond_CritHype, 10.0, 0);
+					TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
 				}
 			}
 		}
