@@ -43,7 +43,7 @@
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
+#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
 
 // Add a OS suffix if VerdiusArcanas patches are used
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
@@ -128,10 +128,12 @@ enum struct Player {
 	int scout_airdash_value;
 	int scout_airdash_count;
 	float backstab_time;
-	int ticks_since_attack;
 	int bonus_health;
 	int old_health;
 	int max_health;
+	int ticks_since_feign_ready;
+	float damage_taken_during_feign;
+	bool is_under_hype;
 }
 
 //item sets
@@ -201,7 +203,6 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CTFPlayer_GetMaxHealthForBuffing;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -212,6 +213,20 @@ Menu menu_main;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+
+//weapon caching
+//this would break if you ever enabled picking up weapons from the ground!
+//add weapons to the FRONT of this enum to maintain the player_weapons array size
+enum
+{
+	Wep_CritCola,
+	Wep_Bonk,
+	Wep_BrassBeast,
+	Wep_RocketJumper,
+	Wep_Placeholder
+}
+bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
+
 
 public void OnPluginStart() {
 	int idx;
@@ -247,7 +262,7 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level");
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
-	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 80% dmg resist for 4s");
+	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)");
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
 #if defined VERDIUS_PATCHES
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit");
@@ -258,7 +273,7 @@ public void OnPluginStart() {
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf");
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back together, no healing, no mark-for-death");
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death");
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken");
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties");
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge");
@@ -279,22 +294,22 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-toughbreak, heals +75 flat, no metal cost, 130 cost long ranged pickups");
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups");
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
-	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
-	ItemDefine("Rocket Jumper", "rocketjmp", "Grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
-	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again");
+	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times");
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
+	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Familiar Fez not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits");
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits");
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
-	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again");
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots");
-	ItemDefine("Tide Turner", "turner", "Can deal full crits like other shields again");
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-tough break, deal full crits like other shields again, 25% fire resist and 25% blast resist");
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
@@ -368,7 +383,6 @@ public void OnPluginStart() {
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-		dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
 
 		delete conf;
 	}
@@ -488,12 +502,10 @@ public void OnPluginStart() {
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	if (dhook_CTFPlayer_GetMaxHealthForBuffing == null) SetFailState("Failed to create dhook_CTFPlayer_GetMaxHealthForBuffing");
 	
 	
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-	DHookEnableDetour(dhook_CTFPlayer_GetMaxHealthForBuffing, true, DHookCallback_CTFPlayer_GetMaxHealthForBuffing);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -806,6 +818,21 @@ public void OnGameFrame() {
 					{
 						// sodapopper stuff
 
+						if (
+							ItemIsEnabled("sodapop") &&
+							players[idx].is_under_hype &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
+						) {
+							// allow mini-crit buff to last indefinitely
+							// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
+
+							if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+							} else {
+								TF2_AddCondition(idx, TFCond_CritCola, 10.0, 0);
+							}
+						}
+
 						if (ItemIsEnabled("sodapop")) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
 
@@ -816,10 +843,14 @@ public void OnGameFrame() {
 
 								if (
 									StrEqual(class, "tf_weapon_soda_popper") &&
+									players[idx].is_under_hype == false &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
-										TF2_AddCondition(idx, TFCond_CritHype, 10.0, 0);
+									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5) {
+										// Fall back to hype condition if the player has a drink item
+										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 10.0, 0);
+										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
 
 									if (
@@ -840,9 +871,28 @@ public void OnGameFrame() {
 										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
 									}
 								}
+
+								// hype meter drain on minicrit condition
+								if (players[idx].is_under_hype) {
+									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
+									
+									if (hype <= 0.0)
+									{
+										players[idx].is_under_hype = false;
+										TF2_RemoveCondition(idx, TFCond_CritCola);
+									}
+									else
+									{
+										hype -= 10 * GetTickInterval();
+										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
+									}
+								}
 							}
 						}
 					}
+				} else {
+					// reset if player isn't scout
+					players[idx].is_under_hype = false;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Soldier) {
@@ -967,6 +1017,7 @@ public void OnGameFrame() {
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
 								players[idx].spy_is_feigning = true;
+								players[idx].damage_taken_during_feign = 0.0;
 							}
 						} else {
 							if (
@@ -1011,6 +1062,17 @@ public void OnGameFrame() {
 						}
 
 						players[idx].spy_cloak_meter = cloak;
+					}
+
+					{
+						// deadringer cancel condition when feign buff ends
+						if (
+							players[idx].spy_is_feigning &&
+							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
+							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
+						) {
+							TF2_RemoveCondition(idx, TFCond_DeadRingered);
+						}
 					}
 
 					{
@@ -1113,6 +1175,7 @@ public void OnGameFrame() {
 				players[idx].spy_is_feigning = false;
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
+				players[idx].is_under_hype = false;
 			}
 		}
 	}
@@ -1306,7 +1369,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 					TF2_RemoveCondition(client, TFCond_SpeedBuffAlly);
 				}
-
+				
 				if (
 					condition == TFCond_AfterburnImmune &&
 					TF2_IsPlayerInCondition(client, TFCond_FireImmune) == false // didn't use spycicle
@@ -1338,44 +1401,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
-
-	{
-		//crit a cola minicrit removal
-		if (
-			ItemIsEnabled("critcola") &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_MarkedForDeathSilent &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
-			abs(GetGameTickCount() - players[client].ticks_since_attack) <= 2 && //occasional drift
-			players[client].ticks_since_attack > 0 //just in case
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-}
-
-public void TF2_OnConditionRemoved(int client, TFCond condition) {
-	{
-		//edge case for crit a cola
-		if (
-			ItemIsEnabled("critcola") &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_CritCola &&
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-}
-
-public void TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
-{
-	if(TF2_GetPlayerClass(client) == TFClass_Scout && (StrContains(classname, "tf_weapon")==0 || StrContains(classname, "saxxy")==0))
-	{
-		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entityIndex, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-	return;
 }
 
 public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Handle& item) {
@@ -1542,6 +1567,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
 			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
 		}
+	}
+
+	else if (
+		ItemIsEnabled("critcola") &&
+		StrEqual(class, "tf_weapon_lunchbox_drink") &&
+		(index == 163)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 814, 0.0); // mod_mark_attacker_for_death
 	}
 
 	else if (
@@ -1789,7 +1825,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 0, 35, 1.8); // mult cloak meter regen rate
 		TF2Items_SetAttribute(item1, 1, 82, 1.6); // cloak consume rate increased
 		TF2Items_SetAttribute(item1, 2, 83, 1.0); // cloak consume rate decreased
-		TF2Items_SetAttribute(item1, 3, 726, 0.1); // cloak consume on feign death activate
+		TF2Items_SetAttribute(item1, 3, 726, 1.0); // cloak consume on feign death activate
 		TF2Items_SetAttribute(item1, 4, 810, 0.0); // mod cloak no regen from items
 	}
 
@@ -1903,8 +1939,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, 3);
 		TF2Items_SetAttribute(item1, 0, 676, 0.0); // lose demo charge on damage when charging
+		TF2Items_SetAttribute(item1, 1, 60, 0.75); // 25% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 2, 64, 0.75); // 25% explosive damage resistance on wearer
 	}
 
 	else if (
@@ -2130,12 +2168,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 			{
 				// Powerjack heal on kill with overheal copied from NotnHeavy's code
-
 				if (
 					client != attacker &&
 					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
 					GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
-					IsPlayerAlive(attacker)
+					IsPlayerAlive(attacker) &&
+					// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
+					GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE // powerjack melee kill has a customkill value of 0, thanks huutti; -mindfulprotons
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
@@ -2169,7 +2208,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
-
 		}
 	}
 
@@ -2179,6 +2217,53 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		//cache players weapons for later funcs
+		{
+			for (int i = 0; i < Wep_Placeholder; i++) {
+				player_weapons[client][i] = false;
+			}
+
+			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+			for (int i;i < length; i++)
+			{
+				weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+				if (weapon != -1)
+				{
+					GetEntityClassname(weapon, class, sizeof(class));
+					int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+
+					if(
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 163)
+					) {
+						player_weapons[client][Wep_CritCola] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 46 || index == 1145)
+					) {
+						player_weapons[client][Wep_Bonk] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 312)
+					) {
+						player_weapons[client][Wep_BrassBeast] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_rocketlauncher") &&
+						(index == 237)
+					) {
+						player_weapons[client][Wep_RocketJumper] = true;
+					}
+				}
+			}
+		}
+
+		//item sets
 		if (
 			ItemIsEnabled("saharan")
 		) {
@@ -2253,28 +2338,17 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			//perform health fuckery
-			players[client].bonus_health = 0;
-			/*
-			if(
-				ItemIsEnabled("pocket") &&
-				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-			) {
-				players[client].bonus_health += 15;
+			// if player has a drink item, end minicrits and apply hype
+
+			if (players[client].is_under_hype)
+			{
+				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
+				if (has_lunchbox)
+				{
+					players[client].is_under_hype = false;
+					TF2_AddCondition(client, TFCond_CritHype, 10.0, 0);
+				}
 			}
-			else if(
-				ItemIsEnabled("claidheamh") &&
-				PlayerHasItem(client,"tf_weapon_sword",327)
-			) {
-				players[client].bonus_health -= 15;
-			}
-			else if(
-				ItemIsEnabled("warrior") &&
-				PlayerHasItem(client,"tf_weapon_fists",310)
-			) {
-				players[client].bonus_health -= 20;
-			}
-			*/
 		}
 	}
 
@@ -2497,10 +2571,10 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
 						if (ItemIsEnabled("ringer")) {
-							SetConVarFloat(cvar_ref_tf_feign_death_duration, 4.0);
-							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 4.0);
+							SetConVarFloat(cvar_ref_tf_feign_death_duration, 6.5);
+							SetConVarFloat(cvar_ref_tf_feign_death_speed_duration, 6.5);
 							SetConVarFloat(cvar_ref_tf_feign_death_activate_damage_scale, 0.10);
-							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 0.20);
+							SetConVarFloat(cvar_ref_tf_feign_death_damage_scale, 0.10);
 						} else {
 							SetConVarReset(cvar_ref_tf_feign_death_duration);
 							SetConVarReset(cvar_ref_tf_feign_death_speed_duration);
@@ -2508,6 +2582,18 @@ Action SDKHookCB_OnTakeDamage(
 							SetConVarReset(cvar_ref_tf_feign_death_damage_scale);
 						}
 					}
+				}
+				
+				// dead ringer damage tracking
+				if (
+					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+					players[victim].spy_is_feigning == false
+				) {
+					players[victim].ticks_since_feign_ready = GetGameTickCount();
+				}
+				
+				if (players[victim].spy_is_feigning) {
+					players[victim].damage_taken_during_feign += damage;
 				}
 			}
 		}
@@ -2749,7 +2835,6 @@ Action SDKHookCB_OnTakeDamage(
 									}
 								}
 
-								//this doesn't work sometimes?????
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
 
 								players[victim].stunball_fix_time_bonk = GetGameTime();
@@ -3041,31 +3126,24 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			if (TF2_IsPlayerInCondition(victim, TFCond_CritCola) && TF2_GetPlayerClass(victim) == TFClass_Scout && ItemIsEnabled("critcola")) // 10% damage vulnerability while using Crit-a-Cola.
+			if (
+				ItemIsEnabled("critcola") &&
+				TF2_IsPlayerInCondition(victim, TFCond_CritCola) &&
+				TF2_GetPlayerClass(victim) == TFClass_Scout &&
+				player_weapons[victim][Wep_CritCola]
+			)
 			{
+				// 10% damage vulnerability while using Crit-a-Cola.
 				damage *= 1.10;
 				returnValue = Plugin_Changed;
 			}
-		}
-		{
-			/*
-			if (
-				ItemIsEnabled("pocket") &&
-				(damage_type & (DMG_BURN | DMG_IGNITE)) &&
-				PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
-			) {
-				// 50% fire damage vulnerability.
-				damage *= 1.50;
-				returnValue = Plugin_Changed;
-			}
-			*/
 		}
 		{
 			if (
 				ItemIsEnabled("brassbeast") &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				PlayerHasItem(victim,"tf_weapon_minigun",312)
+				player_weapons[victim][Wep_BrassBeast]
 			) {
 				// 20% damage resistance when spun up with the Brass Beast
 				damage *= 0.80;
@@ -3077,7 +3155,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("rocketjmp") &&
 				victim == attacker &&
 				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-				PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+				player_weapons[victim][Wep_RocketJumper]
 			) {
 				// save old health and set health to 500 to tank the grenade blast
 				// do it this way in order to preserve knockback caused by the explosion
@@ -3085,19 +3163,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				SetEntityHealth(victim, 500);
 			}
 		}
-	}
-	else
-	{
-		/*
-		if (
-			ItemIsEnabled("pocket") &&
-			(damage_type & DMG_FALL && !attacker) &&
-			PlayerHasItem(victim,"tf_weapon_handgun_scout_secondary",773)
-		) {
-			// Fall damage negation.
-			return Plugin_Handled;
-		}
-		*/
 	}
 
 	return returnValue;
@@ -3115,7 +3180,7 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled("rocketjmp") &&
 			victim == attacker &&
 			damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-			PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+			player_weapons[victim][Wep_RocketJumper]
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
@@ -3191,6 +3256,11 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	return true;
 }
 
+int GetFeignBuffsEnd(int client)
+{
+    return players[client].ticks_since_feign_ready + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
+}
+
 bool PlayerIsInvulnerable(int client) {
 	return (
 		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
@@ -3200,27 +3270,6 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
-}
-
-bool PlayerHasItem(int client, char[] classname, int item_index) {
-	int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
-	for (int i;i < length; i++)
-	{
-		int weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
-		if (weapon != -1)
-		{
-			char class[64];
-			GetEntityClassname(weapon, class, sizeof(class));
-			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
-			if(
-				StrEqual(classname, class) &&
-				(item_index == index)
-			) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
@@ -3555,9 +3604,6 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 #endif
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
-	int owner;
-	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	players[owner].ticks_since_attack = GetGameTickCount();
 	return MRES_Ignored;
 }
 
@@ -3692,7 +3738,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			return MRES_Supercede;
 		}
 	}
-	players[owner].ticks_since_attack = GetGameTickCount();
 	return MRES_Ignored;
 }
 
@@ -3736,34 +3781,19 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookReturn returnValue) {
-	int iMax = returnValue.Value;
-	int iNewMax = iMax;
-
-	if (
-		entity >= 1 && entity <= MaxClients
-	) {
-		if (IsValidEntity(entity) && IsPlayerAlive(entity)) // health fixing
-		{
-			iNewMax += players[entity].bonus_health;
-		}
-	}
-	players[entity].max_health = iNewMax;
-	if (iNewMax != iMax)
-	{
-		returnValue.Value = iNewMax;
-		return MRES_Supercede;
-	}
-
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
 	if (
 		entity >= 1 && entity <= MaxClients
 	) {
-		if (IsValidEntity(entity) && TF2_IsPlayerInCondition(entity, TFCond_CritCola) && TF2_GetPlayerClass(entity) == TFClass_Scout && ItemIsEnabled("critcola")) // Crit-a-Cola speed boost.
+		if (
+			ItemIsEnabled("critcola") &&
+			IsValidEntity(entity) &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Scout &&
+			player_weapons[entity][Wep_CritCola]
+		) 
 		{
+			// Crit-a-Cola speed boost.
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}

@@ -24,13 +24,6 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
 				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
 			}
-
-			"CTFPlayer::GetMaxHealthForBuffing"
-			{
-				"library"	"server"
-				"linux"		"@_ZN9CTFPlayer22GetMaxHealthForBuffingEv"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\xF9\xFF\xB7\xC8\x22\x00\x00"
-			}
 		}
 
 		"Offsets"
@@ -101,14 +94,6 @@
 						"type" "bool"
 					}
 				}
-			}
-
-			"CTFPlayer::GetMaxHealthForBuffing"
-			{
-				"signature"	"CTFPlayer::GetMaxHealthForBuffing"
-				"callconv"	"thiscall"
-				"return"	"int"
-				"this"		"entity"
 			}
 		}
 	}

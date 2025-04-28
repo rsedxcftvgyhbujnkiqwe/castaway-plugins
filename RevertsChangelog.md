@@ -2,6 +2,10 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### April 21, 2025
+- **The Dead Ringer is now reverted to its most accurate state before Gun Mettle. 90% damage resistance for up to 6.5 seconds that gets reduced by damage received. This Dead Ringer is now able to tank 5 backstabs and 8 stickybombs from 125 HP, and 14 stickybombs when using the Kunai at 200 HP. The previous version of the revert would only tank 1 backstab and up to 4 to 5 stickybombs.**
+- **Fixed reverted Powerjack bug where the Pyro gets healed when an enemy dies to afterburn while the Powerjack is the active weapon. It should only heal due to melee kills by the Powerjack.**
+
 ### April 17, 2025
 - **Fixed reverted Black Box overheal bug where hitting an enemy removes the Soldier's overheal.**
 - **Ball recharge time for the reverted Sandman is now 15 seconds long for historical accuracy (pre-Inferno).**
