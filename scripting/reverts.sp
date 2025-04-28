@@ -3547,6 +3547,9 @@ void ShowClassReverts(int client) {
 
 	count = 0;
 	class_idx = view_as<int>(TF2_GetPlayerClass(client)) - 1;
+	
+	if (class_idx == -1)
+		return;
 
 	if (GetConVarBool(cvar_enable)) {
 		for (idx = 0; idx < ITEMS_MAX; idx++) {
