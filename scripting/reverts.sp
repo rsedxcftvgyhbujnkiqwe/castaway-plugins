@@ -1,3 +1,30 @@
+/*
+	╔════════════════════════════════════════════════════╗
+	║                    !!README!!!                     ║
+	╚════════════════════════════════════════════════════╝
+
+	This section controls the compiling of memory patch reverts. 
+	These are reverts which require SourceScramble to be installed.
+	Memory patch reverts may break when game updates happen.
+	If there is a major code update to the game resulting in 
+	patches breaking, you can disable them here.
+
+	To disable all memory patches, comment out/remove the following line:
+ v v v v v v v v v v v 
+*/
+#define VERDIUS_PATCHES
+
+//#define WINDOWS32
+#define LINUX32
+/*
+ ^ ^ ^ ^ ^ ^ ^ ^ ^
+	Additionally, you will need to select your compile arch.
+	Above are the compile variables for server architecture.
+	Memory patches are different for windows and linux servers,
+	so you should comment out the version your server will be using.
+	Enabled for linux by default.
+*/
+
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -11,25 +38,13 @@
 #undef REQUIRE_PLUGIN
 #include <sourcescramble>
 #define REQUIRE_PLUGIN
-#define VERDIUS_PATCHES
-//uncomment to disable VerdiusArcana's memory patch reverts. requires sourcescramble if enabled (on by default)!!! 
-//#undef VERDIUS_PATCHES
-
-// If you want to use VerdiusArcana's memory patch reverts. Please select the operating system to compile for.
-// This is neccesary because some reverts require such radically different solutions between the OS's that
-// merely using the gamedata file and stock usage of SourceScramble is not enough. 
-// Whichever you uncomment is the OS the reverts.sp will be compiled for.
-// Make sure you don't forget that the final name will be reverts.smx there's no indication in the name what OS it is for.
-// (If you uncommented #undef VERDIUS_PATCHES then leave both commented!!!) Default from repo is to compile for Linux!
-//#define WINDOWS32
-#define LINUX32
-
 #pragma semicolon 1
 #pragma newdecls required
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana"
+
 // Add a OS suffix if VerdiusArcanas patches are used
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
 // if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
@@ -41,6 +56,7 @@
 #else
 #define PLUGIN_VERSION "1.3.2"
 #endif
+
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
 public Plugin myinfo = {
