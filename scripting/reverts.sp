@@ -1740,6 +1740,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 1, 874, 10000.0); //shield regen time. big number so it never respawns 
 	}
 
+	else if (
+	ItemIsEnabled("quickfix") &&
+	StrEqual(class, "tf_weapon_medigun") &&
+	(index == 411)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 10, 1.25); // +25% ÜberCharge rate
+	}
+
 #if defined VERDIUS_PATCHES
 	else if (
 		ItemIsEnabled("rescueranger") &&
