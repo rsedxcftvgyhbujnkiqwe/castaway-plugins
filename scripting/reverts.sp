@@ -21,8 +21,8 @@
 	Additionally, you will need to select your compile arch.
 	Above are the compile variables for server architecture.
 	Memory patches are different for windows and linux servers,
-	so you should comment out the version your server will be using.
-	Enabled for linux by default.
+	so you should leave defined the version your server will be using
+	and comment out the other.
 */
 
 #include <sourcemod>
