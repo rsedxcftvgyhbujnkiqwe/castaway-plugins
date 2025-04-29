@@ -145,6 +145,13 @@
     - Launched bombs shatter on surfaces
 
 ### December 26, 2024
+- **Reverted Scottish Resistance to release**
+  - *The Scottish Resistance*
+    - +50% max secondary ammo on wearer
+    - +6 max pipebombs out
+    - Detonates stickybombs near crosshair
+    - Able to destroy enemy stickybombs
+    - 0.4 sec slower bomb arm time
 - **Reverted Loch-n-Load to pre-Smissmas 2014**
   - *The Loch-n-Load*
     - +20% damage bonus
