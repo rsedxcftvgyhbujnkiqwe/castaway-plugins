@@ -106,7 +106,8 @@
     - No random critical hits
     - -15 max health on wearer
     - This weapon has a large melee range and deploys and holsters slower
-- *Note: deploy and holster speeds weren't changed in this patch.*
+  - *Note: deploy and holster speeds weren't changed in this patch.*
+- **Fixed extra damage taken with the Eviction Notice when equipped but not deployed**
 
 ### January 20, 2025
 - **Reverted Tribalman's Shiv to release version**
