@@ -35,7 +35,7 @@
 #include <tf2utils>
 #include <tf2attributes>
 #include <dhooks>
-#include <morecolors>
+#include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
 #undef REQUIRE_PLUGIN
 #include <sourcescramble>
 #define REQUIRE_PLUGIN
@@ -3544,12 +3544,23 @@ void ShowClassReverts(int client) {
 	int count;
 	char msg[ITEMS_MAX][146];
 	int class_idx;
+	TFTeam team;
 
 	count = 0;
 	class_idx = view_as<int>(TF2_GetPlayerClass(client)) - 1;
-	
-	if (class_idx == -1)
+	team = TF2_GetClientTeam(client);
+
+	// Return if unknown class or in spectator/unassigned team
+	if (
+		(team == TFTeam_Unassigned) ||
+		(team == TFTeam_Spectator)
+	) {
+		ReplyToCommand(client, "You need to be in a team to use this command");
 		return;
+	} else if (class_idx == -1) {
+		ReplyToCommand(client, "Your class needs to be valid to use this command");
+		return;
+	}
 
 	if (GetConVarBool(cvar_enable)) {
 		for (idx = 0; idx < ITEMS_MAX; idx++) {
