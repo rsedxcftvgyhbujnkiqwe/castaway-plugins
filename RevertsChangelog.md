@@ -15,7 +15,7 @@
   - Melee kills refill 75% of your charge meter
   - Taking damage while shield charging reduces remaining charging time
 - **The reverted Soda Popper's visuals have been updated to be more historically accurate to its release version. When the Hype meter is full, the glow now shows up as a Mini-Crits glow instead of a purple glow.**
-  - The purple glow will only appear if the Scout equips the Crit-a-Cola due to how the game technically handles Mini-Crit conditions.
+  - The purple glow will only appear if the Scout equips the Crit-a-Cola or the Bonk! Atomic Punch due to how the game technically handles Mini-Crit conditions.
 
 ### April 21, 2025
 - **The Dead Ringer is now reverted to its most accurate state before Gun Mettle. 90% damage resistance for up to 6.5 seconds that gets reduced by damage received. This Dead Ringer is now able to tank 5 backstabs and 8 stickybombs from 125 HP, and 14 stickybombs when using the Kunai at 200 HP. The previous version of the revert would only tank 1 backstab and up to 4 to 5 stickybombs.**
@@ -135,13 +135,26 @@
     - 50% fire damage vulnerability on wearer
 
 ### December 28, 2024
-- **Reverted Loch-n-Load back to post-2014**
+- **Reverted Loch-n-Load back to post-Smissmas 2014 / pre-Gun Mettle Update**
   - *The Loch-n-Load*
     - +20% damage bonus
     - +25% projectile speed
-    - -25% clip size
+    - -25% clip size (3 pipes in clip)
     - -25% explosion radius
     - Launched bombs shatter on surfaces
+
+### December 26, 2024
+- **Reverted Loch-n-Load to pre-Smissmas 2014**
+  - *The Loch-n-Load*
+    - +20% damage bonus
+    - +25% projectile speed
+    - -50% clip size (2 pipes in clip)
+    - +25% damage to self
+    - Launched bombs shatter on surfaces
+  - **Note: when this was implemented, the grenade tumbling attribute was not included, so this reverted version was historically inaccurate.**
+    - Historically, the grenade tumbling attribute in the pre-Smissmas 2014 Loch-n-Load was not only a visual difference, but also slowed down the old Loch-n-Load's projectile speed.
+      - See video for a demonstration of the grenade tumbling attribute affecting projectile speed: https://youtu.be/ACfafLuLmy8?t=143
+      - This is caused by the Source physics engine including air resistance with projectiles.
    
 ### December 12, 2024
 - **All Castaway.tf servers now use Bakugo's Weapon Reverts plugin.**
