@@ -3585,7 +3585,7 @@ void ShowClassReverts(int client) {
 			}
 		}
 	} else {
-		CReplyToCommand(client, "{lightgreen}There's nothing here... for some reason, all reverts are disabled :\\");
+		CReplyToCommand(client, "{lightgreen}There's nothing here... for some reason, all %s reverts are disabled :\\", class_names[class_idx]);
 	}
 }
 
