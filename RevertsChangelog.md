@@ -9,11 +9,11 @@
 ### April 26, 2025
 - **The reverted Tide Turner's blast and fire damage resistances have been updated to 25% each to be more historically accurate (pre-Tough Break).**
   - *The Tide Turner*
-  - +25% fire damage resistance on wearer
-  - +25% explosive damage resistance on wearer
-  - Full turning control while charging
-  - Melee kills refill 75% of your charge meter
-  - Taking damage while shield charging reduces remaining charging time
+     - +25% fire damage resistance on wearer
+     - +25% explosive damage resistance on wearer
+     - Full turning control while charging
+     - Melee kills refill 75% of your charge meter
+     - Taking damage while shield charging reduces remaining charging time
 - **The reverted Soda Popper's visuals have been updated to be more historically accurate to its release version. When the Hype meter is full, the glow now shows up as a Mini-Crits glow instead of a purple glow.**
   - The purple glow will only appear if the Scout equips the Crit-a-Cola or the Bonk! Atomic Punch due to how the game technically handles Mini-Crit conditions.
 
