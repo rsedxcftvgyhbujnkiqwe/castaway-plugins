@@ -1486,7 +1486,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 1, 2, 1.1); // 20% increased damage
+		TF2Items_SetAttribute(item1, 0, 2, 1.10); // 10% increased damage
+		TF2Items_SetAttribute(item1, 1, 783, 0.00); // Extinguishing teammates restores 0 health
 	}
 
 	else if (
@@ -1606,13 +1607,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 6);
+		TF2Items_SetNumAttributes(item1, 7);
 		TF2Items_SetAttribute(item1, 0, 1, 0.90); // damage penalty
 		TF2Items_SetAttribute(item1, 1, 72, 0.75); // weapon burn dmg reduced
 		TF2Items_SetAttribute(item1, 2, 170, 1.00); // airblast cost increased
 		TF2Items_SetAttribute(item1, 3, 178, 0.35); // deploy time decreased
 		TF2Items_SetAttribute(item1, 4, 199, 1.00); // switch from wep deploy time decreased
 		TF2Items_SetAttribute(item1, 5, 547, 1.00); // single wep deploy time decreased
+		TF2Items_SetAttribute(item1, 6, 783, 0.00); // Extinguishing teammates restores 0 health
 	}
 
 	else if (
