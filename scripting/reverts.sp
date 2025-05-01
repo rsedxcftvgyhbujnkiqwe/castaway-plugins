@@ -1595,8 +1595,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
-		TF2Items_SetAttribute(item1, 0, 814, 0.0); // mod_mark_attacker_for_death
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
+		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while active
 	}
 
 	else if (
@@ -3144,19 +3145,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
 				}
-			}
-		}
-		{
-			if (
-				ItemIsEnabled("critcola") &&
-				TF2_IsPlayerInCondition(victim, TFCond_CritCola) &&
-				TF2_GetPlayerClass(victim) == TFClass_Scout &&
-				player_weapons[victim][Wep_CritCola]
-			)
-			{
-				// 10% damage vulnerability while using Crit-a-Cola.
-				damage *= 1.10;
-				returnValue = Plugin_Changed;
 			}
 		}
 		{
