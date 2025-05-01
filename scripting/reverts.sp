@@ -1597,7 +1597,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
-		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while active
+		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while under the effect
 	}
 
 	else if (
