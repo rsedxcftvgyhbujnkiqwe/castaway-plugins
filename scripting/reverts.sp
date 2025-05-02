@@ -128,7 +128,6 @@ enum struct Player {
 	int scout_airdash_value;
 	int scout_airdash_count;
 	float backstab_time;
-	int bonus_health;
 	int old_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
