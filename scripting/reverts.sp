@@ -268,7 +268,7 @@ public void OnPluginStart() {
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit");
 #endif
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, +25% projectile size and no center-hit requirement for bonus damage");
+	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage");
 #else
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted partly to release, +25% projectile size");
 #endif
