@@ -130,7 +130,6 @@ enum struct Player {
 	float backstab_time;
 	int bonus_health;
 	int old_health;
-	int max_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
 	bool is_under_hype;
@@ -2569,6 +2568,7 @@ Action SDKHookCB_OnTakeDamage(
 	float damage1;
 	int health_cur;
 	int health_max;
+	int health_new;
 	int weapon1;
 
 	if (
@@ -2992,17 +2992,18 @@ Action SDKHookCB_OnTakeDamage(
 					FireEvent(event);
 
 					// Set health.
-					int new_health = GetClientHealth(attacker) + 15;
-					int current_health = GetClientHealth(attacker);
+					health_cur = GetClientHealth(attacker);
+					health_new = health_cur + 15;
+					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					if(players[attacker].max_health > new_health) {
-						SetEntityHealth(attacker, new_health);						
+					if(health_max > health_new) {
+						SetEntityHealth(attacker, health_new);						
 					}				
-					else if(players[attacker].max_health > current_health) { 
-						SetEntityHealth(attacker, players[attacker].max_health); //check if the current health is 14HP less than the max health
+					else if(health_max > health_cur) { 
+						SetEntityHealth(attacker, health_max); //check if the current health is 14HP less than the max health
 					}	
-					else if(players[attacker].max_health < current_health) { 
-						SetEntityHealth(attacker, current_health); //don't remove overheal (still shows +15 HP on hit)
+					else if(health_max < health_cur) { 
+						SetEntityHealth(attacker, health_cur); //don't remove overheal (still shows +15 HP on hit)
 					}					
 				}
 			}
