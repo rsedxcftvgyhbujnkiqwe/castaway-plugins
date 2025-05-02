@@ -270,7 +270,7 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage");
 #else
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted partly to release, +25% projectile size");
+	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size");
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death");
