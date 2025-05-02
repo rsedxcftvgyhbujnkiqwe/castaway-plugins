@@ -1,3 +1,30 @@
+/*
+	╔════════════════════════════════════════════════════╗
+	║                    !!README!!!                     ║
+	╚════════════════════════════════════════════════════╝
+
+	This section controls the compiling of memory patch reverts. 
+	These are reverts which require SourceScramble to be installed.
+	Memory patch reverts may break when game updates happen.
+	If there is a major code update to the game resulting in 
+	patches breaking, you can disable them here.
+
+	To disable all memory patches, comment out/remove the following line:
+ v v v v v v v v v v v 
+*/
+#define VERDIUS_PATCHES
+
+//#define WINDOWS32
+#define LINUX32
+/*
+ ^ ^ ^ ^ ^ ^ ^ ^ ^
+	Additionally, you will need to select your compile arch.
+	Above are the compile variables for server architecture.
+	Memory patches are different for windows and linux servers,
+	so you should leave defined the version your server will be using
+	and comment out the other.
+*/
+
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -11,17 +38,28 @@
 #undef REQUIRE_PLUGIN
 #include <sourcescramble>
 #define REQUIRE_PLUGIN
-#define VERDIUS_PATCHES
-//uncomment to disable VerdiusArcana's memory patch reverts. requires sourcescramble if enabled (on by default)!!! 
-//#undef VERDIUS_PATCHES
-
 #pragma semicolon 1
 #pragma newdecls required
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
+
+=======
+
+// Add a OS suffix if VerdiusArcanas patches are used
+// so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
+// if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
+// compiled for the correct OS.
+#if defined WINDOWS32
+#define PLUGIN_VERSION "1.3.2-win32"
+#elseif defined LINUX32
+#define PLUGIN_VERSION "1.3.2-linux32"
+#else
+
 #define PLUGIN_VERSION "1.3.2"
+#endif
+
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
 public Plugin myinfo = {
@@ -98,6 +136,7 @@ enum struct Player {
 	int max_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
+	bool is_under_hype;
 }
 
 //item sets
@@ -130,17 +169,33 @@ Handle cvar_ref_tf_parachute_maxspeed_onfire_z;
 Handle cvar_ref_tf_scout_hype_mod;
 #if defined VERDIUS_PATCHES
 MemoryPatch Verdius_RevertDisciplinaryAction;
+// If Windows, prepare additional vars for Disciplinary Action.
+#if defined WINDOWS32
+float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
+// Address of our float:
+Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
+#endif
+
+// The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
+// Check if we are compiling for Linux, if not then use the Windows one.
+#if defined LINUX32
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JA;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JZ;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ2;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_FinalJNZ;
+#else
+// Dragons Fury Memorypatch for Windows.
+MemoryPatch Verdius_RevertTraceReqDragonsFury_NOP_JZ;
+#endif
+
 MemoryPatch Verdius_RevertFirstSecondDamageLossOnMiniguns;
 MemoryPatch Verdius_RevertFirstSecondAccuracyLossOnMiniguns;
 MemoryPatch Verdius_RevertWranglerShieldHealNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertCozyCamperFlinch;
+MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
@@ -151,7 +206,6 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CTFPlayer_GetMaxHealthForBuffing;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -162,6 +216,20 @@ Menu menu_main;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+
+//weapon caching
+//this would break if you ever enabled picking up weapons from the ground!
+//add weapons to the FRONT of this enum to maintain the player_weapons array size
+enum
+{
+	Wep_CritCola,
+	Wep_Bonk,
+	Wep_BrassBeast,
+	Wep_RocketJumper,
+	Wep_Placeholder
+}
+bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
+
 
 public void OnPluginStart() {
 	int idx;
@@ -208,7 +276,7 @@ public void OnPluginStart() {
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf");
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back together, no healing, no mark-for-death");
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death");
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken");
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties");
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge");
@@ -222,24 +290,29 @@ public void OnPluginStart() {
 	ItemDefine("Pomson 6000", "pomson", "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, has no drain fall-off");
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active");
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
+#if defined VERDIUS_PATCHES
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered");
+#else
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate");
+#endif
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-toughbreak, heals +75 flat, no metal cost, 130 cost long ranged pickups");
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups");
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Deals minicrits to airblasted targets again");
-	ItemDefine("Righteous Bison", "bison", "Increased hitbox size, can hit the same player more times");
-	ItemDefine("Rocket Jumper", "rocketjmp", "Grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
-	ItemDefine("Saharan Spy", "saharan", "Restored the item set bonus, quiet decloak, 0.5 sec longer cloak blink time. Familiar Fez is not required");
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again");
+	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times");
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
+	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Familiar Fez not required");
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time");
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
 	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-2013, run to build hype and auto gain minicrits");
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits");
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
-	ItemDefine("Sticky Jumper", "stkjumper", "Can have 8 stickies out at once again");
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again");
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots");
-	ItemDefine("Tide Turner", "turner", "Can deal full crits like other shields again");
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-tough break, deal full crits like other shields again, 25% fire resist and 25% blast resist");
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
@@ -313,7 +386,6 @@ public void OnPluginStart() {
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-		dhook_CTFPlayer_GetMaxHealthForBuffing = DHookCreateFromConf(conf, "CTFPlayer::GetMaxHealthForBuffing");
 
 		delete conf;
 	}
@@ -327,6 +399,17 @@ public void OnPluginStart() {
 		Verdius_RevertDisciplinaryAction = 
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
+#if defined WINDOWS32
+		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
+		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
+#endif
+#if defined WINDOWS32
+		// Dragons fury need only one MemoryPatch on Windows.
+
+			Verdius_RevertTraceReqDragonsFury_NOP_JZ = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
+#else
 		Verdius_RevertTraceReqDragonsFury_JA = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
@@ -342,6 +425,7 @@ public void OnPluginStart() {
 		Verdius_RevertTraceReqDragonsFury_FinalJNZ = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
+#endif		
 		Verdius_RevertFirstSecondDamageLossOnMiniguns = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
@@ -360,6 +444,9 @@ public void OnPluginStart() {
 		Verdius_RevertCozyCamperFlinch = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
+		Verdius_RevertQuickFixUberCannotCapturePoint = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
 
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -374,17 +461,25 @@ public void OnPluginStart() {
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
-		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
-		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ");
-		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JZ");
-		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ2");
-		if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_FinalJNZ");
+		
+		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
+#if defined WINDOWS32
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_NOP_JZ");
+#else
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ");
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JZ");
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ2");
+			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_FinalJNZ");
+#endif
+
 		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondDamageLossOnMiniguns");
 		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondAccuracyLossOnMiniguns");
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldHealNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldShellRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
+		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		
 		delete conf;
 	}
@@ -410,12 +505,10 @@ public void OnPluginStart() {
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	if (dhook_CTFPlayer_GetMaxHealthForBuffing == null) SetFailState("Failed to create dhook_CTFPlayer_GetMaxHealthForBuffing");
 	
 	
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-	DHookEnableDetour(dhook_CTFPlayer_GetMaxHealthForBuffing, true, DHookCallback_CTFPlayer_GetMaxHealthForBuffing);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -434,6 +527,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled("miniramp"),"miniramp");
 	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
 	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
+	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
 }
 
 
@@ -453,25 +547,39 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 
 void VerdiusTogglePatches(bool enable, char[] name) {
 	if (StrEqual(name,"disciplinary")){
-		if (enable) {
-			Verdius_RevertDisciplinaryAction.Enable();
+		if (enable) {			
+#if defined WINDOWS32
+				Verdius_RevertDisciplinaryAction.Enable();
+				// The Windows port of Disciplinary Action Revert requires a extra step.
+				StoreToAddress(Verdius_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
+#else
+				Verdius_RevertDisciplinaryAction.Enable();
+#endif
 		} else {
 			Verdius_RevertDisciplinaryAction.Disable();
 		}
 	}
 	else if (StrEqual(name,"dragonfury")){
 		if (enable) {
-			Verdius_RevertTraceReqDragonsFury_JA.Enable();
-			Verdius_RevertTraceReqDragonsFury_JZ.Enable();
-			Verdius_RevertTraceReqDragonsFury_JNZ.Enable();
-			Verdius_RevertTraceReqDragonsFury_JNZ2.Enable();
-			Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
+#if defined WINDOWS32
+				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Enable();
+#else
+				Verdius_RevertTraceReqDragonsFury_JA.Enable();
+				Verdius_RevertTraceReqDragonsFury_JZ.Enable();
+				Verdius_RevertTraceReqDragonsFury_JNZ.Enable();
+				Verdius_RevertTraceReqDragonsFury_JNZ2.Enable();
+				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
+#endif			
 		} else {
-			Verdius_RevertTraceReqDragonsFury_JA.Disable();
-			Verdius_RevertTraceReqDragonsFury_JZ.Disable();
-			Verdius_RevertTraceReqDragonsFury_JNZ.Disable();
-			Verdius_RevertTraceReqDragonsFury_JNZ2.Disable();
-			Verdius_RevertTraceReqDragonsFury_FinalJNZ.Disable();
+#if defined WINDOWS32
+				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Disable();
+#else
+				Verdius_RevertTraceReqDragonsFury_JA.Disable();
+				Verdius_RevertTraceReqDragonsFury_JZ.Disable();
+				Verdius_RevertTraceReqDragonsFury_JNZ.Disable();
+				Verdius_RevertTraceReqDragonsFury_JNZ2.Disable();
+				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Disable();
+#endif		
 		}
 	}
 	else if (StrEqual(name,"miniramp")){
@@ -499,6 +607,13 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 			Verdius_RevertCozyCamperFlinch.Enable();
 		} else {
 			Verdius_RevertCozyCamperFlinch.Disable();
+		}
+	}
+	else if (StrEqual(name,"quickfix")){
+		if (enable) {
+			Verdius_RevertQuickFixUberCannotCapturePoint.Enable();
+		} else {
+			Verdius_RevertQuickFixUberCannotCapturePoint.Disable();
 		}
 	}
 }
@@ -706,7 +821,14 @@ public void OnGameFrame() {
 					{
 						// sodapopper stuff
 
-						if (ItemIsEnabled("sodapop")) {
+						if (ItemIsEnabled("sodapop"))
+						{
+							if (players[idx].is_under_hype)
+							{
+								// allow mini-crit buff to last indefinitely
+								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+							}
+
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
 
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
@@ -716,10 +838,14 @@ public void OnGameFrame() {
 
 								if (
 									StrEqual(class, "tf_weapon_soda_popper") &&
+									players[idx].is_under_hype == false &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
 									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
-										TF2_AddCondition(idx, TFCond_CritHype, 10.0, 0);
+										// Fall back to hype condition if the player has a drink item
+										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
+										players[idx].is_under_hype = has_lunchbox ? false : true;
 									}
 
 									if (
@@ -740,9 +866,28 @@ public void OnGameFrame() {
 										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
 									}
 								}
+
+								// hype meter drain on minicrit condition
+								if (players[idx].is_under_hype) {
+									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
+									
+									if (hype <= 0.0)
+									{
+										players[idx].is_under_hype = false;
+										TF2_RemoveCondition(idx, TFCond_CritCola);
+									}
+									else
+									{
+										hype -= 9.375 * GetTickInterval(); // m_fEnergyDrinkConsumeRate*0.75f
+										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
+									}
+								}
 							}
 						}
 					}
+				} else {
+					// reset if player isn't scout
+					players[idx].is_under_hype = false;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Soldier) {
@@ -917,6 +1062,7 @@ public void OnGameFrame() {
 					{
 						// deadringer cancel condition when feign buff ends
 						if (
+							ItemIsEnabled("ringer") &&
 							players[idx].spy_is_feigning &&
 							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
 							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
@@ -1025,6 +1171,7 @@ public void OnGameFrame() {
 				players[idx].spy_is_feigning = false;
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
+				players[idx].is_under_hype = false;
 			}
 		}
 	}
@@ -1193,6 +1340,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	}
 
 	{
+		// if player somehow activated hype condition, remove it, unless they have a drink item
+
+		if (
+			ItemIsEnabled("sodapop") &&
+			condition == TFCond_CritHype &&
+			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
+		) {
+			TF2_RemoveCondition(client, TFCond_CritHype);
+		}
+	}
+
+	{
 		// dead ringer stuff
 
 		if (
@@ -1248,6 +1407,20 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_RemoveCondition(client, TFCond_AfterburnImmune);
 
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
+		}
+	}
+}
+
+public void TF2_OnConditionRemoved(int client, TFCond condition) {
+	{
+		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
+		if (
+			ItemIsEnabled("sodapop") &&
+			condition == TFCond_CritCola &&
+			players[client].is_under_hype == true &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
+		) {
+			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
 }
@@ -1425,8 +1598,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
-		TF2Items_SetAttribute(item1, 0, 814, 0.0); // mod_mark_attacker_for_death
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
+		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while under the effect
 	}
 
 	else if (
@@ -1652,6 +1826,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 1, 874, 10000.0); //shield regen time. big number so it never respawns 
 	}
 
+	else if (
+	ItemIsEnabled("quickfix") &&
+	StrEqual(class, "tf_weapon_medigun") &&
+	(index == 411)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 10, 1.25); // +25% ÜberCharge rate
+	}
+
 #if defined VERDIUS_PATCHES
 	else if (
 		ItemIsEnabled("rescueranger") &&
@@ -1788,8 +1973,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, 3);
 		TF2Items_SetAttribute(item1, 0, 676, 0.0); // lose demo charge on damage when charging
+		TF2Items_SetAttribute(item1, 1, 60, 0.75); // 25% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 2, 64, 0.75); // 25% explosive damage resistance on wearer
 	}
 
 	else if (
@@ -2055,7 +2242,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
-
 		}
 	}
 
@@ -2065,6 +2251,53 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		//cache players weapons for later funcs
+		{
+			for (int i = 0; i < Wep_Placeholder; i++) {
+				player_weapons[client][i] = false;
+			}
+
+			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+			for (int i;i < length; i++)
+			{
+				weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+				if (weapon != -1)
+				{
+					GetEntityClassname(weapon, class, sizeof(class));
+					int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+
+					if(
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 163)
+					) {
+						player_weapons[client][Wep_CritCola] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_lunchbox_drink") &&
+						(index == 46 || index == 1145)
+					) {
+						player_weapons[client][Wep_Bonk] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 312)
+					) {
+						player_weapons[client][Wep_BrassBeast] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_rocketlauncher") &&
+						(index == 237)
+					) {
+						player_weapons[client][Wep_RocketJumper] = true;
+					}
+				}
+			}
+		}
+
+		//item sets
 		if (
 			ItemIsEnabled("saharan")
 		) {
@@ -2139,28 +2372,17 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			//perform health fuckery
-			players[client].bonus_health = 0;
-			/*
-			if(
-				ItemIsEnabled("pocket") &&
-				PlayerHasItem(client,"tf_weapon_handgun_scout_secondary",773)
-			) {
-				players[client].bonus_health += 15;
+			// if player has a drink item, end minicrits and apply hype
+
+			if (players[client].is_under_hype)
+			{
+				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
+				if (has_lunchbox)
+				{
+					players[client].is_under_hype = false;
+					TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
+				}
 			}
-			else if(
-				ItemIsEnabled("claidheamh") &&
-				PlayerHasItem(client,"tf_weapon_sword",327)
-			) {
-				players[client].bonus_health -= 15;
-			}
-			else if(
-				ItemIsEnabled("warrior") &&
-				PlayerHasItem(client,"tf_weapon_fists",310)
-			) {
-				players[client].bonus_health -= 20;
-			}
-			*/
 		}
 	}
 
@@ -2397,15 +2619,17 @@ Action SDKHookCB_OnTakeDamage(
 				}
 				
 				// dead ringer damage tracking
-				if (
-					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-					players[victim].spy_is_feigning == false
-				) {
-					players[victim].ticks_since_feign_ready = GetGameTickCount();
-				}
-				
-				if (players[victim].spy_is_feigning) {
-					players[victim].damage_taken_during_feign += damage;
+				if (ItemIsEnabled("ringer")) {
+					if (
+						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+						players[victim].spy_is_feigning == false
+					) {
+						players[victim].ticks_since_feign_ready = GetGameTickCount();
+					}
+					
+					if (players[victim].spy_is_feigning) {
+						players[victim].damage_taken_during_feign += damage;
+					}
 				}
 			}
 		}
@@ -2939,18 +3163,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			if (TF2_IsPlayerInCondition(victim, TFCond_CritCola) && TF2_GetPlayerClass(victim) == TFClass_Scout && ItemIsEnabled("critcola")) // 10% damage vulnerability while using Crit-a-Cola.
-			{
-				damage *= 1.10;
-				returnValue = Plugin_Changed;
-			}
-		}
-		{
 			if (
 				ItemIsEnabled("brassbeast") &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				PlayerHasItem(victim,"tf_weapon_minigun",312)
+				player_weapons[victim][Wep_BrassBeast]
 			) {
 				// 20% damage resistance when spun up with the Brass Beast
 				damage *= 0.80;
@@ -2962,7 +3179,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("rocketjmp") &&
 				victim == attacker &&
 				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-				PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+				player_weapons[victim][Wep_RocketJumper]
 			) {
 				// save old health and set health to 500 to tank the grenade blast
 				// do it this way in order to preserve knockback caused by the explosion
@@ -2987,7 +3204,7 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled("rocketjmp") &&
 			victim == attacker &&
 			damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-			PlayerHasItem(victim,"tf_weapon_rocketlauncher",237)
+			player_weapons[victim][Wep_RocketJumper]
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
@@ -3077,27 +3294,6 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
-}
-
-bool PlayerHasItem(int client, char[] classname, int item_index) {
-	int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
-	for (int i;i < length; i++)
-	{
-		int weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
-		if (weapon != -1)
-		{
-			char class[64];
-			GetEntityClassname(weapon, class, sizeof(class));
-			int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
-			if(
-				StrEqual(classname, class) &&
-				(item_index == index)
-			) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
@@ -3609,34 +3805,19 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_GetMaxHealthForBuffing(int entity, DHookReturn returnValue) {
-	int iMax = returnValue.Value;
-	int iNewMax = iMax;
-
-	if (
-		entity >= 1 && entity <= MaxClients
-	) {
-		if (IsValidEntity(entity) && IsPlayerAlive(entity)) // health fixing
-		{
-			iNewMax += players[entity].bonus_health;
-		}
-	}
-	players[entity].max_health = iNewMax;
-	if (iNewMax != iMax)
-	{
-		returnValue.Value = iNewMax;
-		return MRES_Supercede;
-	}
-
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
 	if (
 		entity >= 1 && entity <= MaxClients
 	) {
-		if (IsValidEntity(entity) && TF2_IsPlayerInCondition(entity, TFCond_CritCola) && TF2_GetPlayerClass(entity) == TFClass_Scout && ItemIsEnabled("critcola")) // Crit-a-Cola speed boost.
+		if (
+			ItemIsEnabled("critcola") &&
+			IsValidEntity(entity) &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Scout &&
+			player_weapons[entity][Wep_CritCola]
+		) 
 		{
+			// Crit-a-Cola speed boost.
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}
