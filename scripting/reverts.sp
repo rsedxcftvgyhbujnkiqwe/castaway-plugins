@@ -34,6 +34,7 @@
 #include <tf2items>
 #include <tf2utils>
 #include <tf2attributes>
+#include <tf2condhooks>
 #include <dhooks>
 #include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
 #undef REQUIRE_PLUGIN
@@ -1395,12 +1396,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			}
 
 			if (TF2_IsPlayerInCondition(client, TFCond_DeadRingered)) {
-				if (condition == TFCond_SpeedBuffAlly) {
-					// cancel speed buff
-					// sound still plays clientside :(
-
-					TF2_RemoveCondition(client, TFCond_SpeedBuffAlly);
-				}
 				
 				if (
 					condition == TFCond_AfterburnImmune &&
@@ -1447,6 +1442,21 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
+}
+
+public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
+	{
+		// prevent speed boost being applied on feign death
+		if (
+			ItemIsEnabled("ringer") &&
+			condition == TFCond_SpeedBuffAlly &&
+			TF2_GetPlayerClass(client) == TFClass_Spy &&
+			players[client].ticks_since_feign_ready == GetGameTickCount()
+		) {
+			return Plugin_Handled;
+		}
+	}
+	return Plugin_Continue;
 }
 
 public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Handle& item) {
