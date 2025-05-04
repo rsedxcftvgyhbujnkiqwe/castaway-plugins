@@ -1611,7 +1611,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		//sword holster code handled here
 		if(swords) {
 			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
-			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
+			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 		}
 	}
 
@@ -2058,7 +2058,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 781, 0.0); // is a sword
-		TF2Items_SetAttribute(item1, 1, 264, 1.0); // melee range multiplier
+		TF2Items_SetAttribute(item1, 1, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 	}
 
 	if (item1 != null) {
