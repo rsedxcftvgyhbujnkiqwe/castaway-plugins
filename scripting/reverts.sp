@@ -249,7 +249,6 @@ enum
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
 
-
 public void OnPluginStart() {
 	int idx;
 	Handle conf;
@@ -646,6 +645,7 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("Jar.Explode");
+	PrecacheScriptSound("Player.ResistanceLight");
 }
 
 public void OnGameFrame() {
@@ -3183,8 +3183,17 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
 				player_weapons[victim][Wep_BrassBeast]
 			) {
-				// 20% damage resistance when spun up with the Brass Beast
-				damage *= 0.80;
+				// Brass Beast damage resistance when spun up
+				
+				// play damage resist sound
+				EmitGameSoundToAll("Player.ResistanceLight", victim);
+				
+				// apply resistance (1/3 on crits)
+				if (damage_type & DMG_CRIT != 0)
+					damage *= 0.93333333;
+				else
+					damage *= 0.80;
+				
 				returnValue = Plugin_Changed;
 			}
 		}
