@@ -413,6 +413,21 @@ public Action Timer_PreventScramble(Handle timer)
 	return Plugin_Stop;
 }
 
+void ForceRespawn()
+{
+	int flags = GetCommandFlags("mp_forcerespawnplayers");
+	SetCommandFlags("mp_forcerespawnplayers", flags & ~FCVAR_CHEAT);
+	ServerCommand("mp_forcerespawnplayers");
+	// wait 0.1 seconds before resetting flag or else it would complain
+	// about not having sv_cheats 1
+	CreateTimer(0.1, Post_RespawnCommandRun, flags);
+}
+
+public Action Post_RespawnCommandRun(Handle timer, int flags) {
+	SetCommandFlags("mp_forcerespawnplayers", flags);
+	return Plugin_Continue;
+}
+
 void TF2_ResetTeamScore(int team) {
 	if (team != BLU && team != RED) return;
 
@@ -551,6 +566,8 @@ void ScrambleTeams()
 	//reset scores
 	TF2_ResetTeamScore(RED);
 	TF2_ResetTeamScore(BLU);
+
+	ForceRespawn();
 
 	g_bScrambleTeamsInProgress = false;
 
