@@ -416,7 +416,7 @@ public Action Timer_PreventScramble(Handle timer)
 void ForceRespawn()
 {
 	int flags = GetCommandFlags("mp_forcerespawnplayers");
-	SetCommandFlags("mp_forcerespawnplayers", flags &= ~FCVAR_CHEAT);
+	SetCommandFlags("mp_forcerespawnplayers", flags & ~FCVAR_CHEAT);
 	ServerCommand("mp_forcerespawnplayers");
 	SetCommandFlags("mp_forcerespawnplayers", flags);
 }
