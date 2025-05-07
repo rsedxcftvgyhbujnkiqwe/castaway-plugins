@@ -249,6 +249,7 @@ enum
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
 
+
 public void OnPluginStart() {
 	int idx;
 	Handle conf;
@@ -3189,8 +3190,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 				EmitGameSoundToAll("Player.ResistanceLight", victim);
 				
 				// apply resistance (1/3 on crits)
+				// if someone can figure out how to check for minicrits, multiply by 0.851851851 for that
 				if (damage_type & DMG_CRIT != 0)
-					damage *= 0.93333333;
+					damage *= 0.93333333; // also applies to minicrits
 				else
 					damage *= 0.80;
 				
