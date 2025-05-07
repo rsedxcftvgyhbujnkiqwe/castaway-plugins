@@ -413,6 +413,14 @@ public Action Timer_PreventScramble(Handle timer)
 	return Plugin_Stop;
 }
 
+void ForceRespawn()
+{
+	int flags = GetCommandFlags("mp_forcerespawnplayers");
+	SetCommandFlags("mp_forcerespawnplayers", flags &= ~FCVAR_CHEAT);
+	ServerCommand("mp_forcerespawnplayers");
+	SetCommandFlags("mp_forcerespawnplayers", flags);
+}
+
 void TF2_ResetTeamScore(int team) {
 	if (team != BLU && team != RED) return;
 
@@ -551,6 +559,8 @@ void ScrambleTeams()
 	//reset scores
 	TF2_ResetTeamScore(RED);
 	TF2_ResetTeamScore(BLU);
+
+	ForceRespawn();
 
 	g_bScrambleTeamsInProgress = false;
 
