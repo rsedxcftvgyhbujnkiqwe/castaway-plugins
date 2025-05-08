@@ -156,6 +156,7 @@ enum struct Player {
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
 	bool is_under_hype;
+	bool crit_flag;
 }
 
 //item sets
@@ -2693,6 +2694,9 @@ Action SDKHookCB_OnTakeDamage(
 	) {
 		// damage from players only
 
+		// useful for checking minicrits in OnTakeDamageAlive
+		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
+
 		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
@@ -3189,10 +3193,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// play damage resist sound
 				EmitGameSoundToAll("Player.ResistanceLight", victim);
 				
-				// apply resistance (1/3 on crits)
-				// if someone can figure out how to check for minicrits, multiply by 0.851851851 for that
+				// apply resistance
 				if (damage_type & DMG_CRIT != 0)
-					damage *= 0.93333333; // also applies to minicrits
+					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
 				else
 					damage *= 0.80;
 				
