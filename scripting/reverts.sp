@@ -245,6 +245,7 @@ enum
 	Wep_CritCola,
 	Wep_Bonk,
 	Wep_BrassBeast,
+	Wep_Natascha,
 	Wep_RocketJumper,
 	Wep_Placeholder
 }
@@ -279,7 +280,7 @@ public void OnPluginStart() {
 	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit, uncapped", CLASSFLAG_SOLDIER);
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
-	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Brass Beast & Natascha", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
@@ -1556,7 +1557,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled("brassbeast") &&
 		StrEqual(class, "tf_weapon_minigun") &&
-		(index == 312)
+		(index == 41 || index == 312)
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2300,6 +2301,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(index == 312)
 					) {
 						player_weapons[client][Wep_BrassBeast] = true;
+					}
+
+					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 41)
+					) {
+						player_weapons[client][Wep_Natascha] = true;
 					}
 
 					else if (
@@ -3186,7 +3194,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				ItemIsEnabled("brassbeast") &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				player_weapons[victim][Wep_BrassBeast]
+				(player_weapons[victim][Wep_BrassBeast] || player_weapons[victim][Wep_Natascha])
 			) {
 				// Brass Beast damage resistance when spun up
 				
