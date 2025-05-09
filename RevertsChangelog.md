@@ -2,6 +2,26 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 9, 2025
+- **Fixed the Big Earner's 3-second speedboost being extended by the reverted Dead Ringer on feign death.**
+- **Fixed the duration reduction of Spies under Dead Ringer when being damaged by weapons such as the Ullapool Caber and the Enforcer.**
+- **Made the damage resistance attribute of the reverted Brass Beast (and the Natascha) to be more historically accurate.**
+  - The damage resistance percentage now depends on what type of damage is dealt onto the Heavy. For normal damage, 20% damage resistance is applied. For mini-crit damage received, 14.7% damage resistance is applied. For critical hit damage received, 6.7% damage resistance is applied.
+- **Damage resistance sounds now play when the Heavy is hit while spinning up the reverted Brass Beast and the reverted Natascha.**
+- **Reverted Natascha to pre-Meet your Match. The 20% damage resistance when spun up now applies regardless of current HP.**
+  - *The Natascha*
+    - On Hit: 100% chance to slow target
+    - 20% damage resistance when spun up
+    - -25% damage penalty
+    - 30% slower spin up time
+
+### May 1, 2025
+- **Updated reverts.txt offsets in the gamedata folder, fixing the Soldier's rocket kills showing up as headshots, the reverted Short Circuit's alt-fire using the modern energy ball, and the Thermal Thruster playing a parachute sound on use.**
+  - For context, TF2 had a recent patch which affected the weapon reverts plug-in.
+- **Updated the reverted Crit-a-Cola's damage vulnerability attribute to be more historically accurate.**
+  - The 10% damage vulnerability should only apply to normal damage. Mini-crit and critical hit damage does not get modified by the 10% damage vulnerability attribute. This means Scouts don't die faster to mini-crits and critical hits now.
+- **Fixed the reverted Black Box's heal-on-hit attribute to work again.**
+
 ### April 28, 2025
 - **Added Windows port for the weapon reverts plugin. The plugin should now work out of the box for Windows servers.**
 - **Reverted the Quick-Fix to have 25% increased Uber build rate, and to be able to capture objectives while under the effects of its Uber for both the healer and patient.**
