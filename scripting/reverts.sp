@@ -280,7 +280,7 @@ public void OnPluginStart() {
 	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit, uncapped", CLASSFLAG_SOLDIER);
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
-	ItemDefine("Brass Beast & Natascha", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
@@ -309,6 +309,7 @@ public void OnPluginStart() {
 	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN);
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN);
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
+	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, full drains", CLASSFLAG_ENGINEER);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
@@ -1557,7 +1558,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled("brassbeast") &&
 		StrEqual(class, "tf_weapon_minigun") &&
-		(index == 41 || index == 312)
+		(index == 312)
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -1776,6 +1777,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		// TF2Items_SetAttribute(item1, 2, 207, 1.25); // self damage
 		// TF2Items_SetAttribute(item1, 3, 100, 1.00); // radius penalty
 		// TF2Items_SetAttribute(item1, 4, 3, 0.50); // clip size
+	}
+
+	else if (
+		ItemIsEnabled("natascha") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 41)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
 	}
 
 	else if (
@@ -3191,10 +3203,10 @@ Action SDKHookCB_OnTakeDamageAlive(
 		}
 		{
 			if (
-				ItemIsEnabled("brassbeast") &&
+				((ItemIsEnabled("brassbeast") && player_weapons[victim][Wep_BrassBeast]) ||
+				(ItemIsEnabled("natascha") && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				(player_weapons[victim][Wep_BrassBeast] || player_weapons[victim][Wep_Natascha])
+				TF2_GetPlayerClass(victim) == TFClass_Heavy
 			) {
 				// Brass Beast damage resistance when spun up
 				
