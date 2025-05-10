@@ -2788,6 +2788,14 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled("caber") &&
 					StrEqual(class, "tf_weapon_stickbomb")
 				) {
+					// crit on shield bash
+					if (
+						ItemIsEnabled("shields") &&
+						(GetGameTime() - players[attacker].shield_bash_time) < 0.5
+					) {
+						damage_type = (damage_type | DMG_CRIT);
+					}
+
 					if (
 						damage_custom == TF_DMG_CUSTOM_NONE &&
 						damage == 55.0
@@ -3035,10 +3043,7 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntityClassname(weapon1, class, sizeof(class));
 
 						if (StrEqual(class, "tf_weapon_katana")) {
-							if (
-								ItemIsEnabled("zatoichi") ||
-								ItemIsEnabled("zatoichi")
-							) {
+							if (ItemIsEnabled("zatoichi")) {
 								damage1 = (float(GetEntProp(victim, Prop_Send, "m_iHealth")) * 3.0);
 
 								if (damage1 > damage) {
@@ -3051,8 +3056,6 @@ Action SDKHookCB_OnTakeDamage(
 							}
 						}
 					}
-
-					return Plugin_Continue;
 				}
 			}
 
@@ -3151,7 +3154,6 @@ Action SDKHookCB_OnTakeDamage(
 						 StrEqual(class, "tf_weapon_sword") ||
 						 StrEqual(class, "tf_weapon_shovel") ||
 						 StrEqual(class, "saxxy") ||
-						 StrEqual(class, "tf_weapon_stickbomb") ||
 						 StrEqual(class, "tf_weapon_katana")) &&
 						(GetGameTime() - players[attacker].shield_bash_time) < 0.5
 					) {
