@@ -3147,7 +3147,12 @@ Action SDKHookCB_OnTakeDamage(
 
 					// crit after shield bash (this does not play the crit swing animation)
 					if (
-						(StrEqual(class, "tf_weapon_sword") || StrEqual(class, "tf_weapon_katana")) &&
+						(StrEqual(class, "tf_weapon_bottle") ||
+						 StrEqual(class, "tf_weapon_sword") ||
+						 StrEqual(class, "tf_weapon_shovel") ||
+						 StrEqual(class, "saxxy") ||
+						 StrEqual(class, "tf_weapon_stickbomb") ||
+						 StrEqual(class, "tf_weapon_katana")) &&
 						(GetGameTime() - players[attacker].shield_bash_time) < 0.5
 					) {
 						damage_type = (damage_type | DMG_CRIT);
