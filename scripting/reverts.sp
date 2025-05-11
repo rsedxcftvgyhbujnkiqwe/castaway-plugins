@@ -262,7 +262,8 @@ TFCond debuffs[] =
 	TFCond_OnFire,
 	TFCond_Jarated,
 	TFCond_Bleeding,
-	TFCond_Milked
+	TFCond_Milked,
+	TFCond_Gas
 };
 
 public void OnPluginStart() {
@@ -2788,14 +2789,6 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled("caber") &&
 					StrEqual(class, "tf_weapon_stickbomb")
 				) {
-					// crit on shield bash
-					if (
-						ItemIsEnabled("shields") &&
-						(GetGameTime() - players[attacker].shield_bash_time) < 0.5
-					) {
-						damage_type = (damage_type | DMG_CRIT);
-					}
-
 					if (
 						damage_custom == TF_DMG_CUSTOM_NONE &&
 						damage == 55.0
@@ -3056,6 +3049,7 @@ Action SDKHookCB_OnTakeDamage(
 							}
 						}
 					}
+					return Plugin_Continue;
 				}
 			}
 
@@ -3137,6 +3131,11 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						players[attacker].shield_bash_time = GetGameTime();
 
+						// crit after shield bash if melee is active weapon
+						weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+						if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
+							TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
+
 						// apply shield bash damage at the end of a charge, unless using splendid screen
 						if (player_weapons[attacker][Wep_SplendidScreen] == false)
 						{
@@ -3146,19 +3145,6 @@ Action SDKHookCB_OnTakeDamage(
 								return Plugin_Handled;
 							}
 						}
-					}
-
-					// crit after shield bash (this does not play the crit swing animation)
-					if (
-						(StrEqual(class, "tf_weapon_bottle") ||
-						 StrEqual(class, "tf_weapon_sword") ||
-						 StrEqual(class, "tf_weapon_shovel") ||
-						 StrEqual(class, "saxxy") ||
-						 StrEqual(class, "tf_weapon_katana")) &&
-						(GetGameTime() - players[attacker].shield_bash_time) < 0.5
-					) {
-						damage_type = (damage_type | DMG_CRIT);
-						return Plugin_Changed;
 					}
 				}
 			}
