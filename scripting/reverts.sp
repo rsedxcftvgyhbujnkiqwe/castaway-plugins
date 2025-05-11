@@ -159,7 +159,6 @@ enum struct Player {
 	float damage_taken_during_feign;
 	bool is_under_hype;
 	bool crit_flag;
-	float shield_bash_time;
 	int charge_tick;
 }
 
@@ -3129,8 +3128,6 @@ Action SDKHookCB_OnTakeDamage(
 						StrEqual(class, "tf_wearable_demoshield") &&
 						damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT
 					) {
-						players[attacker].shield_bash_time = GetGameTime();
-
 						// crit after shield bash if melee is active weapon
 						weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 						if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
