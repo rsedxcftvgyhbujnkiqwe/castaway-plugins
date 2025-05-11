@@ -282,7 +282,7 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY);
 #endif
-	ItemDefine("All Shields", "shields", "Reverted mechanics to pre-toughbreak, always crit after shield bash, no debuff removal", CLASSFLAG_DEMOMAN);
+	ItemDefine("All Shields", "shields", "Reverted to pre-toughbreak, crits after bash, no debuff removal, only Splendid Screen can bash dmg at any range", CLASSFLAG_DEMOMAN);
 	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy penalty", CLASSFLAG_DEMOMAN);
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY);
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT);
