@@ -250,7 +250,9 @@ enum
 	Wep_BrassBeast,
 	Wep_Natascha,
 	Wep_RocketJumper,
+	Wep_CharginTarge,
 	Wep_SplendidScreen,
+	Wep_TideTurner,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
@@ -282,7 +284,6 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY);
 #endif
-	ItemDefine("All Shields", "shields", "Reverted to pre-toughbreak, crits after bash, no debuff removal, only Splendid Screen can bash dmg at any range", CLASSFLAG_DEMOMAN);
 	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy penalty", CLASSFLAG_DEMOMAN);
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY);
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT);
@@ -295,7 +296,7 @@ public void OnPluginStart() {
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
-	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity", CLASSFLAG_DEMOMAN);
+	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
 #if defined VERDIUS_PATCHES
@@ -347,10 +348,11 @@ public void OnPluginStart() {
 	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force", CLASSFLAG_SCOUT);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
+	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, old shield mechanics, bash dmg at any range", CLASSFLAG_DEMOMAN);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer", CLASSFLAG_SPY);
 	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER);
-	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, +25% blast and fire resist", CLASSFLAG_DEMOMAN);
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER);
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN);
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC);
@@ -1473,11 +1475,8 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		}
 	}
 	{
-		// save charge tick to prevent debuff removal
-		if (
-			ItemIsEnabled("shields") &&
-			condition == TFCond_Charging
-		) {
+		// save charge tick (for preventing debuff removal)
+		if (condition == TFCond_Charging) {
 			players[client].charge_tick = GetGameTickCount();
 			return Plugin_Continue;
 		}
@@ -1489,7 +1488,9 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 	{
 		// prevent debuff removal for shields
 		if (
-			ItemIsEnabled("shields") &&
+			((ItemIsEnabled("targe") && player_weapons[client][Wep_CharginTarge]) ||
+			 (ItemIsEnabled("splendid") && player_weapons[client][Wep_SplendidScreen]) ||
+			 (ItemIsEnabled("turner") && player_weapons[client][Wep_TideTurner])) &&
 			players[client].charge_tick == GetGameTickCount()
 		) {
 			for (int i = 0; i < sizeof(debuffs); ++i)
@@ -2010,6 +2011,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("splendid") &&
+		StrEqual(class, "tf_wearable_demoshield") &&
+		(index == 406)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 64, 0.85); // dmg taken from blast reduced
+		TF2Items_SetAttribute(item1, 1, 249, 1.00); // remove +50% increase in charge recharge rate
+		TF2Items_SetAttribute(item1, 2, 247, 1.0); // can deal charge impact damage at any range
+	}
+
+	else if (
 		ItemIsEnabled("spycicle") &&
 		StrEqual(class, "tf_weapon_knife") &&
 		(index == 649)
@@ -2389,9 +2403,23 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				
 				if (
 					StrEqual(class,"tf_wearable_demoshield") &&
+					(index == 131)
+				) {
+					player_weapons[client][Wep_CharginTarge] = true;
+				}
+
+				else if (
+					StrEqual(class,"tf_wearable_demoshield") &&
 					(index == 406)
 				) {
 					player_weapons[client][Wep_SplendidScreen] = true;
+				}
+
+				else if (
+					StrEqual(class,"tf_wearable_demoshield") &&
+					(index == 1099)
+				) {
+					player_weapons[client][Wep_TideTurner] = true;
 				}
 			}
 		}
@@ -3119,28 +3147,26 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// shield stuff
+				// shield bash
+				if (
+					((ItemIsEnabled("targe") && player_weapons[attacker][Wep_CharginTarge]) ||
+					 (ItemIsEnabled("splendid") && player_weapons[attacker][Wep_SplendidScreen]) ||
+					 (ItemIsEnabled("turner") && player_weapons[attacker][Wep_TideTurner])) &&
+					StrEqual(class, "tf_wearable_demoshield") &&
+					damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT
+				) {
+					// crit after shield bash if melee is active weapon
+					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
+						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
 
-				if (ItemIsEnabled("shields"))
-				{
-					// shield bash
-					if (
-						StrEqual(class, "tf_wearable_demoshield") &&
-						damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT
-					) {
-						// crit after shield bash if melee is active weapon
-						weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-						if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
-							TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
-
-						// apply shield bash damage at the end of a charge, unless using splendid screen
-						if (player_weapons[attacker][Wep_SplendidScreen] == false)
+					// apply shield bash damage at the end of a charge, unless using splendid screen
+					if (player_weapons[attacker][Wep_SplendidScreen] == false)
+					{
+						charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");
+						if (charge > 40.0) // check if this is the correct value
 						{
-							charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");
-							if (charge > 40.0) // check if this is the correct value
-							{
-								return Plugin_Handled;
-							}
+							return Plugin_Handled;
 						}
 					}
 				}
