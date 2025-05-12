@@ -179,6 +179,7 @@ enum struct Entity {
 
 Handle cvar_enable;
 Handle cvar_extras;
+Handle cvar_jumper_flag_run;
 Handle cvar_ref_tf_airblast_cray;
 Handle cvar_ref_tf_bison_tick_time;
 Handle cvar_ref_tf_dropped_weapon_lifetime;
@@ -278,6 +279,7 @@ public void OnPluginStart() {
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
+	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
@@ -1571,6 +1573,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("rocketjmp") &&
+		StrEqual(class, "tf_weapon_rocketlauncher") &&
+		index == 237 &&
+		GetConVarBool(cvar_jumper_flag_run)
+	) {
+		item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 400, 0.0);
+	}
+
+	else if (
 		ItemIsEnabled("beggars") &&
 		StrEqual(class, "tf_weapon_rocketlauncher") &&
 		(index == 730)
@@ -2041,8 +2054,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, GetConVarBool(cvar_jumper_flag_run) ? 2 : 1);
 		TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
+		if (GetConVarBool(cvar_jumper_flag_run)) {
+			TF2Items_SetAttribute(item1, 1, 400, 0.0);
+		}
 	}
 
 	else if (
