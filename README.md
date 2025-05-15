@@ -18,6 +18,7 @@ The reverts plugin has the following dependencies:
 - [TF2Items](https://github.com/nosoop/SMExt-TF2Items)
 - [TF2Attributes](https://github.com/FlaminSarge/tf2attributes)
 - [TF2Utils](https://github.com/nosoop/SM-TFUtils)
+- [TF2 Condition Hooks](https://github.com/Scags/TF2-Condition-Hooks) ([modified source file](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/blob/master/scripting/tf2condhooks.sp), [gamedata](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/blob/master/gamedata/tf2.condmgr.txt))
 - [Source Scramble](https://github.com/nosoop/SMExt-SourceScramble) - Only required if using the memory patches (see Usage for more info)
 
 No other plugins have any external dependencies, and the include files for the above dependencies are within this repo.
