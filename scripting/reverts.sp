@@ -1202,9 +1202,6 @@ public void OnGameFrame() {
 
 						if (TF2_IsPlayerInCondition(idx, TFCond_Parachute)) {
 							players[idx].parachute_cond_time = GetGameTime();
-							
-							// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
-							SetConVarFloat(cvar_ref_tf_parachute_maxspeed_onfire_z, 10.0);	
 
 							if (
 								ItemIsEnabled("basejump") &&
@@ -1297,6 +1294,8 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled("bison"));
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled("dragonfury"));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled("basejump"));
+			// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
+			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled("basejump"));	
 		}
 	}
 }
