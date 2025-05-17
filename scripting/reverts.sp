@@ -1202,6 +1202,9 @@ public void OnGameFrame() {
 
 						if (TF2_IsPlayerInCondition(idx, TFCond_Parachute)) {
 							players[idx].parachute_cond_time = GetGameTime();
+							
+							// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
+							SetConVarFloat(cvar_ref_tf_parachute_maxspeed_onfire_z, 10.0);	
 
 							if (
 								ItemIsEnabled("basejump") &&
