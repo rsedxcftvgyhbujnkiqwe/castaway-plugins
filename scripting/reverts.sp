@@ -1739,7 +1739,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 3);
-		TF2Items_SetAttribute(item1, 0, 60, 1.50); // +0% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
 		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
 		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
 	}
