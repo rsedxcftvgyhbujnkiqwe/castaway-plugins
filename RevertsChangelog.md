@@ -2,6 +2,23 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 18, 2025
+- **Fixed reverted B.A.S.E. Jumper fire updraft bonus not working**
+
+### May 15, 2025
+- **Reverted the shield charge mechanics and stats for the Splendid Screen to pre-Tough Break.**
+  - Right after impacting an enemy with a shield charge, the Demoman is able to do a critical melee hit from any distance, even at close range.
+    - See this video for a clearer example (start at 3:55): https://youtu.be/DByy2z7VLzI?si=DZAkfYb3b24rkBAv&t=235
+  - The reverted Splendid Screen can still do shield bash damage at any distance, but it does not have the +50% charge recharge rate bonus anymore and only has +15% explosive damage resistance on wearer compared to the current vanilla version.
+  - Charging with The Splendid Screen does not remove debuffs anymore (Afterburn, Jarate, Mad Milk, Bleed & Gas) from the wearer.
+    - *The Splendid Screen*
+    - *+20% fire damage resistance on wearer*
+    - *+15% explosive damage resistance on wearer*
+    - *+70% increase in charge impact damage*
+    - *Alt-Fire: Charge toward your enemies.*
+    - *Gain a critical melee strike after impacting an enemy.*
+    - *Shield bashes cause damage to the enemy.*
+
 ### May 11, 2025
 - **Reverted the shield charge mechanics for the Chargin' Targe and the Tide Turner.**
   - Right after impacting an enemy with a shield charge, the Demoman is able to do a critical melee hit from any distance, even at close range.
