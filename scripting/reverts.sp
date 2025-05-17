@@ -300,6 +300,7 @@ public void OnPluginStart() {
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER);
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
@@ -307,6 +308,7 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-2013, +25 max health, no afterburn immunity, no damage modifiers", CLASSFLAG_SNIPER);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
 #if defined VERDIUS_PATCHES
@@ -1651,6 +1653,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("bushwacka") &&
+		StrEqual(class, "tf_weapon_club") &&
+		(index == 232)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetAttribute(item1, 0, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 1, 412, 1.00); // 0% damage vulnerability on wearer
+		TF2Items_SetAttribute(item1, 2, 15, 1.0); // random crits enabled
+		TF2Items_SetAttribute(item1, 3, 61, 1.20); // 20% fire damage vulnerability on wearer
+	}
+
+	else if (
 		ItemIsEnabled("caber") &&
 		StrEqual(class, "tf_weapon_stickbomb")
 	) {
@@ -1713,6 +1729,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
 		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while under the effect
+	}
+
+	else if (
+		ItemIsEnabled("darwin") &&
+		StrEqual(class, "tf_wearable") &&
+		(index == 231)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 60, 1.50); // +0% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
+		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
 	}
 
 	else if (
