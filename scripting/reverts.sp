@@ -3108,7 +3108,10 @@ Action SDKHookCB_OnTakeDamage(
 
 					// disable headshot crits
 					// ...is this even needed?
-					if (damage_type & DMG_CRIT != 0) {
+					if (
+						damage_type & DMG_CRIT != 0 &&
+						PlayerIsCritboosted(attacker) == false
+					) {
 						damage_type = (damage_type & ~DMG_CRIT);
 						return Plugin_Changed;
 					}
