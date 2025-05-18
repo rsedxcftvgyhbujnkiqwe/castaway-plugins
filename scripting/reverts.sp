@@ -160,6 +160,7 @@ enum struct Player {
 	bool is_under_hype;
 	bool crit_flag;
 	int charge_tick;
+	int fall_dmg_tick;
 }
 
 //item sets
@@ -180,6 +181,7 @@ enum struct Entity {
 Handle cvar_enable;
 Handle cvar_extras;
 Handle cvar_jumper_flag_run;
+Handle cvar_old_falldmg_sfx;
 Handle cvar_ref_tf_airblast_cray;
 Handle cvar_ref_tf_bison_tick_time;
 Handle cvar_ref_tf_dropped_weapon_lifetime;
@@ -280,6 +282,7 @@ public void OnPluginStart() {
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
+	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 
 	HookConVarChange(cvar_jumper_flag_run, JumperFlagRunCvarChange);
 
@@ -2592,6 +2595,33 @@ Action OnSoundNormal(
 			}
 		}
 	}
+	if (GetConVarBool(cvar_old_falldmg_sfx))
+	{
+		if (StrContains(sample, "pl_fallpain") != -1)
+		{
+			for (idx = 1; idx <= MaxClients; idx++)
+			{
+				if (players[idx].fall_dmg_tick == GetGameTickCount())
+				{
+					// play old bone crunch
+					strcopy(sample, PLATFORM_MAX_PATH, "player/pl_fleshbreak.wav");
+					pitch = 92;
+					return Plugin_Changed;
+				}
+			}
+		}
+		else if (StrContains(sample, "PainSevere") != -1)
+		{
+			for (idx = 1; idx <= MaxClients; idx++)
+			{
+				if (players[idx].fall_dmg_tick == GetGameTickCount())
+				{
+					// cancel hurt sound by fall dmg
+					return Plugin_Stop;
+				}
+			}
+		}
+	}
 
 	return Plugin_Continue;
 }
@@ -2755,6 +2785,12 @@ Action SDKHookCB_OnTakeDamage(
 		victim <= MaxClients
 	) {
 		// damage from any source
+
+		{
+			// save fall dmg tick for overriding with old fall dmg sound
+			if (damage_type & DMG_FALL)
+				players[victim].fall_dmg_tick = GetGameTickCount();
+		}
 
 		{
 			// dead ringer cvars set
