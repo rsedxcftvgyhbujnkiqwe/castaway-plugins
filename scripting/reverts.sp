@@ -2371,6 +2371,31 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
+
+			{
+				// fix sydney sleeper headshot kill icon (unless crit-boosted)
+
+				if (
+					GetEventInt(event, "customkill") == TF_CUSTOM_HEADSHOT &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
+					PlayerIsCritboosted(attacker) == false
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled("sleeper") &&
+							StrEqual(class, "tf_weapon_sniperrifle") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+						) {
+							SetEventInt(event, "customkill", TF_DMG_CUSTOM_NONE);
+							return Plugin_Changed;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -3510,6 +3535,30 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
+}
+
+TFCond critboosts[] =
+{
+	TFCond_Kritzkrieged,
+	TFCond_HalloweenCritCandy,
+	TFCond_CritCanteen,
+	TFCond_CritOnFirstBlood,
+	TFCond_CritOnWin,
+	TFCond_CritOnFlagCapture,
+	TFCond_CritOnKill,
+	TFCond_CritMmmph,
+	TFCond_CritOnDamage,
+	TFCond_CritRuneTemp
+};
+
+bool PlayerIsCritboosted(int client) {
+	for (int i = 0; i < sizeof(critboosts); ++i)
+	{
+		if (TF2_IsPlayerInCondition(client, critboosts[i]))
+			return true;
+	}
+
+	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
