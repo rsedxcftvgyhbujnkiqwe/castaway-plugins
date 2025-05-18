@@ -2105,6 +2105,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
 		TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
+		// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 	}
 
 	else if (
