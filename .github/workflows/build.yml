@@ -3,41 +3,50 @@ name: build
 on: push
 
 jobs:
-    build:
-        name: Build plugins
-        runs-on: ubuntu-latest
+  build:
+    name: Build (SM ${{ matrix.sm-target }})
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repo
-              uses: actions/checkout@v4
-            
-            - name: Setup SourceMod
-              run: |
-                export LATEST_SOURCEMOD=$(curl https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux)
-                export LATEST_NATIVEVOTES=$(curl https://api.github.com/repos/sapphonie/sourcemod-nativevotes-updated/releases/latest | jq -r '.assets[] | select ( .name == "nativevotes_sm_1.12.zip" ).browser_download_url')
-                wget -O sourcemod.tar.gz https://sm.alliedmods.net/smdrop/1.12/$LATEST_SOURCEMOD
-                mkdir sourcemod
-                cd sourcemod
-                tar xf ../sourcemod.tar.gz
-                wget -O nativevotes.zip $LATEST_NATIVEVOTES
-                unzip nativevotes.zip
-                cd addons/sourcemod/scripting
-                mv compile.sh ../../../../scripting
-                mv spcomp* ../../../../scripting
-                mv include/*.inc ../../../../scripting/include
-                mv nativevotes ../../../../scripting
-            
-            - name: Build plugins
-              run: |
-                cd scripting
-                ./compile.sh *.sp
-            - name: Package plugins
-              run: |
-                mkdir -p artifact/plugins
-                mkdir artifact/gamedata
-                mv scripting/compiled/*.smx artifact/plugins/
-                mv gamedata/*.txt artifact/gamedata/
-            - name: Upload artifact
-              uses: actions/upload-artifact@v4
-              with:
-                path: artifact
+    strategy:
+      matrix:
+        sm-target: ["1.12", "1.13"]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # nativevotes doesn't have a package for SM 1.13, but it doesn't matter since
+      # we only need the .sp files for compilation
+      - name: Setup SourceMod
+        run: |
+          export LATEST_SOURCEMOD=$(curl https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/sourcemod-latest-linux)
+          export LATEST_NATIVEVOTES=$(curl https://api.github.com/repos/sapphonie/sourcemod-nativevotes-updated/releases/latest | jq -r '.assets[] | select ( .name == "nativevotes_sm_1.12.zip" ).browser_download_url')
+          wget -O sourcemod.tar.gz https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/$LATEST_SOURCEMOD
+          mkdir sourcemod
+          cd sourcemod
+          tar xf ../sourcemod.tar.gz
+          wget -O nativevotes.zip $LATEST_NATIVEVOTES
+          unzip nativevotes.zip
+          cd addons/sourcemod/scripting
+          mv compile.sh ../../../../scripting
+          mv spcomp* ../../../../scripting
+          mv include/*.inc ../../../../scripting/include
+          mv nativevotes ../../../../scripting
+
+      - name: Build plugins
+        run: |
+          cd scripting
+          ./compile.sh *.sp
+
+      - name: Package plugins
+        run: |
+          mkdir -p artifact/plugins
+          mkdir artifact/gamedata
+          mv scripting/compiled/*.smx artifact/plugins/
+          mv gamedata/*.txt artifact/gamedata/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: artifact
+          name: package-${{matrix.sm-target}}
