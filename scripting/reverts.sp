@@ -1738,9 +1738,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 410, 1.0); // damage bonus while disguised
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
 		TF2Items_SetAttribute(item1, 1, 797, 0.0); // dmg pierces resists absorbs
+		TF2Items_SetAttribute(item1, 2, 2, 1.20); // 20% damage bonus
+		// When the Spy fires while disguised, he gives less damage to both players and buildings.
 	}
 
 	else if (
@@ -2918,22 +2920,6 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					damage_type = (damage_type | DMG_CRIT);
 					return Plugin_Changed;
-				}
-			}
-
-			{
-				// enforcer damage bonus
-				// the old attrib doesnt work :(
-
-				if (
-					ItemIsEnabled("enforcer") &&
-					StrEqual(class, "tf_weapon_revolver") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 460
-				) {
-					if (TF2_IsPlayerInCondition(attacker, TFCond_Disguised) == false) {
-						damage = (damage * 1.20);
-						return Plugin_Changed;
-					}
 				}
 			}
 
