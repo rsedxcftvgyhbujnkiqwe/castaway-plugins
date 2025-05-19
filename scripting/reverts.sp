@@ -563,11 +563,6 @@ public void OnPluginStart() {
 	}
 }
 
-#if defined VERDIUS_PATCHES
-bool ValidateAndNullCheck(MemoryPatch patch) {
-	return (patch.Validate() && patch != null);
-}
-
 public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
 	UpdateJumperDescription();
 }
@@ -585,15 +580,21 @@ void UpdateJumperDescription() {
 }
 
 public void OnConfigsExecuted() {
+#if defined VERDIUS_PATCHES
 	VerdiusTogglePatches(ItemIsEnabled("disciplinary"),"disciplinary");
 	VerdiusTogglePatches(ItemIsEnabled("dragonfury"),"dragonfury");
 	VerdiusTogglePatches(ItemIsEnabled("miniramp"),"miniramp");
 	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
 	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
 	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
+#endif
 	UpdateJumperDescription();
 }
 
+#if defined VERDIUS_PATCHES
+bool ValidateAndNullCheck(MemoryPatch patch) {
+	return (patch.Validate() && patch != null);
+}
 
 Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 {
