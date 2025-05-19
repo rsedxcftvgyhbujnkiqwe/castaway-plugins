@@ -2465,9 +2465,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		if (
 			ItemIsEnabled("saharan")
 		) {
+			// reset set bonuses on loadout changes
+			TFClassType client_class = TF2_GetPlayerClass(client);
+			switch (client_class)
+			{
+				case TFClass_Spy:
+				{
+					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
+					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
+				}
+			}
+			
 
 			//handle item sets
-			int first_wep = -1;
 			int wep_count = 0;
 			int active_set = 0;
 
@@ -2481,8 +2491,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
-					//stats appear to persist between loadout changes for whatever reason
-					//reset them each time here
+					// Saharan Spy
 					if(
 						ItemIsEnabled("saharan") &&
 						(StrEqual(classname, "tf_weapon_revolver") &&
@@ -2490,14 +2499,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(StrEqual(classname, "tf_weapon_knife") &&
 						(item_index == 225 || item_index == 574))
 					) {
-						if (first_wep == -1) first_wep = weapon;
 						wep_count++;
 						if(wep_count == 2) active_set = ItemSet_Saharan;
-						//reset these values so loadout changes don't persist the attributes
-						TF2Attrib_SetByDefIndex(weapon,159,0.0); //cloak blink
-						TF2Attrib_SetByDefIndex(weapon,160,0.0); //silent decloak
 					}
-
 				}
 			}
 
@@ -2526,8 +2530,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					{
 						case ItemSet_Saharan:
 						{
-							TF2Attrib_SetByDefIndex(first_wep,159,0.5); //blink duration increase
-							TF2Attrib_SetByDefIndex(first_wep,160,1.0); //quet decloak
+							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
+							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
 						}
 					}
 				}
