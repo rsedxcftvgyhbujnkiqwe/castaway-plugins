@@ -308,7 +308,7 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
-	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-2013, +25 max health, no afterburn immunity, no damage modifiers", CLASSFLAG_SNIPER);
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max health, 15% bullet resist, 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
 #if defined VERDIUS_PATCHES
@@ -1738,10 +1738,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
 		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
 		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
+		TF2Items_SetAttribute(item1, 3, 66, 0.85); // +15% bullet damage resistance on wearer
+		TF2Items_SetAttribute(item1, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
 	}
 
 	else if (
