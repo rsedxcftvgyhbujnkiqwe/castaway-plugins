@@ -850,17 +850,15 @@ public void OnGameFrame() {
 							if (weapon > 0) {
 								GetEntityClassname(weapon, class, sizeof(class));
 
-								// leftover code from Bakugo
-								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-									// disable secondary attack
-									// this is somewhat broken, can still shove by holding m2 when reload ends
-									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
-								}
-
-								// make shortstop use secondary pistol ammo type
 								int SCOUT_PISTOL_AMMO_TYPE = 2;
 
 								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+									// Shortstop shove leftover code from Bakugo
+									// disable secondary attack
+									// this is somewhat broken, can still shove by holding m2 when reload ends
+									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
+
+									// make Shortstop use secondary pistol ammo type
 									SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
 								}
 							}
