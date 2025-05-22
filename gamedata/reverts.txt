@@ -55,14 +55,14 @@
 
 			"CAmmoPack::MyTouch"
 			{
-				"windows" "228"
-				"linux"   "229"
+				"windows" "229"
+				"linux"   "230"
 			}
 			
 			"CAmmoPack::GetPowerupSize"
 			{
-				"windows" "233"
-				"linux"   "236"
+				"windows" "234"
+				"linux"   "237"
 			}
 		}
 
