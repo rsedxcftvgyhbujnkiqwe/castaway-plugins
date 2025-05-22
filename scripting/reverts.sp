@@ -4268,9 +4268,9 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
-float PackRatios[] =
+float PersuaderPackRatios[] =
 {
-	0.2,	// SMALL
+	0.25,	// SMALL
 	0.5,	// MEDIUM
 	1.0,	// FULL
 };
@@ -4287,7 +4287,7 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
         if (health < health_max)
         {
             // Get amount to heal.
-            int heal = RoundFloat(40 * PackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+            int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
 
             // Show that the player got healed.
             Handle event = CreateEvent("player_healonhit", true);
