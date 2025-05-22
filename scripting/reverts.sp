@@ -166,12 +166,6 @@ enum struct Player {
 //item sets
 #define ItemSet_Saharan 1
 
-//Get the smaller integral value; used for powerjack overheal calculation
-int intMin(int x, int y)
-{
-    return x > y ? y : x;
-}
-
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -227,11 +221,14 @@ DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
+Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle dhook_CTFWeaponBase_PrimaryAttack;
 Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
+Handle dhook_CAmmoPack_MyTouch;
+Handle dhook_CTFAmmoPack_PackTouch;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -256,6 +253,7 @@ enum
 	Wep_CharginTarge,
 	Wep_SplendidScreen,
 	Wep_TideTurner,
+	Wep_PersianPersuader,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
@@ -333,6 +331,7 @@ public void OnPluginStart() {
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
 	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
+	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge rate", CLASSFLAG_DEMOMAN);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT);
@@ -431,11 +430,18 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
 		sdkcall_JarExplode = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+    	PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
+   		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
+		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
 		delete conf;
 	}
@@ -550,15 +556,18 @@ public void OnPluginStart() {
 
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
+	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	
+	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -689,6 +698,7 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheSound("items/gunpickup2.wav");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
 }
@@ -1369,6 +1379,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
+	if (StrContains(class, "item_ammopack") == 0)
+	{
+		DHookEntity(dhook_CAmmoPack_MyTouch, false, entity, _, DHookCallback_CAmmoPack_MyTouch);
+	}
 }
 
 public void OnEntityDestroyed(int entity) {
@@ -1934,6 +1948,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("persuader") &&
+		StrEqual(class, "tf_weapon_sword") &&
+		(index == 404)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		bool swords = ItemIsEnabled("swords");
+		TF2Items_SetNumAttributes(item1, swords ? 8 : 6);
+		TF2Items_SetAttribute(item1, 0, 77, 1.00); // -0% max primary ammo on wearer  
+		TF2Items_SetAttribute(item1, 1, 79, 1.00); // -0% max secondary ammo on wearer 
+		TF2Items_SetAttribute(item1, 2, 778, 0.00); // remove "Melee hits refill 20% of your charge meter" attribute
+		TF2Items_SetAttribute(item1, 3, 782, 0.0); // remove "Ammo boxes collected also give Charge"
+		TF2Items_SetAttribute(item1, 4, 249, 2.00); // +100% increase in charge recharge rate, shields should take around 6 seconds to charge with persuader
+		TF2Items_SetAttribute(item1, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
+		if(swords) {
+			TF2Items_SetAttribute(item1, 6, 781, 0.0); // is a sword
+			TF2Items_SetAttribute(item1, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
+		}		
+	}
+
+	else if (
 		ItemIsEnabled("razorback") &&
 		StrEqual(class, "tf_wearable_razorback")
 	) {
@@ -2459,6 +2494,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(index == 237)
 					) {
 						player_weapons[client][Wep_RocketJumper] = true;
+					}
+
+					else if (
+						StrEqual(class, "tf_weapon_sword") &&
+						(index == 404)
+					) {
+						player_weapons[client][Wep_PersianPersuader] = true;
 					}
 				}
 			}
@@ -4226,6 +4268,66 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
+float PackRatios[] =
+{
+	0.2,	// SMALL
+	0.5,	// MEDIUM
+	1.0,	// FULL
+};
+
+MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	int client = GetEntityFromAddress(parameters.Get(1));
+    if (player_weapons[client][Wep_PersianPersuader]) // Health pickup with the Persian Persuader.
+    {
+        returnValue.Value = false;
+		int health = GetClientHealth(client);
+        int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+        if (health < health_max)
+        {
+            // Get amount to heal.
+            int heal = RoundFloat(40 * PackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+
+            // Show that the player got healed.
+            Handle event = CreateEvent("player_healonhit", true);
+            SetEventInt(event, "amount", heal);
+            SetEventInt(event, "entindex", client);
+            FireEvent(event);
+
+            // Set health.
+            SetEntityHealth(client, intMin(health + heal, health_max));
+            EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+            returnValue.Value = true;
+        }
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
+{
+	int client = parameters.Get(1);
+    if (client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader]) // Health pickup with the Persian Persuader from dropped ammo packs.
+    {
+        int health = GetClientHealth(client);
+		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+        if (health < health_max)
+        {
+            // Show that the player got healed.
+            Handle event = CreateEvent("player_healonhit", true);
+            SetEventInt(event, "amount", 20);
+            SetEventInt(event, "entindex", client);
+            FireEvent(event);
+
+            // Set health.
+            SetEntityHealth(client, intMin(health + 20, health_max));
+            RemoveEntity(entity);
+        }
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
@@ -4291,4 +4393,47 @@ int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
+}
+
+//Get the smaller integral value
+int intMin(int x, int y)
+{
+    return x > y ? y : x;
+}
+
+int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
+{
+    return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
+}
+
+int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
+{
+    static int offs_RefEHandle;
+    if (offs_RefEHandle) 
+    {
+        return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
+    }
+
+    // if we don't have it already, attempt to lookup offset based on SDK information
+    // CWorld is derived from CBaseEntity so it should have both offsets
+    int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
+    if (offs_angRotation == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
+    }
+    else if (offs_vecViewOffset == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
+    } 
+    else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04)) 
+    {
+        char game[32];
+        GetGameFolderName(game, sizeof(game));
+        ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
+                ... "(incorrect assumption for game '%s'?)", game);
+    }
+
+    // offset seems right, cache it for the next call
+    offs_RefEHandle = offs_angRotation + 0x0C;
+    return GetEntityFromAddress(pEntity);
 }
