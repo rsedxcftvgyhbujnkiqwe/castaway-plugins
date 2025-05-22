@@ -4278,8 +4278,9 @@ float PackRatios[] =
 MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	int client = GetEntityFromAddress(parameters.Get(1));
-    if (player_weapons[client][Wep_PersianPersuader]) // Health pickup with the Persian Persuader.
+    if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
     {
+		// Health pickup with the Persian Persuader.
         returnValue.Value = false;
 		int health = GetClientHealth(client);
         int health_max = SDKCall(sdkcall_GetMaxHealth, client);
@@ -4307,8 +4308,9 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
 {
 	int client = parameters.Get(1);
-    if (client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader]) // Health pickup with the Persian Persuader from dropped ammo packs.
+    if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
     {
+		// Health pickup with the Persian Persuader from dropped ammo packs.
         int health = GetClientHealth(client);
 		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
         if (health < health_max)
