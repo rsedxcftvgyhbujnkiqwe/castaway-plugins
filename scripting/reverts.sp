@@ -224,6 +224,27 @@ MemoryPatch Verdius_RevertCozyCamperFlinch;
 MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+
+//====================================================================
+//====================================================================
+// 				Make Dalokohs bar give 400 max hp
+
+// MemoryPatch of the MOVSS instruction.
+MemoryPatch Verdius_RevertDalokohsBarOverheal_MOVSS;
+MemoryPatch Verdius_RevertDalokohsBarOverheal_MOV_400;
+
+// The Global float for heavy (1.35 is vanilla default)
+// We will use Address-of natives from SourceScramble
+// Keeping in mind that we do so at our own risk.
+// 						>:D
+
+float g_flDalokohsBarCanOverHealTo = 400.0;
+
+// Address of our float:
+
+Address AddressOf_g_flDalokohsBarCanOverHealTo;
+//====================================================================
+
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -310,6 +331,9 @@ public void OnPluginStart() {
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
+#if defined VERDIUS_PATCHES
+	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle Update, can now overheal to 400 hp again", CLASSFLAG_HEAVY);
+#endif
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
 #if defined VERDIUS_PATCHES
@@ -530,7 +554,21 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
-		
+
+		// Setup for the Dalokohs bar revert
+		Verdius_RevertDalokohsBarOverheal_MOVSS = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffects_MOVSSChangeAddress");
+
+		Verdius_RevertDalokohsBarOverheal_MOV_400 = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffects_ChangeChocolateMaxOverhealTo400");
+
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBarOverheal_MOVSS)) SetFailState("Failed to create Verdius_RevertDalokohsBarOverheal_MOVSS");
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBarOverheal_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBarOverheal_MOV_400");
+		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
+		// ================================================
+
 		delete conf;
 	}
 #endif
@@ -590,6 +628,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
 	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
 	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
+	VerdiusTogglePatches(ItemIsEnabled("dalokohsbar"),"dalokohsbar");	
 #endif
 	UpdateJumperDescription();
 }
@@ -684,6 +723,19 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 			Verdius_RevertQuickFixUberCannotCapturePoint.Disable();
 		}
 	}
+	else if (StrEqual(name,"dalokohsbar")){
+		if (enable) {
+			Verdius_RevertDalokohsBarOverheal_MOVSS.Enable();
+			Verdius_RevertDalokohsBarOverheal_MOV_400.Enable();
+
+			// Due to it being a MOVSS instruction that needs
+			// a Address instead of values, there's some extra steps to be done in here:
+			StoreToAddress(Verdius_RevertDalokohsBarOverheal_MOVSS.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
+		} else {
+			Verdius_RevertDalokohsBarOverheal_MOVSS.Disable();
+			Verdius_RevertDalokohsBarOverheal_MOV_400.Disable();
+		}
+	}	
 }
 #endif
 
