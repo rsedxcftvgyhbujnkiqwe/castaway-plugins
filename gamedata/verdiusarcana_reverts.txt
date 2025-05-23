@@ -250,6 +250,48 @@
 				     }
 				}
 
+				// ===============================================
+				// Dalakohs Bar, Overheal to 400 hp again.
+				// WARNING: If GRU is not reverted to non-max health
+				// draining version, the infamous Dalakohs Exploit
+				// will return, until that is fixed (if it even can be fixed), 
+				// you must also use the GRU revert 
+				// if you want to avoid the exploit!
+
+				"CTFLunchBox::ApplyBiteEffect_Dalakohs_MOVSS_AddrTo_400"
+				{
+					"signature" "CTFLunchBox::ApplyBiteEffects"
+					"linux"
+					{
+						"offset"	"258"
+						"verify"	"\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A"
+						"patch" 	"\xF3\x0F\x10\x0D\x90\x90\x90\x90"
+					}
+					"windows"
+					{
+						"offset"	"210"
+						"verify"	"\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
+						"patch" 	"\xF3\x0F\x10\x05\x90\x90\x90\x90"
+					}
+				}
+				"CTFLunchBox::ApplyBiteEffect_Dalakohs_MOV_400"
+				{
+					"signature" "CTFLunchBox::ApplyBiteEffects"
+					"linux"
+					{
+						"offset"	"296"
+						"verify"	"\xB8\x5E\x01\x00\x00"
+						"patch" 	"\xB8\x90\x01\x00\x00"
+					}
+					"windows"
+					{
+						"offset"	"227"
+						"verify"	"\xBF\x5E\x01\x00\x00"
+						"patch" 	"\xBF\x90\x01\x00\x00"
+
+					}
+				}
+
 				"CTFMinigun::GetWeaponSpread_JumpOverCheck"
 				{
 					"signature" "CTFMinigun::GetWeaponSpread"
