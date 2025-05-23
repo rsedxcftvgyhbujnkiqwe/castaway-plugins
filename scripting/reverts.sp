@@ -573,10 +573,13 @@ public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const 
 void UpdateJumperDescription() {
 	for (int i = 0; i < ITEMS_MAX; i++) {
 		if (StrEqual(items[i].key, "rocketjmp") || StrEqual(items[i].key, "stkjumper")) {
+			char intelMsg[] = ", wearer can pick up intel";
 			if (GetConVarBool(cvar_jumper_flag_run)) {
-				Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, ", wearer can pick up intel");
+				if (StrContains(items[i].desc, intelMsg) == -1) {
+					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
+				}
 			} else {
-				ReplaceString(items[i].desc, sizeof(items[].desc), ", wearer can pick up intel", "");
+				ReplaceString(items[i].desc, sizeof(items[].desc), intelMsg, "");
 			}
 		}
 	}
