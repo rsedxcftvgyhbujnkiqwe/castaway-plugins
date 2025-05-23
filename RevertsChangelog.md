@@ -4,6 +4,7 @@
 
 ### May 24, 2025
 - **Six (6) weapons have been reverted in this update.**
+- **Fixed Spy-cicle picking up ammo packs when melted while the Spy's cloak and primary ammo are full.**
 - **Reverted the Dalokohs Bar to be able to overheal up to 400 HP again (Gun Mettle Update).**
   - **Note: if the GRU is not reverted, the Dalokohs Bar and GRU overheal exploit may occur**
   - *The Dalokohs Bar*
