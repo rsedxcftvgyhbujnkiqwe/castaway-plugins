@@ -10,6 +10,7 @@
     - Adds +50 max health for 30 seconds
     - Eat to gain up to 100 health.
     - Can gain overheal up to 400 health when eaten.
+
 - **Reverted the Shortstop to its most historically accurate version while keeping the modern shove mechanic (pre-Manniversary Update).**
   - *The Shortstop*
     - No push force increase penalty taken from damage and airblast
