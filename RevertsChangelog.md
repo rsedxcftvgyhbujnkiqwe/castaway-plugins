@@ -3,7 +3,13 @@
 [Go back to Castaway.tf Home](https://castaway.tf)
 
 ### May 24, 2025
-- **Five (5) weapons have been reverted in this update.**
+- **Six (6) weapons have been reverted in this update.**
+- **Reverted the Dalokohs Bar to be able to overheal up to 400 HP again (Gun Mettle Update).**
+  - **Note: if the GRU is not reverted, the Dalokohs Bar and GRU overheal exploit may occur**
+  - *The Dalokohs Bar*
+    - Adds +50 max health for 30 seconds
+    - Eat to gain up to 100 health.
+    - Can gain overheal up to 400 health when eaten.
 - **Reverted the Shortstop to its most historically accurate version while keeping the modern shove mechanic (pre-Manniversary Update).**
   - *The Shortstop*
     - No push force increase penalty taken from damage and airblast
