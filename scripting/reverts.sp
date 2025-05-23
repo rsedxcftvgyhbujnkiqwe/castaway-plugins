@@ -4301,7 +4301,11 @@ int abs(int x)
 
 MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
 {
-    // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
-    returnValue.Value = false;
-    return MRES_Supercede;
+    if (ItemIsEnabled("spycicle"))
+    {
+        // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+        returnValue.Value = false;
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
 }
