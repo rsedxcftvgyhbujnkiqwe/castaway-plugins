@@ -324,7 +324,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, Can now overheal to 400 hp again", CLASSFLAG_HEAVY);
+	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY);
 #endif	
 	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max health, 15% bullet resist, 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
