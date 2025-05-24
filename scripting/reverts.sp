@@ -4371,6 +4371,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 
             // Set health.
             SetEntityHealth(client, intMin(health + 20, health_max));
+	    EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // if ammo_pickup sound doesn't play, this should make it play
             RemoveEntity(entity);
         }
         return MRES_Supercede;
