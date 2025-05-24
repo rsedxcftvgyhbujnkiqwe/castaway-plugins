@@ -2463,6 +2463,15 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					) {
 						player_weapons[client][Wep_RocketJumper] = true;
 					}
+
+					// shortstop primary ammo sharing with secondary pistol ammo
+					else if (
+						ItemIsEnabled("shortstop") &&
+						StrEqual(class,"tf_weapon_handgun_scout_primary")
+					} {
+						int SCOUT_PISTOL_AMMO_TYPE = 2;
+						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+					}
 				}
 			}
 			int num_wearables = TF2Util_GetPlayerWearableCount(client);
@@ -2586,26 +2595,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				}
 			}
 		}
-
-		{
-			// shortstop primary ammo sharing with secondary pistol ammo
-
-			if (ItemIsEnabled("shortstop")) {
-				weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-				if (weapon > 0) {
-					GetEntityClassname(weapon, class, sizeof(class));
-
-					// make shortstop use secondary pistol ammo type
-					int SCOUT_PISTOL_AMMO_TYPE = 2;
-
-					if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
-					}                                
-				}
-			}
-		}
-
 	}
 
 	if (StrEqual(name, "item_pickup")) {
