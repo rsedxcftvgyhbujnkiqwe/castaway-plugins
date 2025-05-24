@@ -14,8 +14,8 @@
 */
 #define VERDIUS_PATCHES
 
-#define WINDOWS32
-//#define LINUX32
+//#define WINDOWS32
+#define LINUX32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile arch.
