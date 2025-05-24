@@ -4399,6 +4399,13 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
             SetEventInt(event, "entindex", client);
             FireEvent(event);
 
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
+
             // Set health.
             SetEntityHealth(client, intMin(health + heal, health_max));
             EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
@@ -4425,13 +4432,20 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
             SetEventInt(event, "entindex", client);
             FireEvent(event);
 
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
+
             // Set health.
             SetEntityHealth(client, intMin(health + 20, health_max));
-	    // If you're wondering why EmitSoundToAll below is repeated in a different channel, 
-	    // it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-	    EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-	    EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
-            RemoveEntity(entity);
+			// If you're wondering why EmitSoundToAll below is repeated in a different channel, 
+			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+			RemoveEntity(entity);
         }
         return MRES_Supercede;
     }
