@@ -842,7 +842,7 @@ public void OnGameFrame() {
 					}
 
 					{
-						// shortstop shove & primary ammo sharing with secondary pistol ammo
+						// shortstop shove
 
 						if (ItemIsEnabled("shortstop")) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
@@ -850,16 +850,11 @@ public void OnGameFrame() {
 							if (weapon > 0) {
 								GetEntityClassname(weapon, class, sizeof(class));
 
-								int SCOUT_PISTOL_AMMO_TYPE = 2;
-
 								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
 									// Shortstop shove leftover code from Bakugo
 									// disable secondary attack
 									// this is somewhat broken, can still shove by holding m2 when reload ends
 									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
-
-									// make Shortstop use secondary pistol ammo type
-									SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
 								}
 							}
 						}
@@ -2591,6 +2586,26 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				}
 			}
 		}
+
+		{
+			// shortstop primary ammo sharing with secondary pistol ammo
+
+			if (ItemIsEnabled("shortstop")) {
+				weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+				if (weapon > 0) {
+					GetEntityClassname(weapon, class, sizeof(class));
+
+					// make shortstop use secondary pistol ammo type
+					int SCOUT_PISTOL_AMMO_TYPE = 2;
+
+					if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+					}                                
+				}
+			}
+		}
+
 	}
 
 	if (StrEqual(name, "item_pickup")) {
