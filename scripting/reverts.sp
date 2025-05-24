@@ -14,8 +14,8 @@
 */
 #define VERDIUS_PATCHES
 
-//#define WINDOWS32
-#define LINUX32
+#define WINDOWS32
+//#define LINUX32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile arch.
@@ -166,12 +166,6 @@ enum struct Player {
 //item sets
 #define ItemSet_Saharan 1
 
-//Get the smaller integral value; used for powerjack overheal calculation
-int intMin(int x, int y)
-{
-    return x > y ? y : x;
-}
-
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -238,11 +232,17 @@ DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
+Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle dhook_CTFWeaponBase_PrimaryAttack;
 Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
+Handle dhook_CAmmoPack_MyTouch;
+Handle dhook_CTFAmmoPack_PackTouch;
+
+// Spycicle ammo pickup fix imported from NotnHeavy's plugin
+DHookSetup dhook_CTFPlayer_AddToSpyKnife;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -267,6 +267,7 @@ enum
 	Wep_CharginTarge,
 	Wep_SplendidScreen,
 	Wep_TideTurner,
+	Wep_PersianPersuader,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
@@ -314,6 +315,7 @@ public void OnPluginStart() {
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER);
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
@@ -323,7 +325,8 @@ public void OnPluginStart() {
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, Can now overheal to 400 hp again", CLASSFLAG_HEAVY);
-#endif
+#endif	
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max health, 15% bullet resist, 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
 #if defined VERDIUS_PATCHES
@@ -347,6 +350,7 @@ public void OnPluginStart() {
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
 	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
+	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT);
@@ -370,10 +374,11 @@ public void OnPluginStart() {
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, old shield mechanics, bash dmg at any range", CLASSFLAG_DEMOMAN);
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer", CLASSFLAG_SPY);
+	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY);
 	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
+	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY);	
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER);
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN);
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC);
@@ -445,11 +450,19 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
 		sdkcall_JarExplode = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+    	PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
+   		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
+		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
+		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
 		delete conf;
 	}
@@ -516,7 +529,7 @@ public void OnPluginStart() {
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
 		Verdius_RevertDalokohsBar_MOV_400 = 
 			MemoryPatch.CreateFromConf(conf, 
-			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
+			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");			
 
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -574,15 +587,20 @@ public void OnPluginStart() {
 
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
+	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	
-	
+	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
+  	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
+
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+  	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
+	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -597,10 +615,13 @@ public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const 
 void UpdateJumperDescription() {
 	for (int i = 0; i < ITEMS_MAX; i++) {
 		if (StrEqual(items[i].key, "rocketjmp") || StrEqual(items[i].key, "stkjumper")) {
+			char intelMsg[] = ", wearer can pick up intel";
 			if (GetConVarBool(cvar_jumper_flag_run)) {
-				Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, ", wearer can pick up intel");
+				if (StrContains(items[i].desc, intelMsg) == -1) {
+					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
+				}
 			} else {
-				ReplaceString(items[i].desc, sizeof(items[].desc), ", wearer can pick up intel", "");
+				ReplaceString(items[i].desc, sizeof(items[].desc), intelMsg, "");
 			}
 		}
 	}
@@ -721,12 +742,13 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 			Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
 			Verdius_RevertDalokohsBar_MOV_400.Disable();
 		}
-	}	
+	}		
 }
 #endif
 
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheSound("items/gunpickup2.wav");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
 }
@@ -1407,6 +1429,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
+	if (StrContains(class, "item_ammopack") == 0)
+	{
+		DHookEntity(dhook_CAmmoPack_MyTouch, false, entity, _, DHookCallback_CAmmoPack_MyTouch);
+	}
 }
 
 public void OnEntityDestroyed(int entity) {
@@ -1693,6 +1719,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("bushwacka") &&
+		StrEqual(class, "tf_weapon_club") &&
+		(index == 232)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetAttribute(item1, 0, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 1, 412, 1.00); // 0% damage vulnerability on wearer
+		TF2Items_SetAttribute(item1, 2, 15, 1.0); // random crits enabled
+		TF2Items_SetAttribute(item1, 3, 61, 1.20); // 20% fire damage vulnerability on wearer
+	}
+
+	else if (
 		ItemIsEnabled("caber") &&
 		StrEqual(class, "tf_weapon_stickbomb")
 	) {
@@ -1755,6 +1795,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
 		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while under the effect
+	}
+
+	else if (
+		ItemIsEnabled("darwin") &&
+		StrEqual(class, "tf_wearable") &&
+		(index == 231)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 5);
+		TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
+		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
+		TF2Items_SetAttribute(item1, 3, 66, 0.85); // +15% bullet damage resistance on wearer
+		TF2Items_SetAttribute(item1, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
 	}
 
 	else if (
@@ -1972,6 +2027,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("persuader") &&
+		StrEqual(class, "tf_weapon_sword") &&
+		(index == 404)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		bool swords = ItemIsEnabled("swords");
+		TF2Items_SetNumAttributes(item1, swords ? 8 : 6);
+		TF2Items_SetAttribute(item1, 0, 77, 1.00); // -0% max primary ammo on wearer  
+		TF2Items_SetAttribute(item1, 1, 79, 1.00); // -0% max secondary ammo on wearer 
+		TF2Items_SetAttribute(item1, 2, 778, 0.00); // remove "Melee hits refill 20% of your charge meter" attribute
+		TF2Items_SetAttribute(item1, 3, 782, 0.0); // remove "Ammo boxes collected also give Charge"
+		TF2Items_SetAttribute(item1, 4, 249, 2.00); // +100% increase in charge recharge rate, shields should take around 6 seconds to charge with persuader
+		TF2Items_SetAttribute(item1, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
+		if(swords) {
+			TF2Items_SetAttribute(item1, 6, 781, 0.0); // is a sword
+			TF2Items_SetAttribute(item1, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
+		}		
+	}
+
+	else if (
 		ItemIsEnabled("razorback") &&
 		StrEqual(class, "tf_wearable_razorback")
 	) {
@@ -2136,6 +2212,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 64, 0.6); // dmg taken from blast reduced
 		TF2Items_SetAttribute(item1, 1, 527, 1.0); // afterburn immunity
+	}
+
+	else if (
+		ItemIsEnabled("tomislav") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 424)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+		TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
+		// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 	}
 
 	else if (
@@ -2497,6 +2586,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(index == 237)
 					) {
 						player_weapons[client][Wep_RocketJumper] = true;
+					}
+
+					else if (
+						StrEqual(class, "tf_weapon_sword") &&
+						(index == 404)
+					) {
+						player_weapons[client][Wep_PersianPersuader] = true;
 					}
 				}
 			}
@@ -4264,6 +4360,68 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 	return MRES_Ignored;
 }
 
+float PersuaderPackRatios[] =
+{
+	0.25,	// SMALL
+	0.5,	// MEDIUM
+	1.0,	// FULL
+};
+
+MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	int client = GetEntityFromAddress(parameters.Get(1));
+    if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
+    {
+		// Health pickup with the Persian Persuader.
+        returnValue.Value = false;
+		int health = GetClientHealth(client);
+        int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+        if (health < health_max)
+        {
+            // Get amount to heal.
+            int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+
+            // Show that the player got healed.
+            Handle event = CreateEvent("player_healonhit", true);
+            SetEventInt(event, "amount", heal);
+            SetEventInt(event, "entindex", client);
+            FireEvent(event);
+
+            // Set health.
+            SetEntityHealth(client, intMin(health + heal, health_max));
+            EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+            returnValue.Value = true;
+        }
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
+{
+	int client = parameters.Get(1);
+    if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
+    {
+		// Health pickup with the Persian Persuader from dropped ammo packs.
+        int health = GetClientHealth(client);
+		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+        if (health < health_max)
+        {
+            // Show that the player got healed.
+            Handle event = CreateEvent("player_healonhit", true);
+            SetEventInt(event, "amount", 20);
+            SetEventInt(event, "entindex", client);
+            FireEvent(event);
+
+            // Set health.
+            SetEntityHealth(client, intMin(health + 20, health_max));
+            RemoveEntity(entity);
+        }
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
@@ -4329,4 +4487,58 @@ int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
+}
+
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+    if (ItemIsEnabled("spycicle"))
+    {
+        // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+        returnValue.Value = false;
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
+//Get the smaller integral value
+int intMin(int x, int y)
+{
+    return x > y ? y : x;
+}
+
+int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
+{
+    return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
+}
+
+int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
+{
+    static int offs_RefEHandle;
+    if (offs_RefEHandle) 
+    {
+        return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
+    }
+
+    // if we don't have it already, attempt to lookup offset based on SDK information
+    // CWorld is derived from CBaseEntity so it should have both offsets
+    int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
+    if (offs_angRotation == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
+    }
+    else if (offs_vecViewOffset == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
+    } 
+    else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04)) 
+    {
+        char game[32];
+        GetGameFolderName(game, sizeof(game));
+        ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
+                ... "(incorrect assumption for game '%s'?)", game);
+    }
+
+    // offset seems right, cache it for the next call
+    offs_RefEHandle = offs_angRotation + 0x0C;
+    return GetEntityFromAddress(pEntity);
 }
