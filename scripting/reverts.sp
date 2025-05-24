@@ -4382,60 +4382,74 @@ float PersuaderPackRatios[] =
 MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	int client = GetEntityFromAddress(parameters.Get(1));
-    if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
-    {
+	if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
+	{
 		// Health pickup with the Persian Persuader.
-        returnValue.Value = false;
+		returnValue.Value = false;
 		int health = GetClientHealth(client);
-        int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-        if (health < health_max)
-        {
-            // Get amount to heal.
-            int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+		if (health < health_max)
+        	{
+			// Get amount to heal.
+	        	int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+	
+			// Show that the player got healed.
+			Handle event = CreateEvent("player_healonhit", true);
+			SetEventInt(event, "amount", heal);
+			SetEventInt(event, "entindex", client);
+			FireEvent(event);
 
-            // Show that the player got healed.
-            Handle event = CreateEvent("player_healonhit", true);
-            SetEventInt(event, "amount", heal);
-            SetEventInt(event, "entindex", client);
-            FireEvent(event);
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
 
-            // Set health.
-            SetEntityHealth(client, intMin(health + heal, health_max));
-            EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
-            returnValue.Value = true;
-        }
-        return MRES_Supercede;
-    }
-    return MRES_Ignored;
+			// Set health.
+			SetEntityHealth(client, intMin(health + heal, health_max));
+			EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+			returnValue.Value = true;
+		}
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
 {
 	int client = parameters.Get(1);
-    if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
-    {
+	if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
+	{
 		// Health pickup with the Persian Persuader from dropped ammo packs.
-        int health = GetClientHealth(client);
+		int health = GetClientHealth(client);
 		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-        if (health < health_max)
-        {
-            // Show that the player got healed.
-            Handle event = CreateEvent("player_healonhit", true);
-            SetEventInt(event, "amount", 20);
-            SetEventInt(event, "entindex", client);
-            FireEvent(event);
+		if (health < health_max)
+		{
+			// Show that the player got healed.
+			Handle event = CreateEvent("player_healonhit", true);
+			SetEventInt(event, "amount", 20);
+			SetEventInt(event, "entindex", client);
+			FireEvent(event);
 
-            // Set health.
-            SetEntityHealth(client, intMin(health + 20, health_max));
-	    // If you're wondering why EmitSoundToAll below is repeated in a different channel, 
-	    // it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-	    EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-	    EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
-            RemoveEntity(entity);
-        }
-        return MRES_Supercede;
-    }
-    return MRES_Ignored;
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
+
+			// Set health.
+			SetEntityHealth(client, intMin(health + 20, health_max));
+			// If you're wondering why EmitSoundToAll below is repeated in a different channel, 
+			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+			RemoveEntity(entity);
+		}
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
 }
 
 #if defined VERDIUS_PATCHES
