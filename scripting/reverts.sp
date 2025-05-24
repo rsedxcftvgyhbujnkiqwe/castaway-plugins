@@ -2598,14 +2598,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Wep_PersianPersuader] = true;
 					}
           
-          // shortstop primary ammo sharing with secondary pistol ammo
+          				// shortstop primary ammo sharing with secondary pistol ammo
 					else if (
 						ItemIsEnabled("shortstop") &&
 						StrEqual(class,"tf_weapon_handgun_scout_primary")
 					) {
 						int SCOUT_PISTOL_AMMO_TYPE = 2;
 						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
-          }
+          				}
 				}
 			}
 			int num_wearables = TF2Util_GetPlayerWearableCount(client);
