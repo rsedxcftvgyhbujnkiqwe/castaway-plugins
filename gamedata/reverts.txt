@@ -24,6 +24,13 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
 				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
 			}
+
+			"CTFAmmoPack::PackTouch"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x1C\x53\x8B\x5D\x08\x56"
+				"linux"   "@_ZN11CTFAmmoPack9PackTouchEP11CBaseEntity"
+			}
 		}
 
 		"Offsets"
@@ -44,6 +51,18 @@
 			{
 				"linux" "245"
 				"windows" "244"
+			}
+
+			"CAmmoPack::MyTouch"
+			{
+				"windows" "229"
+				"linux"   "230"
+			}
+			
+			"CAmmoPack::GetPowerupSize"
+			{
+				"windows" "234"
+				"linux"   "237"
 			}
 		}
 
@@ -73,6 +92,21 @@
 				"return" "float"
 			}
 
+			"CAmmoPack::MyTouch"
+			{
+				"offset"   "CAmmoPack::MyTouch"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "int"
+					}
+				}
+			}
+
 			"CTFPlayer::CanDisguise"
 			{
 				"signature" "CTFPlayer::CanDisguise"
@@ -92,6 +126,21 @@
 					"bIgnoreSpecialAbility"
 					{
 						"type" "bool"
+					}
+				}
+			}
+
+			"CTFAmmoPack::PackTouch"
+			{
+				"signature" "CTFAmmoPack::PackTouch"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "cbaseentity"
 					}
 				}
 			}
