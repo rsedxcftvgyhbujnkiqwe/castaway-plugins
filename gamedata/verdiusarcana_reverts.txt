@@ -82,7 +82,7 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x85\xFF\x74\x2A\x8B\x07\x8B\xCF\x8B\x80"
 				"linux"	"@_ZN12CTFGameRules21PlayerMayCapturePointEP11CBasePlayeriPci"
 			}
-			// Here and prepared incase there is a wish to revert Dalakohs Bar.
+			// Here and prepared incase there is a wish to revert Dalokohs Bar.
 			"CTFLunchBox::ApplyBiteEffects"
 			{
 				"library" "server"
@@ -248,6 +248,48 @@
 				        "verify"  	"\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
 				        "patch"   	"\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
 				     }
+				}
+
+				// ===============================================
+				// Dalokohs Bar, Overheal to 400 hp again.
+				// WARNING: If GRU is not reverted to non-max health
+				// draining version, the infamous Dalokohs Exploit
+				// will return, until that is fixed (if it even can be fixed), 
+				// you must also use the GRU revert 
+				// if you want to avoid the exploit!
+
+				"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400"
+				{
+					"signature" "CTFLunchBox::ApplyBiteEffects"
+					"linux"
+					{
+						"offset"	"258"
+						"verify"	"\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A"
+						"patch" 	"\xF3\x0F\x10\x0D\x90\x90\x90\x90"
+					}
+					"windows"
+					{
+						"offset"	"210"
+						"verify"	"\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
+						"patch" 	"\xF3\x0F\x10\x05\x90\x90\x90\x90"
+					}
+				}
+				"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400"
+				{
+					"signature" "CTFLunchBox::ApplyBiteEffects"
+					"linux"
+					{
+						"offset"	"296"
+						"verify"	"\xB8\x5E\x01\x00\x00"
+						"patch" 	"\xB8\x90\x01\x00\x00"
+					}
+					"windows"
+					{
+						"offset"	"227"
+						"verify"	"\xBF\x5E\x01\x00\x00"
+						"patch" 	"\xBF\x90\x01\x00\x00"
+
+					}
 				}
 
 				"CTFMinigun::GetWeaponSpread_JumpOverCheck"
