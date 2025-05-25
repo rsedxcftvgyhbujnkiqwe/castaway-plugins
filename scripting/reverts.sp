@@ -268,6 +268,7 @@ enum
 	Wep_SplendidScreen,
 	Wep_TideTurner,
 	Wep_PersianPersuader,
+    Wep_BuffaloSteak,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
@@ -316,7 +317,8 @@ public void OnPluginStart() {
 	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
 	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER);
-	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
+	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, 10% dmg vuln, faster move speed, 15 sec buff time", CLASSFLAG_HEAVY);
+    ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
 #if defined VERDIUS_PATCHES
@@ -1538,6 +1540,23 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
+
+	{
+		// Buffalo Steak Sandvich effect duration
+        // Steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
+        // Source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds
+        // Regardless just set the condition duration to 15 seconds, finding out the accuracy can be done later and this will be fine for now
+        // to do: find out a way accurately get the duration of the condition
+		if (
+			ItemIsEnabled("buffalosteak") &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			condition == TFCond_RestrictToMelee &&
+			TF2_IsPlayerInCondition(client, TFCond_CritCola)
+		) {			
+            TF2_AddCondition(client, TFCond_RestrictToMelee, 15.0);
+            TF2_AddCondition(client, TFCond_CritCola, 15.0);
+		}    
+    }    
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1717,6 +1736,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
+	}
+
+	else if (
+		ItemIsEnabled("buffalosteak") &&
+		StrEqual(class, "tf_weapon_lunchbox") &&
+		(index == 311)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
 	}
 
 	else if (
@@ -2597,7 +2627,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					) {
 						player_weapons[client][Wep_PersianPersuader] = true;
 					}
-          
+
+					if(
+						StrEqual(class,"tf_weapon_lunchbox") &&
+						(index == 311)
+					) {
+						player_weapons[client][Wep_BuffaloSteak] = true;
+					}
+
           				// shortstop primary ammo sharing with secondary pistol ammo
 					else if (
 						ItemIsEnabled("shortstop") &&
@@ -4316,6 +4353,39 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}
+
+		if (
+			ItemIsEnabled("buffalosteak") &&
+			IsValidEntity(entity) &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Heavy &&
+			player_weapons[entity][Wep_BuffaloSteak]
+		) 
+		{
+			// Buffalo Steak Sandvich Pre-MyM Speed boost Revert.
+			
+			// Detect if the player is equipping the GRU or Eviction Notice, if true, then do not adjust the speed
+			char class[64];
+			int weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Melee);
+
+			if (weapon > 0) 
+			{
+				GetEntityClassname(weapon, class, sizeof(class));
+				
+				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+
+				if (index == 239 || index == 1084 || index == 1100 || index == 426)
+				{
+					return MRES_Ignored;
+				}
+				else
+				{
+					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
+					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
+					return MRES_Override;
+				}
+			}
+		}        
 	}
 	return MRES_Ignored;
 }
