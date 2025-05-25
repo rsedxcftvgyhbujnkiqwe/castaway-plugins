@@ -268,7 +268,7 @@ enum
 	Wep_SplendidScreen,
 	Wep_TideTurner,
 	Wep_PersianPersuader,
-    Wep_BuffaloSteak,
+	Wep_BuffaloSteak,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
@@ -1543,20 +1543,20 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 	{
 		// Buffalo Steak Sandvich effect duration
-        // Steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
-        // Source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds
-        // Regardless just set the condition duration to 15 seconds, finding out the accuracy can be done later and this will be fine for now
-        // to do: find out a way accurately get the duration of the condition
+		// Steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
+		// Source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds
+		// Regardless just set the condition duration to 15 seconds, finding out the accuracy can be done later and this will be fine for now
+		// to do: find out a way accurately get the duration of the condition
 		if (
 			ItemIsEnabled("buffalosteak") &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			condition == TFCond_RestrictToMelee &&
 			TF2_IsPlayerInCondition(client, TFCond_CritCola)
-		) {			
-            TF2_AddCondition(client, TFCond_RestrictToMelee, 15.0);
-            TF2_AddCondition(client, TFCond_CritCola, 15.0);
-		}    
-    }    
+		) {
+			TF2_AddCondition(client, TFCond_RestrictToMelee, 15.0);
+			TF2_AddCondition(client, TFCond_CritCola, 15.0);
+		}
+	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
