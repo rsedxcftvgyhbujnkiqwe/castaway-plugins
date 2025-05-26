@@ -34,7 +34,9 @@
 #include <tf2items>
 #include <tf2utils>
 #include <tf2attributes>
+#include <tf2condhooks>
 #include <dhooks>
+#include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
 #undef REQUIRE_PLUGIN
 #include <sourcescramble>
 #define REQUIRE_PLUGIN
@@ -86,16 +88,40 @@ public Plugin myinfo = {
 #define TF_DMG_CUSTOM_BACKSTAB 2
 #define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
 #define TF_DMG_CUSTOM_BASEBALL 22
+#define TF_DMG_CUSTOM_CHARGE_IMPACT 23
 #define TF_DMG_CUSTOM_PICKAXE 27
 #define TF_DMG_CUSTOM_STICKBOMB_EXPLOSION 42
 #define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 
+#define CLASSFLAG_SCOUT		(1<<0)
+#define CLASSFLAG_SNIPER	(1<<1)
+#define CLASSFLAG_SOLDIER	(1<<2)
+#define CLASSFLAG_DEMOMAN	(1<<3)
+#define CLASSFLAG_MEDIC		(1<<4)
+#define CLASSFLAG_HEAVY		(1<<5)
+#define CLASSFLAG_PYRO		(1<<6)
+#define CLASSFLAG_SPY		(1<<7)
+#define CLASSFLAG_ENGINEER	(1<<8)
+
+char class_names[9][16] = {
+	"Scout",
+	"Sniper",
+	"Soldier",
+	"Demoman",
+	"Medic",
+	"Heavy",
+	"Pyro",
+	"Spy",
+	"Engineer"
+};
+
 enum struct Item {
 	char key[64];
 	char name[64];
-	char desc[128];
+	char desc[256];
+	int classflags;
 	Handle cvar;
 }
 
@@ -131,22 +157,17 @@ enum struct Player {
 	int scout_airdash_value;
 	int scout_airdash_count;
 	float backstab_time;
-	int bonus_health;
 	int old_health;
-	int max_health;
 	int ticks_since_feign_ready;
 	float damage_taken_during_feign;
 	bool is_under_hype;
+	bool crit_flag;
+	int charge_tick;
+	int fall_dmg_tick;
 }
 
 //item sets
 #define ItemSet_Saharan 1
-
-//Get the smaller integral value; used for powerjack overheal calculation
-int intMin(int x, int y)
-{
-    return x > y ? y : x;
-}
 
 enum struct Entity {
 	bool exists;
@@ -156,6 +177,8 @@ enum struct Entity {
 
 Handle cvar_enable;
 Handle cvar_extras;
+Handle cvar_jumper_flag_run;
+Handle cvar_old_falldmg_sfx;
 Handle cvar_ref_tf_airblast_cray;
 Handle cvar_ref_tf_bison_tick_time;
 Handle cvar_ref_tf_dropped_weapon_lifetime;
@@ -196,16 +219,33 @@ MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
 MemoryPatch Verdius_RevertCozyCamperFlinch;
 MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
+
+// =============== Dalokohs Bar ===========================
+MemoryPatch Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat; 
+MemoryPatch Verdius_RevertDalokohsBar_MOV_400; 
+
+float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for revert
+
+// Address of our float to use for the MOVSS part of revert:
+Address AddressOf_g_flDalokohsBarCanOverHealTo;
+// ========================================================
+
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
+Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle dhook_CTFWeaponBase_PrimaryAttack;
 Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
+Handle dhook_CAmmoPack_MyTouch;
+Handle dhook_CTFAmmoPack_PackTouch;
+
+// Spycicle ammo pickup fix imported from NotnHeavy's plugin
+DHookSetup dhook_CTFPlayer_AddToSpyKnife;
 
 Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
@@ -225,107 +265,139 @@ enum
 	Wep_CritCola,
 	Wep_Bonk,
 	Wep_BrassBeast,
+	Wep_Natascha,
 	Wep_RocketJumper,
+	Wep_CharginTarge,
+	Wep_SplendidScreen,
+	Wep_TideTurner,
+	Wep_PersianPersuader,
+	Wep_BuffaloSteak,
 	Wep_Placeholder
 }
 bool player_weapons[MAXPLAYERS+1][Wep_Placeholder];
 
+// debuff conditions
+TFCond debuffs[] =
+{
+	TFCond_OnFire,
+	TFCond_Jarated,
+	TFCond_Bleeding,
+	TFCond_Milked,
+	TFCond_Gas
+};
 
 public void OnPluginStart() {
 	int idx;
 	Handle conf;
 	// char tmp[64];
+	
+	CCheckTrie();
 
 	CreateConVar("sm_reverts__version", PLUGIN_VERSION, (PLUGIN_NAME ... " - Version"), (FCVAR_NOTIFY|FCVAR_DONTRECORD));
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
+	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
+	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 
-	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno");
-	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping");
+	HookConVarChange(cvar_jumper_flag_run, JumperFlagRunCvarChange);
+
+	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
+	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
 #if defined VERDIUS_PATCHES
-	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up");
+	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY);
 #endif
-	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy penalty");
-	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges");
-	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time");
-	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets");
-	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus");
-	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, fire updraft");
-	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump");
-	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo");
-	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit, uncapped");
-	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off");
-	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus");
-	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health");
-	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity");
-	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered");
-	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill");
+	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy penalty", CLASSFLAG_DEMOMAN);
+	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY);
+	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT);
+	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets", CLASSFLAG_PYRO);
+	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO);
+	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, fire updraft", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
+	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT);
+	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo", CLASSFLAG_SOLDIER);
+	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit, uncapped", CLASSFLAG_SOLDIER);
+	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT);
+	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN);
+	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER);
+	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY);
+	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
+	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge also applies when holstered", CLASSFLAG_DEMOMAN);
+	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level");
+	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER);
 #endif
-	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack");
-	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)");
-	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties");
+	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit");
+	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY);
+#endif	
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max health, 15% bullet resist, 20% blast vuln, no fire resists", CLASSFLAG_SNIPER);
+	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY);
+	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO);
+#if defined VERDIUS_PATCHES
+	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER);
 #endif
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf and center-hit requirement for bonus damage");
+	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO);
 #else
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted -25% projectile size nerf");
+	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO);
 #endif
-	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing");
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death");
-	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken");
-	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties");
-	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge");
-	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death");
-	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, old honorbound, full heal, crits");
-	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size");
-	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything");
-	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts");
-	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty");
-	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load shots, let go to release");
-	ItemDefine("Pomson 6000", "pomson", "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, has no drain fall-off");
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active");
-	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln");
+	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY);
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, no healing, no mark-for-death", CLASSFLAG_SOLDIER);
+	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY);
+	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY);
+	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT);
+	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death", CLASSFLAG_HEAVY);
+	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
+	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER);
+	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN);
+	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN);
+	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER);
+	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance when spun up at any health", CLASSFLAG_HEAVY);
+	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER);
+	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN);
+	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER);
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO);
+	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered");
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC);
 #else
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate");
+	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC);
 #endif
-	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate");
+	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups");
+	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER);
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again");
-	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times");
-	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt kill");
-	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Familiar Fez not required");
-	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time");
-	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus");
-	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed");
-	ItemDefine("Shortstop", "shortstop", "Reverted reload time to release version, with +40% push force");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits");
-	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed");
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer");
-	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again");
-	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots");
-	ItemDefine("Tide Turner", "turner", "Reverted to pre-tough break, deal full crits like other shields again, 25% fire resist and 25% blast resist");
-	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty");
-	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion");
-	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death");
-	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-tough break, heals 10 on hit, no damage vuln, -20 max health");
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO);
+	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER);
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt kill", CLASSFLAG_SOLDIER);
+	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip both the L'Etranger and YER to get the set bonus. Familiar Fez not required", CLASSFLAG_SPY);
+	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT);
+	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN);
+	ItemDefine("Short Circuit", "circuit", "Reverted to post-gunmettle, alt fire destroys projectiles, -cost +speed", CLASSFLAG_ENGINEER);
+	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, faster reload time, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT);
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT);
+	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC);
+	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, old shield mechanics, bash dmg at any range", CLASSFLAG_DEMOMAN);
+	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY);
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN);
+	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER);
+	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN);
+	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY);	
+	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER);
+	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN);
+	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC);
+	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-tough break, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up");
+	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle (shieldvalues only), fully repair and refill while shield is up", CLASSFLAG_ENGINEER);
 #endif
-	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty");
+	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY);
 
 	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
 	SetMenuTitle(menu_main, "Weapon Reverts");
 	SetMenuPagination(menu_main, MENU_NO_PAGINATION);
 	SetMenuExitButton(menu_main, true);
+	AddMenuItem(menu_main, "classinfo", "Show reverts for your current class");
 	AddMenuItem(menu_main, "info", "Show information about each revert");
 
 	ItemFinalize();
@@ -350,6 +422,8 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_reverts", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
 	RegConsoleCmd("sm_revertinfo", Command_Info, (PLUGIN_NAME ... " - Show reverts info in console"), 0);
 	RegConsoleCmd("sm_revertsinfo", Command_Info, (PLUGIN_NAME ... " - Show reverts info in console"), 0);
+	RegConsoleCmd("sm_classrevert", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
+	RegConsoleCmd("sm_classreverts", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 
 	HookEvent("player_spawn", OnGameEvent, EventHookMode_Post);
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
@@ -381,11 +455,19 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
 		sdkcall_JarExplode = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+    	PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
+   		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
+		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
+		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
 		delete conf;
 	}
@@ -447,6 +529,12 @@ public void OnPluginStart() {
 		Verdius_RevertQuickFixUberCannotCapturePoint = 
 			MemoryPatch.CreateFromConf(conf, 
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
+		Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
+		Verdius_RevertDalokohsBar_MOV_400 = 
+			MemoryPatch.CreateFromConf(conf, 
+			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");			
 
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -480,7 +568,11 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
 		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
-		
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
+		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
+
+
 		delete conf;
 	}
 #endif
@@ -500,15 +592,20 @@ public void OnPluginStart() {
 
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
+	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	
-	
+	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
+  	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
+
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+  	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
+	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -516,20 +613,42 @@ public void OnPluginStart() {
 	}
 }
 
-#if defined VERDIUS_PATCHES
-bool ValidateAndNullCheck(MemoryPatch patch) {
-	return (patch.Validate() && patch != null);
+public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
+	UpdateJumperDescription();
+}
+
+void UpdateJumperDescription() {
+	for (int i = 0; i < ITEMS_MAX; i++) {
+		if (StrEqual(items[i].key, "rocketjmp") || StrEqual(items[i].key, "stkjumper")) {
+			char intelMsg[] = ", wearer can pick up intel";
+			if (GetConVarBool(cvar_jumper_flag_run)) {
+				if (StrContains(items[i].desc, intelMsg) == -1) {
+					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
+				}
+			} else {
+				ReplaceString(items[i].desc, sizeof(items[].desc), intelMsg, "");
+			}
+		}
+	}
 }
 
 public void OnConfigsExecuted() {
+#if defined VERDIUS_PATCHES
 	VerdiusTogglePatches(ItemIsEnabled("disciplinary"),"disciplinary");
 	VerdiusTogglePatches(ItemIsEnabled("dragonfury"),"dragonfury");
 	VerdiusTogglePatches(ItemIsEnabled("miniramp"),"miniramp");
 	VerdiusTogglePatches(ItemIsEnabled("wrangler"),"wrangler");
 	VerdiusTogglePatches(ItemIsEnabled("cozycamper"),"cozycamper");
 	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
+	VerdiusTogglePatches(ItemIsEnabled("dalokohsbar"),"dalokohsbar");
+#endif
+	UpdateJumperDescription();
 }
 
+#if defined VERDIUS_PATCHES
+bool ValidateAndNullCheck(MemoryPatch patch) {
+	return (patch.Validate() && patch != null);
+}
 
 Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 {
@@ -616,12 +735,27 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 			Verdius_RevertQuickFixUberCannotCapturePoint.Disable();
 		}
 	}
+	else if (StrEqual(name,"dalokohsbar")){
+		if (enable) {
+			Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Enable();
+			Verdius_RevertDalokohsBar_MOV_400.Enable();
+
+			// Due to it being a MOVSS instruction that needs
+			// a Address instead of values, there's some extra steps to be done in here:
+			StoreToAddress(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
+		} else {
+			Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
+			Verdius_RevertDalokohsBar_MOV_400.Disable();
+		}
+	}		
 }
 #endif
 
 public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheSound("items/gunpickup2.wav");
 	PrecacheScriptSound("Jar.Explode");
+	PrecacheScriptSound("Player.ResistanceLight");
 }
 
 public void OnGameFrame() {
@@ -782,6 +916,7 @@ public void OnGameFrame() {
 								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+									// Shortstop shove leftover code from Bakugo
 									// disable secondary attack
 									// this is somewhat broken, can still shove by holding m2 when reload ends
 									// SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
@@ -1012,7 +1147,6 @@ public void OnGameFrame() {
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
 								players[idx].spy_is_feigning = true;
-								players[idx].damage_taken_during_feign = 0.0;
 							}
 						} else {
 							if (
@@ -1230,6 +1364,8 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled("bison"));
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled("dragonfury"));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled("basejump"));
+			// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
+			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled("basejump"));	
 		}
 	}
 }
@@ -1298,6 +1434,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 	if (StrEqual(class, "tf_weapon_mechanical_arm")) {
 		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+	if (StrContains(class, "item_ammopack") == 0)
+	{
+		DHookEntity(dhook_CAmmoPack_MyTouch, false, entity, _, DHookCallback_CAmmoPack_MyTouch);
 	}
 }
 
@@ -1371,12 +1511,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			}
 
 			if (TF2_IsPlayerInCondition(client, TFCond_DeadRingered)) {
-				if (condition == TFCond_SpeedBuffAlly) {
-					// cancel speed buff
-					// sound still plays clientside :(
-
-					TF2_RemoveCondition(client, TFCond_SpeedBuffAlly);
-				}
 				
 				if (
 					condition == TFCond_AfterburnImmune &&
@@ -1423,6 +1557,47 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
+}
+
+public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
+	{
+		// prevent speed boost being applied on feign death
+		if (
+			ItemIsEnabled("ringer") &&
+			condition == TFCond_SpeedBuffAlly &&
+			TF2_GetPlayerClass(client) == TFClass_Spy &&
+			players[client].ticks_since_feign_ready == GetGameTickCount()
+		) {
+			return Plugin_Handled;
+		}
+	}
+	{
+		// save charge tick (for preventing debuff removal)
+		if (condition == TFCond_Charging) {
+			players[client].charge_tick = GetGameTickCount();
+			return Plugin_Continue;
+		}
+	}
+	return Plugin_Continue;
+}
+
+public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, int &provider) {
+	{
+		// prevent debuff removal for shields
+		if (
+			((ItemIsEnabled("targe") && player_weapons[client][Wep_CharginTarge]) ||
+			 (ItemIsEnabled("splendid") && player_weapons[client][Wep_SplendidScreen]) ||
+			 (ItemIsEnabled("turner") && player_weapons[client][Wep_TideTurner])) &&
+			players[client].charge_tick == GetGameTickCount()
+		) {
+			for (int i = 0; i < sizeof(debuffs); ++i)
+			{
+				if (condition == debuffs[i])
+					return Plugin_Handled;
+			}
+		}
+	}
+	return Plugin_Continue;
 }
 
 public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Handle& item) {
@@ -1493,6 +1668,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("rocketjmp") &&
+		StrEqual(class, "tf_weapon_rocketlauncher") &&
+		index == 237 &&
+		GetConVarBool(cvar_jumper_flag_run)
+	) {
+		item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 400, 0.0);
+	}
+
+	else if (
 		ItemIsEnabled("beggars") &&
 		StrEqual(class, "tf_weapon_rocketlauncher") &&
 		(index == 730)
@@ -1536,6 +1722,31 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
+	}
+
+	else if (
+		ItemIsEnabled("buffalosteak") &&
+		StrEqual(class, "tf_weapon_lunchbox") &&
+		(index == 311)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+	}
+
+	else if (
+		ItemIsEnabled("bushwacka") &&
+		StrEqual(class, "tf_weapon_club") &&
+		(index == 232)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 4);
+		TF2Items_SetAttribute(item1, 0, 128, 0.0); // provide on active
+		TF2Items_SetAttribute(item1, 1, 412, 1.00); // 0% damage vulnerability on wearer
+		TF2Items_SetAttribute(item1, 2, 15, 1.0); // random crits enabled
+		TF2Items_SetAttribute(item1, 3, 61, 1.20); // 20% fire damage vulnerability on wearer
 	}
 
 	else if (
@@ -1587,7 +1798,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		//sword holster code handled here
 		if(swords) {
 			TF2Items_SetAttribute(item1, 3, 781, 0.0); // is a sword
-			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier
+			TF2Items_SetAttribute(item1, 4, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 		}
 	}
 
@@ -1601,6 +1812,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 814, 0.0); // no mark-for-death on attack
 		TF2Items_SetAttribute(item1, 1, 798, 1.10); // +10% damage vulnerability while under the effect
+	}
+
+	else if (
+		ItemIsEnabled("darwin") &&
+		StrEqual(class, "tf_wearable") &&
+		(index == 231)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 5);
+		TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
+		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
+		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
+		TF2Items_SetAttribute(item1, 3, 66, 0.85); // +15% bullet damage resistance on wearer
+		TF2Items_SetAttribute(item1, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
 	}
 
 	else if (
@@ -1626,9 +1852,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 410, 1.0); // damage bonus while disguised
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
 		TF2Items_SetAttribute(item1, 1, 797, 0.0); // dmg pierces resists absorbs
+		TF2Items_SetAttribute(item1, 2, 2, 1.20); // 20% damage bonus
+		// When the Spy fires while disguised, he gives less damage to both players and buildings.
 	}
 
 	else if (
@@ -1752,6 +1980,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("natascha") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 41)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetAttribute(item1, 0, 738, 1.00); // spunup damage resistance
+	}
+
+	else if (
 		ItemIsEnabled("panic") &&
 		StrEqual(class, "tf_weapon_shotgun") &&
 		(index == 1153)
@@ -1813,6 +2052,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 1);
 		TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
 		// health bonus with overheal handled elsewhere
+	}
+
+	else if (
+		ItemIsEnabled("persuader") &&
+		StrEqual(class, "tf_weapon_sword") &&
+		(index == 404)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		bool swords = ItemIsEnabled("swords");
+		TF2Items_SetNumAttributes(item1, swords ? 8 : 6);
+		TF2Items_SetAttribute(item1, 0, 77, 1.00); // -0% max primary ammo on wearer  
+		TF2Items_SetAttribute(item1, 1, 79, 1.00); // -0% max secondary ammo on wearer 
+		TF2Items_SetAttribute(item1, 2, 778, 0.00); // remove "Melee hits refill 20% of your charge meter" attribute
+		TF2Items_SetAttribute(item1, 3, 782, 0.0); // remove "Ammo boxes collected also give Charge"
+		TF2Items_SetAttribute(item1, 4, 249, 2.00); // +100% increase in charge recharge rate, shields should take around 6 seconds to charge with persuader
+		TF2Items_SetAttribute(item1, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
+		if(swords) {
+			TF2Items_SetAttribute(item1, 6, 781, 0.0); // is a sword
+			TF2Items_SetAttribute(item1, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
+		}		
 	}
 
 	else if (
@@ -1892,10 +2152,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 241, 1.0); // reload time increased hidden
-		TF2Items_SetAttribute(item1, 1, 534, 1.4); // airblast vulnerability multiplier hidden
-		TF2Items_SetAttribute(item1, 2, 535, 1.4); // damage force increase hidden
+		TF2Items_SetAttribute(item1, 1, 534, 1.00); // airblast vulnerability multiplier hidden
+		TF2Items_SetAttribute(item1, 2, 535, 1.00); // damage force increase hidden
+		TF2Items_SetAttribute(item1, 3, 536, 1.00); // damage force increase text
+		TF2Items_SetAttribute(item1, 4, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
 	}
 
 	else if (
@@ -1933,6 +2195,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	else if (
+		ItemIsEnabled("splendid") &&
+		StrEqual(class, "tf_wearable_demoshield") &&
+		(index == 406)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 64, 0.85); // dmg taken from blast reduced
+		TF2Items_SetAttribute(item1, 1, 249, 1.00); // remove +50% increase in charge recharge rate
+		TF2Items_SetAttribute(item1, 2, 247, 1.0); // can deal charge impact damage at any range
+	}
+
+	else if (
 		ItemIsEnabled("spycicle") &&
 		StrEqual(class, "tf_weapon_knife") &&
 		(index == 649)
@@ -1950,8 +2225,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 1);
+		TF2Items_SetNumAttributes(item1, GetConVarBool(cvar_jumper_flag_run) ? 2 : 1);
 		TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
+		if (GetConVarBool(cvar_jumper_flag_run)) {
+			TF2Items_SetAttribute(item1, 1, 400, 0.0);
+		}
 	}
 
 	else if (
@@ -1964,6 +2242,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 64, 0.6); // dmg taken from blast reduced
 		TF2Items_SetAttribute(item1, 1, 527, 1.0); // afterburn immunity
+	}
+
+	else if (
+		ItemIsEnabled("tomislav") &&
+		StrEqual(class, "tf_weapon_minigun") &&
+		(index == 424)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 2);
+		TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+		TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
+		// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 	}
 
 	else if (
@@ -2045,7 +2336,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 		TF2Items_SetNumAttributes(item1, 2);
 		TF2Items_SetAttribute(item1, 0, 781, 0.0); // is a sword
-		TF2Items_SetAttribute(item1, 1, 264, 1.0); // melee range multiplier
+		TF2Items_SetAttribute(item1, 1, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 	}
 
 	if (item1 != null) {
@@ -2064,6 +2355,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 	char class[64];
 	float charge;
 	Event event1;
+	int index;
 
 	if (StrEqual(name, "player_spawn")) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -2242,6 +2534,31 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
+
+			{
+				// fix sydney sleeper headshot kill icon (unless crit-boosted)
+
+				if (
+					GetEventInt(event, "customkill") == TF_CUSTOM_HEADSHOT &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
+					PlayerIsCritboosted(attacker) == false
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled("sleeper") &&
+							StrEqual(class, "tf_weapon_sniperrifle") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+						) {
+							SetEventInt(event, "customkill", TF_DMG_CUSTOM_NONE);
+							return Plugin_Changed;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -2264,7 +2581,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				if (weapon != -1)
 				{
 					GetEntityClassname(weapon, class, sizeof(class));
-					int index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+					index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
 					if(
 						StrEqual(class,"tf_weapon_lunchbox_drink") &&
@@ -2288,11 +2605,69 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					else if (
+						StrEqual(class,"tf_weapon_minigun") &&
+						(index == 41)
+					) {
+						player_weapons[client][Wep_Natascha] = true;
+					}
+
+					else if (
 						StrEqual(class,"tf_weapon_rocketlauncher") &&
 						(index == 237)
 					) {
 						player_weapons[client][Wep_RocketJumper] = true;
 					}
+
+					else if (
+						StrEqual(class, "tf_weapon_sword") &&
+						(index == 404)
+					) {
+						player_weapons[client][Wep_PersianPersuader] = true;
+					}
+
+					if(
+						StrEqual(class,"tf_weapon_lunchbox") &&
+						(index == 311)
+					) {
+						player_weapons[client][Wep_BuffaloSteak] = true;
+					}
+
+          				// shortstop primary ammo sharing with secondary pistol ammo
+					else if (
+						ItemIsEnabled("shortstop") &&
+						StrEqual(class,"tf_weapon_handgun_scout_primary")
+					) {
+						int SCOUT_PISTOL_AMMO_TYPE = 2;
+						SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
+          				}
+				}
+			}
+			int num_wearables = TF2Util_GetPlayerWearableCount(client);
+			for (int i = 0; i < num_wearables; i++)
+			{
+				int wearable = TF2Util_GetPlayerWearable(client, i);			
+				GetEntityClassname(wearable, class, sizeof(class));
+				index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
+				
+				if (
+					StrEqual(class,"tf_wearable_demoshield") &&
+					(index == 131)
+				) {
+					player_weapons[client][Wep_CharginTarge] = true;
+				}
+
+				else if (
+					StrEqual(class,"tf_wearable_demoshield") &&
+					(index == 406)
+				) {
+					player_weapons[client][Wep_SplendidScreen] = true;
+				}
+
+				else if (
+					StrEqual(class,"tf_wearable_demoshield") &&
+					(index == 1099)
+				) {
+					player_weapons[client][Wep_TideTurner] = true;
 				}
 			}
 		}
@@ -2301,9 +2676,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		if (
 			ItemIsEnabled("saharan")
 		) {
+			// reset set bonuses on loadout changes
+			TFClassType client_class = TF2_GetPlayerClass(client);
+			switch (client_class)
+			{
+				case TFClass_Spy:
+				{
+					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
+					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
+				}
+			}
+			
 
 			//handle item sets
-			int first_wep = -1;
 			int wep_count = 0;
 			int active_set = 0;
 
@@ -2317,8 +2702,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
-					//stats appear to persist between loadout changes for whatever reason
-					//reset them each time here
+					// Saharan Spy
 					if(
 						ItemIsEnabled("saharan") &&
 						(StrEqual(classname, "tf_weapon_revolver") &&
@@ -2326,14 +2710,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(StrEqual(classname, "tf_weapon_knife") &&
 						(item_index == 225 || item_index == 574))
 					) {
-						if (first_wep == -1) first_wep = weapon;
 						wep_count++;
 						if(wep_count == 2) active_set = ItemSet_Saharan;
-						//reset these values so loadout changes don't persist the attributes
-						TF2Attrib_SetByDefIndex(weapon,159,0.0); //cloak blink
-						TF2Attrib_SetByDefIndex(weapon,160,0.0); //silent decloak
 					}
-
 				}
 			}
 
@@ -2362,8 +2741,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					{
 						case ItemSet_Saharan:
 						{
-							TF2Attrib_SetByDefIndex(first_wep,159,0.5); //blink duration increase
-							TF2Attrib_SetByDefIndex(first_wep,160,1.0); //quet decloak
+							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
+							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
 						}
 					}
 				}
@@ -2425,6 +2804,33 @@ Action OnSoundNormal(
 			) {
 				// cancel bonk stun sound
 				return Plugin_Stop;
+			}
+		}
+	}
+	if (GetConVarBool(cvar_old_falldmg_sfx))
+	{
+		if (StrContains(sample, "pl_fallpain") != -1)
+		{
+			for (idx = 1; idx <= MaxClients; idx++)
+			{
+				if (players[idx].fall_dmg_tick == GetGameTickCount())
+				{
+					// play old bone crunch
+					strcopy(sample, PLATFORM_MAX_PATH, "player/pl_fleshbreak.wav");
+					pitch = 92;
+					return Plugin_Changed;
+				}
+			}
+		}
+		else if (StrContains(sample, "PainSevere") != -1)
+		{
+			for (idx = 1; idx <= MaxClients; idx++)
+			{
+				if (players[idx].fall_dmg_tick == GetGameTickCount())
+				{
+					// cancel hurt sound by fall dmg
+					return Plugin_Stop;
+				}
 			}
 		}
 	}
@@ -2583,6 +2989,7 @@ Action SDKHookCB_OnTakeDamage(
 	float damage1;
 	int health_cur;
 	int health_max;
+	int health_new;
 	int weapon1;
 
 	if (
@@ -2590,6 +2997,12 @@ Action SDKHookCB_OnTakeDamage(
 		victim <= MaxClients
 	) {
 		// damage from any source
+
+		{
+			// save fall dmg tick for overriding with old fall dmg sound
+			if (damage_type & DMG_FALL)
+				players[victim].fall_dmg_tick = GetGameTickCount();
+		}
 
 		{
 			// dead ringer cvars set
@@ -2618,17 +3031,14 @@ Action SDKHookCB_OnTakeDamage(
 					}
 				}
 				
-				// dead ringer damage tracking
+				// dead ringer track when feign begins
 				if (ItemIsEnabled("ringer")) {
 					if (
 						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 						players[victim].spy_is_feigning == false
 					) {
 						players[victim].ticks_since_feign_ready = GetGameTickCount();
-					}
-					
-					if (players[victim].spy_is_feigning) {
-						players[victim].damage_taken_during_feign += damage;
+						players[victim].damage_taken_during_feign  = 0.0;
 					}
 				}
 			}
@@ -2677,6 +3087,9 @@ Action SDKHookCB_OnTakeDamage(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		// damage from players only
+
+		// useful for checking minicrits in OnTakeDamageAlive
+		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
 
 		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
@@ -2753,22 +3166,6 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					damage_type = (damage_type | DMG_CRIT);
 					return Plugin_Changed;
-				}
-			}
-
-			{
-				// enforcer damage bonus
-				// the old attrib doesnt work :(
-
-				if (
-					ItemIsEnabled("enforcer") &&
-					StrEqual(class, "tf_weapon_revolver") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 460
-				) {
-					if (TF2_IsPlayerInCondition(attacker, TFCond_Disguised) == false) {
-						damage = (damage * 1.20);
-						return Plugin_Changed;
-					}
 				}
 			}
 
@@ -2918,7 +3315,10 @@ Action SDKHookCB_OnTakeDamage(
 
 					// disable headshot crits
 					// ...is this even needed?
-					if (damage_type & DMG_CRIT != 0) {
+					if (
+						damage_type & DMG_CRIT != 0 &&
+						PlayerIsCritboosted(attacker) == false
+					) {
 						damage_type = (damage_type & ~DMG_CRIT);
 						return Plugin_Changed;
 					}
@@ -2935,10 +3335,7 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntityClassname(weapon1, class, sizeof(class));
 
 						if (StrEqual(class, "tf_weapon_katana")) {
-							if (
-								ItemIsEnabled("zatoichi") ||
-								ItemIsEnabled("zatoichi")
-							) {
+							if (ItemIsEnabled("zatoichi")) {
 								damage1 = (float(GetEntProp(victim, Prop_Send, "m_iHealth")) * 3.0);
 
 								if (damage1 > damage) {
@@ -2951,7 +3348,6 @@ Action SDKHookCB_OnTakeDamage(
 							}
 						}
 					}
-
 					return Plugin_Continue;
 				}
 			}
@@ -3006,18 +3402,45 @@ Action SDKHookCB_OnTakeDamage(
 					FireEvent(event);
 
 					// Set health.
-					int new_health = GetClientHealth(attacker) + 15;
-					int current_health = GetClientHealth(attacker);
+					health_cur = GetClientHealth(attacker);
+					health_new = health_cur + 15;
+					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					if(players[attacker].max_health > new_health) {
-						SetEntityHealth(attacker, new_health);						
+					if(health_max > health_new) {
+						SetEntityHealth(attacker, health_new);						
 					}				
-					else if(players[attacker].max_health > current_health) { 
-						SetEntityHealth(attacker, players[attacker].max_health); //check if the current health is 14HP less than the max health
+					else if(health_max > health_cur) { 
+						SetEntityHealth(attacker, health_max); //check if the current health is 14HP less than the max health
 					}	
-					else if(players[attacker].max_health < current_health) { 
-						SetEntityHealth(attacker, current_health); //don't remove overheal (still shows +15 HP on hit)
+					else if(health_max < health_cur) { 
+						SetEntityHealth(attacker, health_cur); //don't remove overheal (still shows +15 HP on hit)
 					}					
+				}
+			}
+
+			{
+				// shield bash
+				if (
+					((ItemIsEnabled("targe") && player_weapons[attacker][Wep_CharginTarge]) ||
+					 (ItemIsEnabled("splendid") && player_weapons[attacker][Wep_SplendidScreen]) ||
+					 (ItemIsEnabled("turner") && player_weapons[attacker][Wep_TideTurner])) &&
+					StrEqual(class, "tf_wearable_demoshield") &&
+					damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT
+				) {
+					// crit after shield bash if melee is active weapon
+					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
+						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
+
+					// apply shield bash damage at the end of a charge, unless using splendid screen
+					if (player_weapons[attacker][Wep_SplendidScreen] == false)
+					{
+						charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");
+						if (charge > 40.0) // check if this is the correct value
+						{
+							return Plugin_Handled;
+						}
+					}
 				}
 			}
 
@@ -3164,13 +3587,22 @@ Action SDKHookCB_OnTakeDamageAlive(
 		}
 		{
 			if (
-				ItemIsEnabled("brassbeast") &&
+				((ItemIsEnabled("brassbeast") && player_weapons[victim][Wep_BrassBeast]) ||
+				(ItemIsEnabled("natascha") && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				player_weapons[victim][Wep_BrassBeast]
+				TF2_GetPlayerClass(victim) == TFClass_Heavy
 			) {
-				// 20% damage resistance when spun up with the Brass Beast
-				damage *= 0.80;
+				// Brass Beast damage resistance when spun up
+				
+				// play damage resist sound
+				EmitGameSoundToAll("Player.ResistanceLight", victim);
+				
+				// apply resistance
+				if (damage_type & DMG_CRIT != 0)
+					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
+				else
+					damage *= 0.80;
+				
 				returnValue = Plugin_Changed;
 			}
 		}
@@ -3196,6 +3628,17 @@ void SDKHookCB_OnTakeDamagePost(
 	int victim, int attacker, int inflictor, float damage, int damage_type,
 	int weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy
+	) {
+		// dead ringer damage tracking
+		if (TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)) {
+			players[victim].damage_taken_during_feign += damage;
+		}
+	}
+
 	if (
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
@@ -3231,6 +3674,15 @@ Action Command_Info(int client, int args) {
 
 	return Plugin_Handled;
 }
+
+Action Command_ClassInfo(int client, int args) {
+	if (client > 0) {
+		ShowClassReverts(client);
+	}
+
+	return Plugin_Handled;
+}
+
 
 void SetConVarMaybe(Handle cvar, char[] value, bool maybe) {
 	if (maybe) {
@@ -3294,6 +3746,30 @@ bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
+}
+
+TFCond critboosts[] =
+{
+	TFCond_Kritzkrieged,
+	TFCond_HalloweenCritCandy,
+	TFCond_CritCanteen,
+	TFCond_CritOnFirstBlood,
+	TFCond_CritOnWin,
+	TFCond_CritOnFlagCapture,
+	TFCond_CritOnKill,
+	TFCond_CritMmmph,
+	TFCond_CritOnDamage,
+	TFCond_CritRuneTemp
+};
+
+bool PlayerIsCritboosted(int client) {
+	for (int i = 0; i < sizeof(critboosts); ++i)
+	{
+		if (TF2_IsPlayerInCondition(client, critboosts[i]))
+			return true;
+	}
+
+	return false;
 }
 
 void PlayerRemoveEquipment(int client) {
@@ -3364,7 +3840,7 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ItemDefine(char[] name, char[] key, char[] desc) {
+void ItemDefine(char[] name, char[] key, char[] desc, int classflags) {
 	int idx;
 
 	for (idx = 0; idx < ITEMS_MAX; idx++) {
@@ -3372,6 +3848,7 @@ void ItemDefine(char[] name, char[] key, char[] desc) {
 			strcopy(items[idx].key, sizeof(items[].key), key);
 			strcopy(items[idx].name, sizeof(items[].name), name);
 			strcopy(items[idx].desc, sizeof(items[].desc), desc);
+			items[idx].classflags = classflags;
 			return;
 		}
 	}
@@ -3457,6 +3934,9 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 			if (StrEqual(info, "info")) {
 				ShowItemsDetails(param1);
 			}
+			else if (StrEqual(info, "classinfo")) {
+				ShowClassReverts(param1);
+			}
 		}
 	}
 
@@ -3466,7 +3946,7 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 void ShowItemsDetails(int client) {
 	int idx;
 	int count;
-	char msg[ITEMS_MAX][128];
+	char msg[ITEMS_MAX][256];
 
 	count = 0;
 
@@ -3498,6 +3978,56 @@ void ShowItemsDetails(int client) {
 	}
 
 	PrintToConsole(client, "");
+}
+
+void ShowClassReverts(int client) {
+	int idx;
+	int count;
+	char msg[ITEMS_MAX][256];
+	int class_idx;
+	TFTeam team;
+
+	count = 0;
+	class_idx = view_as<int>(TF2_GetPlayerClass(client)) - 1;
+	team = TF2_GetClientTeam(client);
+
+	// Return if unknown class or in spectator/unassigned team
+	if (
+		(team == TFTeam_Unassigned) ||
+		(team == TFTeam_Spectator)
+	) {
+		ReplyToCommand(client, "You need to be in a team to use this command");
+		return;
+	} else if (class_idx == -1) {
+		ReplyToCommand(client, "Your class needs to be valid to use this command");
+		return;
+	}
+
+	if (GetConVarBool(cvar_enable)) {
+		for (idx = 0; idx < ITEMS_MAX; idx++) {
+			if (
+				strlen(items[idx].key) > 0 &&
+				GetConVarBool(items[idx].cvar)
+			) {
+				if (items[idx].classflags & (1 << class_idx) == 0)
+					continue;
+				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items[idx].desc);
+				count++;
+			}
+		}
+	}
+
+	ReplyToCommand(client, "Weapon reverts currently enabled for %s:", class_names[class_idx]);
+
+	if (count > 0) {
+		for (idx = 0; idx < sizeof(msg); idx++) {
+			if (strlen(msg[idx]) > 0) {
+				CReplyToCommand(client, "%s", msg[idx]);
+			}
+		}
+	} else {
+		CReplyToCommand(client, "{lightgreen}There's nothing here... for some reason, all %s reverts are disabled :\\", class_names[class_idx]);
+	}
 }
 
 #if defined VERDIUS_PATCHES
@@ -3821,6 +4351,32 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 			return MRES_Override;
 		}
+
+		if (
+			ItemIsEnabled("buffalosteak") &&
+			IsValidEntity(entity) &&
+			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+			TF2_GetPlayerClass(entity) == TFClass_Heavy &&
+			player_weapons[entity][Wep_BuffaloSteak]
+		) 
+		{
+			// Buffalo Steak Sandvich Pre-MyM Speed boost Revert.
+			// Detect if the player is equipping the GRU or Eviction Notice, if true, then do not adjust the speed
+			int weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Melee);
+
+			if (weapon > 0) 
+			{
+				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+
+				if (!(index == 239 || index == 1084 || index == 1100 || index == 426))
+				{
+					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
+					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
+					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
+					return MRES_Override;
+				}
+			}
+		}       
 	}
 	return MRES_Ignored;
 }
@@ -3874,6 +4430,86 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 		return MRES_Override;
 	}
 
+	return MRES_Ignored;
+}
+
+float PersuaderPackRatios[] =
+{
+	0.25,	// SMALL
+	0.5,	// MEDIUM
+	1.0,	// FULL
+};
+
+MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	int client = GetEntityFromAddress(parameters.Get(1));
+	if (ItemIsEnabled("persuader") && player_weapons[client][Wep_PersianPersuader])
+	{
+		// Health pickup with the Persian Persuader.
+		returnValue.Value = false;
+		int health = GetClientHealth(client);
+		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+		if (health < health_max)
+        	{
+			// Get amount to heal.
+	        	int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+	
+			// Show that the player got healed.
+			Handle event = CreateEvent("player_healonhit", true);
+			SetEventInt(event, "amount", heal);
+			SetEventInt(event, "entindex", client);
+			FireEvent(event);
+
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
+
+			// Set health.
+			SetEntityHealth(client, intMin(health + heal, health_max));
+			EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+			returnValue.Value = true;
+		}
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
+{
+	int client = parameters.Get(1);
+	if (ItemIsEnabled("persuader") && client > 0 && client <= MaxClients && player_weapons[client][Wep_PersianPersuader])
+	{
+		// Health pickup with the Persian Persuader from dropped ammo packs.
+		int health = GetClientHealth(client);
+		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+		if (health < health_max)
+		{
+			// Show that the player got healed.
+			Handle event = CreateEvent("player_healonhit", true);
+			SetEventInt(event, "amount", 20);
+			SetEventInt(event, "entindex", client);
+			FireEvent(event);
+
+			// remove afterburn and bleed debuffs on heal
+			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding)) 
+			{
+				TF2_RemoveCondition(client, TFCond_OnFire);
+				TF2_RemoveCondition(client, TFCond_Bleeding);
+			}
+
+			// Set health.
+			SetEntityHealth(client, intMin(health + 20, health_max));
+			// If you're wondering why EmitSoundToAll below is repeated in a different channel, 
+			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+			RemoveEntity(entity);
+		}
+		return MRES_Supercede;
+	}
 	return MRES_Ignored;
 }
 
@@ -3942,4 +4578,58 @@ int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
+}
+
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+    if (ItemIsEnabled("spycicle"))
+    {
+        // Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+        returnValue.Value = false;
+        return MRES_Supercede;
+    }
+    return MRES_Ignored;
+}
+
+//Get the smaller integral value
+int intMin(int x, int y)
+{
+    return x > y ? y : x;
+}
+
+int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
+{
+    return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
+}
+
+int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
+{
+    static int offs_RefEHandle;
+    if (offs_RefEHandle) 
+    {
+        return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
+    }
+
+    // if we don't have it already, attempt to lookup offset based on SDK information
+    // CWorld is derived from CBaseEntity so it should have both offsets
+    int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
+    if (offs_angRotation == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
+    }
+    else if (offs_vecViewOffset == -1) 
+    {
+        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
+    } 
+    else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04)) 
+    {
+        char game[32];
+        GetGameFolderName(game, sizeof(game));
+        ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
+                ... "(incorrect assumption for game '%s'?)", game);
+    }
+
+    // offset seems right, cache it for the next call
+    offs_RefEHandle = offs_angRotation + 0x0C;
+    return GetEntityFromAddress(pEntity);
 }

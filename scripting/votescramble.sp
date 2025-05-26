@@ -40,6 +40,7 @@ bool g_bScrambleTeams;
 bool g_bScrambleTeamsInProgress;
 bool g_bCanScramble;
 bool g_bIsArena;
+bool g_bServerWaitingForPlayers;
 Handle g_tRoundResetTimer;
 
 #define SPECTATOR 1
@@ -142,6 +143,7 @@ public void OnMapStart()
 	g_bVoteCooldown = false;
 	g_bScrambleTeams = false;
 	g_bScrambleTeamsInProgress = false;
+	g_bServerWaitingForPlayers = false;
 	g_bCanScramble = false;
 	g_bIsArena = false;
 	g_iPlayerManager = GetPlayerResourceEntity();
@@ -161,6 +163,18 @@ public void OnMapStart()
 			case RED: g_iTeamManagerRed = ent;
 			case BLU: g_iTeamManagerBlue = ent;
 		}
+	}
+}
+
+public void TF2_OnWaitingForPlayersStart() {
+	if (!g_bIsArena) {
+		g_bServerWaitingForPlayers = true;
+	}
+}
+
+public void TF2_OnWaitingForPlayersEnd() {
+	if (!g_bIsArena) {
+		g_bServerWaitingForPlayers = false;
 	}
 }
 
@@ -215,27 +229,42 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 {
-	if (g_bScrambleTeams)
+	if (g_bServerWaitingForPlayers)
 	{
+		char errorMsg[] = "Server is still waiting for players.";
 		if (isVoteCalledFromMenu)
 		{
-			PrintToChat(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+			PrintToChat(client, errorMsg);
 		}
 		else 
 		{
-			ReplyToCommand(client, "A previous vote scramble has succeeded. Teams will be scrambled next round.");
+			ReplyToCommand(client, errorMsg);
+		}
+		return;
+	}
+	if (g_bScrambleTeams)
+	{
+		char errorMsg[] = "A previous vote scramble has succeeded. Teams will be scrambled next round.";
+		if (isVoteCalledFromMenu)
+		{
+			PrintToChat(client, errorMsg);
+		}
+		else 
+		{
+			ReplyToCommand(client, errorMsg);
 		}
 		return;
 	}
 	if (g_bVoteCooldown)
 	{
+		char errorMsg[] = "Sorry, votescramble is currently on cool-down.";
 		if (isVoteCalledFromMenu)
 		{
-			PrintToChat(client, "Sorry, votescramble is currently on cool-down.");
+			PrintToChat(client, errorMsg);
 		}
 		else
 		{
-			ReplyToCommand(client, "Sorry, votescramble is currently on cool-down.");
+			ReplyToCommand(client, errorMsg);
 		}
 		return;
 	}
@@ -245,13 +274,14 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 
 	if (g_bVoted[client])
 	{
+		char errorMsg[] = "You have already voted for a team scramble. [%d/%d votes required]";
 		if (isVoteCalledFromMenu)
 		{
-			PrintToChat(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+			PrintToChat(client, errorMsg, g_iVotes, g_iVotesNeeded);
 		}
 		else
 		{
-			ReplyToCommand(client, "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+			ReplyToCommand(client, errorMsg, g_iVotes, g_iVotesNeeded);
 		}
 		return;
 	}
@@ -413,6 +443,21 @@ public Action Timer_PreventScramble(Handle timer)
 	return Plugin_Stop;
 }
 
+void ForceRespawn()
+{
+	int flags = GetCommandFlags("mp_forcerespawnplayers");
+	SetCommandFlags("mp_forcerespawnplayers", flags & ~FCVAR_CHEAT);
+	ServerCommand("mp_forcerespawnplayers");
+	// wait 0.1 seconds before resetting flag or else it would complain
+	// about not having sv_cheats 1
+	CreateTimer(0.1, Post_RespawnCommandRun, flags);
+}
+
+public Action Post_RespawnCommandRun(Handle timer, int flags) {
+	SetCommandFlags("mp_forcerespawnplayers", flags);
+	return Plugin_Continue;
+}
+
 void TF2_ResetTeamScore(int team) {
 	if (team != BLU && team != RED) return;
 
@@ -551,6 +596,8 @@ void ScrambleTeams()
 	//reset scores
 	TF2_ResetTeamScore(RED);
 	TF2_ResetTeamScore(BLU);
+
+	ForceRespawn();
 
 	g_bScrambleTeamsInProgress = false;
 
