@@ -4356,11 +4356,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-				if (index == 239 || index == 1084 || index == 1100 || index == 426)
-				{
-					return MRES_Ignored;
-				}
-				else
+				if (!(index == 239 || index == 1084 || index == 1100 || index == 426))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
 					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
