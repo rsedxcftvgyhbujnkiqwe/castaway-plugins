@@ -249,7 +249,6 @@ Entity entities[2048];
 int frame;
 Handle hudsync;
 Menu menu_main;
-// Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
 
@@ -3838,8 +3837,6 @@ void ItemFinalize() {
 			if (items[idx].cvar != null) {
 				SetFailState("Tried to initialize items more than once");
 			}
-
-			// AddMenuItem(menu_pick, items[idx].key, "ERROR", _);
 
 			Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 			Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
