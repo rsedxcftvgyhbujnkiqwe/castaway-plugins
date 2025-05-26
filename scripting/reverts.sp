@@ -247,7 +247,6 @@ Item items[ITEMS_MAX];
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
 int frame;
-Handle hudsync;
 Menu menu_main;
 int rocket_create_entity;
 int rocket_create_frame;
@@ -397,8 +396,6 @@ public void OnPluginStart() {
 	ItemFinalize();
 
 	AutoExecConfig(false, "reverts", "sourcemod");
-
-	hudsync = CreateHudSynchronizer();
 
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_bison_tick_time = FindConVar("tf_bison_tick_time");
