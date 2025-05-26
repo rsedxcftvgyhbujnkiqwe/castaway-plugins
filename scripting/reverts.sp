@@ -1540,23 +1540,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
-
-	{
-		// Buffalo Steak Sandvich effect duration
-		// Steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
-		// Source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds
-		// Regardless just set the condition duration to 15 seconds, finding out the accuracy can be done later and this will be fine for now
-		// to do: find out a way accurately get the duration of the condition
-		if (
-			ItemIsEnabled("buffalosteak") &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			condition == TFCond_RestrictToMelee &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola)
-		) {
-			TF2_AddCondition(client, TFCond_RestrictToMelee, 15.0);
-			TF2_AddCondition(client, TFCond_CritCola, 15.0);
-		}
-	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -4363,7 +4346,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		) 
 		{
 			// Buffalo Steak Sandvich Pre-MyM Speed boost Revert.
-			
 			// Detect if the player is equipping the GRU or Eviction Notice, if true, then do not adjust the speed
 			char class[64];
 			int weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Melee);
@@ -4381,11 +4363,12 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				else
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
+					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
 					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
 			}
-		}        
+		}       
 	}
 	return MRES_Ignored;
 }
