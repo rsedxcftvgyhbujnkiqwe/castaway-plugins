@@ -173,7 +173,6 @@ enum struct Entity {
 }
 
 Handle cvar_enable;
-Handle cvar_extras;
 Handle cvar_jumper_flag_run;
 Handle cvar_old_falldmg_sfx;
 Handle cvar_ref_tf_airblast_cray;
@@ -293,7 +292,6 @@ public void OnPluginStart() {
 	CreateConVar("sm_reverts__version", PLUGIN_VERSION, (PLUGIN_NAME ... " - Version"), (FCVAR_NOTIFY|FCVAR_DONTRECORD));
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
-	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 
@@ -3239,19 +3237,8 @@ Action SDKHookCB_OnTakeDamage(
 
 								if (stun_amt >= 1.0) {
 									// moonshot!
-
 									stun_dur = (stun_dur + 1.0);
 									stun_fls = TF_STUNFLAGS_BIGBONK;
-
-									if (GetConVarBool(cvar_extras)) {
-										SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
-
-										for (idx = 1; idx <= MaxClients; idx++) {
-											if (IsClientInGame(idx)) {
-												ShowSyncHudText(idx, hudsync, "%N just landed a MOONSHOT on %N !", attacker, victim);
-											}
-										}
-									}
 								}
 
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
