@@ -2,6 +2,14 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 25, 2025
+- **Fixed reverted Persian Persuader not removing afterburn and bleed when picking up ammo packs as health, and increased pickup volume for dropped ammo packs.**
+- **Reverted the Buffalo Steak Sandvich to pre-Meet your Match**
+  - *The Buffalo Steak Sandvich*
+    - +10% damage vulnerability while active
+    - +35% fasater move speed while active
+    - Effect lasts 16 seconds.
+
 ### May 24, 2025
 - **Six (6) weapons have been reverted in this update.**
 - **Fixed Spy-cicle picking up ammo packs when melted while the Spy's cloak and primary ammo are full.**
