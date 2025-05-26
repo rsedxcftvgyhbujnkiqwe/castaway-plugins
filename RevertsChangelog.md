@@ -282,6 +282,13 @@
 - **Crit-a-Cola has been reverted to pre-Meet your Match around this time.**
   - *The Crit-a-Cola*
     - While under the effects, +25% movement speed, your attacks mini-crit, and damage taken increased by 10%.
+- **Panic Attack has been reverted to pre-Jungle Inferno around this time.**
+  - *The Panic Attack*
+    - 50% faster reload time
+    - This weapon deploys 50% faster
+    - Fire rate increases as health decreases
+    - Hold fire to load up to 4 shells
+    - Weapon spread increases as health decreases
 
 ### November 11, 2024
 - **Changed the plugin used for the Weapon Reverts servers (Bakugo's Weapon Reverts instead of NotnHeavy's Pre-Gun Mettle Reverts). Instead of a blanket gun-mettle revert, it selectively reverts weapons. It also doesn't cause lag.**
