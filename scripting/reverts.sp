@@ -4347,13 +4347,10 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		{
 			// Buffalo Steak Sandvich Pre-MyM Speed boost Revert.
 			// Detect if the player is equipping the GRU or Eviction Notice, if true, then do not adjust the speed
-			char class[64];
 			int weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Melee);
 
 			if (weapon > 0) 
 			{
-				GetEntityClassname(weapon, class, sizeof(class));
-				
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
 				if (!(index == 239 || index == 1084 || index == 1100 || index == 426))
