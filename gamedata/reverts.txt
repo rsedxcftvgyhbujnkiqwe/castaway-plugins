@@ -28,7 +28,7 @@
 			"CTFAmmoPack::PackTouch"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x1C\x53\x8B\x5D\x08\x56"
+				"windows" "\x55\x8B\xEC\x83\xEC\x24\x56\x8B\x75\x2A\x57\x8B\xF9\x8B\x46"
 				"linux"   "@_ZN11CTFAmmoPack9PackTouchEP11CBaseEntity"
 			}
 			
