@@ -13,16 +13,21 @@
  v v v v v v v v v v v 
 */
 #define VERDIUS_PATCHES
+/*
+	Alternatively, you can pass NO_MEMPATCHES= as a parameter to spcomp.
+*/
+#if defined NO_MEMPATCHES && defined VERDIUS_PATCHES
+#undef VERDIUS_PATCHES
+#endif
 
-//#define WINDOWS32
-#define LINUX32
+//#define WIN32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile arch.
 	Above are the compile variables for server architecture.
-	Memory patches are different for windows and linux servers,
-	so you should leave defined the version your server will be using
-	and comment out the other.
+	Memory patches are different for Windows and Linux servers.
+	For Windows, either uncomment the above line
+	or pass in WIN32= as a parameter to spcomp.exe.
 */
 
 #include <sourcemod>
@@ -47,16 +52,19 @@
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
 
+#define PLUGIN_VERSION_NUM "1.3.2"
 // Add a OS suffix if VerdiusArcanas patches are used
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
 // if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
 // compiled for the correct OS.
-#if defined WINDOWS32
-#define PLUGIN_VERSION "1.3.2-win32"
-#elseif defined LINUX32
-#define PLUGIN_VERSION "1.3.2-linux32"
+#if defined VERDIUS_PATCHES
+#if defined WIN32
+#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-win32"
 #else
-#define PLUGIN_VERSION "1.3.2"
+#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-linux32"
+#endif
+#else
+#define PLUGIN_VERSION PLUGIN_VERSION_NUM
 #endif
 
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
@@ -190,7 +198,7 @@ Handle cvar_ref_tf_scout_hype_mod;
 #if defined VERDIUS_PATCHES
 MemoryPatch Verdius_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
-#if defined WINDOWS32
+#if defined WIN32
 float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
 // Address of our float:
 Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
@@ -198,7 +206,7 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 
 // The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
 // Check if we are compiling for Linux, if not then use the Windows one.
-#if defined LINUX32
+#if !defined WIN32
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JA;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ;
 MemoryPatch Verdius_RevertTraceReqDragonsFury_JZ;
@@ -478,11 +486,11 @@ public void OnPluginStart() {
 		Verdius_RevertDisciplinaryAction = 
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
-#if defined WINDOWS32
+#if defined WIN32
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
 		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
 #endif
-#if defined WINDOWS32
+#if defined WIN32
 		// Dragons fury need only one MemoryPatch on Windows.
 
 			Verdius_RevertTraceReqDragonsFury_NOP_JZ = 
@@ -548,7 +556,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
 		
 		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
-#if defined WINDOWS32
+#if defined WIN32
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_NOP_JZ");
 #else
 			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
@@ -664,7 +672,7 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 void VerdiusTogglePatches(bool enable, char[] name) {
 	if (StrEqual(name,"disciplinary")){
 		if (enable) {			
-#if defined WINDOWS32
+#if defined WIN32
 				Verdius_RevertDisciplinaryAction.Enable();
 				// The Windows port of Disciplinary Action Revert requires a extra step.
 				StoreToAddress(Verdius_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
@@ -677,7 +685,7 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 	}
 	else if (StrEqual(name,"dragonfury")){
 		if (enable) {
-#if defined WINDOWS32
+#if defined WIN32
 				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Enable();
 #else
 				Verdius_RevertTraceReqDragonsFury_JA.Enable();
@@ -687,7 +695,7 @@ void VerdiusTogglePatches(bool enable, char[] name) {
 				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
 #endif			
 		} else {
-#if defined WINDOWS32
+#if defined WIN32
 				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Disable();
 #else
 				Verdius_RevertTraceReqDragonsFury_JA.Disable();
