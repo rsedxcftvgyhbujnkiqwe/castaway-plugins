@@ -71,9 +71,9 @@ public Plugin myinfo = {
 
 #define ITEMS_MAX 100
 #define ITEM_MENU_TIME (60*3)
-#define BALANCE_CIRCUIT_METAL 10
-#define BALANCE_CIRCUIT_DAMAGE 10.0
-#define BALANCE_CIRCUIT_RECOVERY 0.25
+#define BALANCE_CIRCUIT_METAL 15
+#define BALANCE_CIRCUIT_DAMAGE 20.0
+#define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
 // game code defs
