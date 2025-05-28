@@ -309,7 +309,7 @@ public void OnPluginStart() {
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT);
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO);
 	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO);
-	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, float mid-air when on fire while deployed", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
+	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN);
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT);
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER);
 	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER);
