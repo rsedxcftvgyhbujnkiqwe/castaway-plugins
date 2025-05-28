@@ -35,19 +35,17 @@ To disable reverts that come from memory patches, comment the following line nea
 ```
 #define VERDIUS_PATCHES
 ```
+Alternatively, you can pass in `NO_MEMPATCHES=` as a parameter to spcomp.
 
 Additionally, before you compile the reverts.sp file, check what operating system your server is using.
 
-If you are are using Linux, make sure you comment the WINDOWS32 line and uncomment the LINUX32 line near the top of the reverts.sp file:
+If your server is on Windows, you need to uncomment the WIN32 line near the top of the reverts.sp file:
 ```
-//#define WINDOWS32
-#define LINUX32
+//#define WIN32
 ```
-And vice versa if you are using Windows:
-```
-#define WINDOWS32
-//#define LINUX32
-```
+Alternatively you can pass in `WIN32=` as a parameter to spcomp.exe.
+
+If your server is on Linux, you do not need to do anything, it should work as-is.
 
 The following weapons use memory patches for their reverts:
 - All Heavy Miniguns (Minigun, Tomislav, Brass Beast, Natascha, Huo-Long Heater, etc.)

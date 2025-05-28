@@ -23,11 +23,11 @@
 //#define WIN32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
-	Additionally, you will need to select your compile arch.
-	Above are the compile variables for server architecture.
+	Additionally, you will need to select your compile OS.
 	Memory patches are different for Windows and Linux servers.
 	For Windows, either uncomment the above line
 	or pass in WIN32= as a parameter to spcomp.exe.
+	For Linux, leave this line commented.
 */
 
 #include <sourcemod>
