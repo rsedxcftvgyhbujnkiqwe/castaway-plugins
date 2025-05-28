@@ -4435,13 +4435,13 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		int health = GetClientHealth(client);
 		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
 		if (health < health_max)
-        	{
+		{
 			// Get amount to heal.
-	        	int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
+			int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
 	
 			// Show that the player got healed.
 			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", heal);
+			SetEventInt(event, "amount", intMin(health_max - health, heal));
 			SetEventInt(event, "entindex", client);
 			FireEvent(event);
 
@@ -4474,7 +4474,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		{
 			// Show that the player got healed.
 			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", 20);
+			SetEventInt(event, "amount", intMin(health_max - health, 20));
 			SetEventInt(event, "entindex", client);
 			FireEvent(event);
 
