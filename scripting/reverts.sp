@@ -305,7 +305,7 @@ public void OnPluginStart() {
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 
-	HookConVarChange(cvar_jumper_flag_run, JumperFlagRunCvarChange);
+	cvar_jumper_flag_run.AddChangeHook(JumperFlagRunCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
