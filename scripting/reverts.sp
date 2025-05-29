@@ -3677,11 +3677,7 @@ Action Command_ClassInfo(int client, int args) {
 
 
 void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
-	if (maybe) {
-		SetConVarString(cvar, value);
-	} else {
-		ResetConVar(cvar);
-	}
+	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
 bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
