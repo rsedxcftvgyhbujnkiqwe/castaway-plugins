@@ -33,6 +33,12 @@ jobs:
           mv include/*.inc ../../../../scripting/include
           mv nativevotes ../../../../scripting
 
+      - name: Get current Git commit hash
+        run: echo "GIT_COMMIT=-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_ENV
+
+      - name: Preprocess reverts.sp
+        run: ./reverts-git-commit.sh
+
       - name: Build plugins
         run: |
           cd scripting
@@ -49,4 +55,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: artifact
-          name: package-${{matrix.sm-target}}
+          name: package-${{ matrix.sm-target }}

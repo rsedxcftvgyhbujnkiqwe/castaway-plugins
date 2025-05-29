@@ -67,13 +67,23 @@
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM
 #endif
 
+//#define GIT_COMMIT
+
+#if defined GIT_COMMIT
+#define PLUGIN_VERSION_GIT PLUGIN_VERSION ... "%GIT_COMMIT%"
+#endif
+
 #define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
 	description = PLUGIN_DESC,
 	author = PLUGIN_AUTHOR,
+#if defined GIT_COMMIT
+	version = PLUGIN_VERSION_GIT,
+#else
 	version = PLUGIN_VERSION,
+#endif
 	url = PLUGIN_URL
 };
 

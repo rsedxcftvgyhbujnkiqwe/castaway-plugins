@@ -42,3 +42,5 @@ gamedata/*
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/build.yml
+
+!reverts-git-commit.sh
