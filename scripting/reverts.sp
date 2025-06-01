@@ -630,12 +630,6 @@ public void OnPluginStart() {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
 		if (IsClientInGame(idx)) OnClientPutInServer(idx);
 	}
-
-	PrintToServer("=================================");
-	PrintToServer("=================================");
-	PrintToServer("PRINT TO SERVER?!?!?!?!");
-	PrintToServer("=================================");
-	PrintToServer("=================================");
 }
 
 public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
@@ -2536,7 +2530,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled("ambassador") &&
 							StrEqual(class, "tf_weapon_revolver")
 						) {
-							PrintToServer("========== Someone was killed with ambassador ==============");
 							SetEventInt(event, "customkill", TF_CUSTOM_HEADSHOT);
 
 							return Plugin_Changed;
@@ -4203,7 +4196,6 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 
 int FindSentryGunOwnedByClient(int client)
 {
-	PrintToServer("FindSentryGunOwnedByClient: client is %d",client);
     if (!IsClientInGame(client) || GetClientTeam(client) < 2)
         return -1;
 
@@ -4211,7 +4203,6 @@ int FindSentryGunOwnedByClient(int client)
     while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
     {
         int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-        PrintToServer("FindSentryGunOwnedByClient: owner is %d",owner);
         if (owner == client)
             return ent;
     }
