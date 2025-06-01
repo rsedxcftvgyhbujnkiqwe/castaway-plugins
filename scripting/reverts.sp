@@ -50,7 +50,7 @@
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo, random, huutti, VerdiusArcana, MindfulProtons"
+#define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons"
 
 #define PLUGIN_VERSION_NUM "1.3.2"
 // Add a OS suffix if VerdiusArcanas patches are used
@@ -630,6 +630,12 @@ public void OnPluginStart() {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
 		if (IsClientInGame(idx)) OnClientPutInServer(idx);
 	}
+
+	PrintToServer("=================================");
+	PrintToServer("=================================");
+	PrintToServer("PRINT TO SERVER?!?!?!?!");
+	PrintToServer("=================================");
+	PrintToServer("=================================");
 }
 
 public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
@@ -2430,6 +2436,43 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
 		attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 
+#if defined VERDIUS_PATCHES
+		// Just to ensure that if attacker is missing for some reason, that we still check the victim.
+		if (
+			client > 0 &&
+			client <= MaxClients &&
+			IsClientInGame(client)
+		) {
+
+			// 1 second sentry disable if wrangler shield active && engineer dies.
+			// should not effect the normal 3 second disable on engineer weapon switch etc.
+			if (TF2_GetPlayerClass(client) == TFClass_Engineer) {
+
+				int sentry = FindSentryGunOwnedByClient(client);
+				if (sentry != -1) {
+					int isControlled = GetEntProp(sentry, Prop_Send, "m_bPlayerControlled");
+					if (isControlled > 0) {
+					    Address sentryBaseAddr = GetEntityAddress(sentry); // Get base address of sentry.
+
+					    // Offset to m_flShieldFadeTime and input our own value.
+#if !defined WIN32
+						// Offset for Linux (0xB50)
+						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
+#else
+						// Offset for Windows (0x2CE)
+						StoreToAddress(sentryBaseAddr + view_as<Address>(0x2CE), GetGameTime() + 1.0, NumberType_Int32);
+#endif
+	
+						isControlled = 0; // Make sure isControlled is set to 0 or org source code
+										  // will consider it true on next tick and m_flShieldFadeTime will become 3.0
+										  // thus undoing our revert.
+						SetEntProp(sentry, Prop_Send, "m_bPlayerControlled", isControlled);
+					} 
+				} 
+			} 
+		}
+#endif
+
 		if (
 			client > 0 &&
 			client <= MaxClients &&
@@ -2438,6 +2481,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			IsClientInGame(client) &&
 			IsClientInGame(attacker)
 		) {
+
 			{
 				// zatoichi heal on kill
 
@@ -2456,6 +2500,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled("zatoichi") &&
 							StrEqual(class, "tf_weapon_katana")
 						) {
+
 							health_cur = GetClientHealth(attacker);
 							health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
@@ -2491,6 +2536,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled("ambassador") &&
 							StrEqual(class, "tf_weapon_revolver")
 						) {
+							PrintToServer("========== Someone was killed with ambassador ==============");
 							SetEventInt(event, "customkill", TF_CUSTOM_HEADSHOT);
 
 							return Plugin_Changed;
@@ -4151,6 +4197,29 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 
 	return true;
 }
+
+// Get the sentry of a specific engineer
+// WARNING: Do not use in MVM!
+
+int FindSentryGunOwnedByClient(int client)
+{
+	PrintToServer("FindSentryGunOwnedByClient: client is %d",client);
+    if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+        return -1;
+
+    int ent = -1;
+    while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
+    {
+        int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+        PrintToServer("FindSentryGunOwnedByClient: owner is %d",owner);
+        if (owner == client)
+            return ent;
+    }
+
+    return -1;
+}
+
+
 #endif
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
