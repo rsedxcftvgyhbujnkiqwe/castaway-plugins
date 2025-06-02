@@ -20,7 +20,7 @@
 #undef VERDIUS_PATCHES
 #endif
 
-#define WIN32
+//#define WIN32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile OS.
