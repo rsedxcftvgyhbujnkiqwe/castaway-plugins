@@ -443,8 +443,8 @@ public void OnPluginStart() {
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, +75 HP on kill with overheal, +15% move speed & 20% dmg vuln while active", CLASSFLAG_PYRO, Wep_Powerjack);
-	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 health, no fall damage, slower firing speed, increased fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
