@@ -20,7 +20,7 @@
 #undef VERDIUS_PATCHES
 #endif
 
-//#define WIN32
+#define WIN32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile OS.
@@ -2432,12 +2432,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 #if defined VERDIUS_PATCHES
 		// Just to ensure that if attacker is missing for some reason, that we still check the victim.
+		// Also check that wrangler revert is enabled.
 		if (
 			client > 0 &&
 			client <= MaxClients &&
-			IsClientInGame(client)
+			IsClientInGame(client) && ItemIsEnabled("wrangler")
 		) {
-
 			// 1 second sentry disable if wrangler shield active && engineer dies.
 			// should not effect the normal 3 second disable on engineer weapon switch etc.
 			if (TF2_GetPlayerClass(client) == TFClass_Engineer) {
@@ -2453,8 +2453,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						// Offset for Linux (0xB50)
 						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
 #else
-						// Offset for Windows (0x2CE)
-						StoreToAddress(sentryBaseAddr + view_as<Address>(0x2CE), GetGameTime() + 1.0, NumberType_Int32);
+						// Offset for Windows (0xB38) (Do not trust the ghidra decompiler for windows when looking for the offset, check assembly view instead after you click on the line that sets the member.)
+						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB38), GetGameTime() + 1.0, NumberType_Int32);
 #endif
 	
 						isControlled = 0; // Make sure isControlled is set to 0 or org source code
