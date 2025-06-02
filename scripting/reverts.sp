@@ -322,7 +322,8 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Keep dropped weapons but disallow picking them up"), _, true, 0.0, true, 1.0);
 
-	cvar_jumper_flag_run.AddChangeHook(JumperFlagRunCvarChange);
+	cvar_jumper_flag_run.AddChangeHook(OnJumperFlagRunCvarChange);
+	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER);
@@ -638,8 +639,13 @@ public void OnPluginStart() {
 	}
 }
 
-public void JumperFlagRunCvarChange(Handle convar, const char[] oldValue, const char[] newValue) {
+public void OnJumperFlagRunCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	UpdateJumperDescription();
+}
+
+public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	// weapon pickups are disabled to ensure attribute consistency
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
 }
 
 void UpdateJumperDescription() {
@@ -667,6 +673,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled("quickfix"),"quickfix");
 	VerdiusTogglePatches(ItemIsEnabled("dalokohsbar"),"dalokohsbar");
 #endif
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
 	UpdateJumperDescription();
 }
 
@@ -1374,9 +1381,6 @@ public void OnGameFrame() {
 	if (frame % 66 == 0) {
 		{
 			// set all the convars needed
-
-			// weapon pickups are disabled to ensure attribute consistency
-			SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
 
 			// these cvars are changed just-in-time, reset them
 			ResetConVar(cvar_ref_tf_airblast_cray);
