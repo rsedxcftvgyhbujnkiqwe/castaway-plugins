@@ -174,6 +174,7 @@ enum struct Player {
 	bool crit_flag;
 	int charge_tick;
 	int fall_dmg_tick;
+	int ticks_since_switch;
 }
 
 //item sets
@@ -448,7 +449,7 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-inferno, deals minicrits to airblasted targets again", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
@@ -887,6 +888,11 @@ public void OnGameFrame() {
 
 					// 	continue;
 					// }
+				}
+
+				{
+					// used for reserve shooter
+					++players[idx].ticks_since_switch;
 				}
 
 				{
@@ -1477,6 +1483,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_OnTakeDamagePost);
+	SDKHook(client, SDKHook_WeaponSwitchPost, SDKHookCB_WeaponSwitchPost);
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -2191,6 +2198,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(item1, 0, 469, 130.0); //ranged pickup metal cost
 	}
 #endif
+
+	else if (
+		ItemIsEnabled("reserve") &&
+		StrEqual(class, "tf_weapon_shotgun") &&
+		(index == 415)
+	) {
+		item1 = TF2Items_CreateItem(0);
+		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+		TF2Items_SetNumAttributes(item1, 3);
+		TF2Items_SetAttribute(item1, 0, 114, 0.0); // mod mini-crit airborne
+		TF2Items_SetAttribute(item1, 1, 178, 0.85); // 15% faster weapon switch
+		TF2Items_SetAttribute(item1, 2, 547, 1.0); // This weapon deploys 0% faster
+	}
+
 	else if (
 		ItemIsEnabled(Wep_DeadRinger) &&
 		(index == 59) //&&
@@ -2445,6 +2466,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 	if (StrEqual(name, "player_spawn")) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
+		players[client].ticks_since_switch = 0;
 
 		{
 			// apply attrib changes
@@ -3411,7 +3433,7 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// reserve airblast minicrits
+				// reserve airborne minicrits
 
 				if (
 					ItemIsEnabled(Wep_ReserveShooter) &&
@@ -3421,7 +3443,7 @@ Action SDKHookCB_OnTakeDamage(
 					if (
 						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
 						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true &&
+						(players[attacker].ticks_since_switch < 66 * 5) &&
 						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 					) {
 						// seems to be the best way to force a minicrit
@@ -3872,6 +3894,11 @@ void SDKHookCB_OnTakeDamagePost(
 			SetEntityHealth(victim, players[victim].old_health);
 		}
 	}
+}
+
+void SDKHookCB_WeaponSwitchPost(int client, int weapon)
+{
+	players[client].ticks_since_switch = 0;
 }
 
 Action Command_Menu(int client, int args) {
