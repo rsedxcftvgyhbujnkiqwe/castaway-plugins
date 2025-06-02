@@ -2,12 +2,15 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### May 31, 2025
+- **Disabled the Darwin's Danger Shield and Tomislav reverts. The server now uses the modern versions of these items.**
+
 ### May 25, 2025
 - **Fixed reverted Persian Persuader not removing afterburn and bleed when picking up ammo packs as health, and increased pickup volume for dropped ammo packs.**
 - **Reverted the Buffalo Steak Sandvich to pre-Meet your Match**
   - *The Buffalo Steak Sandvich*
     - +10% damage vulnerability while active
-    - +35% fasater move speed while active
+    - +35% faster move speed while active
     - Effect lasts 16 seconds.
 
 ### May 24, 2025
