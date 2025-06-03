@@ -428,7 +428,7 @@ public void OnPluginStart() {
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
-	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-inferno, no health drain, marks for death", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad);
@@ -2034,7 +2034,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetNumAttributes(item1, 4);
 		TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
 		TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
-		TF2Items_SetAttribute(item1, 2, 772, 1.5); // single wep holster time increased
+		TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
 		TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
 	}
 
