@@ -2200,9 +2200,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 #endif
 
 	else if (
-		ItemIsEnabled("reserve") &&
-		StrEqual(class, "tf_weapon_shotgun") &&
-		(index == 415)
+		ItemIsEnabled(Wep_ReserveShooter) &&
+		(index == 415) //&&
+		//StrEqual(class, "tf_weapon_shotgun")
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
