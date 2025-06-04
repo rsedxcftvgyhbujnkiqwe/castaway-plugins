@@ -271,7 +271,7 @@ int rocket_create_entity;
 int rocket_create_frame;
 
 //cookies
-Handle g_hClientMessageCookie;
+Cookie g_hClientMessageCookie;
 
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
@@ -3039,7 +3039,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			if(
 				should_display_info_msg &&
 				cvar_enable.BoolValue &&
-				!GetClientCookieInt(client,g_hClientMessageCookie) //inverted because the default is zero
+				!g_hClientMessageCookie.GetInt(client) //inverted because the default is zero
 			) {
 				char msg[6][256];
 				int count = 0;
@@ -4227,7 +4227,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "  There's nothing here... for some reason, all item cvars are off :\\");
+		PrintToConsole(client, "There's nothing here... for some reason, all item cvars are off :\\");
 	}
 
 	PrintToConsole(client, "");
@@ -4285,27 +4285,14 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
+		int config_value = g_hClientMessageCookie.GetInt(client);
 		if (config_value) {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
-			SetClientCookieInt(client,g_hClientMessageCookie,0);
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
-			SetClientCookieInt(client,g_hClientMessageCookie,1);
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu.");
 		}
+		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
-}
-
-int GetClientCookieInt(int client, Handle hCookie) {
-	char sCookieValue[12];
-	GetClientCookie(client,hCookie,sCookieValue,sizeof(sCookieValue));
-	return StringToInt(sCookieValue);
-}
-
-void SetClientCookieInt(int client, Handle hCookie, int iValue) {
-	char sCookieValue[12];
-	IntToString(iValue,sCookieValue,sizeof(sCookieValue));
-	SetClientCookie(client, hCookie, sCookieValue);
 }
 
 #if defined VERDIUS_PATCHES
