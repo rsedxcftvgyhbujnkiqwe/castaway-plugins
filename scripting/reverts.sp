@@ -4291,7 +4291,7 @@ void ToggleLoadoutInfo(int client) {
 		if (config_value) {
 			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu.");
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu.");
 		}
 		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
