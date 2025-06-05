@@ -117,17 +117,17 @@
 				// ╚══════════════════════════════════════════════╝
 
 				// ================================================
-				//  Disciplinary Action speed buff to allies 
-				//  for 3 seconds instead of 2 seconds.
+				//  Disciplinary Action speed buff
+				//  changed to 4 seconds (both ally and soldier).
 
-				"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff"
+				"CTFWeaponBaseMelee::OnSwingHit_2f_To_4f_OnAllySpeedBuff_DisciplinaryAction"
 				{
 					"signature" "CTFWeaponBaseMelee::OnSwingHit"
 					"linux"
 					{
 						"offset"	"941"
 						"verify"	"\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
-						"patch"	"\x68\x00\x00\x40\x40" // Change it to push 3.0f
+						"patch"	"\x68\x00\x00\x80\x40" // Change it to push 4.0f
 					}
 					// Windows compiler turned it into something that points at a address instead
 					// of directly pushing the float value, so we prepare the windows version of the patch for
@@ -135,6 +135,26 @@
 					"windows"
 					{
 						"offset"	"1049"
+						"verify"	"\xD9\x05\x2A\x2A\x2A\x2A" // Verify that FLD instruction is there, address bytes MUST be wildcarded.
+						"patch"	"\xD9\x05\x00\x00\x00\x00" // Set the address part to 4 "00", will change after patch enable to point to our address
+					}
+				}
+
+				"CTFWeaponBaseMelee::OnSwingHit_3.6f_To_4f_OnSoldierSpeedBuff_DisciplinaryAction"
+				{
+					"signature" "CTFWeaponBaseMelee::OnSwingHit"
+					"linux"
+					{
+						"offset"	"971"
+						"verify"	"\x68\x66\x66\x66\x40" // Verify that offset pushes 3.6f
+						"patch"	"\x68\x00\x00\x80\x40" // Change it to push 4.0f
+					}
+					// Windows compiler turned it into something that points at a address instead
+					// of directly pushing the float value, so we prepare the windows version of the patch for
+					// a Address Of natives.
+					"windows"
+					{
+						"offset"	"1074"
 						"verify"	"\xD9\x05\x2A\x2A\x2A\x2A" // Verify that FLD instruction is there, address bytes MUST be wildcarded.
 						"patch"	"\xD9\x05\x00\x00\x00\x00" // Set the address part to 4 "00", will change after patch enable to point to our address
 					}

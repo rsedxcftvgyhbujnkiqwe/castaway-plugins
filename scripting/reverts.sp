@@ -204,12 +204,13 @@ ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
 #if defined VERDIUS_PATCHES
-MemoryPatch Verdius_RevertDisciplinaryAction;
+MemoryPatch Verdius_RevertDisciplinaryAction_Ally;
+MemoryPatch Verdius_RevertDisciplinaryAction_Soldier;
 // If Windows, prepare additional vars for Disciplinary Action.
 #if defined WIN32
-float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
-// Address of our float:
-Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
+float g_flNewDisciplinaryActionSpeedBuffTimer = 4.0;
+// Address of our float (we can use same float for both ally and soldier):
+Address AddressOf_g_flNewDisciplinaryActionSpeedBuffTimer;
 #endif
 
 // The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
@@ -569,12 +570,15 @@ public void OnPluginStart() {
 
 		if (conf == null) SetFailState("Failed to load Verdius conf");
 
-		Verdius_RevertDisciplinaryAction =
+		Verdius_RevertDisciplinaryAction_Ally =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
+			"CTFWeaponBaseMelee::OnSwingHit_2f_To_4f_OnAllySpeedBuff_DisciplinaryAction");
+		Verdius_RevertDisciplinaryAction_Soldier =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBaseMelee::OnSwingHit_3.6f_To_4f_OnSoldierSpeedBuff_DisciplinaryActio");
 #if defined WIN32
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
-		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
+		AddressOf_g_flNewDisciplinaryActionSpeedBuffTimer = GetAddressOfCell(g_flNewDisciplinaryActionSpeedBuffTimer);
 #endif
 #if defined WIN32
 		// Dragons fury need only one MemoryPatch on Windows.
@@ -772,11 +776,15 @@ void VerdiusTogglePatches(bool enable, int wep_enum) {
 		case Wep_Disciplinary: {
 			if (enable) {
 #if defined WIN32
-				Verdius_RevertDisciplinaryAction.Enable();
+				Verdius_RevertDisciplinaryAction_Ally.Enable();
 				// The Windows port of Disciplinary Action Revert requires a extra step.
-				StoreToAddress(Verdius_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
+				StoreToAddress(Verdius_RevertDisciplinaryAction_Ally.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDisciplinaryActionSpeedBuffTimer), NumberType_Int32);
+				Verdius_RevertDisciplinaryAction_Soldier.Enable();
+				// The Windows port of Disciplinary Action Revert requires a extra step.
+				StoreToAddress(Verdius_RevertDisciplinaryAction_Soldier.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDisciplinaryActionSpeedBuffTimer), NumberType_Int32);
 #else
-				Verdius_RevertDisciplinaryAction.Enable();
+				Verdius_RevertDisciplinaryAction_Ally.Enable();
+				Verdius_RevertDisciplinaryAction_Soldier.Enable();
 #endif
 			} else {
 				Verdius_RevertDisciplinaryAction.Disable();
