@@ -134,8 +134,8 @@ char class_names[9][16] = {
 enum struct Item {
 	char key[64];
 	char name[64];
-	char desc[256];
-	int classflags;
+	int flags;
+	int num_variants;
 	ConVar cvar;
 }
 
@@ -355,6 +355,7 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 //is there a more elegant way to do this?
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
+char items_desc[NUM_ITEMS][4][256];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -462,7 +463,8 @@ public void OnPluginStart() {
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 2);
+	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", 1);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
@@ -720,11 +722,11 @@ void UpdateJumperDescription() {
 		if (i == Wep_RocketJumper || i == Wep_StickyJumper) {
 			char intelMsg[] = ", wearer can pick up intel";
 			if (cvar_jumper_flag_run.BoolValue) {
-				if (StrContains(items[i].desc, intelMsg) == -1) {
-					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
+				if (StrContains(items_desc[i][0], intelMsg) == -1) {
+					Format(items_desc[i][0], sizeof(items_desc[][]), "%s%s", items_desc[i][0], intelMsg);
 				}
 			} else {
-				ReplaceString(items[i].desc, sizeof(items[].desc), intelMsg, "");
+				ReplaceString(items_desc[i][0], sizeof(items_desc[i][0]), intelMsg, "");
 			}
 		}
 	}
@@ -949,7 +951,7 @@ public void OnGameFrame() {
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
 							airdash_limit_old = 5;
 
-							if (ItemIsEnabled(Wep_SodaPopper) == false) {
+							if (GetItemVariant(Wep_SodaPopper) != 1) {
 								airdash_limit_new = 5;
 							}
 						}
@@ -1068,8 +1070,10 @@ public void OnGameFrame() {
 
 						if (ItemIsEnabled(Wep_SodaPopper))
 						{
-							if (players[idx].is_under_hype)
-							{
+							if (
+								GetItemVariant(Wep_SodaPopper) == 1 &&
+								players[idx].is_under_hype
+							) {
 								// allow mini-crit buff to last indefinitely
 								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
 							}
@@ -1086,7 +1090,10 @@ public void OnGameFrame() {
 									StrEqual(class, "tf_weapon_soda_popper") &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
+									if (
+										GetItemVariant(Wep_SodaPopper) == 1 &&
+										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0
+									) {
 										// Fall back to hype condition if the player has a drink item
 										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
@@ -1113,7 +1120,10 @@ public void OnGameFrame() {
 								}
 
 								// hype meter drain on minicrit condition
-								if (players[idx].is_under_hype) {
+								if (
+									GetItemVariant(Wep_SodaPopper) == 1 &&
+									players[idx].is_under_hype
+								) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
 
 									if (hype <= 0.0)
@@ -1591,7 +1601,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// if player somehow activated hype condition, remove it, unless they have a drink item
 
 		if (
-			ItemIsEnabled(Wep_SodaPopper) &&
+			GetItemVariant(Wep_SodaPopper) == 1 &&
 			condition == TFCond_CritHype &&
 			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
 		) {
@@ -1657,7 +1667,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
 		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
 		if (
-			ItemIsEnabled(Wep_SodaPopper) &&
+			GetItemVariant(Wep_SodaPopper) == 1 &&
 			condition == TFCond_CritCola &&
 			players[client].is_under_hype == true &&
 			TF2_GetPlayerClass(client) == TFClass_Scout
@@ -2297,9 +2307,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 15, 0.0); // crit mod disabled
-		TF2Items_SetAttribute(item1, 1, 793, 0.0); // hype on damage
+		bool minicrits = GetItemVariant(Wep_SodaPopper) == 1;
+		TF2Items_SetNumAttributes(item1, minicrits ? 2 : 1);
+		TF2Items_SetAttribute(item1, 0, 793, 0.0); // hype on damage
+		if (minicrits) TF2Items_SetAttribute(item1, 1, 15, 0.0); // crit mod disabled
 	}
 
 	else if (
@@ -3022,8 +3033,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			// if player has a drink item, end minicrits and apply hype
 
-			if (players[client].is_under_hype)
-			{
+			if (
+				GetItemVariant(Wep_SodaPopper) == 1 &&
+				players[client].is_under_hype
+			) {
 				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
 				if (has_lunchbox)
 				{
@@ -3043,12 +3056,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			) {
 				char msg[6][256];
 				int count = 0;
+				int variant_idx;
 				for (int i = 0; i < NUM_ITEMS; i++) {
 					if(
 						player_weapons[client][i] &&
 						ItemIsEnabled(i)
 					) {
-						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
+						variant_idx = GetItemVariant(i) - 1;
+						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items_desc[i][variant_idx]);
 						count++;
 					}
 				}
@@ -3516,7 +3531,7 @@ Action SDKHookCB_OnTakeDamage(
 				// soda popper minicrits
 
 				if (
-					ItemIsEnabled(Wep_SodaPopper) &&
+					GetItemVariant(Wep_SodaPopper) == 1 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true &&
 					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 				) {
@@ -4143,11 +4158,16 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ItemDefine(char[] name, char[] key, char[] desc, int classflags, int wep_enum) {
+void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, int num_variants = 1) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items[wep_enum].name, sizeof(items[].name), name);
-	strcopy(items[wep_enum].desc, sizeof(items[].desc), desc);
-	items[wep_enum].classflags = classflags;
+	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
+	items[wep_enum].flags = flags;
+	items[wep_enum].num_variants = (num_variants >= 1) ? num_variants : 1;
+}
+
+void ItemVariant(int wep_enum, char[] desc, int variant_idx) {
+	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
 }
 
 void ItemFinalize() {
@@ -4163,15 +4183,16 @@ void ItemFinalize() {
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants));
 	}
 }
 
 bool ItemIsEnabled(int wep_enum) {
-	return (
-		cvar_enable.BoolValue &&
-		items[wep_enum].cvar.BoolValue
-	);
+	return (cvar_enable.BoolValue && (items[wep_enum].cvar.IntValue >= 1));
+}
+
+int GetItemVariant(int wep_enum) {
+	return cvar_enable.BoolValue ? items[wep_enum].cvar.IntValue : 0;
 }
 
 int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
@@ -4200,16 +4221,15 @@ void ShowItemsDetails(int client) {
 	int idx;
 	int count;
 	char msg[NUM_ITEMS][256];
+	int variant_idx;
 
 	count = 0;
 
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
-			if (
-				strlen(items[idx].key) > 0 &&
-				items[idx].cvar.BoolValue
-			) {
-				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items[idx].desc);
+			if (ItemIsEnabled(idx)) {
+				variant_idx = GetItemVariant(idx) - 1;
+				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items_desc[idx][variant_idx]);
 				count++;
 			}
 		}
@@ -4239,6 +4259,7 @@ void ShowClassReverts(int client) {
 	char msg[NUM_ITEMS][256];
 	int class_idx;
 	TFTeam team;
+	int variant_idx;
 
 	count = 0;
 	class_idx = view_as<int>(TF2_GetPlayerClass(client)) - 1;
@@ -4258,12 +4279,11 @@ void ShowClassReverts(int client) {
 
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
-			if (
-				items[idx].cvar.BoolValue
-			) {
-				if (items[idx].classflags & (1 << class_idx) == 0)
+			if (ItemIsEnabled(idx)) {
+				variant_idx = GetItemVariant(idx) - 1;
+				if (items[idx].flags & (1 << class_idx) == 0)
 					continue;
-				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items[idx].desc);
+				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items_desc[idx][variant_idx]);
 				count++;
 			}
 		}
