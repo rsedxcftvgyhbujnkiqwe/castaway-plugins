@@ -575,7 +575,7 @@ public void OnPluginStart() {
 			"CTFWeaponBaseMelee::OnSwingHit_2f_To_4f_OnAllySpeedBuff_DisciplinaryAction");
 		Verdius_RevertDisciplinaryAction_Soldier =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseMelee::OnSwingHit_3.6f_To_4f_OnSoldierSpeedBuff_DisciplinaryActio");
+			"CTFWeaponBaseMelee::OnSwingHit_3.6f_To_4f_OnSoldierSpeedBuff_DisciplinaryAction");
 #if defined WIN32
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
 		AddressOf_g_flNewDisciplinaryActionSpeedBuffTimer = GetAddressOfCell(g_flNewDisciplinaryActionSpeedBuffTimer);
@@ -643,7 +643,8 @@ public void OnPluginStart() {
 		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, true, PostHealingBoltImpact);
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
-		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
+		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction_Ally)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction_Ally");
+		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction_Soldier)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction_Soldier");
 
 		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
 #if defined WIN32
@@ -787,7 +788,8 @@ void VerdiusTogglePatches(bool enable, int wep_enum) {
 				Verdius_RevertDisciplinaryAction_Soldier.Enable();
 #endif
 			} else {
-				Verdius_RevertDisciplinaryAction.Disable();
+				Verdius_RevertDisciplinaryAction_Ally.Disable();
+				Verdius_RevertDisciplinaryAction_Soldier.Disable();
 			}
 		}
 		case Wep_DragonFury: {
