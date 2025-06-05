@@ -245,6 +245,8 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+
+MemoryPatch Patch_DroppedWeapon;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -627,6 +629,8 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
+		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+
     	StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -661,6 +665,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -713,6 +718,11 @@ public void OnJumperFlagRunCvarChange(ConVar convar, const char[] oldValue, cons
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
+	if (convar.BoolValue) {
+		Patch_DroppedWeapon.Enable();
+	} else {
+		Patch_DroppedWeapon.Disable();
+	}
 }
 
 void UpdateJumperDescription() {
@@ -740,7 +750,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
-	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
+	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 	UpdateJumperDescription();
 }
 
