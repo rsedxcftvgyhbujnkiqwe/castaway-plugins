@@ -77,7 +77,7 @@ sm_reverts__item_sodapop 2/1
 
 To get the name to use, open up the reverts.sp file and find the `ItemDefine` block near the top inside of OnPluginStart, and use the second value in the params.
 
-By default, all reverts are on with value 1.
+By default, all reverts are on with value of 1.
 
 ## Additional Credits
 Some or all of these plugins have been modified in some way, sometimes in major ways. I do not claim credit for these plugins and all credit goes to their original creators.
