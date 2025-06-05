@@ -463,7 +463,7 @@ public void OnPluginStart() {
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 2);
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
 	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", 1);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
@@ -4158,12 +4158,12 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, int num_variants = 1) {
+void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, int num_variants = 0) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items[wep_enum].name, sizeof(items[].name), name);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
-	items[wep_enum].num_variants = (num_variants >= 1) ? num_variants : 1;
+	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
 }
 
 void ItemVariant(int wep_enum, char[] desc, int variant_idx) {
@@ -4183,7 +4183,7 @@ void ItemFinalize() {
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants));
+		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 	}
 }
 
