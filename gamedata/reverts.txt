@@ -38,12 +38,6 @@
 				"windows" "\x55\x8B\xEC\x6A\x07"
 				"linux"   "@_ZN9CTFPlayer13AddToSpyKnifeEfb"
 			}
-
-			"CTFPlayer::PickupWeaponFromOther"
-			{
-				"library" "server"
-				"linux"   "@_ZN9CTFPlayer21PickupWeaponFromOtherEP16CTFDroppedWeapon"
-			}
 		}
 
 		"Offsets"
@@ -176,21 +170,6 @@
 					}
 				}
 			}
-
-			"CTFPlayer::PickupWeaponFromOther"
-			{
-				"signature" "CTFPlayer::PickupWeaponFromOther"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
-				"arguments"
-				{
-					"pDroppedWeapon"
-					{
-						"type" "cbaseentity"
-					}
-				}
-			}		
 		}
 	}
 }

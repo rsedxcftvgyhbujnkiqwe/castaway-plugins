@@ -89,6 +89,17 @@
 				"windows" "\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
 				"linux"	"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
 			}
+			// dropped weapon
+			"CTFPlayer::DropAmmoPack"
+			{
+				"library" "server"
+				"linux"   "@_ZN9CTFPlayer12DropAmmoPackERK15CTakeDamageInfobb"
+			}
+			"CTFAmmoPack::MakeHolidayPack"
+			{
+				"library" "server"
+				"linux"   "@_ZN11CTFAmmoPack15MakeHolidayPackEv"
+			}
 		}
 
 		"MemPatches"
@@ -452,6 +463,30 @@
 				// ╚══════════════════════════════════════════════╝
 
 				//  Nothing to see in here. :(
+				
+				// Dropped weapon revert
+
+				// NOP outs the entire dropped weapon creation section 
+				// (src/game/server/tf/tf_player.cpp:13084-13088) and pushes pszWorldModel onto 
+				// the stack as the world model parameter for CTFAmmoPack::Create instead of 
+				// "models/items/ammopack_medium.mdl".
+				//
+				// Special thanks to VerdiusArcana for figuring out the offset and verify.
+				//
+				// - Eric Zhang
+
+				// TODO: Figure out the patch for Windows
+
+				"CTFPlayer::DropAmmoPack"
+				{
+					"signature" "CTFPlayer::DropAmmoPack"
+					"linux"
+					{
+						"offset"    "453"
+						"verify"    "\x8D\x45\xDC\x83\xEC\x0C\xFF\x75\xBC\x57\x50\x56\xFF\x75\x08\xE8\x2A\x2A\x2A\x2A\x83\xC4\x20\x85\xC0\x74\x17\x0F\xB6\x55\xC4\x83\xEC\x0C\x52\x6A\x00\x53\xFF\x75\x08\x50\xE8\x2A\x2A\x2A\x2A\x83\xC4\x20\x8D\x45\xDC\x68\x2A\x2A\x2A\x2A"
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x8D\x45\xDC\x90\x90\x90\x90\x57"
+					}
+				}
 
 			}
 		"Functions"
@@ -489,6 +524,14 @@
 					}
 				}
 			}
+
+			"CTFAmmoPack::MakeHolidayPack"
+			{
+				"signature" "CTFAmmoPack::MakeHolidayPack"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+			}			
 		}
 	}
 }

@@ -190,6 +190,7 @@ enum struct Entity {
 ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
+ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
@@ -244,6 +245,11 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+// TODO: WINDOWSSSSSSSSSSSSS
+#if !defined WIN32
+MemoryPatch Patch_DroppedWeapon;
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
+#endif
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -253,7 +259,6 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CTFPlayer_PickupWeaponFromOther;
 Handle dhook_CAmmoPack_MyTouch;
 Handle dhook_CTFAmmoPack_PackTouch;
 
@@ -270,7 +275,7 @@ int rocket_create_entity;
 int rocket_create_frame;
 
 //cookies
-Handle g_hClientMessageCookie;
+Cookie g_hClientMessageCookie;
 
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
@@ -382,7 +387,8 @@ public void OnPluginStart() {
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
-	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Keep dropped weapons but disallow picking them up"), _, true, 0.0, true, 1.0);
+	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
@@ -557,7 +563,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
-		dhook_CTFPlayer_PickupWeaponFromOther = DHookCreateFromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
@@ -628,7 +633,14 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
-    	StartPrepSDKCall(SDKCall_Player);
+#if !defined WIN32
+		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
+		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+#endif
+
+		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -662,6 +674,9 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+#if !defined WIN32
+		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
+#endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -691,14 +706,12 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
-  	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
   	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
-	DHookEnableDetour(dhook_CTFPlayer_PickupWeaponFromOther, false, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
@@ -710,6 +723,13 @@ public void OnPluginStart() {
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
+#if !defined WIN32
+	if (convar.BoolValue) {
+		Patch_DroppedWeapon.Enable();
+	} else {
+		Patch_DroppedWeapon.Disable();
+	}
+#endif
 }
 
 public void OnConfigsExecuted() {
@@ -723,6 +743,8 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
+	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+	UpdateJumperDescription();
 }
 
 #if defined VERDIUS_PATCHES
@@ -3030,7 +3052,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			if(
 				should_display_info_msg &&
 				cvar_enable.BoolValue &&
-				!GetClientCookieInt(client,g_hClientMessageCookie) //inverted because the default is zero
+				!g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0) //inverted because the default is zero
 			) {
 				char msg[6][256];
 				int count = 0;
@@ -4225,7 +4247,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "  There's nothing here... for some reason, all item cvars are off :\\");
+		PrintToConsole(client, "There's nothing here... for some reason, all item cvars are off :\\");
 	}
 
 	PrintToConsole(client, "");
@@ -4283,27 +4305,14 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
+		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
 		if (config_value) {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
-			SetClientCookieInt(client,g_hClientMessageCookie,0);
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
-			SetClientCookieInt(client,g_hClientMessageCookie,1);
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu.");
 		}
+		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
-}
-
-int GetClientCookieInt(int client, Handle hCookie) {
-	char sCookieValue[12];
-	GetClientCookie(client,hCookie,sCookieValue,sizeof(sCookieValue));
-	return StringToInt(sCookieValue);
-}
-
-void SetClientCookieInt(int client, Handle hCookie, int iValue) {
-	char sCookieValue[12];
-	IntToString(iValue,sCookieValue,sizeof(sCookieValue));
-	SetClientCookie(client, hCookie, sCookieValue);
 }
 
 #if defined VERDIUS_PATCHES
@@ -4811,14 +4820,6 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (cvar_dropped_weapon_enable.BoolValue) {
-		returnValue.Value = false;
-		return MRES_Supercede;
-	}
-	return MRES_Ignored;
-}
-
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
@@ -4862,6 +4863,15 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	// If fix is not enabled, then let the game execute function as normal.
 	return MRES_Ignored;
 }
+
+#if !defined WIN32
+MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
+	if (cvar_dropped_weapon_enable.BoolValue) {
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+#endif
 #endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
