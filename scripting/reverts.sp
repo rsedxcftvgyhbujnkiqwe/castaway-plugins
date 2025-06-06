@@ -248,6 +248,7 @@ DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
 // TODO: WINDOWSSSSSSSSSSSSS
 #if !defined WIN32
 MemoryPatch Patch_DroppedWeapon;
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 #endif
 Handle sdkcall_JarExplode;
@@ -631,9 +632,12 @@ public void OnPluginStart() {
 
 #if !defined WIN32
 		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
+		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 #endif
 
-    	StartPrepSDKCall(SDKCall_Player);
+		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -4870,6 +4874,15 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	// If fix is not enabled, then let the game execute function as normal.
 	return MRES_Ignored;
 }
+
+#if !defined WIN32
+MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
+	if (cvar_dropped_weapon_enable.BoolValue) {
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+#endif
 #endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
