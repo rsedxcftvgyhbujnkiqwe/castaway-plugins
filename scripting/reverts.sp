@@ -189,7 +189,6 @@ enum struct Entity {
 
 ConVar cvar_enable;
 ConVar cvar_extras;
-ConVar cvar_jumper_flag_run;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_ref_tf_airblast_cray;
@@ -382,11 +381,9 @@ public void OnPluginStart() {
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
-	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Keep dropped weapons but disallow picking them up"), _, true, 0.0, true, 1.0);
 
-	cvar_jumper_flag_run.AddChangeHook(OnJumperFlagRunCvarChange);
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
@@ -457,7 +454,8 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper);
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper, 1);
+	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel", 1);
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
@@ -468,7 +466,8 @@ public void OnPluginStart() {
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
-	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper, 1);
+	ItemVariant(Wep_StickyJumper, "Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel", 1);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -708,28 +707,9 @@ public void OnPluginStart() {
 	}
 }
 
-public void OnJumperFlagRunCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-	UpdateJumperDescription();
-}
-
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
-}
-
-void UpdateJumperDescription() {
-	for (int i = 0; i < NUM_ITEMS; i++) {
-		if (i == Wep_RocketJumper || i == Wep_StickyJumper) {
-			char intelMsg[] = ", wearer can pick up intel";
-			if (cvar_jumper_flag_run.BoolValue) {
-				if (StrContains(items_desc[i][0], intelMsg) == -1) {
-					Format(items_desc[i][0], sizeof(items_desc[][]), "%s%s", items_desc[i][0], intelMsg);
-				}
-			} else {
-				ReplaceString(items_desc[i][0], sizeof(items_desc[i][0]), intelMsg, "");
-			}
-		}
-	}
 }
 
 public void OnConfigsExecuted() {
@@ -743,7 +723,6 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
-	UpdateJumperDescription();
 }
 
 #if defined VERDIUS_PATCHES
@@ -1789,7 +1768,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled(Wep_RocketJumper) &&
 		(index == 237) &&
-		cvar_jumper_flag_run.BoolValue //&&
+		GetItemVariant(Wep_RocketJumper) == 2 //&&
 		//StrEqual(class, "tf_weapon_rocketlauncher")
 	) {
 		item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
@@ -2355,11 +2334,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, cvar_jumper_flag_run.BoolValue ? 2 : 1);
+		bool flag_pickup = (GetItemVariant(Wep_StickyJumper) == 2);
+		TF2Items_SetNumAttributes(item1, flag_pickup ? 2 : 1);
 		TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
-		if (cvar_jumper_flag_run.BoolValue) {
-			TF2Items_SetAttribute(item1, 1, 400, 0.0);
-		}
+		if (flag_pickup) TF2Items_SetAttribute(item1, 1, 400, 0.0);
 	}
 
 	else if (
