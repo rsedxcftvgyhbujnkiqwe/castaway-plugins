@@ -63,15 +63,21 @@ If you want to disable a specific weapon revert, you can create a config file ca
 ```
 sm_reverts__item_<name> 1/0
 ```
-The below would disable the equalizer and sandman reverts
+
+The below would disable the Equalizer and Sandman reverts
 ```
 sm_reverts__item_equalizer 0
 sm_reverts__item_sandman 0
 ```
 
+Some reverts have multiple variants and can be set to values larger than 1 to use different versions. An example is the Soda Popper, which has two revert variants:
+```
+sm_reverts__item_sodapop 2/1
+```
+
 To get the name to use, open up the reverts.sp file and find the `ItemDefine` block near the top inside of OnPluginStart, and use the second value in the params.
 
-By default, all reverts are on. 
+By default, all reverts are on with value of 1.
 
 ## Additional Credits
 Some or all of these plugins have been modified in some way, sometimes in major ways. I do not claim credit for these plugins and all credit goes to their original creators.

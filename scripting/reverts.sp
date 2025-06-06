@@ -134,8 +134,8 @@ char class_names[9][16] = {
 enum struct Item {
 	char key[64];
 	char name[64];
-	char desc[256];
-	int classflags;
+	int flags;
+	int num_variants;
 	ConVar cvar;
 }
 
@@ -189,8 +189,8 @@ enum struct Entity {
 
 ConVar cvar_enable;
 ConVar cvar_extras;
-ConVar cvar_jumper_flag_run;
 ConVar cvar_old_falldmg_sfx;
+ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
@@ -245,6 +245,11 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+// TODO: WINDOWSSSSSSSSSSSSS
+#if !defined WIN32
+MemoryPatch Patch_DroppedWeapon;
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
+#endif
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -254,7 +259,6 @@ Handle dhook_CTFWeaponBase_SecondaryAttack;
 Handle dhook_CTFBaseRocket_GetRadius;
 Handle dhook_CTFPlayer_CanDisguise;
 Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CTFPlayer_PickupWeaponFromOther;
 Handle dhook_CAmmoPack_MyTouch;
 Handle dhook_CTFAmmoPack_PackTouch;
 
@@ -271,7 +275,7 @@ int rocket_create_entity;
 int rocket_create_frame;
 
 //cookies
-Handle g_hClientMessageCookie;
+Cookie g_hClientMessageCookie;
 
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
@@ -355,6 +359,7 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 //is there a more elegant way to do this?
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
+char items_desc[NUM_ITEMS][4][256];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -381,11 +386,10 @@ public void OnPluginStart() {
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
-	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
-	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Keep dropped weapons but disallow picking them up"), _, true, 0.0, true, 1.0);
+	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 
-	cvar_jumper_flag_run.AddChangeHook(OnJumperFlagRunCvarChange);
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
@@ -456,17 +460,20 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper);
+	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper, 1);
+	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel", 1);
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
+	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", 1);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
-	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
+	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper, 1);
+	ItemVariant(Wep_StickyJumper, "Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel", 1);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -556,7 +563,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
-		dhook_CTFPlayer_PickupWeaponFromOther = DHookCreateFromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
 
@@ -627,7 +633,14 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
-    	StartPrepSDKCall(SDKCall_Player);
+#if !defined WIN32
+		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
+		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+#endif
+
+		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -661,6 +674,9 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+#if !defined WIN32
+		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
+#endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -690,14 +706,12 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
-  	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 
 	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
 	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
   	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
-	DHookEnableDetour(dhook_CTFPlayer_PickupWeaponFromOther, false, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
@@ -706,28 +720,16 @@ public void OnPluginStart() {
 	}
 }
 
-public void OnJumperFlagRunCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-	UpdateJumperDescription();
-}
-
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
-}
-
-void UpdateJumperDescription() {
-	for (int i = 0; i < NUM_ITEMS; i++) {
-		if (i == Wep_RocketJumper || i == Wep_StickyJumper) {
-			char intelMsg[] = ", wearer can pick up intel";
-			if (cvar_jumper_flag_run.BoolValue) {
-				if (StrContains(items[i].desc, intelMsg) == -1) {
-					Format(items[i].desc, sizeof(items[].desc), "%s%s", items[i].desc, intelMsg);
-				}
-			} else {
-				ReplaceString(items[i].desc, sizeof(items[].desc), intelMsg, "");
-			}
-		}
+#if !defined WIN32
+	if (convar.BoolValue) {
+		Patch_DroppedWeapon.Enable();
+	} else {
+		Patch_DroppedWeapon.Disable();
 	}
+#endif
 }
 
 public void OnConfigsExecuted() {
@@ -741,6 +743,7 @@ public void OnConfigsExecuted() {
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !cvar_dropped_weapon_enable.BoolValue);
+	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 	UpdateJumperDescription();
 }
 
@@ -949,7 +952,7 @@ public void OnGameFrame() {
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
 							airdash_limit_old = 5;
 
-							if (ItemIsEnabled(Wep_SodaPopper) == false) {
+							if (GetItemVariant(Wep_SodaPopper) != 1) {
 								airdash_limit_new = 5;
 							}
 						}
@@ -1068,8 +1071,10 @@ public void OnGameFrame() {
 
 						if (ItemIsEnabled(Wep_SodaPopper))
 						{
-							if (players[idx].is_under_hype)
-							{
+							if (
+								GetItemVariant(Wep_SodaPopper) == 1 &&
+								players[idx].is_under_hype
+							) {
 								// allow mini-crit buff to last indefinitely
 								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
 							}
@@ -1086,7 +1091,10 @@ public void OnGameFrame() {
 									StrEqual(class, "tf_weapon_soda_popper") &&
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
-									if (GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0) {
+									if (
+										GetItemVariant(Wep_SodaPopper) == 1 &&
+										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0
+									) {
 										// Fall back to hype condition if the player has a drink item
 										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
@@ -1113,7 +1121,10 @@ public void OnGameFrame() {
 								}
 
 								// hype meter drain on minicrit condition
-								if (players[idx].is_under_hype) {
+								if (
+									GetItemVariant(Wep_SodaPopper) == 1 &&
+									players[idx].is_under_hype
+								) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
 
 									if (hype <= 0.0)
@@ -1591,7 +1602,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// if player somehow activated hype condition, remove it, unless they have a drink item
 
 		if (
-			ItemIsEnabled(Wep_SodaPopper) &&
+			GetItemVariant(Wep_SodaPopper) == 1 &&
 			condition == TFCond_CritHype &&
 			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
 		) {
@@ -1657,7 +1668,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
 		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
 		if (
-			ItemIsEnabled(Wep_SodaPopper) &&
+			GetItemVariant(Wep_SodaPopper) == 1 &&
 			condition == TFCond_CritCola &&
 			players[client].is_under_hype == true &&
 			TF2_GetPlayerClass(client) == TFClass_Scout
@@ -1779,7 +1790,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	else if (
 		ItemIsEnabled(Wep_RocketJumper) &&
 		(index == 237) &&
-		cvar_jumper_flag_run.BoolValue //&&
+		GetItemVariant(Wep_RocketJumper) == 2 //&&
 		//StrEqual(class, "tf_weapon_rocketlauncher")
 	) {
 		item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
@@ -2297,9 +2308,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 0, 15, 0.0); // crit mod disabled
-		TF2Items_SetAttribute(item1, 1, 793, 0.0); // hype on damage
+		bool minicrits = GetItemVariant(Wep_SodaPopper) == 1;
+		TF2Items_SetNumAttributes(item1, minicrits ? 2 : 1);
+		TF2Items_SetAttribute(item1, 0, 793, 0.0); // hype on damage
+		if (minicrits) TF2Items_SetAttribute(item1, 1, 15, 0.0); // crit mod disabled
 	}
 
 	else if (
@@ -2344,11 +2356,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, cvar_jumper_flag_run.BoolValue ? 2 : 1);
+		bool flag_pickup = (GetItemVariant(Wep_StickyJumper) == 2);
+		TF2Items_SetNumAttributes(item1, flag_pickup ? 2 : 1);
 		TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
-		if (cvar_jumper_flag_run.BoolValue) {
-			TF2Items_SetAttribute(item1, 1, 400, 0.0);
-		}
+		if (flag_pickup) TF2Items_SetAttribute(item1, 1, 400, 0.0);
 	}
 
 	else if (
@@ -3022,8 +3033,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		{
 			// if player has a drink item, end minicrits and apply hype
 
-			if (players[client].is_under_hype)
-			{
+			if (
+				GetItemVariant(Wep_SodaPopper) == 1 &&
+				players[client].is_under_hype
+			) {
 				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
 				if (has_lunchbox)
 				{
@@ -3039,16 +3052,18 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			if(
 				should_display_info_msg &&
 				cvar_enable.BoolValue &&
-				!GetClientCookieInt(client,g_hClientMessageCookie) //inverted because the default is zero
+				!g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0) //inverted because the default is zero
 			) {
 				char msg[6][256];
 				int count = 0;
+				int variant_idx;
 				for (int i = 0; i < NUM_ITEMS; i++) {
 					if(
 						player_weapons[client][i] &&
 						ItemIsEnabled(i)
 					) {
-						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items[i].desc);
+						variant_idx = GetItemVariant(i) - 1;
+						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items_desc[i][variant_idx]);
 						count++;
 					}
 				}
@@ -3516,7 +3531,7 @@ Action SDKHookCB_OnTakeDamage(
 				// soda popper minicrits
 
 				if (
-					ItemIsEnabled(Wep_SodaPopper) &&
+					GetItemVariant(Wep_SodaPopper) == 1 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true &&
 					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 				) {
@@ -4143,11 +4158,16 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ItemDefine(char[] name, char[] key, char[] desc, int classflags, int wep_enum) {
+void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, int num_variants = 0) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items[wep_enum].name, sizeof(items[].name), name);
-	strcopy(items[wep_enum].desc, sizeof(items[].desc), desc);
-	items[wep_enum].classflags = classflags;
+	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
+	items[wep_enum].flags = flags;
+	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
+}
+
+void ItemVariant(int wep_enum, char[] desc, int variant_idx) {
+	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
 }
 
 void ItemFinalize() {
@@ -4163,15 +4183,16 @@ void ItemFinalize() {
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, 1.0);
+		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 	}
 }
 
 bool ItemIsEnabled(int wep_enum) {
-	return (
-		cvar_enable.BoolValue &&
-		items[wep_enum].cvar.BoolValue
-	);
+	return (cvar_enable.BoolValue && (items[wep_enum].cvar.IntValue >= 1));
+}
+
+int GetItemVariant(int wep_enum) {
+	return cvar_enable.BoolValue ? items[wep_enum].cvar.IntValue : 0;
 }
 
 int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
@@ -4200,16 +4221,15 @@ void ShowItemsDetails(int client) {
 	int idx;
 	int count;
 	char msg[NUM_ITEMS][256];
+	int variant_idx;
 
 	count = 0;
 
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
-			if (
-				strlen(items[idx].key) > 0 &&
-				items[idx].cvar.BoolValue
-			) {
-				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items[idx].desc);
+			if (ItemIsEnabled(idx)) {
+				variant_idx = GetItemVariant(idx) - 1;
+				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items_desc[idx][variant_idx]);
 				count++;
 			}
 		}
@@ -4227,7 +4247,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "  There's nothing here... for some reason, all item cvars are off :\\");
+		PrintToConsole(client, "There's nothing here... for some reason, all item cvars are off :\\");
 	}
 
 	PrintToConsole(client, "");
@@ -4239,6 +4259,7 @@ void ShowClassReverts(int client) {
 	char msg[NUM_ITEMS][256];
 	int class_idx;
 	TFTeam team;
+	int variant_idx;
 
 	count = 0;
 	class_idx = view_as<int>(TF2_GetPlayerClass(client)) - 1;
@@ -4258,12 +4279,11 @@ void ShowClassReverts(int client) {
 
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
-			if (
-				items[idx].cvar.BoolValue
-			) {
-				if (items[idx].classflags & (1 << class_idx) == 0)
+			if (ItemIsEnabled(idx)) {
+				variant_idx = GetItemVariant(idx) - 1;
+				if (items[idx].flags & (1 << class_idx) == 0)
 					continue;
-				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items[idx].desc);
+				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items_desc[idx][variant_idx]);
 				count++;
 			}
 		}
@@ -4285,27 +4305,14 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
+		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
 		if (config_value) {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
-			SetClientCookieInt(client,g_hClientMessageCookie,0);
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
-			SetClientCookieInt(client,g_hClientMessageCookie,1);
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu.");
 		}
+		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
-}
-
-int GetClientCookieInt(int client, Handle hCookie) {
-	char sCookieValue[12];
-	GetClientCookie(client,hCookie,sCookieValue,sizeof(sCookieValue));
-	return StringToInt(sCookieValue);
-}
-
-void SetClientCookieInt(int client, Handle hCookie, int iValue) {
-	char sCookieValue[12];
-	IntToString(iValue,sCookieValue,sizeof(sCookieValue));
-	SetClientCookie(client, hCookie, sCookieValue);
 }
 
 #if defined VERDIUS_PATCHES
@@ -4813,14 +4820,6 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (cvar_dropped_weapon_enable.BoolValue) {
-		returnValue.Value = false;
-		return MRES_Supercede;
-	}
-	return MRES_Ignored;
-}
-
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
@@ -4864,6 +4863,15 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	// If fix is not enabled, then let the game execute function as normal.
 	return MRES_Ignored;
 }
+
+#if !defined WIN32
+MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
+	if (cvar_dropped_weapon_enable.BoolValue) {
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+#endif
 #endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
