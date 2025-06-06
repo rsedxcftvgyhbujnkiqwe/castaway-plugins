@@ -400,8 +400,10 @@ public void OnPluginStart() {
 	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy switch speed penalties", CLASSFLAG_DEMOMAN, Wep_Sword);
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT, Wep_Atomizer);
-	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO, Wep_Axtinguisher);
-	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner);
+	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO, Wep_Axtinguisher, 1);
+	ItemVariant(Wep_Axtinguisher, "Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill", 1);
+	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner, 1);
+	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast", 1);
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
@@ -421,7 +423,8 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
-	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin);
+	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin, 1);
+	ItemVariant(Wep_Darwin, "Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity", 1);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, 65% faster weapon switch, -10% dmg & -25% afterburn dmg penalties", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined VERDIUS_PATCHES
@@ -440,7 +443,8 @@ public void OnPluginStart() {
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
-	ItemDefine("Loch n Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad);
+	ItemDefine("Loch-n-Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad, 1);
+	ItemVariant(Wep_LochLoad, "Reverted to pre-2014, +20% damage (15% variance), -50% clip, +25% self dmg, no radius penalty, grenades tumble", 1);
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -448,7 +452,8 @@ public void OnPluginStart() {
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
-	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
+	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol, 1);
+	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit", 1);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
@@ -458,7 +463,8 @@ public void OnPluginStart() {
 #if defined VERDIUS_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
+	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter, 1);
+	ItemVariant(Wep_ReserveShooter, "Reverted to pre-inferno, deals minicrits to airblasted targets again", 1);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper, 1);
 	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel", 1);
@@ -1752,14 +1758,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 7);
+		TF2Items_SetNumAttributes(item1, 5);
 		TF2Items_SetAttribute(item1, 0, 1, 1.00); // damage penalty
-		TF2Items_SetAttribute(item1, 1, 15, 0.0); // crit mod disabled
-		TF2Items_SetAttribute(item1, 2, 20, 1.0); // crit vs burning players
-		TF2Items_SetAttribute(item1, 3, 21, 0.50); // dmg penalty vs nonburning
-		TF2Items_SetAttribute(item1, 4, 22, 1.0); // no crit vs nonburning
-		TF2Items_SetAttribute(item1, 5, 772, 1.00); // single wep holster time increased
-		TF2Items_SetAttribute(item1, 6, 2067, 0.0); // attack minicrits and consumes burning
+		TF2Items_SetAttribute(item1, 1, 21, 0.50); // dmg penalty vs nonburning
+		TF2Items_SetAttribute(item1, 2, 772, 1.00); // single wep holster time increased
+		TF2Items_SetAttribute(item1, 3, 2067, 0.0); // attack minicrits and consumes burning
+
+		if (GetItemVariant(Wep_Axtinguisher) == 2) 
+			TF2Items_SetAttribute(item1, 4, 638, 1.0); // axtinguisher properties
+		else
+			TF2Items_SetAttribute(item1, 4, 20, 1.0); // crit vs burning players
 	}
 
 	else if (
@@ -1781,8 +1789,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
-		TF2Items_SetAttribute(item1, 1, 2, 1.1); // 20% increased damage
+		bool airblast = GetItemVariant(Wep_Backburner) == 1;
+		TF2Items_SetNumAttributes(item1, airblast ? 1 : 2);
+		if (airblast)
+			TF2Items_SetAttribute(item1, 0, 2, 1.1); // 10% damage bonus
+		else
+		{
+			TF2Items_SetAttribute(item1, 0, 2, 1.2); // 20% damage bonus
+			TF2Items_SetAttribute(item1, 1, 356, 1.0); // no airblast
+		}
 	}
 
 	else if (
@@ -1942,12 +1957,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 5);
+		bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
+		TF2Items_SetNumAttributes(item1, dmg_mods ? 5 : 3);
 		TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
 		TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
 		TF2Items_SetAttribute(item1, 2, 26, 25.0); // +25 max health on wearer
-		TF2Items_SetAttribute(item1, 3, 66, 0.85); // +15% bullet damage resistance on wearer
-		TF2Items_SetAttribute(item1, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
+		if (dmg_mods)
+		{
+			TF2Items_SetAttribute(item1, 3, 66, 0.85); // +15% bullet damage resistance on wearer
+			TF2Items_SetAttribute(item1, 4, 65, 1.20); // 20% explosive damage vulnerability on wearer
+		}
 	}
 
 	else if (
@@ -2092,13 +2111,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 2);
+		bool pre2014 = GetItemVariant(Wep_LochLoad) == 2
+		TF2Items_SetNumAttributes(item1, pre2014 ? 6 : 2);
 		TF2Items_SetAttribute(item1, 0, 2, 1.20); // damage bonus
 		TF2Items_SetAttribute(item1, 1, 137, 1.00); // dmg bonus vs buildings
-		// for pre smissmas 2014 loch
-		// TF2Items_SetAttribute(item1, 2, 207, 1.25); // self damage
-		// TF2Items_SetAttribute(item1, 3, 100, 1.00); // radius penalty
-		// TF2Items_SetAttribute(item1, 4, 3, 0.50); // clip size
+		if (pre2014)
+		{
+			TF2Items_SetAttribute(item1, 2, 207, 1.25); // self damage
+			TF2Items_SetAttribute(item1, 3, 100, 1.00); // radius penalty
+			TF2Items_SetAttribute(item1, 4, 3, 0.50); // clip size
+			TF2Items_SetAttribute(item1, 5, 681, 0.00); // grenade no spin
+		}
 	}
 
 	else if (
@@ -2141,15 +2164,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		TF2Items_SetNumAttributes(item1, 8);
-		TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
-		TF2Items_SetAttribute(item1, 1, 16, 0.0); // heal on hit
-		TF2Items_SetAttribute(item1, 2, 3, 1.0); // clip size
-		TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
-		TF2Items_SetAttribute(item1, 4, 128, 0.0); // provide on active
-		TF2Items_SetAttribute(item1, 5, 26, 15.0); // max health additive bonus
-		TF2Items_SetAttribute(item1, 6, 275, 1.0); // cancel falling damage
-		TF2Items_SetAttribute(item1, 7, 61, 1.50); // dmg taken from fire increased
+		bool release = GetItemVariant(Wep_PocketPistol) == 1;
+		TF2Items_SetNumAttributes(item1, release ? 8 : 1);
+		if (release)
+		{
+			TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
+			TF2Items_SetAttribute(item1, 1, 16, 0.0); // heal on hit
+			TF2Items_SetAttribute(item1, 2, 3, 1.0); // clip size
+			TF2Items_SetAttribute(item1, 3, 5, 1.25); // fire rate penalty
+			TF2Items_SetAttribute(item1, 4, 128, 0.0); // provide on active
+			TF2Items_SetAttribute(item1, 5, 26, 15.0); // max health additive bonus
+			TF2Items_SetAttribute(item1, 6, 275, 1.0); // cancel falling damage
+			TF2Items_SetAttribute(item1, 7, 61, 1.50); // dmg taken from fire increased
+		}
+		else
+			TF2Items_SetAttribute(item1, 0, 16, 7.0); // On Hit: Gain up to +7 health
 	}
 
 	else if (
@@ -2223,7 +2252,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 	else if (
 		ItemIsEnabled(Wep_ReserveShooter) &&
-		(index == 415) //&&
+		(index == 415) &&
+		GetItemVariant(Wep_ReserveShooter) == 1 //&&
 		//StrEqual(class, "tf_weapon_shotgun")
 	) {
 		item1 = TF2Items_CreateItem(0);
@@ -3468,6 +3498,24 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
+				// loch-n-load damage spread
+				
+				if (
+					GetItemVariant(Wep_LochLoad) == 2 &&
+					StrEqual(class, "tf_weapon_grenadelauncher") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 308
+				) {
+					// don't apply spread on crits
+					if (damage_type & DMG_CRIT != 0)
+						return Plugin_Continue;
+					
+					// apply ±15% damage variance
+					damage *= GetRandomFloat(0.85, 1.15);
+					return Plugin_Changed;
+				}
+			}
+
+			{
 				// ambassador headshot crits
 
 				if (
@@ -3516,11 +3564,17 @@ Action SDKHookCB_OnTakeDamage(
 					if (
 						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
 						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						(players[attacker].ticks_since_switch < 66 * 5) &&
 						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 					) {
-						// seems to be the best way to force a minicrit
-						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						if (
+							(GetItemVariant(Wep_ReserveShooter) == 1 &&
+							(players[attacker].ticks_since_switch < 66 * 5)) ||
+							(GetItemVariant(Wep_ReserveShooter) == 2 &&
+							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
+						) {
+							// seems to be the best way to force a minicrit
+							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}
 					}
 				}
 			}
