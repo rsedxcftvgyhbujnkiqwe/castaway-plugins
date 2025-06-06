@@ -419,7 +419,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
-	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, full switch speed for all weapons, old penalties", CLASSFLAG_PYRO, Wep_Degreaser);
+	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, 65% faster switch speed for all weapons, old penalties", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #endif
@@ -467,7 +467,7 @@ public void OnPluginStart() {
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
-	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, restored jarate explosion, no headshots", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
