@@ -2111,7 +2111,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	) {
 		item1 = TF2Items_CreateItem(0);
 		TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-		bool pre2014 = GetItemVariant(Wep_LochLoad) == 2
+		bool pre2014 = GetItemVariant(Wep_LochLoad) == 2;
 		TF2Items_SetNumAttributes(item1, pre2014 ? 6 : 2);
 		TF2Items_SetAttribute(item1, 0, 2, 1.20); // damage bonus
 		TF2Items_SetAttribute(item1, 1, 137, 1.00); // dmg bonus vs buildings
