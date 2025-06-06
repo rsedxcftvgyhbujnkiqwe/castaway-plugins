@@ -191,6 +191,7 @@ ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_jumper_flag_run;
 ConVar cvar_old_falldmg_sfx;
+ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
@@ -275,7 +276,7 @@ int rocket_create_entity;
 int rocket_create_frame;
 
 //cookies
-Handle g_hClientMessageCookie;
+Cookie g_hClientMessageCookie;
 
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
@@ -388,6 +389,7 @@ public void OnPluginStart() {
 	cvar_jumper_flag_run = CreateConVar("sm_reverts__jumper_flag_run", "0", (PLUGIN_NAME ... " - Enable intel pick-up for jumper weapons"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 
 	cvar_jumper_flag_run.AddChangeHook(OnJumperFlagRunCvarChange);
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -3057,7 +3059,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			if(
 				should_display_info_msg &&
 				cvar_enable.BoolValue &&
-				!GetClientCookieInt(client,g_hClientMessageCookie) //inverted because the default is zero
+				!g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0) //inverted because the default is zero
 			) {
 				char msg[6][256];
 				int count = 0;
@@ -4245,7 +4247,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "  There's nothing here... for some reason, all item cvars are off :\\");
+		PrintToConsole(client, "There's nothing here... for some reason, all item cvars are off :\\");
 	}
 
 	PrintToConsole(client, "");
@@ -4303,27 +4305,14 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = GetClientCookieInt(client,g_hClientMessageCookie);
+		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
 		if (config_value) {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts");
-			SetClientCookieInt(client,g_hClientMessageCookie,0);
+			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by revisiting this menu");
-			SetClientCookieInt(client,g_hClientMessageCookie,1);
+			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu.");
 		}
+		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
-}
-
-int GetClientCookieInt(int client, Handle hCookie) {
-	char sCookieValue[12];
-	GetClientCookie(client,hCookie,sCookieValue,sizeof(sCookieValue));
-	return StringToInt(sCookieValue);
-}
-
-void SetClientCookieInt(int client, Handle hCookie, int iValue) {
-	char sCookieValue[12];
-	IntToString(iValue,sCookieValue,sizeof(sCookieValue));
-	SetClientCookie(client, hCookie, sCookieValue);
 }
 
 #if defined VERDIUS_PATCHES
