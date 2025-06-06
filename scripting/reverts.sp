@@ -359,7 +359,9 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 //is there a more elegant way to do this?
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
-char items_desc[NUM_ITEMS][4][256];
+
+#define MAX_VARIANTS 4 // not including base version
+char items_desc[NUM_ITEMS][MAX_VARIANTS+1][256];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -4215,6 +4217,8 @@ void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, i
 	strcopy(items[wep_enum].name, sizeof(items[].name), name);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
+	
+	if (num_variants > MAX_VARIANTS) SetFailState("Tried to define more than %d variants", MAX_VARIANTS);
 	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
 }
 
