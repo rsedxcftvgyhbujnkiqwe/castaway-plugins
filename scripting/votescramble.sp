@@ -229,44 +229,18 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 {
+	char errorMsg[MAX_NAME_LENGTH] = "";
 	if (g_bServerWaitingForPlayers)
 	{
-		char errorMsg[] = "Server is still waiting for players.";
-		if (isVoteCalledFromMenu)
-		{
-			PrintToChat(client, errorMsg);
-		}
-		else 
-		{
-			ReplyToCommand(client, errorMsg);
-		}
-		return;
+		errorMsg = "Server is still waiting for players.";
 	}
 	if (g_bScrambleTeams)
 	{
-		char errorMsg[] = "A previous vote scramble has succeeded. Teams will be scrambled next round.";
-		if (isVoteCalledFromMenu)
-		{
-			PrintToChat(client, errorMsg);
-		}
-		else 
-		{
-			ReplyToCommand(client, errorMsg);
-		}
-		return;
+		errorMsg = "A previous vote scramble has succeeded. Teams will be scrambled next round.";
 	}
 	if (g_bVoteCooldown)
 	{
-		char errorMsg[] = "Sorry, votescramble is currently on cool-down.";
-		if (isVoteCalledFromMenu)
-		{
-			PrintToChat(client, errorMsg);
-		}
-		else
-		{
-			ReplyToCommand(client, errorMsg);
-		}
-		return;
+		errorMsg = "Sorry, votescramble is currently on cool-down.";
 	}
 
 	char name[MAX_NAME_LENGTH];
@@ -274,14 +248,18 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 
 	if (g_bVoted[client])
 	{
-		char errorMsg[] = "You have already voted for a team scramble. [%d/%d votes required]";
+		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVoters, g_iVotesNeeded);
+	}
+
+	if (!StrEqual(errorMsg, ""))
+	{
 		if (isVoteCalledFromMenu)
 		{
-			PrintToChat(client, errorMsg, g_iVotes, g_iVotesNeeded);
+			PrintToChat(client, errorMsg);
 		}
 		else
 		{
-			ReplyToCommand(client, errorMsg, g_iVotes, g_iVotesNeeded);
+			ReplyToCommand(client, errorMsg);
 		}
 		return;
 	}
