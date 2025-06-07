@@ -76,17 +76,7 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
 {
-	if (!event.GetBool("silent"))
-	{
-		if (g_bScrambleTeamsInProgress)
-		{
-			event.BroadcastDisabled = true;
-		}
-		else
-		{
-			event.BroadcastDisabled = false;
-		}
-	}
+	if (!event.GetBool("silent")) event.BroadcastDisabled = g_bScrambleTeamsInProgress;
 }
 
 public void OnPluginStart()
