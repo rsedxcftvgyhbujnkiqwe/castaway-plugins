@@ -2,6 +2,23 @@
 
 [Go back to Castaway.tf Home](https://castaway.tf)
 
+### June 3, 2025
+- **Reverted the Gloves of Running Urgently to pre-Tough Break**
+  - *The Gloves of Running Urgently*
+    - When weapon is active:
+    - +30% faster move speed on wearer
+    - -25% damage penalty
+    - You are marked for death while active, and for short period after switching weapons
+  - **The previously used revert was pre-Jungle Inferno which had a 50% increase in the time to holster the weapon.**
+
+### June 2, 2025
+- **Reverted the Reserve Shooter to pre-Tough Break**
+  - *The Reserve Shooter*
+    - Mini-crits all airborne targets for 5 seconds after being deployed
+    - 15% faster weapon switch
+    - -34% clip size
+  - **The previously used revert was pre-Jungle Inferno which mini-crit on players launched into the air (including from airblast) and not simply being in the air from e.g. jumping.**
+
 ### May 31, 2025
 - **Disabled the Darwin's Danger Shield and Tomislav reverts. The server now uses the modern versions of these items.**
 
