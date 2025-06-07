@@ -237,19 +237,18 @@ MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
 MemoryPatch Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat;
 MemoryPatch Verdius_RevertDalokohsBar_MOV_400;
 
+MemoryPatch Patch_DroppedWeapon;
+
 float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for revert
 
 // Address of our float to use for the MOVSS part of revert:
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 // ========================================================
 
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
+
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
-// TODO: WINDOWSSSSSSSSSSSSS
-#if !defined WIN32
-MemoryPatch Patch_DroppedWeapon;
-Handle dhook_CTFAmmoPack_MakeHolidayPack;
-#endif
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -633,12 +632,10 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
-#if !defined WIN32
 		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
-#endif
 
 		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -674,9 +671,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
 		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
-#if !defined WIN32
 		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
-#endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -723,13 +718,11 @@ public void OnPluginStart() {
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
-#if !defined WIN32
 	if (convar.BoolValue) {
 		Patch_DroppedWeapon.Enable();
 	} else {
 		Patch_DroppedWeapon.Disable();
 	}
-#endif
 }
 
 public void OnConfigsExecuted() {
@@ -4862,14 +4855,12 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	return MRES_Ignored;
 }
 
-#if !defined WIN32
 MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	if (cvar_dropped_weapon_enable.BoolValue) {
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
-#endif
 #endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
