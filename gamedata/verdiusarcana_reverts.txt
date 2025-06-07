@@ -469,14 +469,17 @@
 				
 				// Dropped weapon revert
 
-				// NOP outs the entire dropped weapon creation section 
-				// (src/game/server/tf/tf_player.cpp:13084-13088) and pushes pszWorldModel onto 
-				// the stack as the world model parameter for CTFAmmoPack::Create instead of 
+				// NOP outs the entire dropped weapon creation section
+				// (src/game/server/tf/tf_player.cpp:13084-13088) and pushes pszWorldModel onto
+				// the stack as the world model parameter for CTFAmmoPack::Create instead of
 				// "models/items/ammopack_medium.mdl".
 				//
 				// Special thanks to VerdiusArcana for figuring out the offset and verify.
 				//
 				// - Eric Zhang
+
+				// This will not work on listen servers as we're not precaching the "ammo pack"
+				// model.
 
 				"CTFPlayer::DropAmmoPack"
 				{
