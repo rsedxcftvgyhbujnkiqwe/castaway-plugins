@@ -2110,7 +2110,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 			TF2Items_SetAttribute(item1, 1, 120, 0.4); // sticky arm time penalty
 		}}
-		case 528: { if (ItemIsEnabled(Wep_ShortCircuit)) {
+		case 528: { if (ItemIsEnabled(Wep_ShortCircuit) && GetItemVariant(Wep_ShortCircuit) == 1) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 1);
