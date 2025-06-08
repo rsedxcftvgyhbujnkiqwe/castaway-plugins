@@ -4161,13 +4161,11 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	char class[64];
 	int metal;
 
-	GetEntityClassname(entity, class, sizeof(class));
-
-	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-
-	if (owner > 0) {
+	if (GetItemVariant(Wep_ShortCircuit) == 2) {
+		GetEntityClassname(entity, class, sizeof(class));
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 		if (
-			GetItemVariant(Wep_ShortCircuit) == 2 &&
+			owner > 0 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
