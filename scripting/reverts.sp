@@ -472,7 +472,8 @@ public void OnPluginStart() {
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
-	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
+	ItemDefine("Short Circuit", "circuit", "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire", CLASSFLAG_ENGINEER, Wep_ShortCircuit, 1);
+	ItemVariant(Wep_ShortCircuit, "Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot", 1);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove", CLASSFLAG_SCOUT, Wep_Shortstop, 1);
 	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", 1);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
@@ -1178,6 +1179,24 @@ public void OnGameFrame() {
 								}
 
 								players[idx].beggars_ammo = clip;
+							}
+						}
+					}
+				}
+
+				if (TF2_GetPlayerClass(idx) == TFClass_Engineer) {
+					{
+						// short circuit alt-fire prevention
+						if (GetItemVariant(Wep_ShortCircuit) == 1)
+						{
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (StrEqual(class, "tf_weapon_mechanical_arm")) {
+									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
+								}
 							}
 						}
 					}
@@ -2090,6 +2109,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(item1, 2);
 			TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 			TF2Items_SetAttribute(item1, 1, 120, 0.4); // sticky arm time penalty
+		}}
+		case 528: { if (ItemIsEnabled(Wep_ShortCircuit)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			TF2Items_SetNumAttributes(item1, 1);
+			TF2Items_SetAttribute(item1, 0, 614, 1.0); // no metal from dispensers while active
 		}}
 		case 220: { if (ItemIsEnabled(Wep_Shortstop)) {
 			item1 = TF2Items_CreateItem(0);
@@ -4132,6 +4157,28 @@ int FindSentryGunOwnedByClient(int client)
 #endif
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
+	int owner;
+	char class[64];
+	int metal;
+
+	GetEntityClassname(entity, class, sizeof(class));
+
+	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
+	if (owner > 0) {
+		if (
+			GetItemVariant(Wep_ShortCircuit) == 1 &&
+			StrEqual(class, "tf_weapon_mechanical_arm")
+		) {
+			// short circuit primary fire
+
+			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+
+			if (metal >= (5 + BALANCE_CIRCUIT_METAL)) {
+				DoShortCircuitProjectileRemoval(owner, entity, true);
+			}
+		}
+	}
 	return MRES_Ignored;
 }
 
@@ -4139,13 +4186,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	int idx;
 	int owner;
 	char class[64];
-	float player_pos[3];
-	float target_pos[3];
-	float angles1[3];
-	float angles2[3];
-	float vector[3];
-	float distance;
-	float limit;
 	int metal;
 
 	GetEntityClassname(entity, class, sizeof(class));
@@ -4165,7 +4205,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		}
 
 		if (
-			ItemIsEnabled(Wep_ShortCircuit) &&
+			GetItemVariant(Wep_ShortCircuit) == 2 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit secondary fire
@@ -4187,86 +4227,109 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 						EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
 					}
 				}
-
-				SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
-
-				GetClientEyePosition(owner, player_pos);
-				GetClientEyeAngles(owner, angles1);
-
-				// scan for entities to hit
-				for (idx = 1; idx < 2048; idx++) {
-					if (IsValidEntity(idx)) {
-						GetEntityClassname(idx, class, sizeof(class));
-
-						// only hit players and some projectiles
-						if (
-							(idx <= MaxClients) ||
-							StrEqual(class, "tf_projectile_rocket") ||
-							StrEqual(class, "tf_projectile_sentryrocket") ||
-							StrEqual(class, "tf_projectile_pipe") ||
-							StrEqual(class, "tf_projectile_pipe_remote") ||
-							StrEqual(class, "tf_projectile_arrow") ||
-							StrEqual(class, "tf_projectile_flare") ||
-							StrEqual(class, "tf_projectile_stun_ball") ||
-							StrEqual(class, "tf_projectile_ball_ornament") ||
-							StrEqual(class, "tf_projectile_cleaver")
-						) {
-							// don't hit stuff on the same team
-							if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
-								GetEntPropVector(idx, Prop_Send, "m_vecOrigin", target_pos);
-
-								// if hitting a player, compare to center
-								if (idx <= MaxClients) {
-									target_pos[2] += PLAYER_CENTER_HEIGHT;
-								}
-
-								distance = GetVectorDistance(player_pos, target_pos);
-
-								// absolute max distance
-								if (distance < 300.0) {
-									MakeVectorFromPoints(player_pos, target_pos, vector);
-
-									GetVectorAngles(vector, angles2);
-
-									angles2[1] = FixViewAngleY(angles2[1]);
-
-									angles1[0] = 0.0;
-									angles2[0] = 0.0;
-
-									// more strict angles vs players than projectiles
-									if (idx <= MaxClients) {
-										limit = ValveRemapVal(distance, 0.0, 150.0, 70.0, 25.0);
-									} else {
-										limit = ValveRemapVal(distance, 0.0, 200.0, 80.0, 40.0);
-									}
-
-									// check if view angle relative to target is in range
-									if (CalcViewsOffset(angles1, angles2) < limit) {
-										// trace from player camera pos to target
-										TR_TraceRayFilter(player_pos, target_pos, MASK_SOLID, RayType_EndPoint, TraceFilter_CustomShortCircuit, idx);
-
-										// didn't hit anything on the way to the target, so proceed
-										if (TR_DidHit() == false) {
-											if (idx <= MaxClients) {
-												// damage players
-												SDKHooks_TakeDamage(idx, entity, owner, BALANCE_CIRCUIT_DAMAGE, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
-											} else {
-												// delete projectiles
-												RemoveEntity(idx);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				DoShortCircuitProjectileRemoval(owner, entity, false);
 			}
 
 			return MRES_Supercede;
 		}
 	}
 	return MRES_Ignored;
+}
+
+void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_destroyed) {
+	int idx;
+	char class[64];
+	float player_pos[3];
+	float target_pos[3];
+	float angles1[3];
+	float angles2[3];
+	float vector[3];
+	float distance;
+	float limit;
+	int metal;
+
+	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+
+	if (!consume_per_destroyed) SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
+
+	GetClientEyePosition(owner, player_pos);
+	GetClientEyeAngles(owner, angles1);
+
+	// scan for entities to hit
+	for (idx = 1; idx < 2048; idx++) {
+		if (IsValidEntity(idx)) {
+			GetEntityClassname(idx, class, sizeof(class));
+
+			// only hit players and some projectiles
+			if (
+				(idx <= MaxClients) ||
+				StrEqual(class, "tf_projectile_rocket") ||
+				StrEqual(class, "tf_projectile_sentryrocket") ||
+				StrEqual(class, "tf_projectile_pipe") ||
+				StrEqual(class, "tf_projectile_pipe_remote") ||
+				StrEqual(class, "tf_projectile_arrow") ||
+				StrEqual(class, "tf_projectile_flare") ||
+				StrEqual(class, "tf_projectile_stun_ball") ||
+				StrEqual(class, "tf_projectile_ball_ornament") ||
+				StrEqual(class, "tf_projectile_cleaver")
+			) {
+				// don't hit stuff on the same team
+				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
+					GetEntPropVector(idx, Prop_Send, "m_vecOrigin", target_pos);
+
+					// if hitting a player, compare to center
+					if (idx <= MaxClients) {
+						target_pos[2] += PLAYER_CENTER_HEIGHT;
+					}
+
+					distance = GetVectorDistance(player_pos, target_pos);
+
+					// absolute max distance
+					if (distance < 300.0) {
+						MakeVectorFromPoints(player_pos, target_pos, vector);
+
+						GetVectorAngles(vector, angles2);
+
+						angles2[1] = FixViewAngleY(angles2[1]);
+
+						angles1[0] = 0.0;
+						angles2[0] = 0.0;
+
+						// more strict angles vs players than projectiles
+						if (idx <= MaxClients) {
+							limit = ValveRemapVal(distance, 0.0, 150.0, 70.0, 25.0);
+						} else {
+							limit = ValveRemapVal(distance, 0.0, 200.0, 80.0, 40.0);
+						}
+
+						// check if view angle relative to target is in range
+						if (CalcViewsOffset(angles1, angles2) < limit) {
+							// trace from player camera pos to target
+							TR_TraceRayFilter(player_pos, target_pos, MASK_SOLID, RayType_EndPoint, TraceFilter_CustomShortCircuit, idx);
+
+							// didn't hit anything on the way to the target, so proceed
+							if (TR_DidHit() == false) {
+								if (idx <= MaxClients) {
+									// damage players
+									if (!consume_per_destroyed)
+										SDKHooks_TakeDamage(idx, entity, owner, BALANCE_CIRCUIT_DAMAGE, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
+								} else {
+									// delete projectiles
+									if (consume_per_destroyed)
+									{
+										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
+										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
+									}
+									RemoveEntity(idx);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
