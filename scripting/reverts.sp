@@ -4318,8 +4318,8 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 									if (consume_per_destroyed)
 									{
 										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
-										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
-										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
+										if (metal < BALANCE_CIRCUIT_METAL) break;
+										SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(0, metal - BALANCE_CIRCUIT_METAL), 4, 3);
 									}
 									RemoveEntity(idx);
 								}
@@ -4636,10 +4636,16 @@ MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnV
 	return MRES_Ignored;
 }
 
-//Get the smaller integral value
+// Get the smaller integral value
 int intMin(int x, int y)
 {
 	return x > y ? y : x;
+}
+
+// Get the larger integral value
+int intMax(int x, int y)
+{
+    return x > y ? x : y;
 }
 
 int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
