@@ -474,7 +474,8 @@ public void OnPluginStart() {
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
-	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", CLASSFLAG_SCOUT, Wep_Shortstop);
+	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove", CLASSFLAG_SCOUT, Wep_Shortstop, 1);
+	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", 1);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
 	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", 1);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
@@ -1028,7 +1029,7 @@ public void OnGameFrame() {
 					{
 						// shortstop shove
 
-						if (ItemIsEnabled(Wep_Shortstop)) {
+						if (GetItemVariant(Wep_Shortstop) == 1) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
