@@ -472,8 +472,8 @@ public void OnPluginStart() {
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
-	ItemDefine("Short Circuit", "circuit", "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire", CLASSFLAG_ENGINEER, Wep_ShortCircuit, 1);
-	ItemVariant(Wep_ShortCircuit, "Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot", 1);
+	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit, 1);
+	ItemVariant(Wep_ShortCircuit, "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire", 1);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove", CLASSFLAG_SCOUT, Wep_Shortstop, 1);
 	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", 1);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
@@ -1187,7 +1187,7 @@ public void OnGameFrame() {
 				if (TF2_GetPlayerClass(idx) == TFClass_Engineer) {
 					{
 						// short circuit alt-fire prevention
-						if (GetItemVariant(Wep_ShortCircuit) == 1)
+						if (GetItemVariant(Wep_ShortCircuit) == 2)
 						{
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
 
@@ -2110,7 +2110,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 			TF2Items_SetAttribute(item1, 1, 120, 0.4); // sticky arm time penalty
 		}}
-		case 528: { if (ItemIsEnabled(Wep_ShortCircuit) && GetItemVariant(Wep_ShortCircuit) == 1) {
+		case 528: { if (ItemIsEnabled(Wep_ShortCircuit) && GetItemVariant(Wep_ShortCircuit) == 2) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 1);
@@ -4167,7 +4167,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 
 	if (owner > 0) {
 		if (
-			GetItemVariant(Wep_ShortCircuit) == 1 &&
+			GetItemVariant(Wep_ShortCircuit) == 2 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
@@ -4205,7 +4205,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		}
 
 		if (
-			GetItemVariant(Wep_ShortCircuit) == 2 &&
+			GetItemVariant(Wep_ShortCircuit) == 1 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit secondary fire
