@@ -4552,12 +4552,26 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 #if defined VERDIUS_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
-	// Just ignore PreHealing moment and do everything in post.
+	
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		return MRES_Supercede;
-	}
+		int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
+		int weapon;
+		char class[64];
+		// Grab weapon.
+		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
 
-	// If fix is not enabled, then let the game execute function as normal.
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+
+			if (
+				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
+			{
+				return MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
+			}
+		}
+	}
+	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
 	return MRES_Ignored;
 }
 
@@ -4566,30 +4580,45 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 		int buildingIndex = parameters.Get(1);
 		int engineerIndex = GetEntityOwner(arrowEntity);
 
-		// Sentry and Engineer must be on the same team for heal to happen.
-		if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
-			int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
 
-			// Spawn some particles if healing occured.
-			if (RepairAmount > 0) {
+		int weapon;
+		char class[64];
+		// Grab weapon.
+		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
 
-				// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
-				int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
-				if (teamNum == 2) {
-					// [1699] repair_claw_heal_red
-					// PATTACH_ABSORIGIN_FOLLOW
-					AttachTEParticleToEntityAndSend(arrowEntity,1699,1); //Red
-				} else {
-					// [1696] repair_claw_heal_blue
-					AttachTEParticleToEntityAndSend(arrowEntity,1696,1); // Blu
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+
+				if (
+					StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
+				{
+					// Now we can proceed with healing the building etc.
+					// Sentry and Engineer must be on the same team for heal to happen.
+					if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
+						int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
+
+						// Spawn some particles if healing occured.
+						if (RepairAmount > 0) {
+
+							// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
+							int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
+							if (teamNum == 2) {
+								// [1699] repair_claw_heal_red
+								// PATTACH_ABSORIGIN_FOLLOW
+								AttachTEParticleToEntityAndSend(arrowEntity,1699,1); //Red
+							} else {
+								// [1696] repair_claw_heal_blue
+								AttachTEParticleToEntityAndSend(arrowEntity,1696,1); // Blu
+							}
+						}
+					}
+					return MRES_Supercede;
 				}
 			}
 		}
 
-		return MRES_Supercede;
-		}
-
-	// If fix is not enabled, then let the game execute function as normal.
+	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
 	return MRES_Ignored;
 }
 
