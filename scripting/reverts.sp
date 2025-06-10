@@ -439,7 +439,8 @@ public void OnPluginStart() {
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer, 1);
 	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty", 1);
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
-	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction, 1);
+	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus", 1);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
@@ -1946,9 +1947,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 852, 1.20); // dmg taken increased
-			TF2Items_SetAttribute(item1, 1, 855, 0.0); // mod maxhealth drain rate
+			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 2;
+			TF2Items_SetNumAttributes(item1, gunMettleVer ? 3 : 2);
+			TF2Items_SetAttribute(item1, 0, 855, 0.0); // mod maxhealth drain rate
+			if (!gunMettleVer) TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
+			if (gunMettleVer) {
+				TF2Items_SetAttribute(item1, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
+				TF2Items_SetAttribute(item1, 2, 6, 1.50); // set faster firing speed to 50%; 
+			}
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
 			item1 = TF2Items_CreateItem(0);
