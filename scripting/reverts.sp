@@ -437,7 +437,7 @@ public void OnPluginStart() {
 	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer, 1);
-	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, no piercing, +0.5 s cloak time increase penalty", 1);
+	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty", 1);
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
