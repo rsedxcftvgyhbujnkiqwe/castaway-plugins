@@ -369,7 +369,7 @@ enum
 	VARIANT3,
 	VARIANT4,
 
-	MAX_VARIANTS // not including base version, must be at the end
+	MAX_VARIANTS // includes base version (VARIANT0), must be at the end
 }
 char items_desc[NUM_ITEMS][MAX_VARIANTS][256];
 
