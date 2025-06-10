@@ -230,6 +230,21 @@ int GetTeamScoreDiff(ArrayList clientList, int &score_red, int &score_blue)
 	return abs(diff);
 }
 
+void ForceRespawn()
+{
+	int flags = GetCommandFlags("mp_forcerespawnplayers");
+	SetCommandFlags("mp_forcerespawnplayers", flags & ~FCVAR_CHEAT);
+	ServerCommand("mp_forcerespawnplayers");
+	// wait 0.1 seconds before resetting flag or else it would complain
+	// about not having sv_cheats 1
+	CreateTimer(0.1, Post_RespawnCommandRun, flags);
+}
+
+public Action Post_RespawnCommandRun(Handle timer, int flags) {
+	SetCommandFlags("mp_forcerespawnplayers", flags);
+	return Plugin_Continue;
+}
+
 int abs(int x)
 {
 	int mask = x >> 31;
