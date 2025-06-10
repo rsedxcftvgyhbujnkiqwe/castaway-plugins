@@ -3868,7 +3868,7 @@ void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, i
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	
-	if (num_variants > MAX_VARIANTS) SetFailState("Tried to define an item with more than %d variants", MAX_VARIANTS);
+	if (num_variants > (MAX_VARIANTS - 1)) SetFailState("Tried to define an item with more than %d variants", MAX_VARIANTS - 1);
 	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
 }
 
