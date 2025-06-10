@@ -369,9 +369,9 @@ enum
 	VARIANT3,
 	VARIANT4,
 
-	MAX_VARIANTS // includes base version (VARIANT0), must be at the end
+	NUM_VARIANTS // includes base version (VARIANT0), must be at the end
 }
-char items_desc[NUM_ITEMS][MAX_VARIANTS][256];
+char items_desc[NUM_ITEMS][NUM_VARIANTS][256];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -3868,7 +3868,7 @@ void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, i
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	
-	if (num_variants > (MAX_VARIANTS - 1)) SetFailState("Tried to define an item with more than %d variants", MAX_VARIANTS - 1);
+	if (num_variants > (NUM_VARIANTS - 1)) SetFailState("Tried to define an item with more than %d variants", NUM_VARIANTS - 1);
 	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
 }
 
