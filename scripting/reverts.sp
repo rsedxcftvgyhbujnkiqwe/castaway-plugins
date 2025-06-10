@@ -1953,7 +1953,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			if (!gunMettleVer) TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
 			if (gunMettleVer) {
 				TF2Items_SetAttribute(item1, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
-				TF2Items_SetAttribute(item1, 2, 6, 1.50); // set faster firing speed to 50%; 
+				TF2Items_SetAttribute(item1, 2, 6, 0.50); // set faster firing speed to +50%; 
 			}
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
