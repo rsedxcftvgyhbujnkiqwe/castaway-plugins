@@ -1,3 +1,6 @@
+# NOTE:
+## The changelog has been moved to the [wiki](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog) and further updates are made there.
+
 # Castaway.tf Weapon Reverts Changelog
 
 [Go back to Castaway.tf Home](https://castaway.tf)
