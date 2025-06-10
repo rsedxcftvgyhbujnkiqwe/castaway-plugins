@@ -3529,7 +3529,8 @@ Action SDKHookCB_OnTakeDamage(
 								return Plugin_Stop;
 							}
 
-							if (StrEqual(class, "tf_weapon_raygun") || ((GetItemVariant(Wep_Pomson) == 2) && StrEqual(class, "tf_weapon_drg_pomson"))) {
+							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
+							if (StrEqual(class, "tf_weapon_raygun") || (GetItemVariant(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
 
