@@ -487,6 +487,7 @@ public void OnPluginStart() {
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_Tomislav, "Reverted to release, 75% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", 1);
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
@@ -2190,8 +2191,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = GetItemVariant(Wep_Tomislav) == 2;
 			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+			if (!releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+			if (releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.25); // 75% minigun spinup time decreased; mult_minigun_spinup_time
 			TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
 			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 		}}
