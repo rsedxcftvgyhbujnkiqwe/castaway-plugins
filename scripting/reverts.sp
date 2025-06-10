@@ -316,6 +316,7 @@ enum
 	Wep_Cleaver, // Flying Guillotine	
 	Wep_MarketGardener,
 	Wep_GRU,
+	Wep_Gunboats,
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
@@ -444,6 +445,7 @@ public void OnPluginStart() {
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemDefine("Gunboats", "gunboats", "Reverted to release, -75% blast damage from rocket jumps", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("Loch-n-Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad, 1);
@@ -1979,6 +1981,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
 			TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
 		}}
+		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			TF2Items_SetNumAttributes(item1, 1);
+			TF2Items_SetAttribute(item1, 0, 135, 0.25); // -75% blast damage from rocket jumps
+		}}		
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2643,6 +2651,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
+					case 133: player_weapons[client][Wep_Gunboats] = true;
 					case 406: player_weapons[client][Wep_SplendidScreen] = true;
 					case 131, 1144: player_weapons[client][Wep_CharginTarge] = true;
 					case 1099: player_weapons[client][Wep_TideTurner] = true;
