@@ -1918,7 +1918,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			bool releaseVer = GetItemVariant(Wep_Enforcer) == 2;
-			TF2Items_SetNumAttributes(item1, releaseVer ? 5 : 3);
+			TF2Items_SetNumAttributes(item1, releaseVer ? 6 : 3);
 			TF2Items_SetAttribute(item1, 0, 797, 0.0); // dmg pierces resists absorbs
 			TF2Items_SetAttribute(item1, 1, 2, 1.20); // 20% damage bonus
 			if (!releaseVer) TF2Items_SetAttribute(item1, 2, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
@@ -1927,6 +1927,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(item1, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
 				TF2Items_SetAttribute(item1, 3, 15, 1.0); // add back random crits; crit mod enabled 
 				TF2Items_SetAttribute(item1, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
+				TF2Items_SetAttribute(item1, 5, 410, 1.0); // remove damage bonus while disguised
 			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
