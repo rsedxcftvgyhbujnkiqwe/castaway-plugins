@@ -444,7 +444,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus", 1);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
-	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU, 1);
+	ItemVariant(Wep_GRU, "Reverted to pre-pyromania, no health drain, no mark-for-death, 50% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s", 1);
 	ItemDefine("Gunboats", "gunboats", "Reverted to release, -75% blast damage from rocket jumps", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
@@ -457,7 +458,9 @@ public void OnPluginStart() {
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson, 1);
 	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range", 1);
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack, 2);
+	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits", 1);
+	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 25% melee vuln while active", 2);
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol, 1);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit", 1);
 #if defined VERDIUS_PATCHES
@@ -1976,10 +1979,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 4);
-			TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
-			TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
-			TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
-			TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			if (GetItemVariant(Wep_GRU) == 1) {
+				// Pre-Tough Break version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
+				TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
+			if (GetItemVariant(Wep_GRU) == 2) {
+				// Pre-Pyromania version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.50); // 50% damage penalty
+				TF2Items_SetAttribute(item1, 1, 191, -6.0); // drain 6HP/s while actve; small knockback while active is supposed to happen (called GRU jumping)
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time is normal
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
 		}}
 		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
 			item1 = TF2Items_CreateItem(0);
@@ -2067,9 +2080,31 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 1);
-			TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
-			// health bonus with overheal handled elsewhere
+			// Pre-Gun Mettle Powerjack (pre-2015)
+			if(GetItemVariant(Wep_Powerjack) == 1) {
+				TF2Items_SetNumAttributes(item1, 1);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				// health bonus with overheal handled elsewhere
+			}
+
+			// Release Powerjack (2010)
+			else if(GetItemVariant(Wep_Powerjack) == 2) {
+				TF2Items_SetNumAttributes(item1, 5);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 2, 1.25); // add +25% damage bonus
+				TF2Items_SetAttribute(item1, 4, 15, 0.0); // no random crits mod
+			}
+
+			// Hatless Update Powerjack (2011 to 2013)
+			else if(GetItemVariant(Wep_Powerjack) == 3) {
+				TF2Items_SetNumAttributes(item1, 4);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 206, 1.20); // add +20% damage from melee sources while active 
+			}
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			item1 = TF2Items_CreateItem(0);
