@@ -453,7 +453,8 @@ public void OnPluginStart() {
 	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
-	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
+	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson, 1);
+	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range", 1);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol, 1);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit", 1);
@@ -2048,6 +2049,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(item1, 0, 16, 7.0); // On Hit: Gain up to +7 health
 			}
 		}}
+		case 588: { if (ItemIsEnabled(Wep_Pomson)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = GetItemVariant(Wep_Pomson) == 2;
+			TF2Items_SetNumAttributes(item1, 1);
+			if(releaseVer) TF2Items_SetAttribute(item1, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+		}}
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -3521,7 +3529,7 @@ Action SDKHookCB_OnTakeDamage(
 								return Plugin_Stop;
 							}
 
-							if (StrEqual(class, "tf_weapon_raygun")) {
+							if (StrEqual(class, "tf_weapon_raygun") || ((GetItemVariant(Wep_Pomson) == 2) && StrEqual(class, "tf_weapon_drg_pomson"))) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
 
