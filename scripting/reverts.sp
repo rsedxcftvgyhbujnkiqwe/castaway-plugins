@@ -359,8 +359,19 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
 
-#define MAX_VARIANTS 4 // not including base version
-char items_desc[NUM_ITEMS][MAX_VARIANTS+1][256];
+// enum for variants
+enum
+{
+	DISABLED = -1,
+	VARIANT0 = 0,
+	VARIANT1,
+	VARIANT2,
+	VARIANT3,
+	VARIANT4,
+
+	MAX_VARIANTS // not including base version, must be at the end
+}
+char items_desc[NUM_ITEMS][MAX_VARIANTS][256];
 
 // debuff conditions
 TFCond debuffs[] =
@@ -402,9 +413,9 @@ public void OnPluginStart() {
 	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT, Wep_Atomizer);
 	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO, Wep_Axtinguisher, 1);
-	ItemVariant(Wep_Axtinguisher, "Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill", 1);
+	ItemVariant(Wep_Axtinguisher, "Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill", VARIANT1);
 	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner, 1);
-	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast", 1);
+	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast", VARIANT1);
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
@@ -425,7 +436,7 @@ public void OnPluginStart() {
 	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
 	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin, 1);
-	ItemVariant(Wep_Darwin, "Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity", 1);
+	ItemVariant(Wep_Darwin, "Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity", VARIANT1);
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, 65% faster weapon switch, -10% dmg & -25% afterburn dmg penalties", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined VERDIUS_PATCHES
@@ -445,7 +456,7 @@ public void OnPluginStart() {
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("Loch-n-Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad, 1);
-	ItemVariant(Wep_LochLoad, "Reverted to pre-2014, +20% damage (15% variance), -50% clip, +25% self dmg, no radius penalty, grenades tumble", 1);
+	ItemVariant(Wep_LochLoad, "Reverted to pre-2014, +20% damage (15% variance), -50% clip, +25% self dmg, no radius penalty, grenades tumble", VARIANT1);
 	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -454,7 +465,7 @@ public void OnPluginStart() {
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol, 1);
-	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit", 1);
+	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit", VARIANT1);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
@@ -465,24 +476,24 @@ public void OnPluginStart() {
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter, 1);
-	ItemVariant(Wep_ReserveShooter, "Reverted to pre-inferno, deals minicrits to airblasted targets again", 1);
+	ItemVariant(Wep_ReserveShooter, "Reverted to pre-inferno, deals minicrits to airblasted targets again", VARIANT1);
 	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper, 1);
-	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel", 1);
+	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel", VARIANT1);
 	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
 	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit, 1);
-	ItemVariant(Wep_ShortCircuit, "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire", 1);
+	ItemVariant(Wep_ShortCircuit, "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire", VARIANT1);
 	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove", CLASSFLAG_SCOUT, Wep_Shortstop, 1);
-	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", 1);
+	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept", VARIANT1);
 	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper, 1);
-	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", 1);
+	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype", VARIANT1);
 	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper, 1);
-	ItemVariant(Wep_StickyJumper, "Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel", 1);
+	ItemVariant(Wep_StickyJumper, "Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel", VARIANT1);
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -953,7 +964,7 @@ public void OnGameFrame() {
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
 							airdash_limit_old = 5;
 
-							if (GetItemVariant(Wep_SodaPopper) != 1) {
+							if (GetItemVariant(Wep_SodaPopper) != VARIANT0) {
 								airdash_limit_new = 5;
 							}
 						}
@@ -1023,7 +1034,7 @@ public void OnGameFrame() {
 					{
 						// shortstop shove
 
-						if (GetItemVariant(Wep_Shortstop) == 1) {
+						if (GetItemVariant(Wep_Shortstop) == VARIANT0) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
@@ -1072,7 +1083,7 @@ public void OnGameFrame() {
 						if (ItemIsEnabled(Wep_SodaPopper))
 						{
 							if (
-								GetItemVariant(Wep_SodaPopper) == 1 &&
+								GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 								players[idx].is_under_hype
 							) {
 								// allow mini-crit buff to last indefinitely
@@ -1092,7 +1103,7 @@ public void OnGameFrame() {
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
 									if (
-										GetItemVariant(Wep_SodaPopper) == 1 &&
+										GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0
 									) {
 										// Fall back to hype condition if the player has a drink item
@@ -1122,7 +1133,7 @@ public void OnGameFrame() {
 
 								// hype meter drain on minicrit condition
 								if (
-									GetItemVariant(Wep_SodaPopper) == 1 &&
+									GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 									players[idx].is_under_hype
 								) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
@@ -1187,7 +1198,7 @@ public void OnGameFrame() {
 				if (TF2_GetPlayerClass(idx) == TFClass_Engineer) {
 					{
 						// short circuit alt-fire prevention
-						if (GetItemVariant(Wep_ShortCircuit) == 2)
+						if (GetItemVariant(Wep_ShortCircuit) == VARIANT1)
 						{
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
 
@@ -1620,7 +1631,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// if player somehow activated hype condition, remove it, unless they have a drink item
 
 		if (
-			GetItemVariant(Wep_SodaPopper) == 1 &&
+			GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 			condition == TFCond_CritHype &&
 			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
 		) {
@@ -1686,7 +1697,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
 		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
 		if (
-			GetItemVariant(Wep_SodaPopper) == 1 &&
+			GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 			condition == TFCond_CritCola &&
 			players[client].is_under_hype == true &&
 			TF2_GetPlayerClass(client) == TFClass_Scout
@@ -1766,7 +1777,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 2, 772, 1.00); // single wep holster time increased
 			TF2Items_SetAttribute(item1, 3, 2067, 0.0); // attack minicrits and consumes burning
 
-			if (GetItemVariant(Wep_Axtinguisher) == 2) {
+			if (GetItemVariant(Wep_Axtinguisher) == VARIANT1) {
 				TF2Items_SetAttribute(item1, 4, 638, 1.0); // axtinguisher properties
 			} else {
 				TF2Items_SetAttribute(item1, 4, 20, 1.0); // crit vs burning players
@@ -1782,7 +1793,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 40, 1146: { if (ItemIsEnabled(Wep_Backburner)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool airblast = GetItemVariant(Wep_Backburner) == 1;
+			bool airblast = GetItemVariant(Wep_Backburner) == VARIANT0;
 			TF2Items_SetNumAttributes(item1, airblast ? 1 : 2);
 			if (airblast) {
 				TF2Items_SetAttribute(item1, 0, 2, 1.1); // 10% damage bonus
@@ -1791,7 +1802,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(item1, 1, 356, 1.0); // no airblast
 			}
 		}}
-		case 237: { if (ItemIsEnabled(Wep_RocketJumper) && GetItemVariant(Wep_RocketJumper) == 2) {
+		case 237: { if (ItemIsEnabled(Wep_RocketJumper) && GetItemVariant(Wep_RocketJumper) == VARIANT1) {
 			item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
 			TF2Items_SetNumAttributes(item1, 1);
 			TF2Items_SetAttribute(item1, 0, 400, 0.0);
@@ -1884,7 +1895,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
+			bool dmg_mods = GetItemVariant(Wep_Darwin) == VARIANT0;
 			TF2Items_SetNumAttributes(item1, dmg_mods ? 5 : 3);
 			TF2Items_SetAttribute(item1, 0, 60, 1.0); // +0% fire damage resistance on wearer
 			TF2Items_SetAttribute(item1, 1, 527, 0.0); // remove afterburn immunity
@@ -1982,7 +1993,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 308: { if (ItemIsEnabled(Wep_LochLoad)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool pre2014 = GetItemVariant(Wep_LochLoad) == 2;
+			bool pre2014 = GetItemVariant(Wep_LochLoad) == VARIANT1;
 			TF2Items_SetNumAttributes(item1, pre2014 ? 6 : 2);
 			TF2Items_SetAttribute(item1, 0, 2, 1.20); // damage bonus
 			TF2Items_SetAttribute(item1, 1, 137, 1.00); // dmg bonus vs buildings
@@ -2019,7 +2030,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 773: { if (ItemIsEnabled(Wep_PocketPistol)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool release = GetItemVariant(Wep_PocketPistol) == 1;
+			bool release = GetItemVariant(Wep_PocketPistol) == VARIANT0;
 			TF2Items_SetNumAttributes(item1, release ? 8 : 1);
 			if (release) {
 				TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
@@ -2079,7 +2090,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 0, 469, 130.0); //ranged pickup metal cost
 		}}
 #endif
-		case 415: { if (ItemIsEnabled(Wep_ReserveShooter) && GetItemVariant(Wep_ReserveShooter) == 1) {
+		case 415: { if (ItemIsEnabled(Wep_ReserveShooter) && GetItemVariant(Wep_ReserveShooter) == VARIANT0) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 3);
@@ -2110,7 +2121,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 0, 6, 1.0); // fire rate bonus
 			TF2Items_SetAttribute(item1, 1, 120, 0.4); // sticky arm time penalty
 		}}
-		case 528: { if (ItemIsEnabled(Wep_ShortCircuit) && GetItemVariant(Wep_ShortCircuit) == 2) {
+		case 528: { if (ItemIsEnabled(Wep_ShortCircuit) && GetItemVariant(Wep_ShortCircuit) == VARIANT1) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 1);
@@ -2136,7 +2147,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool minicrits = GetItemVariant(Wep_SodaPopper) == 1;
+			bool minicrits = GetItemVariant(Wep_SodaPopper) == VARIANT0;
 			TF2Items_SetNumAttributes(item1, minicrits ? 2 : 1);
 			TF2Items_SetAttribute(item1, 0, 793, 0.0); // hype on damage
 			if (minicrits) {
@@ -2166,7 +2177,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 265: { if (ItemIsEnabled(Wep_StickyJumper)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool flag_pickup = (GetItemVariant(Wep_StickyJumper) == 2);
+			bool flag_pickup = (GetItemVariant(Wep_StickyJumper) == VARIANT1);
 			TF2Items_SetNumAttributes(item1, flag_pickup ? 2 : 1);
 			TF2Items_SetAttribute(item1, 0, 89, 0.0); // max pipebombs decreased
 			if (flag_pickup) {
@@ -2718,7 +2729,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			// if player has a drink item, end minicrits and apply hype
 
 			if (
-				GetItemVariant(Wep_SodaPopper) == 1 &&
+				GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 				players[client].is_under_hype
 			) {
 				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
@@ -2746,9 +2757,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][i] &&
 						ItemIsEnabled(i)
 					) {
-						variant_idx = GetItemVariant(i) - 1;
-						Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items_desc[i][variant_idx]);
-						count++;
+						variant_idx = GetItemVariant(i);
+						if (variant_idx > DISABLED) {
+							Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items_desc[i][variant_idx]);
+							count++;
+						}
 					}
 				}
 				if(count) {
@@ -3160,7 +3173,7 @@ Action SDKHookCB_OnTakeDamage(
 				// loch-n-load damage spread
 				
 				if (
-					GetItemVariant(Wep_LochLoad) == 2 &&
+					GetItemVariant(Wep_LochLoad) == VARIANT1 &&
 					StrEqual(class, "tf_weapon_grenadelauncher") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 308
 				) {
@@ -3226,9 +3239,9 @@ Action SDKHookCB_OnTakeDamage(
 						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 					) {
 						if (
-							(GetItemVariant(Wep_ReserveShooter) == 1 &&
+							(GetItemVariant(Wep_ReserveShooter) == VARIANT0 &&
 							(players[attacker].ticks_since_switch < 66 * 5)) ||
-							(GetItemVariant(Wep_ReserveShooter) == 2 &&
+							(GetItemVariant(Wep_ReserveShooter) == VARIANT1 &&
 							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
 						) {
 							// seems to be the best way to force a minicrit
@@ -3242,7 +3255,7 @@ Action SDKHookCB_OnTakeDamage(
 				// soda popper minicrits
 
 				if (
-					GetItemVariant(Wep_SodaPopper) == 1 &&
+					GetItemVariant(Wep_SodaPopper) == VARIANT0 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true &&
 					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 				) {
@@ -3885,7 +3898,7 @@ bool ItemIsEnabled(int wep_enum) {
 }
 
 int GetItemVariant(int wep_enum) {
-	return cvar_enable.BoolValue ? items[wep_enum].cvar.IntValue : 0;
+	return cvar_enable.BoolValue ? items[wep_enum].cvar.IntValue - 1 : DISABLED;
 }
 
 int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
@@ -3921,9 +3934,11 @@ void ShowItemsDetails(int client) {
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
 			if (ItemIsEnabled(idx)) {
-				variant_idx = GetItemVariant(idx) - 1;
-				Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items_desc[idx][variant_idx]);
-				count++;
+				variant_idx = GetItemVariant(idx);
+				if (variant_idx > DISABLED) {
+					Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items_desc[idx][variant_idx]);
+					count++;
+				}
 			}
 		}
 	}
@@ -3973,11 +3988,13 @@ void ShowClassReverts(int client) {
 	if (cvar_enable.BoolValue) {
 		for (idx = 0; idx < NUM_ITEMS; idx++) {
 			if (ItemIsEnabled(idx)) {
-				variant_idx = GetItemVariant(idx) - 1;
-				if (items[idx].flags & (1 << class_idx) == 0)
-					continue;
-				Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items_desc[idx][variant_idx]);
-				count++;
+				variant_idx = GetItemVariant(idx);
+				if (variant_idx > DISABLED) {
+					if (items[idx].flags & (1 << class_idx) == 0)
+						continue;
+					Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items_desc[idx][variant_idx]);
+					count++;
+				}
 			}
 		}
 	}
@@ -4161,7 +4178,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	char class[64];
 	int metal;
 
-	if (GetItemVariant(Wep_ShortCircuit) == 2) {
+	if (GetItemVariant(Wep_ShortCircuit) == VARIANT1) {
 		GetEntityClassname(entity, class, sizeof(class));
 		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 		if (
@@ -4203,7 +4220,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		}
 
 		if (
-			GetItemVariant(Wep_ShortCircuit) == 1 &&
+			GetItemVariant(Wep_ShortCircuit) == VARIANT0 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit secondary fire
