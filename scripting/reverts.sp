@@ -3861,8 +3861,8 @@ void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum) {
 
 void ItemVariant(int wep_enum, char[] desc) {
 	int variant_idx = items[wep_enum].num_variants;
-	items[wep_enum].num_variants += 1;
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
+	items[wep_enum].num_variants += 1;
 }
 
 void ItemFinalize() {
