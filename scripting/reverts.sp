@@ -54,9 +54,9 @@
 
 #define PLUGIN_VERSION_NUM "2.0.0"
 // Add a OS suffix if Memorypatch reverts are used
-// so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
-// if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
-// compiled for the correct OS.
+// to make it easier to see which OS the plugin is compiled for. 
+// To server owners, before you raise hell, do: sm plugins list 
+// and check that you compiled for the correct OS.
 #if defined MEMORY_PATCHES
 #if defined WIN32
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-win32"
