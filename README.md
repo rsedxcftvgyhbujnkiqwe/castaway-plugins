@@ -33,7 +33,7 @@ There are a few revert patches within the revert plugin by default that utilize 
 
 To disable reverts that come from memory patches, comment the following line near the top of the reverts.sp file before you compile:
 ```
-#define VERDIUS_PATCHES
+#define MEMORY_PATCHES
 ```
 Alternatively, you can pass in `NO_MEMPATCHES=` as a parameter to spcomp.
 
