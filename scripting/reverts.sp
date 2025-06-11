@@ -3280,9 +3280,9 @@ Action SDKHookCB_OnTakeDamage(
 					if(GetItemVariant(Wep_Pickaxe) == 1) // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 hp
 						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
 					else if(GetItemVariant(Wep_Pickaxe) == 2) // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 hp
-						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.74, 0.5));
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.75, 0.5));
 					else if(GetItemVariant(Wep_Pickaxe) == 3) // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 hp
-						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 2.49, 0.5));
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 2.50, 0.5));
 
 					return Plugin_Changed;
 				}
