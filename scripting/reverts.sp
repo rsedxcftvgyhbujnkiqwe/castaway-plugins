@@ -743,13 +743,13 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
-	VerdiusTogglePatches(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_Minigun),Wep_Minigun);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
-	VerdiusTogglePatches(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Minigun),Wep_Minigun);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
 #endif
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 }
@@ -769,7 +769,7 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 		strcopy(item,sizeof(item),cvarName[strlen("sm_reverts__item_")]);
 		for (int i; i < NUM_ITEMS; i++) {
 			if (StrEqual(items[i].key,item)) {
-				VerdiusTogglePatches(ItemIsEnabled(i),i);
+				ToggleMemoryPatchReverts(ItemIsEnabled(i),i);
 				return Plugin_Handled;
 			}
 		}
@@ -777,7 +777,7 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 	return Plugin_Continue;
 }
 
-void VerdiusTogglePatches(bool enable, int wep_enum) {
+void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 	switch(wep_enum) {
 		case Wep_Disciplinary: {
 			if (enable) {
