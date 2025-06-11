@@ -3849,6 +3849,16 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
+/**
+ * Define an item used for reverts.
+ * 
+ * @param name				Name of the item.
+ * @param key				Key of the item used for the cvar.
+ * @param desc				Description of the item.
+ * @param flags				Class flags.
+ * @param wep_enum			Weapon enum, this identifies a weapon.
+ * @param num_variants		Number of variants.
+ */
 void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, int num_variants = 0) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items[wep_enum].name, sizeof(items[].name), name);
@@ -3859,6 +3869,13 @@ void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum, i
 	items[wep_enum].num_variants = (num_variants >= 0) ? num_variants : 0;
 }
 
+/**
+ * Define an item variant.
+ * 
+ * @param wep_enum		Weapon enum.
+ * @param desc			Description of the item variant.
+ * @param variant_idx	ID of the variant.	
+ */
 void ItemVariant(int wep_enum, char[] desc, int variant_idx) {
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
 }
@@ -3880,10 +3897,22 @@ void ItemFinalize() {
 	}
 }
 
+/**
+ * Check if an item is enabled.
+ * 
+ * @param wep_enum		Weapon enum.
+ * @return				True if an item revert is enabled on the server, false otherwise.
+ */
 bool ItemIsEnabled(int wep_enum) {
 	return (cvar_enable.BoolValue && (items[wep_enum].cvar.IntValue >= 1));
 }
 
+/**
+ * Get the item variant enabled on a server.
+ * 
+ * @param wep_enum		Weapon enum.
+ * @return				The weapon variant.
+ */
 int GetItemVariant(int wep_enum) {
 	return cvar_enable.BoolValue ? items[wep_enum].cvar.IntValue : 0;
 }
@@ -4646,6 +4675,12 @@ float FixViewAngleY(float angle) {
 	return (angle > 180.0 ? (angle - 360.0) : angle);
 }
 
+/** 
+ * Get an absolute value of an integer.
+ * 
+ * @param x		Integer.
+ * @retrun		Absolute value of x.
+ */
 int abs(int x)
 {
 	int mask = x >> 31;
@@ -4663,7 +4698,13 @@ MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnV
 	return MRES_Ignored;
 }
 
-//Get the smaller integral value
+/**
+ * Get the smaller integer between two integers.
+ * 
+ * @param x		Integer x.
+ * @param y		Integer y.
+ * @return		The smaller integer between x and y.
+ */
 int intMin(int x, int y)
 {
 	return x > y ? y : x;
