@@ -52,7 +52,7 @@
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons"
 
-#define PLUGIN_VERSION_NUM "1.3.2"
+#define PLUGIN_VERSION_NUM "2.0.0"
 // Add a OS suffix if VerdiusArcanas patches are used
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
 // if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
@@ -73,7 +73,7 @@
 #define PLUGIN_VERSION_GIT PLUGIN_VERSION ... "%GIT_COMMIT%"
 #endif
 
-#define PLUGIN_URL "https://steamcommunity.com/profiles/76561198020610103"
+#define PLUGIN_URL "https://castaway.tf"
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,

@@ -8,5 +8,8 @@
 ### Description of testing
 [How was this tested? If this wasn't tested, why?]
 
+### Other Attestations
+- [ ] - The plugin version number has been incremented (if applicable)
+
 ### Other Info
 [Any other information you'd like to provide]
