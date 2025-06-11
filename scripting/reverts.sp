@@ -2403,10 +2403,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						// Offset for Linux (0xB50)
 						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
 #else
-						// Offset for Windows (0xB38) (Do not trust the ghidra decompiler for windows when looking for the offset, check assembly view instead after you click on the line that sets the member.)
+						// Offset for Windows (0xB38 NOTE: Ghidra will show something else in decompile, check the bytes instead!)
 						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB38), GetGameTime() + 1.0, NumberType_Int32);
 #endif
-	
 						isControlled = 0; // Make sure isControlled is set to 0 or org source code
 										  // will consider it true on next tick and m_flShieldFadeTime will become 3.0
 										  // thus undoing our revert.
@@ -4201,11 +4200,8 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 	float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
 	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
 	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
-	//int maxHealth = GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth");
 	int RepairAmount = RoundToNearest(RepairAmountFloat);
 	if (RepairAmountFloat > 0.0) {
-
-	//Need to calc limits ourself.
 
 	SetVariantInt(RepairAmount);
 	AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
