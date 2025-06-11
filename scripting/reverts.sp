@@ -439,7 +439,9 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer, 1);
 	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty", 1);
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death, 107 dmg at 1 hp", CLASSFLAG_SOLDIER, Wep_Pickaxe, 2);
+	ItemVariant(Wep_Pickaxe, "Reverted to pre-Hatless Update, merged back together, blocks healing, no mark-for-death, 113 dmg at 1 hp", 1);
+	ItemVariant(Wep_Pickaxe, "Reverted to release, merged back together, blocks healing, no mark-for-death, 162 dmg at 1 hp, one-shot unbuffed light classes when below 58 hp", 2);
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction, 1);
 	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus", 1);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
@@ -3275,7 +3277,12 @@ Action SDKHookCB_OnTakeDamage(
 					health_cur = GetClientHealth(attacker);
 					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
+					if(GetItemVariant(Wep_Pickaxe) == 1) // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
+					else if(GetItemVariant(Wep_Pickaxe) == 2) // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.74, 0.5));
+					else if(GetItemVariant(Wep_Pickaxe) == 3) // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 2.49, 0.5));
 
 					return Plugin_Changed;
 				}
