@@ -53,7 +53,7 @@
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons"
 
 #define PLUGIN_VERSION_NUM "2.0.0"
-// Add a OS suffix if VerdiusArcanas patches are used
+// Add a OS suffix if Memorypatch reverts are used
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
 // if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
 // compiled for the correct OS.
@@ -225,30 +225,28 @@ MemoryPatch patch_RevertTraceReqDragonsFury_FinalJNZ;
 MemoryPatch patch_RevertTraceReqDragonsFury_NOP_JZ;
 #endif
 
-MemoryPatch patch_RevertFirstSecondDamageLossOnMiniguns;
-MemoryPatch patch_RevertFirstSecondAccuracyLossOnMiniguns;
-MemoryPatch patch_RevertWranglerShieldHealNerfOnWrenches;
-MemoryPatch patch_RevertWranglerShieldShellRefillNerfOnWrenches;
-MemoryPatch patch_RevertWranglerShieldRocketRefillNerfOnWrenches;
-MemoryPatch patch_RevertCozyCamperFlinch;
-MemoryPatch patch_RevertQuickFixUberCannotCapturePoint;
+MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
+MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
+MemoryPatch patch_RevertWrangler_WrenchRepair;
+MemoryPatch patch_RevertWrangler_WrenchRefillShells;
+MemoryPatch patch_RevertWrangler_WrenchRefillRockets;
+MemoryPatch patch_RevertCozyCamper_Flinch;
+MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 
-// =============== Dalokohs Bar ===========================
-MemoryPatch patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat;
-MemoryPatch patch_RevertDalokohsBar_MOV_400;
-
-MemoryPatch Patch_DroppedWeapon;
-
-float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for revert
-
+// Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
+MemoryPatch patch_RevertDalokohsBar_ChgFloatAddr; 
+// Changes a MOV to 400. Basically it's for setup of the function that deals with
+// Consuming Dalokohs bar.
+MemoryPatch patch_RevertDalokohsBar_ChgTo400;
+float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar revert
 // Address of our float to use for the MOVSS part of revert:
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
-// ========================================================
-
-Handle dhook_CTFAmmoPack_MakeHolidayPack;
 
 Handle sdkcall_AwardAchievement;
 DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+
+Handle dhook_CTFAmmoPack_MakeHolidayPack;
+MemoryPatch Patch_DroppedWeapon;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -589,9 +587,9 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	{
-		conf = LoadGameConfigFile("verdiusarcana_reverts");
+		conf = LoadGameConfigFile("memorypatch_reverts");
 
-		if (conf == null) SetFailState("Failed to load Verdius conf");
+		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
 
 		patch_RevertDisciplinaryAction =
 			MemoryPatch.CreateFromConf(conf,
@@ -602,7 +600,6 @@ public void OnPluginStart() {
 #endif
 #if defined WIN32
 		// Dragons fury need only one MemoryPatch on Windows.
-
 			patch_RevertTraceReqDragonsFury_NOP_JZ =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
@@ -623,31 +620,31 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
 #endif
-		patch_RevertFirstSecondDamageLossOnMiniguns =
+		patch_RevertMiniguns_RampupNerf_Dmg =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
-		patch_RevertFirstSecondAccuracyLossOnMiniguns =
+		patch_RevertMiniguns_RampupNerf_Spread =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetWeaponSpread_JumpOverCheck");
-		patch_RevertWranglerShieldHealNerfOnWrenches =
+		patch_RevertWrangler_WrenchRepair =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldHealRevert");
-		patch_RevertWranglerShieldShellRefillNerfOnWrenches =
+		patch_RevertWrangler_WrenchRefillShells =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert");
-		patch_RevertWranglerShieldRocketRefillNerfOnWrenches =
+		patch_RevertWrangler_WrenchRefillRockets =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
-		patch_RevertCozyCamperFlinch =
+		patch_RevertCozyCamper_Flinch =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
-		patch_RevertQuickFixUberCannotCapturePoint =
+		patch_RevertQuickFix_Uber_CannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
-		patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat =
+		patch_RevertDalokohsBar_ChgFloatAddr =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
-		patch_RevertDalokohsBar_MOV_400 =
+		patch_RevertDalokohsBar_ChgTo400 =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
@@ -681,15 +678,15 @@ public void OnPluginStart() {
 			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_FinalJNZ");
 #endif
 
-		if (!ValidateAndNullCheck(patch_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create patch_RevertFirstSecondDamageLossOnMiniguns");
-		if (!ValidateAndNullCheck(patch_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create patch_RevertFirstSecondAccuracyLossOnMiniguns");
-		if (!ValidateAndNullCheck(patch_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldHealNerfOnWrenches");
-		if (!ValidateAndNullCheck(patch_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldShellRefillNerfOnWrenches");
-		if (!ValidateAndNullCheck(patch_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldRocketRefillNerfOnWrenches");
-		if (!ValidateAndNullCheck(patch_RevertCozyCamperFlinch)) SetFailState("Failed to create patch_RevertCozyCamperFlinch");
-		if (!ValidateAndNullCheck(patch_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFixUberCannotCapturePoint");
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create patch_RevertDalokohsBar_MOV_400");
+		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
+		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRepair)) SetFailState("Failed to create patch_RevertWrangler_WrenchRepair");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillShells)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillShells");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillRockets)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillRockets");
+		if (!ValidateAndNullCheck(patch_RevertCozyCamper_Flinch)) SetFailState("Failed to create patch_RevertCozyCamper_Flinch");
+		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
@@ -820,49 +817,49 @@ void VerdiusTogglePatches(bool enable, int wep_enum) {
 		}
 		case Wep_Minigun: {
 			if (enable) {
-				patch_RevertFirstSecondDamageLossOnMiniguns.Enable();
-				patch_RevertFirstSecondAccuracyLossOnMiniguns.Enable();
+				patch_RevertMiniguns_RampupNerf_Dmg.Enable();
+				patch_RevertMiniguns_RampupNerf_Spread.Enable();
 			} else {
-				patch_RevertFirstSecondDamageLossOnMiniguns.Disable();
-				patch_RevertFirstSecondAccuracyLossOnMiniguns.Disable();
+				patch_RevertMiniguns_RampupNerf_Dmg.Disable();
+				patch_RevertMiniguns_RampupNerf_Spread.Disable();
 			}
 		}
 		case Wep_Wrangler: {
 			if (enable) {
-				patch_RevertWranglerShieldHealNerfOnWrenches.Enable();
-				patch_RevertWranglerShieldShellRefillNerfOnWrenches.Enable();
-				patch_RevertWranglerShieldRocketRefillNerfOnWrenches.Enable();
+				patch_RevertWrangler_WrenchRepair.Enable();
+				patch_RevertWrangler_WrenchRefillShells.Enable();
+				patch_RevertWrangler_WrenchRefillRockets.Enable();
 			} else {
-				patch_RevertWranglerShieldHealNerfOnWrenches.Disable();
-				patch_RevertWranglerShieldShellRefillNerfOnWrenches.Disable();
-				patch_RevertWranglerShieldRocketRefillNerfOnWrenches.Disable();
+				patch_RevertWrangler_WrenchRepair.Disable();
+				patch_RevertWrangler_WrenchRefillShells.Disable();
+				patch_RevertWrangler_WrenchRefillRockets.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
 			if (enable) {
-				patch_RevertCozyCamperFlinch.Enable();
+				patch_RevertCozyCamper_Flinch.Enable();
 			} else {
-				patch_RevertCozyCamperFlinch.Disable();
+				patch_RevertCozyCamper_Flinch.Disable();
 			}
 		}
 		case Wep_QuickFix: {
 			if (enable) {
-				patch_RevertQuickFixUberCannotCapturePoint.Enable();
+				patch_RevertQuickFix_Uber_CannotCapturePoint.Enable();
 			} else {
-				patch_RevertQuickFixUberCannotCapturePoint.Disable();
+				patch_RevertQuickFix_Uber_CannotCapturePoint.Disable();
 			}
 		}
 		case Wep_Dalokoh: {
 			if (enable) {
-				patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Enable();
-				patch_RevertDalokohsBar_MOV_400.Enable();
+				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
+				patch_RevertDalokohsBar_ChgTo400.Enable();
 
 				// Due to it being a MOVSS instruction that needs
 				// a Address instead of values, there's some extra steps to be done in here:
-				StoreToAddress(patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
+				StoreToAddress(patch_RevertDalokohsBar_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
 			} else {
-				patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
-				patch_RevertDalokohsBar_MOV_400.Disable();
+				patch_RevertDalokohsBar_ChgFloatAddr.Disable();
+				patch_RevertDalokohsBar_ChgTo400.Disable();
 			}
 		}
 	}
