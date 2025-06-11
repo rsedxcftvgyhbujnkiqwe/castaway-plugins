@@ -12,12 +12,12 @@
 	To disable all memory patches, comment out/remove the following line:
  v v v v v v v v v v v
 */
-#define VERDIUS_PATCHES
+#define MEMORY_PATCHES
 /*
 	Alternatively, you can pass NO_MEMPATCHES= as a parameter to spcomp.
 */
-#if defined NO_MEMPATCHES && defined VERDIUS_PATCHES
-#undef VERDIUS_PATCHES
+#if defined NO_MEMPATCHES && defined MEMORY_PATCHES
+#undef MEMORY_PATCHES
 #endif
 
 //#define WIN32
@@ -57,7 +57,7 @@
 // so it becomes easier to for server owners to judge if they simply ran the wrong compiled .smx on their server
 // if they encounter issues. To server owners, before you raise hell, do: sm plugins list and check that you
 // compiled for the correct OS.
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 #if defined WIN32
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-win32"
 #else
@@ -204,8 +204,8 @@ ConVar cvar_ref_tf_fireball_radius;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
-#if defined VERDIUS_PATCHES
-MemoryPatch Verdius_RevertDisciplinaryAction;
+#if defined MEMORY_PATCHES
+MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
 #if defined WIN32
 float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
@@ -216,27 +216,27 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 // The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
 // Check if we are compiling for Linux, if not then use the Windows one.
 #if !defined WIN32
-MemoryPatch Verdius_RevertTraceReqDragonsFury_JA;
-MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ;
-MemoryPatch Verdius_RevertTraceReqDragonsFury_JZ;
-MemoryPatch Verdius_RevertTraceReqDragonsFury_JNZ2;
-MemoryPatch Verdius_RevertTraceReqDragonsFury_FinalJNZ;
+MemoryPatch patch_RevertTraceReqDragonsFury_JA;
+MemoryPatch patch_RevertTraceReqDragonsFury_JNZ;
+MemoryPatch patch_RevertTraceReqDragonsFury_JZ;
+MemoryPatch patch_RevertTraceReqDragonsFury_JNZ2;
+MemoryPatch patch_RevertTraceReqDragonsFury_FinalJNZ;
 #else
 // Dragons Fury Memorypatch for Windows.
-MemoryPatch Verdius_RevertTraceReqDragonsFury_NOP_JZ;
+MemoryPatch patch_RevertTraceReqDragonsFury_NOP_JZ;
 #endif
 
-MemoryPatch Verdius_RevertFirstSecondDamageLossOnMiniguns;
-MemoryPatch Verdius_RevertFirstSecondAccuracyLossOnMiniguns;
-MemoryPatch Verdius_RevertWranglerShieldHealNerfOnWrenches;
-MemoryPatch Verdius_RevertWranglerShieldShellRefillNerfOnWrenches;
-MemoryPatch Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches;
-MemoryPatch Verdius_RevertCozyCamperFlinch;
-MemoryPatch Verdius_RevertQuickFixUberCannotCapturePoint;
+MemoryPatch patch_RevertFirstSecondDamageLossOnMiniguns;
+MemoryPatch patch_RevertFirstSecondAccuracyLossOnMiniguns;
+MemoryPatch patch_RevertWranglerShieldHealNerfOnWrenches;
+MemoryPatch patch_RevertWranglerShieldShellRefillNerfOnWrenches;
+MemoryPatch patch_RevertWranglerShieldRocketRefillNerfOnWrenches;
+MemoryPatch patch_RevertCozyCamperFlinch;
+MemoryPatch patch_RevertQuickFixUberCannotCapturePoint;
 
 // =============== Dalokohs Bar ===========================
-MemoryPatch Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat;
-MemoryPatch Verdius_RevertDalokohsBar_MOV_400;
+MemoryPatch patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat;
+MemoryPatch patch_RevertDalokohsBar_MOV_400;
 
 MemoryPatch Patch_DroppedWeapon;
 
@@ -398,7 +398,7 @@ public void OnPluginStart() {
 
 	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
 	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER, Wep_Airstrike);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY, Wep_Minigun);
 #endif
 	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy switch speed penalties", CLASSFLAG_DEMOMAN, Wep_Sword);
@@ -421,21 +421,21 @@ public void OnPluginStart() {
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
 	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT, Wep_CritCola);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
 	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity");
 	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, 65% faster weapon switch, -10% dmg & -25% afterburn dmg penalties", CLASSFLAG_PYRO, Wep_Degreaser);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #endif
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO, Wep_DragonFury);
 #else
 	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
@@ -468,14 +468,14 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20% melee vuln while active");	
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit");
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
 	ItemDefine("Quickiebomb Launcher", "quickiebomb", "Reverted to toughbreak, max charge time decreased by 50%, up to +25% damage based on charge, -25% clip size, stickies fizzle 4 seconds after landing", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER, Wep_Razorback);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
 	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
@@ -505,7 +505,7 @@ public void OnPluginStart() {
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second dying", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
 	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY, Wep_EternalReward);
@@ -550,7 +550,7 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	HookEvent("server_cvar", OnServerCvarChanged, EventHookMode_Pre);
 #endif
 
@@ -593,13 +593,13 @@ public void OnPluginStart() {
 		delete conf;
 	}
 
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	{
 		conf = LoadGameConfigFile("verdiusarcana_reverts");
 
 		if (conf == null) SetFailState("Failed to load Verdius conf");
 
-		Verdius_RevertDisciplinaryAction =
+		patch_RevertDisciplinaryAction =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
 #if defined WIN32
@@ -609,51 +609,51 @@ public void OnPluginStart() {
 #if defined WIN32
 		// Dragons fury need only one MemoryPatch on Windows.
 
-			Verdius_RevertTraceReqDragonsFury_NOP_JZ =
+			patch_RevertTraceReqDragonsFury_NOP_JZ =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
 #else
-		Verdius_RevertTraceReqDragonsFury_JA =
+		patch_RevertTraceReqDragonsFury_JA =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
-		Verdius_RevertTraceReqDragonsFury_JNZ =
+		patch_RevertTraceReqDragonsFury_JNZ =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ");
-		Verdius_RevertTraceReqDragonsFury_JZ =
+		patch_RevertTraceReqDragonsFury_JZ =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ");
-		Verdius_RevertTraceReqDragonsFury_JNZ2 =
+		patch_RevertTraceReqDragonsFury_JNZ2 =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second");
-		Verdius_RevertTraceReqDragonsFury_FinalJNZ =
+		patch_RevertTraceReqDragonsFury_FinalJNZ =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
 #endif
-		Verdius_RevertFirstSecondDamageLossOnMiniguns =
+		patch_RevertFirstSecondDamageLossOnMiniguns =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
-		Verdius_RevertFirstSecondAccuracyLossOnMiniguns =
+		patch_RevertFirstSecondAccuracyLossOnMiniguns =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetWeaponSpread_JumpOverCheck");
-		Verdius_RevertWranglerShieldHealNerfOnWrenches =
+		patch_RevertWranglerShieldHealNerfOnWrenches =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldHealRevert");
-		Verdius_RevertWranglerShieldShellRefillNerfOnWrenches =
+		patch_RevertWranglerShieldShellRefillNerfOnWrenches =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert");
-		Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches =
+		patch_RevertWranglerShieldRocketRefillNerfOnWrenches =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
-		Verdius_RevertCozyCamperFlinch =
+		patch_RevertCozyCamperFlinch =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
-		Verdius_RevertQuickFixUberCannotCapturePoint =
+		patch_RevertQuickFixUberCannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
-		Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat =
+		patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
-		Verdius_RevertDalokohsBar_MOV_400 =
+		patch_RevertDalokohsBar_MOV_400 =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
@@ -674,28 +674,28 @@ public void OnPluginStart() {
 		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, true, PostHealingBoltImpact);
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
-		if (!ValidateAndNullCheck(Verdius_RevertDisciplinaryAction)) SetFailState("Failed to create Verdius_RevertDisciplinaryAction");
+		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
 
 		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
 #if defined WIN32
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_NOP_JZ");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_NOP_JZ");
 #else
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JA");
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ");
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JZ");
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_JNZ2");
-			if (!ValidateAndNullCheck(Verdius_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create Verdius_RevertTraceReqDragonsFury_FinalJNZ");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JA");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JZ");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ2");
+			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_FinalJNZ");
 #endif
 
-		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondDamageLossOnMiniguns");
-		if (!ValidateAndNullCheck(Verdius_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create Verdius_RevertFirstSecondAccuracyLossOnMiniguns");
-		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldHealNerfOnWrenches");
-		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldShellRefillNerfOnWrenches");
-		if (!ValidateAndNullCheck(Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches");
-		if (!ValidateAndNullCheck(Verdius_RevertCozyCamperFlinch)) SetFailState("Failed to create Verdius_RevertCozyCamperFlinch");
-		if (!ValidateAndNullCheck(Verdius_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create Verdius_RevertQuickFixUberCannotCapturePoint");
-		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
-		if (!ValidateAndNullCheck(Verdius_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create Verdius_RevertDalokohsBar_MOV_400");
+		if (!ValidateAndNullCheck(patch_RevertFirstSecondDamageLossOnMiniguns)) SetFailState("Failed to create patch_RevertFirstSecondDamageLossOnMiniguns");
+		if (!ValidateAndNullCheck(patch_RevertFirstSecondAccuracyLossOnMiniguns)) SetFailState("Failed to create patch_RevertFirstSecondAccuracyLossOnMiniguns");
+		if (!ValidateAndNullCheck(patch_RevertWranglerShieldHealNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldHealNerfOnWrenches");
+		if (!ValidateAndNullCheck(patch_RevertWranglerShieldShellRefillNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldShellRefillNerfOnWrenches");
+		if (!ValidateAndNullCheck(patch_RevertWranglerShieldRocketRefillNerfOnWrenches)) SetFailState("Failed to create patch_RevertWranglerShieldRocketRefillNerfOnWrenches");
+		if (!ValidateAndNullCheck(patch_RevertCozyCamperFlinch)) SetFailState("Failed to create patch_RevertCozyCamperFlinch");
+		if (!ValidateAndNullCheck(patch_RevertQuickFixUberCannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFixUberCannotCapturePoint");
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat)) SetFailState("Failed to create patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat");
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_MOV_400)) SetFailState("Failed to create patch_RevertDalokohsBar_MOV_400");
 		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
@@ -751,7 +751,7 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 }
 
 public void OnConfigsExecuted() {
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	VerdiusTogglePatches(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	VerdiusTogglePatches(ItemIsEnabled(Wep_Minigun),Wep_Minigun);
@@ -763,7 +763,7 @@ public void OnConfigsExecuted() {
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 }
 
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 bool ValidateAndNullCheck(MemoryPatch patch) {
 	return (patch.Validate() && patch != null);
 }
@@ -791,84 +791,84 @@ void VerdiusTogglePatches(bool enable, int wep_enum) {
 		case Wep_Disciplinary: {
 			if (enable) {
 #if defined WIN32
-				Verdius_RevertDisciplinaryAction.Enable();
+				patch_RevertDisciplinaryAction.Enable();
 				// The Windows port of Disciplinary Action Revert requires a extra step.
-				StoreToAddress(Verdius_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
+				StoreToAddress(patch_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
 #else
-				Verdius_RevertDisciplinaryAction.Enable();
+				patch_RevertDisciplinaryAction.Enable();
 #endif
 			} else {
-				Verdius_RevertDisciplinaryAction.Disable();
+				patch_RevertDisciplinaryAction.Disable();
 			}
 		}
 		case Wep_DragonFury: {
 			if (enable) {
 #if defined WIN32
-				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Enable();
+				patch_RevertTraceReqDragonsFury_NOP_JZ.Enable();
 #else
-				Verdius_RevertTraceReqDragonsFury_JA.Enable();
-				Verdius_RevertTraceReqDragonsFury_JZ.Enable();
-				Verdius_RevertTraceReqDragonsFury_JNZ.Enable();
-				Verdius_RevertTraceReqDragonsFury_JNZ2.Enable();
-				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Enable();
+				patch_RevertTraceReqDragonsFury_JA.Enable();
+				patch_RevertTraceReqDragonsFury_JZ.Enable();
+				patch_RevertTraceReqDragonsFury_JNZ.Enable();
+				patch_RevertTraceReqDragonsFury_JNZ2.Enable();
+				patch_RevertTraceReqDragonsFury_FinalJNZ.Enable();
 #endif
 			} else {
 #if defined WIN32
-				Verdius_RevertTraceReqDragonsFury_NOP_JZ.Disable();
+				patch_RevertTraceReqDragonsFury_NOP_JZ.Disable();
 #else
-				Verdius_RevertTraceReqDragonsFury_JA.Disable();
-				Verdius_RevertTraceReqDragonsFury_JZ.Disable();
-				Verdius_RevertTraceReqDragonsFury_JNZ.Disable();
-				Verdius_RevertTraceReqDragonsFury_JNZ2.Disable();
-				Verdius_RevertTraceReqDragonsFury_FinalJNZ.Disable();
+				patch_RevertTraceReqDragonsFury_JA.Disable();
+				patch_RevertTraceReqDragonsFury_JZ.Disable();
+				patch_RevertTraceReqDragonsFury_JNZ.Disable();
+				patch_RevertTraceReqDragonsFury_JNZ2.Disable();
+				patch_RevertTraceReqDragonsFury_FinalJNZ.Disable();
 #endif
 			}
 		}
 		case Wep_Minigun: {
 			if (enable) {
-				Verdius_RevertFirstSecondDamageLossOnMiniguns.Enable();
-				Verdius_RevertFirstSecondAccuracyLossOnMiniguns.Enable();
+				patch_RevertFirstSecondDamageLossOnMiniguns.Enable();
+				patch_RevertFirstSecondAccuracyLossOnMiniguns.Enable();
 			} else {
-				Verdius_RevertFirstSecondDamageLossOnMiniguns.Disable();
-				Verdius_RevertFirstSecondAccuracyLossOnMiniguns.Disable();
+				patch_RevertFirstSecondDamageLossOnMiniguns.Disable();
+				patch_RevertFirstSecondAccuracyLossOnMiniguns.Disable();
 			}
 		}
 		case Wep_Wrangler: {
 			if (enable) {
-				Verdius_RevertWranglerShieldHealNerfOnWrenches.Enable();
-				Verdius_RevertWranglerShieldShellRefillNerfOnWrenches.Enable();
-				Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches.Enable();
+				patch_RevertWranglerShieldHealNerfOnWrenches.Enable();
+				patch_RevertWranglerShieldShellRefillNerfOnWrenches.Enable();
+				patch_RevertWranglerShieldRocketRefillNerfOnWrenches.Enable();
 			} else {
-				Verdius_RevertWranglerShieldHealNerfOnWrenches.Disable();
-				Verdius_RevertWranglerShieldShellRefillNerfOnWrenches.Disable();
-				Verdius_RevertWranglerShieldRocketRefillNerfOnWrenches.Disable();
+				patch_RevertWranglerShieldHealNerfOnWrenches.Disable();
+				patch_RevertWranglerShieldShellRefillNerfOnWrenches.Disable();
+				patch_RevertWranglerShieldRocketRefillNerfOnWrenches.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
 			if (enable) {
-				Verdius_RevertCozyCamperFlinch.Enable();
+				patch_RevertCozyCamperFlinch.Enable();
 			} else {
-				Verdius_RevertCozyCamperFlinch.Disable();
+				patch_RevertCozyCamperFlinch.Disable();
 			}
 		}
 		case Wep_QuickFix: {
 			if (enable) {
-				Verdius_RevertQuickFixUberCannotCapturePoint.Enable();
+				patch_RevertQuickFixUberCannotCapturePoint.Enable();
 			} else {
-				Verdius_RevertQuickFixUberCannotCapturePoint.Disable();
+				patch_RevertQuickFixUberCannotCapturePoint.Disable();
 			}
 		}
 		case Wep_Dalokoh: {
 			if (enable) {
-				Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Enable();
-				Verdius_RevertDalokohsBar_MOV_400.Enable();
+				patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Enable();
+				patch_RevertDalokohsBar_MOV_400.Enable();
 
 				// Due to it being a MOVSS instruction that needs
 				// a Address instead of values, there's some extra steps to be done in here:
-				StoreToAddress(Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
+				StoreToAddress(patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
 			} else {
-				Verdius_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
-				Verdius_RevertDalokohsBar_MOV_400.Disable();
+				patch_RevertDalokohsBar_MOVSS_ChangeAddressTo_CustomDalokohsHPFloat.Disable();
+				patch_RevertDalokohsBar_MOV_400.Disable();
 			}
 		}
 	}
@@ -2168,7 +2168,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(item1, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
 			TF2Items_SetAttribute(item1, 3, 670, 0.50); // Max charge time decreased by 50%
 		}}		
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2411,7 +2411,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
 		attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 		// Just to ensure that if attacker is missing for some reason, that we still check the victim.
 		// Also check that wrangler revert is enabled.
 		if (
@@ -4214,7 +4214,7 @@ void ToggleLoadoutInfo(int client) {
 	}
 }
 
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 int HealBuilding(int buildingIndex, int engineerIndex) {
 	float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
 	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
@@ -4783,7 +4783,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-#if defined VERDIUS_PATCHES
+#if defined MEMORY_PATCHES
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 {
 	
