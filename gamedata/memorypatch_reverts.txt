@@ -139,18 +139,18 @@
 					"signature" "CTFWeaponBaseMelee::OnSwingHit"
 					"linux"
 					{
-						"offset"	"941"
-						"verify"	"\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
-						"patch"		"\x68\x00\x00\x40\x40" // Change it to push 3.0f
+						"offset"    "941"
+						"verify"    "\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
+						"patch"     "\x68\x00\x00\x40\x40" // Change it to push 3.0f
 					}
 					// Windows compiler turned it into something that points at a address instead
 					// of directly pushing the float value, so we prepare the windows version of the patch for
 					// a Address Of natives.
 					"windows"
 					{
-						"offset"	"1049"
-						"verify"	"\xD9\x05\x2A\x2A\x2A\x2A" // FLD instruction, address wildcarded.
-						"patch"		"\xD9\x05\x00\x00\x00\x00" // FLD instruction, 00x4 to prep for setup later in reverts.sp
+						"offset"    "1049"
+						"verify"    "\xD9\x05\x2A\x2A\x2A\x2A" // FLD instruction, address wildcarded.
+						"patch"     "\xD9\x05\x00\x00\x00\x00" // FLD instruction, 00x4 to prep for setup later in reverts.sp
 					}
 				}
 
@@ -173,9 +173,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2357"
-						"verify"	"\x77\x2A" // Verify that it is a Short JMP JA, wildcard the offset.
-						"patch"		"\x77\x22" // Short jump to the nearest LEAVE
+						"offset"    "2357"
+						"verify"    "\x77\x2A" // Verify that it is a Short JMP JA, wildcard the offset.
+						"patch"     "\x77\x22" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ"
@@ -183,9 +183,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2366"
-						"verify"	"\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"		"\x75\x19" // Short jump to the nearest LEAVE
+						"offset"    "2366"
+						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
+						"patch"     "\x75\x19" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ"
@@ -193,9 +193,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2375"
-						"verify"	"\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
-						"patch"		"\x74\x10" // Short jump to the nearest LEAVE
+						"offset"    "2375"
+						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
+						"patch"     "\x74\x10" // Short jump to the nearest LEAVE
 					}
 				}
 				// Windows exclusive patch for Dragons Fury
@@ -205,9 +205,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"windows"
 					{
-						"offset"	"1676"
-						"verify"	"\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
-						"patch"		"\x90\x90" // Yes really, for windows all we need to do is to nop 2 bytes and we are done. Just Lmfao.
+						"offset"    "1676"
+						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
+						"patch"     "\x90\x90" // Yes really, for windows all we need to do is to nop 2 bytes and we are done. Just Lmfao.
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second"
@@ -215,9 +215,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2389"
-						"verify"	"\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"		"\x75\x02" // Short jump to the nearest LEAVE
+						"offset"    "2389"
+						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
+						"patch"     "\x75\x02" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ"
@@ -225,9 +225,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2393"
-						"verify"	"\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
-						"patch"		"\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
+						"offset"    "2393"
+						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
+						"patch"     "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
 					}
 				}
 
@@ -250,9 +250,9 @@
 					"signature" "CTFMinigun::GetProjectileDamage"
 					"linux"
 					{
-						"offset"	"16"
-						"verify"	"\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"		"\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
+						"offset"    "16"
+						"verify"    "\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"     "\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
 					}
 
 					// Same shit as CTFMinigun::GetWeaponSpread go read the comments for that mess.
@@ -260,7 +260,7 @@
 				     {
 				        "offset"	"12"
 				        "verify"	"\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-				        "patch"		"\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
+				        "patch"     "\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
 				     }
 				}
 
@@ -277,15 +277,15 @@
 					"signature" "CTFLunchBox::ApplyBiteEffects"
 					"linux"
 					{
-						"offset"	"258"
-						"verify"	"\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A"
-						"patch"		"\xF3\x0F\x10\x0D\x90\x90\x90\x90"
+						"offset"    "258"
+						"verify"    "\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A"
+						"patch"     "\xF3\x0F\x10\x0D\x90\x90\x90\x90"
 					}
 					"windows"
 					{
-						"offset"	"210"
-						"verify"	"\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
-						"patch"		"\xF3\x0F\x10\x05\x90\x90\x90\x90"
+						"offset"    "210"
+						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
+						"patch"     "\xF3\x0F\x10\x05\x90\x90\x90\x90"
 					}
 				}
 				"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400"
@@ -293,15 +293,15 @@
 					"signature" "CTFLunchBox::ApplyBiteEffects"
 					"linux"
 					{
-						"offset"	"296"
-						"verify"	"\xB8\x5E\x01\x00\x00"
-						"patch"		"\xB8\x90\x01\x00\x00"
+						"offset"    "296"
+						"verify"    "\xB8\x5E\x01\x00\x00"
+						"patch"     "\xB8\x90\x01\x00\x00"
 					}
 					"windows"
 					{
-						"offset"	"227"
-						"verify"	"\xBF\x5E\x01\x00\x00"
-						"patch"		"\xBF\x90\x01\x00\x00"
+						"offset"    "227"
+						"verify"    "\xBF\x5E\x01\x00\x00"
+						"patch"     "\xBF\x90\x01\x00\x00"
 
 					}
 				}
@@ -311,9 +311,9 @@
 					"signature" "CTFMinigun::GetWeaponSpread"
 					"linux"
 					{
-						"offset"	"16"
-						"verify"	"\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"		"\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
+						"offset"    "16"
+						"verify"    "\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"     "\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
 					}
 					// Due to Windows pushing ESI but only popping it deep in the math soup,
 					// I had to write a custom early return to clean up and manually POP ESI,
@@ -324,9 +324,9 @@
 
 					"windows"
 					{
-						"offset"	"12"
-						"verify"	"\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"		"\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
+						"offset"    "12"
+						"verify"    "\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
+						"patch"     "\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
 					}	
 				}
 
@@ -344,15 +344,15 @@
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"592"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "592"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
-						"offset"	"93"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "93"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 				}
 				
@@ -362,15 +362,15 @@
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"708"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "708"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
-						"offset"	"379"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "379"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}	
 				}
 				
@@ -380,15 +380,15 @@
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"896"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "896"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
-						"offset"	"578"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "578"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}	
 				}
 
@@ -407,15 +407,15 @@
 					"signature" "CTFGameRules::PlayerMayCapturePoint"
 					"linux"
 					{
-						"offset"	"264"
-						"verify"	"\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards. There was no other way to do this better for Linux.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "264"
+						"verify"    "\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards. There was no other way to do this better for Linux.
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
-						"offset"	"92"
-						"verify"	"\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards, but not as horrible as Linux.
-						"patch"		"\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "92"
+						"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards, but not as horrible as Linux.
+						"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 				}
 
@@ -445,17 +445,17 @@
 					"signature" "CTFPlayer::ApplyPunchImpulseX"
 					"linux"
 					{
-						"offset"	"149"
-						"verify"	"\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // Verify that function preamble is there
-						"patch"		"\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP all of it, but fake AL to be true using 2 bytes.
+						"offset"    "149"
+						"verify"    "\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // Verify that function preamble is there
+						"patch"     "\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP all of it, but fake AL to be true using 2 bytes.
 					}
 					// Verify for windows is a bit shorter as all we need to do is replace the call instead of the entire function preamble
 					// with a MOV AL,1 (Fakes AL). Compilers are weird. 
 					"windows"
 					{
-						"offset"	"84"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // Verify that it is a CALL for a subroutine.
-						"patch"		"\xB0\x01\x90\x90\x90" // Same thing here, Fake AL to be true.
+						"offset"    "84"
+						"verify"    "\xE8\x2A\x2A\x2A\x2A" // Verify that it is a CALL for a subroutine.
+						"patch"     "\xB0\x01\x90\x90\x90" // Same thing here, Fake AL to be true.
 					}
 				}
 				
