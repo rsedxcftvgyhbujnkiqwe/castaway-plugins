@@ -227,10 +227,10 @@ MemoryPatch patch_RevertTraceReqDragonsFury_NOP_JZ;
 
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
-MemoryPatch patch_RevertWrangler_WrenchRepair;
-MemoryPatch patch_RevertWrangler_WrenchRefillShells;
-MemoryPatch patch_RevertWrangler_WrenchRefillRockets;
-MemoryPatch patch_RevertCozyCamper_Flinch;
+MemoryPatch patch_RevertWrangler_WrenchRepairNerf;
+MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Shells;
+MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
+MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 
 // Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
@@ -626,16 +626,16 @@ public void OnPluginStart() {
 		patch_RevertMiniguns_RampupNerf_Spread =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetWeaponSpread_JumpOverCheck");
-		patch_RevertWrangler_WrenchRepair =
+		patch_RevertWrangler_WrenchRepairNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldHealRevert");
-		patch_RevertWrangler_WrenchRefillShells =
+		patch_RevertWrangler_WrenchRefillNerf_Shells =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert");
-		patch_RevertWrangler_WrenchRefillRockets =
+		patch_RevertWrangler_WrenchRefillNerf_Rockets =
 			MemoryPatch.CreateFromConf(conf,
 			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
-		patch_RevertCozyCamper_Flinch =
+		patch_RevertCozyCamper_FlinchNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
 		patch_RevertQuickFix_Uber_CannotCapturePoint =
@@ -680,10 +680,10 @@ public void OnPluginStart() {
 
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
-		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRepair)) SetFailState("Failed to create patch_RevertWrangler_WrenchRepair");
-		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillShells)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillShells");
-		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillRockets)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillRockets");
-		if (!ValidateAndNullCheck(patch_RevertCozyCamper_Flinch)) SetFailState("Failed to create patch_RevertCozyCamper_Flinch");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRepairNerf)) SetFailState("Failed to create patch_RevertWrangler_WrenchRepairNerf");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillNerf_Shells)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillNerf_Shells");
+		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillNerf_Rockets)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillNerf_Rockets");
+		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) SetFailState("Failed to create patch_RevertCozyCamper_FlinchNerf");
 		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
@@ -826,20 +826,20 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_Wrangler: {
 			if (enable) {
-				patch_RevertWrangler_WrenchRepair.Enable();
-				patch_RevertWrangler_WrenchRefillShells.Enable();
-				patch_RevertWrangler_WrenchRefillRockets.Enable();
+				patch_RevertWrangler_WrenchRepairNerf.Enable();
+				patch_RevertWrangler_WrenchRefillNerf_Shells.Enable();
+				patch_RevertWrangler_WrenchRefillNerf_Rockets.Enable();
 			} else {
-				patch_RevertWrangler_WrenchRepair.Disable();
-				patch_RevertWrangler_WrenchRefillShells.Disable();
-				patch_RevertWrangler_WrenchRefillRockets.Disable();
+				patch_RevertWrangler_WrenchRepairNerf.Disable();
+				patch_RevertWrangler_WrenchRefillNerf_Shells.Disable();
+				patch_RevertWrangler_WrenchRefillNerf_Rockets.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
 			if (enable) {
-				patch_RevertCozyCamper_Flinch.Enable();
+				patch_RevertCozyCamper_FlinchNerf.Enable();
 			} else {
-				patch_RevertCozyCamper_Flinch.Disable();
+				patch_RevertCozyCamper_FlinchNerf.Disable();
 			}
 		}
 		case Wep_QuickFix: {
