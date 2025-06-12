@@ -34,13 +34,33 @@ public void OnPluginStart()
     //add custom color(s) to morecolors
     CCheckTrie();
     SetTrieValue(CTrie,"day9",0xFFA71A);
+    SetTrieValue(CTrie,"castawayblue",0x96D0F6);
 
     CreateTimer(480.0, Timer_SendAdvert,_,TIMER_REPEAT);
+    
+    HookEvent("teamplay_round_start",EventRoundStart,EventHookMode_PostNoCopy);
 }
 
 public Action Timer_SendAdvert(Handle timer)
 {
     message_counter = (++message_counter)%sizeof(ChatMessages)
     CPrintToChatAll("%s %s",MESSAGE_TAG,ChatMessages[message_counter])
+    return Plugin_Continue;
+}
+
+public Action EventRoundStart(Event event, const char[] name, bool dontbroadcast) {
+    int time = GetTime();
+
+    char day_str[2];
+    FormatTime(day_str,sizeof(day_str),"%d",time);
+    int day = StringToInt(day_str);
+
+    char month_str[2];
+    FormatTime(month_str,sizeof(month_str),"%m",time);
+    int month = StringToInt(month_str);
+
+    if(month==6 && day > 11 && day < 20) {
+        CPrintToChatAll("{castawayblue}Happy birthday Castaway!");
+    }
     return Plugin_Continue;
 }
