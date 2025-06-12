@@ -459,6 +459,8 @@ public void OnPluginStart() {
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range");
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits");
+	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 25% melee vuln while active");	
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit");
 #if defined VERDIUS_PATCHES
@@ -2080,9 +2082,32 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 1);
-			TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
-			// health bonus with overheal handled elsewhere
+
+			// health bonus with overheal for all variants handled elsewhere
+			// Pre-Gun Mettle Powerjack (pre-2015)
+			if(GetItemVariant(Wep_Powerjack) == 0) {
+				TF2Items_SetNumAttributes(item1, 1);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+			}
+
+			// Release Powerjack (2010)
+			else if(GetItemVariant(Wep_Powerjack) == 1) {
+				TF2Items_SetNumAttributes(item1, 5);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 2, 1.25); // add +25% damage bonus
+				TF2Items_SetAttribute(item1, 4, 15, 0.0); // no random crits mod
+			}
+
+			// Hatless Update Powerjack (2011 to 2013)
+			else if(GetItemVariant(Wep_Powerjack) == 2) {
+				TF2Items_SetNumAttributes(item1, 4);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 206, 1.20); // add +20% damage from melee sources while active 
+			}
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			item1 = TF2Items_CreateItem(0);
