@@ -32,7 +32,6 @@ public void OnPluginStart() {
 
 
 	cvar_temp_disable_forcestalemate = CreateConVar("sm_forcestalemate__tempdisable", "0", (PLUGIN_NAME ... " - Temporarily enable/disable forced stalemates (does not disable the plugin itself)."), _, true, 0.0, true, 1.0);
-	//cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	RegConsoleCmd("sm_forcestalemate__recheck", Command_RecheckExceptions, "Manually re-check forcestalemate exceptions.");
 	// Load the exceptions file
 	LoadExceptionsFile();
@@ -46,7 +45,7 @@ bool ValidateAndNullCheck(MemoryPatch patch) {
 public void OnMapStart() {
 	
 	bool result;
-	result = IsMapInExceptions(); // Check that current map is blacklisted.
+	result = IsMapInExceptions(); // Check if current map is blacklisted.
 	if (cvar_temp_disable_forcestalemate.BoolValue) {
 	patch_ForceAlways_StalemateOrOvertime.Disable();
 	PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
@@ -151,7 +150,7 @@ Action Command_RecheckExceptions(int client, int args)
     PrintToServer("[ForceStalemate] Reloaded Exceptions file! Rechecking exceptions...");
 
     bool result;
-	result = IsMapInExceptions(); // Check that current map is blacklisted.
+	result = IsMapInExceptions(); // Check if current map is blacklisted.
 	if (cvar_temp_disable_forcestalemate.BoolValue) {
 	patch_ForceAlways_StalemateOrOvertime.Disable();
 	PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
@@ -163,7 +162,7 @@ Action Command_RecheckExceptions(int client, int args)
  	else {
 		patch_ForceAlways_StalemateOrOvertime.Enable();
 	}
-    
+
     return Plugin_Handled;
 }
 
