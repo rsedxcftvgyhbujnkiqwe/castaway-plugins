@@ -2843,8 +2843,9 @@ Action OnSoundNormal(
 	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
-				(ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge]) ||
-				(ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner])
+				((ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge]) ||
+				(ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner])) &&
+				TF2_IsPlayerInCondition(idx, TFCond_Charging)
 			) {
 				char path[64];
 				float charge = GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter");
