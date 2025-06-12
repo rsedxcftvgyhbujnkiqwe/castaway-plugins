@@ -4525,12 +4525,17 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
-					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.	
+					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the reverted Steak buff is in effect. This happpens too with Vanilla.	
 					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
-						// Cap speed to 310.5 HU/s when speedboost on hit is active while under Steak buff for the Gun Mettle variant of the Eviction Notice
+						// Cap speed to 310.5 HU/s when speedboost on hit is active while under reverted Steak buff for the Gun Mettle variant of the Eviction Notice
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
 						return MRES_Override;
-					}						
+					}
+					else if ((index == 426) && (GetItemVariant(Wep_Eviction) == -1)) {
+						// Cap speed to 310.5 HU/s while under reverted Steak buff when using the vanilla Eviction Notice
+						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
+						return MRES_Override;
+					}				
 					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
