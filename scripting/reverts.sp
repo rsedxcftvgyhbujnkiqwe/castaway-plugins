@@ -460,7 +460,7 @@ public void OnPluginStart() {
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range");
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits");
 	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 25% melee vuln while active");	
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
