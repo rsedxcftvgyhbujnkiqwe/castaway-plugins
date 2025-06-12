@@ -3720,6 +3720,7 @@ public Action OnPlayerRunCmd(
 				{
 					if (
 						!players[client].player_jumped &&
+						GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 &&
 						GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 // don't reset if swimming
 					) {
 						SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
