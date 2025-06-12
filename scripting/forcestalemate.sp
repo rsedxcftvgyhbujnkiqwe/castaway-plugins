@@ -47,14 +47,15 @@ public void OnMapStart() {
 	
 	bool result;
 	result = IsMapInExceptions(); // Check that current map is blacklisted.
-	if (result) {
+	if (cvar_temp_disable_forcestalemate.BoolValue) {
+	patch_ForceAlways_StalemateOrOvertime.Disable();
+	PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
+	PrintToServer("[ForceStalemate] Don't forget to do \"sm_forcestalemate__tempdisable 0\" if you used tempdisable for testing.");
+	} else if (result) {
 		patch_ForceAlways_StalemateOrOvertime.Disable();
 		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled due to current map being blacklisted!");
-	} else if (cvar_temp_disable_forcestalemate.BoolValue) {
-		patch_ForceAlways_StalemateOrOvertime.Disable();
-		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
-		PrintToServer("[ForceStalemate] Don't forget to do \"sm_forcestalemate__tempdisable 0\" if you used tempdisable for testing.");	
-	} else {
+	}
+ 	else {
 		patch_ForceAlways_StalemateOrOvertime.Enable();
 	}
 }
@@ -147,7 +148,22 @@ Action Command_RecheckExceptions(int client, int args)
     }
 
     LoadExceptionsFile();
-    PrintToServer("[ForceStalemate] Reloaded Exceptions file! Any changes go into effect on next map start.");
+    PrintToServer("[ForceStalemate] Reloaded Exceptions file! Rechecking exceptions...");
+
+    bool result;
+	result = IsMapInExceptions(); // Check that current map is blacklisted.
+	if (cvar_temp_disable_forcestalemate.BoolValue) {
+	patch_ForceAlways_StalemateOrOvertime.Disable();
+	PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
+	PrintToServer("[ForceStalemate] Don't forget to do \"sm_forcestalemate__tempdisable 0\" if you used tempdisable for testing.");
+	} else if (result) {
+		patch_ForceAlways_StalemateOrOvertime.Disable();
+		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled due to current map being blacklisted!");
+	}
+ 	else {
+		patch_ForceAlways_StalemateOrOvertime.Enable();
+	}
+    
     return Plugin_Handled;
 }
 
