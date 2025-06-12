@@ -3741,12 +3741,14 @@ public Action OnPlayerRunCmd(
 				{
 					if (
 						!players[client].player_jumped &&
-						GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 &&
-						GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 // don't reset if swimming
+						GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0
 					) {
-						SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
-						// apply the following so movement gets reset immediately, maybe there's a better way
-						TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+						if (GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1) // don't reset if swimming
+						{
+							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
+							// apply the following so movement gets reset immediately, maybe there's a better way
+							TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+						}
 						players[client].player_jumped = true;
 					}
 				}
