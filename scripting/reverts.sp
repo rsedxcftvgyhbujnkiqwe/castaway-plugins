@@ -2839,7 +2839,7 @@ Action OnSoundNormal(
 		}
 	}
 
-	// cancel original shield bash sound, play it ourselves
+	// override shield bash sound for targe and turner at short range
 	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
