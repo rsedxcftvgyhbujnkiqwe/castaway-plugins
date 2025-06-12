@@ -176,6 +176,7 @@ enum struct Player {
 	int charge_tick;
 	int fall_dmg_tick;
 	int ticks_since_switch;
+	bool player_jumped;
 }
 
 //item sets
@@ -407,6 +408,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast");
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT, Wep_BabyFace);
+	ItemVariant(Wep_BabyFace, "Reverted to release, +40% accuracy, no clip penalty or boost loss on hit, -35% movespeed, -30% damage, -100% on jump");
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER, Wep_BlackBox);
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT, Wep_Bonk);
@@ -1515,6 +1517,7 @@ public void OnClientConnected(int client) {
 	players[client].medic_medigun_charge = 0.0;
 	players[client].parachute_cond_time = 0.0;
 	players[client].received_help_notice = false;
+	players[client].player_jumped = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
 		prev_player_weapons[client][i] = false;
@@ -1776,9 +1779,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 772: { if (ItemIsEnabled(Wep_BabyFace)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 419, 25.0); // hype resets on jump
-			TF2Items_SetAttribute(item1, 1, 733, 0.0); // lose hype on take damage
+			bool release = GetItemVariant(Wep_BabyFace) == 1;
+			TF2Items_SetNumAttributes(item1, release ? 6 : 2);
+			TF2Items_SetAttribute(item1, 0, 733, 0.0); // lose hype on take damage
+			if (release)
+			{
+				TF2Items_SetAttribute(item1, 1, 1, 0.70); // damage penalty
+				TF2Items_SetAttribute(item1, 2, 3, 1.00); // clip size penalty
+				TF2Items_SetAttribute(item1, 3, 54, 0.65); // move speed penalty
+				TF2Items_SetAttribute(item1, 4, 106, 0.60); // weapon spread bonus
+				TF2Items_SetAttribute(item1, 5, 419, 100.0); // hype resets on jump
+			}
+			else
+			{
+				TF2Items_SetAttribute(item1, 1, 419, 25.0); // hype resets on jump
+			}
 		}}
 		case 40, 1146: { if (ItemIsEnabled(Wep_Backburner)) {
 			item1 = TF2Items_CreateItem(0);
@@ -3710,6 +3725,39 @@ void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 	players[client].ticks_since_switch = 0;
 }
 
+public Action OnPlayerRunCmd(
+	int client, int& buttons, int& impulse, float vel[3], float angles[3],
+	int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2]
+) {
+	if (TF2_GetPlayerClass(client) == TFClass_Scout) {
+		if (
+			GetItemVariant(Wep_BabyFace) == 1 &&
+			player_weapons[client][Wep_BabyFace]
+		) {
+			// Release Baby Face's Blaster boost reset on jump
+			switch (buttons & IN_JUMP != 0)
+			{
+				case true:
+				{
+					if (!players[client].player_jumped)
+					{
+						SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
+						// apply the following so movement gets reset immediately, maybe there's a better way
+						TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+						players[client].player_jumped = true;
+					}
+				}
+				case false:
+				{
+					players[client].player_jumped = false;
+				}
+			}
+		}
+	}
+	
+	return Plugin_Continue;
+}
+
 Action Command_Menu(int client, int args) {
 	if (client > 0) {
 		if (cvar_enable.BoolValue) {
@@ -4428,22 +4476,34 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 }
 
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
+	MRESReturn return_val = MRES_Ignored;
 	if (
 		entity >= 1 &&
 		entity <= MaxClients &&
 		IsValidEntity(entity) &&
 		IsClientInGame(entity)
 	) {
-		if (
-			ItemIsEnabled(Wep_CritCola) &&
-			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
-			TF2_GetPlayerClass(entity) == TFClass_Scout &&
-			player_weapons[entity][Wep_CritCola]
-		)
-		{
-			// Crit-a-Cola speed boost.
-			returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
-			return MRES_Override;
+		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
+			if (
+				ItemIsEnabled(Wep_CritCola) &&
+				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+				player_weapons[entity][Wep_CritCola]
+			) {
+				// Crit-a-Cola speed boost.
+				returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
+				return_val = MRES_Override;
+			}
+
+			if (
+				GetItemVariant(Wep_BabyFace) == 1 &&
+				player_weapons[entity][Wep_BabyFace]
+			) {
+				// Release Baby Face's Blaster proper speed application.
+				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
+				float boost = GetEntPropFloat(entity, Prop_Send, "m_flHypeMeter");
+				returnValue.Value = view_as<float>(returnValue.Value) * ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);  
+				return_val = MRES_Override;
+			}
 		}
 
 		if (
@@ -4466,12 +4526,12 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
 					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
 					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
-					return MRES_Override;
+					return_val = MRES_Override;
 				}
 			}
 		}
 	}
-	return MRES_Ignored;
+	return return_val;
 }
 
 MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
