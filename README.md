@@ -1,7 +1,7 @@
 ## Introduction
 Repository for plugins used on [castaway.tf](https://castaway.tf/)
 
-Check out the [weapon reverts changelog here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/blob/master/RevertsChangelog.md).
+Check out the [weapon reverts changelog here](https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog).
 
 The only entirely custom plugins here are ones credited only to random (chat-adverts, etc.). Everything else is a plugin made by someone else. The credits for said plugins can be found unmodified at the top of each plugin's .sp file.
 
