@@ -407,8 +407,8 @@ public void OnPluginStart() {
 	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner);
 	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast");
 	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
-	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on jump", CLASSFLAG_SCOUT, Wep_BabyFace);
-	ItemVariant(Wep_BabyFace, "Reverted to release, +40% accuracy, no clip penalty or boost loss on hit, -35% movespeed, -30% damage, -100% on jump");
+	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on air jump", CLASSFLAG_SCOUT, Wep_BabyFace);
+	ItemVariant(Wep_BabyFace, "Reverted to release, +40% accuracy, no clip penalty or boost loss on hit, -35% movespeed, -30% damage, -100% on any jump");
 	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER, Wep_BlackBox);
 	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT, Wep_Bonk);
