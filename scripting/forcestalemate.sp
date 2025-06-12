@@ -52,8 +52,8 @@ public void OnMapStart() {
 		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled due to current map being blacklisted!");
 	} else if (cvar_temp_disable_forcestalemate.BoolValue) {
 		patch_ForceAlways_StalemateOrOvertime.Disable();
-		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled temporarily!");
-		PrintToServer("[ForceStalemate] Make sure you do \"sm_forcestalemate__tempdisable 0\" when you are done!");	
+		PrintToServer("[ForceStalemate] Forced stalemate on servertime end disabled for current map due to server command!");
+		PrintToServer("[ForceStalemate] Don't forget to do \"sm_forcestalemate__tempdisable 0\" if you used tempdisable for testing.");	
 	} else {
 		patch_ForceAlways_StalemateOrOvertime.Enable();
 	}
