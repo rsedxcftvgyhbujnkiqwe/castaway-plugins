@@ -445,6 +445,7 @@ public void OnPluginStart() {
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemVariant(Wep_GRU, "Reverted to pre-pyromania, no health drain, no mark-for-death, 50% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s");
 	ItemDefine("Gunboats", "gunboats", "Reverted to release, -75% blast damage from rocket jumps", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
@@ -1978,10 +1979,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 4);
-			TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
-			TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
-			TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
-			TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			if (GetItemVariant(Wep_GRU) == 0) {
+				// Pre-Tough Break version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
+				TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
+			if (GetItemVariant(Wep_GRU) == 1) {
+				// Pre-Pyromania version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.50); // 50% damage penalty
+				TF2Items_SetAttribute(item1, 1, 191, -6.0); // drain 6HP/s while actve; small knockback while active is supposed to happen (called GRU jumping)
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time is normal
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
 		}}
 		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
 			item1 = TF2Items_CreateItem(0);
