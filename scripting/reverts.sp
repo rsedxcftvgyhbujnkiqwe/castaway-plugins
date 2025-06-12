@@ -437,6 +437,7 @@ public void OnPluginStart() {
 	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
 	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
@@ -1909,11 +1910,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 460: { if (ItemIsEnabled(Wep_Enforcer)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 3);
-			TF2Items_SetAttribute(item1, 0, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
-			TF2Items_SetAttribute(item1, 1, 797, 0.0); // dmg pierces resists absorbs
-			TF2Items_SetAttribute(item1, 2, 2, 1.20); // 20% damage bonus
+			bool releaseVer = GetItemVariant(Wep_Enforcer) == 1;
+			TF2Items_SetNumAttributes(item1, releaseVer ? 6 : 3);
+			TF2Items_SetAttribute(item1, 0, 797, 0.0); // dmg pierces resists absorbs
+			TF2Items_SetAttribute(item1, 1, 2, 1.20); // 20% damage bonus
+			if (!releaseVer) TF2Items_SetAttribute(item1, 2, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
 			// When the Spy fires while disguised, he gives less damage to both players and buildings.
+			if (releaseVer) {
+				TF2Items_SetAttribute(item1, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
+				TF2Items_SetAttribute(item1, 3, 15, 1.0); // add back random crits; crit mod enabled 
+				TF2Items_SetAttribute(item1, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
+				TF2Items_SetAttribute(item1, 5, 410, 1.0); // remove damage bonus while disguised
+			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
 			item1 = TF2Items_CreateItem(0);
