@@ -440,6 +440,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus");
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
@@ -1947,9 +1948,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 852, 1.20); // dmg taken increased
-			TF2Items_SetAttribute(item1, 1, 855, 0.0); // mod maxhealth drain rate
+			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 1;
+			TF2Items_SetNumAttributes(item1, gunMettleVer ? 3 : 2);
+			TF2Items_SetAttribute(item1, 0, 855, 0.0); // mod maxhealth drain rate
+			if (!gunMettleVer) TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
+			if (gunMettleVer) {
+				TF2Items_SetAttribute(item1, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
+				TF2Items_SetAttribute(item1, 2, 6, 0.50); // set faster firing speed to +50%; 
+			}
+			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
 			item1 = TF2Items_CreateItem(0);
@@ -4451,13 +4458,20 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			{
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-				if (!(index == 239 || index == 1084 || index == 1100 || index == 426))
+				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
-					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
-					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
+					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.	
+					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+						// Cap speed to 310.5 HU/s when speedboost on hit is active while under Steak buff for the Gun Mettle variant of the Eviction Notice
+						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
+						return MRES_Override;
+					}						
+					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
+				
+			
 			}
 		}
 	}
