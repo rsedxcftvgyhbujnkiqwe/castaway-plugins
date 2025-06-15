@@ -437,7 +437,7 @@ public void OnPluginStart() {
 #else
 	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
-	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, +20% damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
 	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty");
 	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 hp", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemVariant(Wep_Pickaxe, "Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 hp");
