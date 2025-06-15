@@ -1448,6 +1448,7 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
+				players[idx].player_jumped = false;
 			}
 		}
 	}
@@ -1517,7 +1518,6 @@ public void OnClientConnected(int client) {
 	players[client].medic_medigun_charge = 0.0;
 	players[client].parachute_cond_time = 0.0;
 	players[client].received_help_notice = false;
-	players[client].player_jumped = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
 		prev_player_weapons[client][i] = false;
