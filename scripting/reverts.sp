@@ -316,6 +316,7 @@ enum
 	Wep_Cleaver, // Flying Guillotine	
 	Wep_MarketGardener,
 	Wep_GRU,
+	Wep_Gunboats,
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
@@ -327,6 +328,7 @@ enum
 	Wep_Pomson,
 	Wep_Powerjack,
 	Wep_QuickFix,
+	Wep_Quickiebomb,
 	Wep_Razorback,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
@@ -436,12 +438,18 @@ public void OnPluginStart() {
 #else
 	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
-	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Reverted to pre-Pyromania, merged back together, blocks healing, no mark-for-death", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, +20% damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty");
+	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 hp", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemVariant(Wep_Pickaxe, "Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 hp");
+	ItemVariant(Wep_Pickaxe, "Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max hp: 125 dmg at 58 hp, 150 dmg at 20 hp, 162 dmg at 1 hp");
 	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus");
 	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemVariant(Wep_GRU, "Reverted to pre-pyromania, no health drain, no mark-for-death, 50% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s");
+	ItemDefine("Gunboats", "gunboats", "Reverted to release, -75% blast damage from rocket jumps", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("Loch-n-Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad);
@@ -452,7 +460,10 @@ public void OnPluginStart() {
 	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range");
+	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits");
+	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20% melee vuln while active");	
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit");
 #if defined VERDIUS_PATCHES
@@ -460,6 +471,7 @@ public void OnPluginStart() {
 #else
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
+	ItemDefine("Quickiebomb Launcher", "quickiebomb", "Reverted to toughbreak, max charge time decreased by 50%, up to +25% damage based on charge, -25% clip size, stickies fizzle 4 seconds after landing", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER, Wep_Razorback);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
@@ -486,6 +498,7 @@ public void OnPluginStart() {
 	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_Tomislav, "Reverted to release, 75% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed");
 	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
@@ -1909,11 +1922,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 460: { if (ItemIsEnabled(Wep_Enforcer)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 3);
-			TF2Items_SetAttribute(item1, 0, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
-			TF2Items_SetAttribute(item1, 1, 797, 0.0); // dmg pierces resists absorbs
-			TF2Items_SetAttribute(item1, 2, 2, 1.20); // 20% damage bonus
+			bool releaseVer = GetItemVariant(Wep_Enforcer) == 1;
+			TF2Items_SetNumAttributes(item1, releaseVer ? 6 : 3);
+			TF2Items_SetAttribute(item1, 0, 797, 0.0); // dmg pierces resists absorbs
+			TF2Items_SetAttribute(item1, 1, 2, 1.20); // 20% damage bonus
+			if (!releaseVer) TF2Items_SetAttribute(item1, 2, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
 			// When the Spy fires while disguised, he gives less damage to both players and buildings.
+			if (releaseVer) {
+				TF2Items_SetAttribute(item1, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
+				TF2Items_SetAttribute(item1, 3, 15, 1.0); // add back random crits; crit mod enabled 
+				TF2Items_SetAttribute(item1, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
+				TF2Items_SetAttribute(item1, 5, 410, 1.0); // remove damage bonus while disguised
+			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
 			item1 = TF2Items_CreateItem(0);
@@ -1939,9 +1959,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 852, 1.20); // dmg taken increased
-			TF2Items_SetAttribute(item1, 1, 855, 0.0); // mod maxhealth drain rate
+			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 1;
+			TF2Items_SetNumAttributes(item1, gunMettleVer ? 3 : 2);
+			TF2Items_SetAttribute(item1, 0, 855, 0.0); // mod maxhealth drain rate
+			if (!gunMettleVer) TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
+			if (gunMettleVer) {
+				TF2Items_SetAttribute(item1, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
+				TF2Items_SetAttribute(item1, 2, 6, 0.50); // set faster firing speed to +50%; 
+			}
+			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
 			item1 = TF2Items_CreateItem(0);
@@ -1960,11 +1986,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
 			TF2Items_SetNumAttributes(item1, 4);
-			TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
-			TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
-			TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
-			TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			if (GetItemVariant(Wep_GRU) == 0) {
+				// Pre-Tough Break version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.75); // damage penalty
+				TF2Items_SetAttribute(item1, 1, 414, 3.0); // self mark for death
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time increased
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
+			if (GetItemVariant(Wep_GRU) == 1) {
+				// Pre-Pyromania version of the GRU
+				TF2Items_SetAttribute(item1, 0, 1, 0.50); // 50% damage penalty
+				TF2Items_SetAttribute(item1, 1, 191, -6.0); // drain 6HP/s while actve; small knockback while active is supposed to happen (called GRU jumping)
+				TF2Items_SetAttribute(item1, 2, 772, 1.0); // single wep holster time is normal
+				TF2Items_SetAttribute(item1, 3, 855, 0.0); // mod maxhealth drain rate
+			}
 		}}
+		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			TF2Items_SetNumAttributes(item1, 1);
+			TF2Items_SetAttribute(item1, 0, 135, 0.25); // -75% blast damage from rocket jumps
+		}}			
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
@@ -2035,12 +2077,42 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(item1, 0, 16, 7.0); // On Hit: Gain up to +7 health
 			}
 		}}
+		case 588: { if (ItemIsEnabled(Wep_Pomson)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = GetItemVariant(Wep_Pomson) == 1;
+			TF2Items_SetNumAttributes(item1, 1);
+			if(releaseVer) TF2Items_SetAttribute(item1, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+		}}		
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			TF2Items_SetNumAttributes(item1, 1);
-			TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
-			// health bonus with overheal handled elsewhere
+
+			// health bonus with overheal for all variants handled elsewhere
+			// Pre-Gun Mettle Powerjack (pre-2015)
+			if(GetItemVariant(Wep_Powerjack) == 0) {
+				TF2Items_SetNumAttributes(item1, 1);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+			}
+
+			// Release Powerjack (2010)
+			else if(GetItemVariant(Wep_Powerjack) == 1) {
+				TF2Items_SetNumAttributes(item1, 5);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 2, 1.25); // add +25% damage bonus
+				TF2Items_SetAttribute(item1, 4, 15, 0.0); // no random crits mod
+			}
+
+			// Hatless Update Powerjack (2011 to 2013)
+			else if(GetItemVariant(Wep_Powerjack) == 2) {
+				TF2Items_SetNumAttributes(item1, 4);
+				TF2Items_SetAttribute(item1, 0, 180, 0.0); // remove +25 hp on kill attribute
+				TF2Items_SetAttribute(item1, 1, 107, 1.00); // remove faster move speed on wearer while active
+				TF2Items_SetAttribute(item1, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
+				TF2Items_SetAttribute(item1, 3, 206, 1.20); // add +20% damage from melee sources while active 
+			}
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			item1 = TF2Items_CreateItem(0);
@@ -2072,6 +2144,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(item1, 1);
 			TF2Items_SetAttribute(item1, 0, 10, 1.25); // +25% ÜberCharge rate
 		}}
+		case 1150: { if (ItemIsEnabled(Wep_Quickiebomb)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			TF2Items_SetNumAttributes(item1, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
+			TF2Items_SetAttribute(item1, 0, 727, 1.25); // Up to +25% damage based on charge
+			TF2Items_SetAttribute(item1, 1, 3, 0.75); // -25% clip size
+			TF2Items_SetAttribute(item1, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
+			TF2Items_SetAttribute(item1, 3, 670, 0.50); // Max charge time decreased by 50%
+		}}		
 #if defined VERDIUS_PATCHES
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
 			item1 = TF2Items_CreateItem(0);
@@ -2184,8 +2265,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = GetItemVariant(Wep_Tomislav) == 1;
 			TF2Items_SetNumAttributes(item1, 2);
-			TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+			if (!releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
+			if (releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.25); // 75% minigun spinup time decreased; mult_minigun_spinup_time
 			TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
 			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 		}}
@@ -2581,6 +2664,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 214: player_weapons[client][Wep_Powerjack] = true;
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
+						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
@@ -2620,6 +2704,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
+					case 133: player_weapons[client][Wep_Gunboats] = true;
 					case 406: player_weapons[client][Wep_SplendidScreen] = true;
 					case 131, 1144: player_weapons[client][Wep_CharginTarge] = true;
 					case 1099: player_weapons[client][Wep_TideTurner] = true;
@@ -3228,7 +3313,12 @@ Action SDKHookCB_OnTakeDamage(
 					health_cur = GetClientHealth(attacker);
 					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
+					if(GetItemVariant(Wep_Pickaxe) == 0) // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
+					else if(GetItemVariant(Wep_Pickaxe) == 1) // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.75, 0.5));
+					else if(GetItemVariant(Wep_Pickaxe) == 2) // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 hp
+						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 2.50, 0.5));
 
 					return Plugin_Changed;
 				}
@@ -3527,8 +3617,12 @@ Action SDKHookCB_OnTakeDamage(
 								// there's a wall between the projectile and the target, cancel the hit
 								return Plugin_Stop;
 							}
-
-							if (StrEqual(class, "tf_weapon_raygun")) {
+							
+							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
+							if (
+								StrEqual(class, "tf_weapon_raygun") || 
+								(GetItemVariant(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson") && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
+							) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
 
@@ -4461,13 +4555,25 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			{
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-				if (!(index == 239 || index == 1084 || index == 1100 || index == 426))
+				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
-					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
-					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
+					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the reverted Steak buff is in effect. This happpens too with Vanilla.	
+					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+						// Cap speed to 310.5 HU/s when speedboost on hit is active while under reverted Steak buff for the Gun Mettle variant of the Eviction Notice
+						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
+						return MRES_Override;
+					}
+					else if ((index == 426) && (GetItemVariant(Wep_Eviction) == -1)) {
+						// Cap speed to 310.5 HU/s while under reverted Steak buff when using the vanilla Eviction Notice
+						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
+						return MRES_Override;
+					}				
+					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
+				
+			
 			}
 		}
 	}
