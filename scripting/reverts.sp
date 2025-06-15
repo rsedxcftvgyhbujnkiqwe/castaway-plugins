@@ -4489,14 +4489,14 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		IsClientInGame(entity)
 	) {
 		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
+			float multiplier = 1.0;
 			if (
 				ItemIsEnabled(Wep_CritCola) &&
 				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 				player_weapons[entity][Wep_CritCola]
 			) {
 				// Crit-a-Cola speed boost.
-				returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
-				return_val = MRES_Override;
+				multiplier *= 1.25;
 			}
 
 			if (
@@ -4506,7 +4506,12 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				// Release Baby Face's Blaster proper speed application.
 				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
 				float boost = GetEntPropFloat(entity, Prop_Send, "m_flHypeMeter");
-				returnValue.Value = view_as<float>(returnValue.Value) * ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);  
+				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
+			}
+
+			if (multiplier != 1.0)
+			{
+				returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
 				return_val = MRES_Override;
 			}
 		}
