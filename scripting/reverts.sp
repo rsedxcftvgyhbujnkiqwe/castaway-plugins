@@ -328,6 +328,7 @@ enum
 	Wep_Pomson,
 	Wep_Powerjack,
 	Wep_QuickFix,
+	Wep_Quickiebomb,
 	Wep_Razorback,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
@@ -470,6 +471,7 @@ public void OnPluginStart() {
 #else
 	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
+	ItemDefine("Quickiebomb Launcher", "quickiebomb", "Reverted to toughbreak, max charge time decreased by 50%, up to +25% damage based on charge, -25% clip size, stickies fizzle 4 seconds after landing", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER, Wep_Razorback);
 #if defined VERDIUS_PATCHES
 	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
@@ -2142,6 +2144,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(item1, 1);
 			TF2Items_SetAttribute(item1, 0, 10, 1.25); // +25% ÜberCharge rate
 		}}
+		case 1150: { if (ItemIsEnabled(Wep_Quickiebomb)) {
+			item1 = TF2Items_CreateItem(0);
+			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			TF2Items_SetNumAttributes(item1, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
+			TF2Items_SetAttribute(item1, 0, 727, 1.25); // Up to +25% damage based on charge
+			TF2Items_SetAttribute(item1, 1, 3, 0.75); // -25% clip size
+			TF2Items_SetAttribute(item1, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
+			TF2Items_SetAttribute(item1, 3, 670, 0.50); // Max charge time decreased by 50%
+		}}		
 #if defined VERDIUS_PATCHES
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
 			item1 = TF2Items_CreateItem(0);
@@ -2653,6 +2664,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 214: player_weapons[client][Wep_Powerjack] = true;
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
+						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
