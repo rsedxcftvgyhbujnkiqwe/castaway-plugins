@@ -38,6 +38,7 @@ bool g_bScrambleTeams;
 bool g_bCanScramble;
 bool g_bIsArena;
 bool g_bServerWaitingForPlayers;
+bool g_bScrambleTeamsInProgress;
 Handle g_tRoundResetTimer;
 
 public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast)
@@ -320,7 +321,14 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 
 public Action Timer_Scramble(Handle timer) {
 	PrintToChatAll("Scrambling the teams due to vote.");
+
+	Event scramble_team_alert = CreateEvent("teamplay_alert");
+	scramble_team_alert.SetInt("alert_type", 0);
+	scramble_team_alert.Fire();
+	
+	g_bScrambleTeamsInProgress = true;
 	ScrambleTeams();
+	g_bScrambleTeamsInProgress = false;
 	return Plugin_Continue;
 }
 

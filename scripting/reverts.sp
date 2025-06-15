@@ -872,8 +872,9 @@ void VerdiusTogglePatches(bool enable, int wep_enum) {
 #endif
 
 public void OnMapStart() {
-	PrecacheSound("misc/banana_slip.wav");
+	PrecacheSound("items/ammo_pickup.wav");
 	PrecacheSound("items/gunpickup2.wav");
+	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
 }
@@ -2911,6 +2912,25 @@ Action OnSoundNormal(
 		}
 	}
 
+	// override shield bash sound for targe and turner at short range
+	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
+		for (idx = 1; idx <= MaxClients; idx++) {
+			if (
+				((ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge]) ||
+				(ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner])) &&
+				TF2_IsPlayerInCondition(idx, TFCond_Charging)
+			) {
+				char path[64];
+				float charge = GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter");
+				if (charge > 40.0)
+				{
+					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
+					strcopy(sample, PLATFORM_MAX_PATH, path);
+					return Plugin_Changed;
+				}
+			}
+		}
+	}
 	return Plugin_Continue;
 }
 
@@ -3540,7 +3560,8 @@ Action SDKHookCB_OnTakeDamage(
 					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
 						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
 
-					// apply shield bash damage at the end of a charge, unless using splendid screen
+					// if using splendid screen, bash damage at any range
+					// other shields can only bash at the end of a charge
 					if (player_weapons[attacker][Wep_SplendidScreen] == false)
 					{
 						charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");

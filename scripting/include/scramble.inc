@@ -3,7 +3,6 @@
 #define BLU 3
 #define AUTOASSIGN 5
 
-bool g_bScrambleTeamsInProgress = false;
 int g_iTeamManagerRed;
 int g_iTeamManagerBlue;
 int g_iPlayerManager;
@@ -16,11 +15,6 @@ enum struct ScoreData
 
 void ScrambleTeams()
 {
-	g_bScrambleTeamsInProgress = true;
-	Event scramble_team_alert = CreateEvent("teamplay_alert");
-	scramble_team_alert.SetInt("alert_type", 0);
-	scramble_team_alert.Fire();
-
 	g_iPlayerManager = GetPlayerResourceEntity();
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "tf_team")) != -1)
@@ -111,8 +105,6 @@ void ScrambleTeams()
 	TF2_ResetTeamScore(BLU);
 
 	ForceRespawn();
-
-	g_bScrambleTeamsInProgress = false;
 
 	//reset setup timer
 	int timer = FindEntityByClassname(-1, "team_round_timer");
@@ -242,7 +234,7 @@ void ForceRespawn()
 	CreateTimer(0.1, Post_RespawnCommandRun, flags);
 }
 
-public Action Post_RespawnCommandRun(Handle timer, int flags) {
+Action Post_RespawnCommandRun(Handle timer, int flags) {
 	SetCommandFlags("mp_forcerespawnplayers", flags);
 	return Plugin_Continue;
 }
