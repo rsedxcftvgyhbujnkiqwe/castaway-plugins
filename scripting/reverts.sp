@@ -462,7 +462,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range");
 	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits");
-	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 25% melee vuln while active");	
+	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20% melee vuln while active");	
 	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit");
 #if defined VERDIUS_PATCHES
