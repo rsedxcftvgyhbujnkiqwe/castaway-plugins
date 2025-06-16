@@ -3744,8 +3744,9 @@ public Action OnPlayerRunCmd(
 						if (
 							GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
 							GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && // don't reset if swimming 
-							(buttons & IN_DUCK == 0) // don't reset if crouching,
-							// the attrib for reducing boost will reset it when air jumping while crouched
+							buttons & IN_DUCK == 0 && // don't reset if crouching
+							(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne
+							// the attrib for reducing boost will reset for air jumps
 						) {
 							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
 							// apply the following so movement gets reset immediately, maybe there's a better way
