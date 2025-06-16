@@ -4481,7 +4481,6 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 }
 
 MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
-	MRESReturn return_val = MRES_Ignored;
 	if (
 		entity >= 1 &&
 		entity <= MaxClients &&
@@ -4512,7 +4511,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			if (multiplier != 1.0)
 			{
 				returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
-				return_val = MRES_Override;
+				return MRES_Override;
 			}
 		}
 
@@ -4536,12 +4535,12 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
 					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the Steak buff is in effect. This happpens too with Vanilla.
 					returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
-					return_val = MRES_Override;
+					return MRES_Override;
 				}
 			}
 		}
 	}
-	return return_val;
+	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
