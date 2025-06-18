@@ -4029,8 +4029,9 @@ void ParticleShowSimple(char[] name, float position[3]) {
 /**
  * Define an item used for reverts.
  * 
- * @param key				Key of the item used for the cvar.
- * @param desc				Description of the item.
+ * @param key				Key for item used for the cvar and as the item name key in
+ * 							the translation file.
+ * @param desc				Key for description of the item in the translation file.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
  */
@@ -4045,7 +4046,7 @@ void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
  * Define an item variant.
  * 
  * @param wep_enum		Weapon enum.
- * @param desc			Description of the item variant.
+ * @param desc			Key for description of the item variant in the translation file.
  */
 void ItemVariant(int wep_enum, char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
