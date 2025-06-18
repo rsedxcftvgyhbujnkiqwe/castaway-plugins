@@ -4081,7 +4081,7 @@ void ItemFinalize() {
  * @return				True if an item revert is enabled on the server, false otherwise.
  */
 bool ItemIsEnabled(int wep_enum) {
-	return (cvar_enable.BoolValue && (items[wep_enum].cvar.IntValue >= 1));
+	return cvar_enable.BoolValue && items[wep_enum].cvar.IntValue >= 1;
 }
 
 /**
