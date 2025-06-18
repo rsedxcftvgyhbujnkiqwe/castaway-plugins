@@ -3857,21 +3857,23 @@ public Action OnPlayerRunCmd(
 }
 
 Action Command_Menu(int client, int args) {
-	if (client > 0) {
-		if (cvar_enable.BoolValue) {
-			menu_main.RemoveAllItems();
-			menu_main.SetTitle("%T", "REVERT_MENU_TITLE", client);
-			char localizedClassInfo[64], localizedInfo[64], localizedInfoToggle[64];
-			Format(localizedClassInfo, sizeof(localizedClassInfo), "%T", "REVERT_MENU_SHOW_CLASSINFO", client);
-			Format(localizedInfo, sizeof(localizedInfo), "%T", "REVERT_MENU_SHOW_ALL", client);
-			Format(localizedInfoToggle, sizeof(localizedInfoToggle), "%T", "REVERT_MENU_TOGGLE_LOADOUT_CHANGE", client);
-			menu_main.AddItem("classinfo", localizedClassInfo);
-			menu_main.AddItem("info", localizedInfo);
-			menu_main.AddItem("infotoggle", localizedInfoToggle);
-			menu_main.Display(client, ITEM_MENU_TIME);
-		} else {
-			ReplyToCommand(client, "[SM] %t", "REVERT_DISABLED_REVERTS_HINT");
-		}
+	if (client <= 0) {
+		return Plugin_Handled;
+	}
+
+	if (cvar_enable.BoolValue) {
+		menu_main.RemoveAllItems();
+		menu_main.SetTitle("%T", "REVERT_MENU_TITLE", client);
+		char localizedClassInfo[64], localizedInfo[64], localizedInfoToggle[64];
+		Format(localizedClassInfo, sizeof(localizedClassInfo), "%T", "REVERT_MENU_SHOW_CLASSINFO", client);
+		Format(localizedInfo, sizeof(localizedInfo), "%T", "REVERT_MENU_SHOW_ALL", client);
+		Format(localizedInfoToggle, sizeof(localizedInfoToggle), "%T", "REVERT_MENU_TOGGLE_LOADOUT_CHANGE", client);
+		menu_main.AddItem("classinfo", localizedClassInfo);
+		menu_main.AddItem("info", localizedInfo);
+		menu_main.AddItem("infotoggle", localizedInfoToggle);
+		menu_main.Display(client, ITEM_MENU_TIME);
+	} else {
+		ReplyToCommand(client, "[SM] %t", "REVERT_DISABLED_REVERTS_HINT");
 	}
 
 	return Plugin_Handled;
