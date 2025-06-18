@@ -51,7 +51,7 @@ jobs:
           mkdir artifact/translations
           mv scripting/compiled/*.smx artifact/plugins/
           mv gamedata/*.txt artifact/gamedata/
-          mv translations/*.txt artifact/translations
+          mv translations/* artifact/translations/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

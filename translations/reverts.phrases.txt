@@ -1,5 +1,109 @@
 "Phrases"
 {
+	// class names
+	"SCOUT"
+	{
+		"en"	"Scout"
+	}
+	"SNIPER"
+	{
+		"en"	"Sniper"
+	}
+	"SOLDIER"
+	{
+		"en"	"Soldier"
+	}
+	"DEMOMAN"
+	{
+		"en"	"Demoman"
+	}
+	"MEDIC"
+	{
+		"en"	"Medic"
+	}
+	"HEAVY"
+	{
+		"en"	"Heavy"
+	}
+	"PYRO"
+	{
+		"en"	"Pyro"
+	}
+	"SPY"
+	{
+		"en"	"Spy"
+	}
+	"ENGINEER"
+	{
+		"en"	"Engineer"
+	}
+
+	// ui
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"en"	"Weapon reverts enabled for your loadout:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"en"	"Disable these messages in the !revert menu or with !toggleinfo"
+	}
+	"REVERT_DISABLED_REVERTS_HINT"
+	{
+		"en"	"Weapon reverts are not enabled right now"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"en"	"Weapon revert details printed to console"
+	}
+	"REVERT_ENABLE_REVERT_HINT"
+	{
+		"en"	"Weapon reverts currently enabled on this server:"
+	}
+	"REVERT_EMPTY_REVERT"
+	{
+		"en"	"There's nothing here... for some reason, all item cvars are off"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"en"	"You need to be in a team to use this command"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"en"	"Your class needs to be valid to use this command"
+	}
+	"REVERT_ENABLED_CLASS_REVERT_HINT"
+	{
+		"en"	"Weapon reverts currently enabled for %t:"
+	}
+	"REVERT_EMPTY_CLASS_REVERT"
+	{
+		"en"	"There's nothing here... for some reason, all %t reverts are disabled"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"en"	"Enabled loadout change revert info. They will be shown the next time you change loadouts."
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"en"	"Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu."
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"en"	"Weapon Reverts"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"en"	"Show reverts for your current class"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"en"	"Show information about each revert"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"en"	"Toggle loadout change revert info"
+	}
+
 	// item names
 	"airblast"
 	{

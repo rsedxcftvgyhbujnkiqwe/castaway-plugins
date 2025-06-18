@@ -120,15 +120,15 @@ public Plugin myinfo = {
 #define CLASSFLAG_ENGINEER	(1<<8)
 
 char class_names[][] = {
-	"Scout",
-	"Sniper",
-	"Soldier",
-	"Demoman",
-	"Medic",
-	"Heavy",
-	"Pyro",
-	"Spy",
-	"Engineer"
+	"SCOUT",
+	"SNIPER",
+	"SOLDIER",
+	"DEMOMAN",
+	"MEDIC",
+	"HEAVY",
+	"PYRO",
+	"SPY",
+	"ENGINEER"
 };
 
 enum struct Item {
@@ -512,12 +512,8 @@ public void OnPluginStart() {
 	ItemDefine("eternal", "Eternal_0", CLASSFLAG_SPY, Wep_EternalReward);
 
 	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
-	SetMenuTitle(menu_main, "Weapon Reverts");
-	SetMenuPagination(menu_main, MENU_NO_PAGINATION);
-	SetMenuExitButton(menu_main, true);
-	AddMenuItem(menu_main, "classinfo", "Show reverts for your current class");
-	AddMenuItem(menu_main, "info", "Show information about each revert");
-	AddMenuItem(menu_main, "infotoggle", "Toggle loadout change revert info");
+	menu_main.Pagination = MENU_NO_PAGINATION;
+	menu_main.ExitButton = true;
 
 	ItemFinalize();
 
@@ -2855,13 +2851,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 				if(count) {
-					CPrintToChat(client, "{gold}Weapon reverts enabled for your loadout:");
+					CPrintToChat(client, "{gold}%t", "REVERT_LOADOUT_CHANGE_INIT");
 					for(int i = 0; i < count; i++) {
 						CPrintToChat(client, "%s", msg[i]);
 					}
 					//one time notice about disabling the help info
 					if (!players[client].received_help_notice) {
-						CPrintToChat(client,"{gold}Disable these messages in the !revert menu or with !toggleinfo");
+						CPrintToChat(client,"{gold}%t", "REVERT_LOADOUT_CHANGE_DISABLE_HINT");
 						players[client].received_help_notice = true;
 					}
 				}
@@ -3863,9 +3859,18 @@ public Action OnPlayerRunCmd(
 Action Command_Menu(int client, int args) {
 	if (client > 0) {
 		if (cvar_enable.BoolValue) {
+			menu_main.RemoveAllItems();
+			menu_main.SetTitle("%T", "REVERT_MENU_TITLE", client);
+			char localizedClassInfo[64], localizedInfo[64], localizedInfoToggle[64];
+			Format(localizedClassInfo, sizeof(localizedClassInfo), "%T", "REVERT_MENU_SHOW_CLASSINFO", client);
+			Format(localizedInfo, sizeof(localizedInfo), "%T", "REVERT_MENU_SHOW_ALL", client);
+			Format(localizedInfoToggle, sizeof(localizedInfoToggle), "%T", "REVERT_MENU_TOGGLE_LOADOUT_CHANGE", client);
+			menu_main.AddItem("classinfo", localizedClassInfo);
+			menu_main.AddItem("info", localizedInfo);
+			menu_main.AddItem("infotoggle", localizedInfoToggle);
 			DisplayMenu(menu_main, client, ITEM_MENU_TIME);
 		} else {
-			ReplyToCommand(client, "[SM] Weapon reverts are not enabled right now");
+			ReplyToCommand(client, "[SM] %t", "REVERT_DISABLED_REVERTS_HINT");
 		}
 	}
 
@@ -4131,10 +4136,10 @@ void ShowItemsDetails(int client) {
 		}
 	}
 
-	ReplyToCommand(client, "[SM] Weapon revert details printed to console");
+	ReplyToCommand(client, "[SM] %t", "REVERT_PRINT_TO_CONSOLE_HINT");
 
 	PrintToConsole(client, "\n");
-	PrintToConsole(client, "Weapon reverts currently enabled on this server:");
+	PrintToConsole(client, "%t", "REVERT_ENABLE_REVERT_HINT");
 
 	if (count > 0) {
 		for (idx = 0; idx < sizeof(msg); idx++) {
@@ -4143,7 +4148,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "There's nothing here... for some reason, all item cvars are off :\\");
+		PrintToConsole(client, "%t :\\", "REVERT_EMPTY_REVERT");
 	}
 
 	PrintToConsole(client, "");
@@ -4187,7 +4192,7 @@ void ShowClassReverts(int client) {
 		}
 	}
 
-	ReplyToCommand(client, "Weapon reverts currently enabled for %s:", class_names[class_idx]);
+	ReplyToCommand(client, "%t", "REVERT_ENABLED_CLASS_REVERT_HINT", class_names[class_idx]);
 
 	if (count > 0) {
 		for (idx = 0; idx < sizeof(msg); idx++) {
@@ -4196,7 +4201,7 @@ void ShowClassReverts(int client) {
 			}
 		}
 	} else {
-		CReplyToCommand(client, "{lightgreen}There's nothing here... for some reason, all %s reverts are disabled :\\", class_names[class_idx]);
+		CReplyToCommand(client, "{lightgreen}%t :\\", "REVERT_EMPTY_CLASS_REVERT", class_names[class_idx]);
 	}
 }
 
@@ -4205,9 +4210,9 @@ void ToggleLoadoutInfo(int client) {
 	{
 		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
 		if (config_value) {
-			ReplyToCommand(client, "Enabled loadout change revert info. They will be shown the next time you change loadouts.");
+			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_ENABLED");
 		} else {
-			ReplyToCommand(client, "Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu.");
+			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_DISABLED");
 		}
 		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
