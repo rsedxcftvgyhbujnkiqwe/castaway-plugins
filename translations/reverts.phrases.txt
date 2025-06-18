@@ -429,11 +429,11 @@
 	}
 	"Backburner_0"
 	{
-		"en"	"Reverted to Hatless update, 10% damage bonus"
+		"en"	"Reverted to Hatless update, 10%% damage bonus"
 	}
 	"Backburner_1"
 	{
-		"en"	"Reverted to 119th update, 20% damage bonus, no airblast"
+		"en"	"Reverted to 119th update, 20%% damage bonus, no airblast"
 	}
 	"BaseJumper_0"
 	{
@@ -441,11 +441,11 @@
 	}
 	"BabyFace_0"
 	{
-		"en"	"Reverted to pre-gunmettle, no boost loss on damage, only -25% on air jump"
+		"en"	"Reverted to pre-gunmettle, no boost loss on damage, only -25%% on air jump"
 	}
 	"BabyFace_1"
 	{
-		"en"	"Reverted to release, +40% accuracy, no clip penalty or boost loss on hit, -35% movespeed, -30% damage, -100% on any jump"
+		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, -100%% on any jump"
 	}
 	"Beggars_0"
 	{
@@ -465,19 +465,19 @@
 	}
 	"BrassBeast_0"
 	{
-		"en"	"Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
 	"Bushwacka_0"
 	{
-		"en"	"Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled"
+		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
 	}
 	"BuffaloSteak_0"
 	{
-		"en"	"Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed"
+		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and 10%% dmg vuln while buffed"
 	}
 	"Targe_0"
 	{
-		"en"	"Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal"
+		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal"
 	}
 	"Claidheamh_0"
 	{
@@ -493,7 +493,7 @@
 	}
 	"CritCola_0"
 	{
-		"en"	"Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack"
+		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"
 	}
 	"DalokohsBar_0"
 	{
@@ -501,7 +501,7 @@
 	}
 	"Darwin_0"
 	{
-		"en"	"Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists"
+		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (4.7%% against crit bullets), 20%% blast vuln, no fire resists"
 	}
 	"Darwin_1"
 	{
@@ -509,11 +509,11 @@
 	}
 	"Ringer_0"
 	{
-		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)"
+		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken)"
 	}
 	"Degreaser_0"
 	{
-		"en"	"Reverted to pre-toughbreak, 65% faster weapon switch, -10% dmg & -25% afterburn dmg penalties"
+		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties"
 	}
 	"Disciplinary_0"
 	{
@@ -529,11 +529,11 @@
 	}
 	"Enforcer_0"
 	{
-		"en"	"Reverted to pre-gunmettle, +20% damage bonus while undisguised, no piercing"
+		"en"	"Reverted to pre-gunmettle, +20%% damage bonus while undisguised, no piercing"
 	}
 	"Enforcer_1"
 	{
-		"en"	"Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty"
+		"en"	"Reverted to release, +20%% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty"
 	}
 	"Equalizer_0"
 	{
@@ -549,11 +549,11 @@
 	}
 	"Eviction_0"
 	{
-		"en"	"Reverted to pre-inferno, no health drain, +20% damage taken"
+		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
 	}
 	"Eviction_1"
 	{
-		"en"	"Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus"
+		"en"	"Reverted to gunmettle, +50%% faster firing speed, no 20%% dmg vuln, no health drain, no move speed bonus"
 	}
 	"FistSteel_0"
 	{
@@ -565,15 +565,15 @@
 	}
 	"GlovesRU_0"
 	{
-		"en"	"Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage"
+		"en"	"Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25%% damage"
 	}
 	"GlovesRU_1"
 	{
-		"en"	"Reverted to pre-pyromania, no health drain, no mark-for-death, 50% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s"
+		"en"	"Reverted to pre-pyromania, no health drain, no mark-for-death, 50%% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s"
 	}
 	"Gunboats_0"
 	{
-		"en"	"Reverted to release, -75% blast damage from rocket jumps"
+		"en"	"Reverted to release, -75%% blast damage from rocket jumps"
 	}
 	"Zatoichi_0"
 	{
@@ -581,19 +581,19 @@
 	}
 	"Liberty_0"
 	{
-		"en"	"Reverted to release, +40% projectile speed, -25% clip size"
+		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"
 	}
 	"LochLoad_0"
 	{
-		"en"	"Reverted to pre-gunmettle, +20% damage against everything"
+		"en"	"Reverted to pre-gunmettle, +20%% damage against everything"
 	}
 	"LochLoad_1"
 	{
-		"en"	"Reverted to pre-2014, +20% damage (15% variance), -50% clip, +25% self dmg, no radius penalty, grenades tumble"
+		"en"	"Reverted to pre-2014, +20%% damage (15%% variance), -50%% clip, +25%% self dmg, no radius penalty, grenades tumble"
 	}
 	"Cannon_0"
 	{
-		"en"	"Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts"
+		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 dmg impacts"
 	}
 	"Gardener_0"
 	{
@@ -601,7 +601,7 @@
 	}
 	"Natascha_0"
 	{
-		"en"	"Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
 	"Panic_0"
 	{
@@ -609,7 +609,7 @@
 	}
 	"Persuader_0"
 	{
-		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty"
+		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty"
 	}
 	"Pomson_0"
 	{
@@ -625,15 +625,15 @@
 	}
 	"Powerjack_1"
 	{
-		"en"	"Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits"
+		"en"	"Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25%% dmg bonus, no random crits"
 	}
 	"Powerjack_2"
 	{
-		"en"	"Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20% melee vuln while active"
+		"en"	"Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20%% melee vuln while active"
 	}
 	"Pocket_0"
 	{
-		"en"	"Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln"
+		"en"	"Reverted to release, +15 max health, fall damage immunity, 25%% slower fire rate, 50%% fire vuln"
 	}
 	"Pocket_1"
 	{
@@ -641,15 +641,15 @@
 	}
 	"Quickfix_0"
 	{
-		"en"	"Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered"
+		"en"	"Reverted to pre-toughbreak, +25%% uber build rate, can capture objectives when ubered"
 	}
 	"Quickfix_0_Patchless"
 	{
-		"en"	"Reverted to pre-matchmaking, +25% uber build rate"
+		"en"	"Reverted to pre-matchmaking, +25%% uber build rate"
 	}
 	"Quickiebomb_0"
 	{
-		"en"	"Reverted to toughbreak, max charge time decreased by 50%, up to +25% damage based on charge, -25% clip size, stickies fizzle 4 seconds after landing"
+		"en"	"Reverted to toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
 	}
 	"Razorback_0"
 	{
@@ -661,7 +661,7 @@
 	}
 	"Reserve_0"
 	{
-		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons"
+		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster switch for all weapons"
 	}
 	"Reserve_1"
 	{
@@ -721,7 +721,7 @@
 	}
 	"Splendid_0"
 	{
-		"en"	"Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
+		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
 	}
 	"SpyCicle_0"
 	{
@@ -741,19 +741,19 @@
 	}
 	"Turner_0"
 	{
-		"en"	"Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal"
+		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal"
 	}
 	"Tomislav_0"
 	{
-		"en"	"Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed"
+		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
 	}
 	"Tomislav_1"
 	{
-		"en"	"Reverted to release, 75% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed"
+		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
 	}
 	"TribalShiv_0"
 	{
-		"en"	"Reverted to release, 8 second bleed, 35% damage penalty"
+		"en"	"Reverted to release, 8 second bleed, 35%% damage penalty"
 	}
 	"Caber_0"
 	{
@@ -761,7 +761,7 @@
 	}
 	"VitaSaw_0"
 	{
-		"en"	"Reverted to pre-inferno, always preserves up to 20% uber on death"
+		"en"	"Reverted to pre-inferno, always preserves up to 20%% uber on death"
 	}
 	"Warrior_0"
 	{
