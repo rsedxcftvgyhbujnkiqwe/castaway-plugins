@@ -268,7 +268,6 @@ Player players[MAXPLAYERS+1];
 Entity entities[2048];
 int frame;
 Handle hudsync;
-Menu menu_main;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
@@ -510,10 +509,6 @@ public void OnPluginStart() {
 	ItemDefine("wrangler", "Wrangler_0", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
 	ItemDefine("eternal", "Eternal_0", CLASSFLAG_SPY, Wep_EternalReward);
-
-	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
-	menu_main.Pagination = MENU_NO_PAGINATION;
-	menu_main.ExitButton = true;
 
 	ItemFinalize();
 
@@ -3862,7 +3857,9 @@ Action Command_Menu(int client, int args) {
 	}
 
 	if (cvar_enable.BoolValue) {
-		menu_main.RemoveAllItems();
+		Menu menu_main = new Menu(MenuHandler_Main, MenuAction_Select);
+		menu_main.Pagination = MENU_NO_PAGINATION;
+		menu_main.ExitButton = true;
 		menu_main.SetTitle("%T", "REVERT_MENU_TITLE", client);
 		char localizedClassInfo[64], localizedInfo[64], localizedInfoToggle[64];
 		Format(localizedClassInfo, sizeof(localizedClassInfo), "%T", "REVERT_MENU_SHOW_CLASSINFO", client);
@@ -4097,10 +4094,9 @@ int GetItemVariant(int wep_enum) {
 }
 
 int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
-	char info[64];
-
-	if (menu == menu_main) {
-		if (action == MenuAction_Select) {
+	switch (action) {
+		case MenuAction_Select: {
+			char info[64];
 			GetMenuItem(menu, param2, info, sizeof(info));
 
 			if (StrEqual(info, "info")) {
@@ -4112,6 +4108,9 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 			else if (StrEqual(info, "infotoggle")) {
 				ToggleLoadoutInfo(param1);
 			}
+		}
+		case MenuAction_End: {
+			delete menu;
 		}
 	}
 
@@ -4141,7 +4140,7 @@ void ShowItemsDetails(int client) {
 	ReplyToCommand(client, "[SM] %t", "REVERT_PRINT_TO_CONSOLE_HINT");
 
 	PrintToConsole(client, "\n");
-	PrintToConsole(client, "%t", "REVERT_ENABLE_REVERT_HINT");
+	PrintToConsole(client, "%t", "REVERT_ENABLED_REVERT_HINT");
 
 	if (count > 0) {
 		for (idx = 0; idx < sizeof(msg); idx++) {

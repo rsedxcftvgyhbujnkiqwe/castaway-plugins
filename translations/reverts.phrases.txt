@@ -55,7 +55,7 @@
 	{
 		"en"	"Weapon revert details printed to console"
 	}
-	"REVERT_ENABLE_REVERT_HINT"
+	"REVERT_ENABLED_REVERT_HINT"
 	{
 		"en"	"Weapon reverts currently enabled on this server:"
 	}

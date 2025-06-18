@@ -56,7 +56,7 @@
 	{
 		"chi"	"武器回调信息已打印到控制台"
 	}
-	"REVERT_ENABLE_REVERT_HINT"
+	"REVERT_ENABLED_REVERT_HINT"
 	{
 		"chi"	"这个服务器上开启的武器回调:"
 	}
