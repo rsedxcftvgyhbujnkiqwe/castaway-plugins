@@ -38,6 +38,10 @@ gamedata/*
 !gamedata/legacy
 !gamedata/legacy/*
 
+!translations/
+translations/*
+!translations/reverts.phrases.txt
+
 !.github/
 .github/*
 !.github/workflows/

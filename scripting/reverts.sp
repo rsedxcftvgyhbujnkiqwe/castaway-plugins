@@ -119,7 +119,7 @@ public Plugin myinfo = {
 #define CLASSFLAG_SPY		(1<<7)
 #define CLASSFLAG_ENGINEER	(1<<8)
 
-char class_names[9][16] = {
+char class_names[][] = {
 	"Scout",
 	"Sniper",
 	"Soldier",
@@ -133,7 +133,6 @@ char class_names[9][16] = {
 
 enum struct Item {
 	char key[64];
-	char name[64];
 	int flags;
 	int num_variants;
 	ConVar cvar;
@@ -382,6 +381,8 @@ public void OnPluginStart() {
 
 	CCheckTrie();
 
+	LoadTranslations("reverts.phrases.txt");
+
 #if defined GIT_COMMIT
 	CreateConVar("sm_reverts__version", PLUGIN_VERSION_GIT, (PLUGIN_NAME ... " - Version"), (FCVAR_NOTIFY|FCVAR_DONTRECORD));
 #else
@@ -396,119 +397,119 @@ public void OnPluginStart() {
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
-	ItemDefine("Airblast", "airblast", "All flamethrowers' airblast mechanics are reverted to pre-inferno", CLASSFLAG_PYRO, Wep_Airblast);
-	ItemDefine("Air Strike", "airstrike", "Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping", CLASSFLAG_SOLDIER, Wep_Airstrike);
+	ItemDefine("airblast", "Airblast_0", CLASSFLAG_PYRO, Wep_Airblast);
+	ItemDefine("airstrike", "Airstrike_0", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined VERDIUS_PATCHES
-	ItemDefine("All Miniguns", "miniramp", "Reverted to pre-love&war, full damage and accuracy immediately on spinning up", CLASSFLAG_HEAVY, Wep_Minigun);
+	ItemDefine("miniramp", "Minigun_ramp_0", CLASSFLAG_HEAVY, Wep_Minigun);
 #endif
-	ItemDefine("All Swords", "swords", "Reverted to pre-toughbreak, no holster and deploy switch speed penalties", CLASSFLAG_DEMOMAN, Wep_Sword);
-	ItemDefine("Ambassador", "ambassador", "Reverted to pre-inferno, deals full headshot damage (102) at all ranges", CLASSFLAG_SPY, Wep_Ambassador);
-	ItemDefine("Atomizer", "atomizer", "Reverted to pre-inferno, can always triple jump, taking 10 damage each time", CLASSFLAG_SCOUT, Wep_Atomizer);
-	ItemDefine("Axtinguisher", "axtinguish", "Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill", CLASSFLAG_PYRO, Wep_Axtinguisher);
-	ItemVariant(Wep_Axtinguisher, "Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill");
-	ItemDefine("Backburner", "backburner", "Reverted to Hatless update, 10% damage bonus", CLASSFLAG_PYRO, Wep_Backburner);
-	ItemVariant(Wep_Backburner, "Reverted to 119th update, 20% damage bonus, no airblast");
-	ItemDefine("B.A.S.E. Jumper", "basejump", "Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
-	ItemDefine("Baby Face's Blaster", "babyface", "Reverted to pre-gunmettle, no boost loss on damage, only -25% on air jump", CLASSFLAG_SCOUT, Wep_BabyFace);
-	ItemVariant(Wep_BabyFace, "Reverted to release, +40% accuracy, no clip penalty or boost loss on hit, -35% movespeed, -30% damage, -100% on any jump");
-	ItemDefine("Beggar's Bazooka", "beggars", "Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip", CLASSFLAG_SOLDIER, Wep_Beggars);
-	ItemDefine("Black Box", "blackbox", "Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped", CLASSFLAG_SOLDIER, Wep_BlackBox);
-	ItemDefine("Bonk! Atomic Punch", "bonk", "Reverted to pre-inferno, no longer slows after the effect wears off", CLASSFLAG_SCOUT, Wep_Bonk);
-	ItemDefine("Booties & Bootlegger", "booties", "Reverted to pre-matchmaking, shield not required for speed bonus", CLASSFLAG_DEMOMAN, Wep_Booties);
-	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_BrassBeast);
-	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER, Wep_Bushwacka);
-	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
-	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
-	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
-	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemDefine("swords", "Swords_0", CLASSFLAG_DEMOMAN, Wep_Sword);
+	ItemDefine("ambassador", "Ambassador_0", CLASSFLAG_SPY, Wep_Ambassador);
+	ItemDefine("atomizer", "Atomizer_0", CLASSFLAG_SCOUT, Wep_Atomizer);
+	ItemDefine("axtinguish", "Axtinguisher_0", CLASSFLAG_PYRO, Wep_Axtinguisher);
+	ItemVariant(Wep_Axtinguisher, "Axtinguisher_1");
+	ItemDefine("backburner", "Backburner_0", CLASSFLAG_PYRO, Wep_Backburner);
+	ItemVariant(Wep_Backburner, "Backburner_1");
+	ItemDefine("basejump", "BaseJumper_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
+	ItemDefine("babyface", "BabyFace_0", CLASSFLAG_SCOUT, Wep_BabyFace);
+	ItemVariant(Wep_BabyFace, "BabyFace_1");
+	ItemDefine("beggars", "Beggars_0", CLASSFLAG_SOLDIER, Wep_Beggars);
+	ItemDefine("blackbox", "BlackBox_0", CLASSFLAG_SOLDIER, Wep_BlackBox);
+	ItemDefine("bonk", "Bonk_0", CLASSFLAG_SCOUT, Wep_Bonk);
+	ItemDefine("booties", "Booties_0", CLASSFLAG_DEMOMAN, Wep_Booties);
+	ItemDefine("brassbeast", "BrassBeast_0", CLASSFLAG_HEAVY, Wep_BrassBeast);
+	ItemDefine("bushwacka", "Bushwacka_0", CLASSFLAG_SNIPER, Wep_Bushwacka);
+	ItemDefine("buffalosteak", "BuffaloSteak_0", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemDefine("targe", "Targe_0", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
+	ItemDefine("claidheamh", "Claidheamh_0", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
+	ItemDefine("carbine", "Carbine_0", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Cozy Camper","cozycamper","Reverted to pre-matchmaking, flinch resist at any charge level", CLASSFLAG_SNIPER, Wep_CozyCamper);
+	ItemDefine("cozycamper","CozyCamper_0", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
-	ItemDefine("Crit-a-Cola", "critcola", "Reverted to pre-matchmaking, +25% movespeed, +10% damage taken, no mark-for-death on attack", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemDefine("critcola", "CritCola_0", CLASSFLAG_SCOUT, Wep_CritCola);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dalokohs Bar", "dalokohsbar", "Reverted to Gun Mettle update, can now overheal to 400 hp again", CLASSFLAG_HEAVY, Wep_Dalokoh);
+	ItemDefine("dalokohsbar", "DalokohsBar_0", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
-	ItemDefine("Darwin's Danger Shield", "darwin", "Reverted to pre-inferno, +25 max hp, 15% bullet resist (4.7% against crit bullets), 20% blast vuln, no fire resists", CLASSFLAG_SNIPER, Wep_Darwin);
-	ItemVariant(Wep_Darwin, "Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity");
-	ItemDefine("Dead Ringer", "ringer", "Reverted to pre-gunmettle, can pick up ammo, 90% dmg resist for up to 6.5s (reduced by dmg taken)", CLASSFLAG_SPY, Wep_DeadRinger);
-	ItemDefine("Degreaser", "degreaser", "Reverted to pre-toughbreak, 65% faster weapon switch, -10% dmg & -25% afterburn dmg penalties", CLASSFLAG_PYRO, Wep_Degreaser);
+	ItemDefine("darwin", "Darwin_0", CLASSFLAG_SNIPER, Wep_Darwin);
+	ItemVariant(Wep_Darwin, "Darwin_1");
+	ItemDefine("ringer", "Ringer_0", CLASSFLAG_SPY, Wep_DeadRinger);
+	ItemDefine("degreaser", "Degreaser_0", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Disciplinary Action", "disciplinary", "Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit", CLASSFLAG_SOLDIER, Wep_Disciplinary);
+	ItemDefine("disciplinary", "Disciplinary_0", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #endif
 #if defined VERDIUS_PATCHES
-	ItemDefine("Dragon's Fury", "dragonfury", "Reverted to release, increased projectile size and no center-hit requirement for bonus damage", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_0", CLASSFLAG_PYRO, Wep_DragonFury);
 #else
-	ItemDefine("Dragon's Fury", "dragonfury", "Partially reverted to release, increased projectile size", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_0_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
-	ItemDefine("Enforcer", "enforcer", "Reverted to pre-gunmettle, +20% damage bonus while undisguised, no piercing", CLASSFLAG_SPY, Wep_Enforcer);
-	ItemVariant(Wep_Enforcer, "Reverted to release, +20% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty");
-	ItemDefine("Equalizer & Escape Plan", "equalizer", "Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 hp", CLASSFLAG_SOLDIER, Wep_Pickaxe);
-	ItemVariant(Wep_Pickaxe, "Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 hp");
-	ItemVariant(Wep_Pickaxe, "Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max hp: 125 dmg at 58 hp, 150 dmg at 20 hp, 162 dmg at 1 hp");
-	ItemDefine("Eviction Notice", "eviction", "Reverted to pre-inferno, no health drain, +20% damage taken", CLASSFLAG_HEAVY, Wep_Eviction);
-	ItemVariant(Wep_Eviction, "Reverted to gunmettle, +50% faster firing speed, no 20% dmg vuln, no health drain, no move speed bonus");
-	ItemDefine("Fists of Steel", "fiststeel", "Reverted to pre-inferno, no healing penalties", CLASSFLAG_HEAVY, Wep_FistsSteel);
-	ItemDefine("Flying Guillotine", "guillotine", "Reverted to pre-inferno, stun crits, distance mini-crits, no recharge", CLASSFLAG_SCOUT, Wep_Cleaver);
-	ItemDefine("Gloves of Running Urgently", "glovesru", "Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25% damage", CLASSFLAG_HEAVY, Wep_GRU);
-	ItemVariant(Wep_GRU, "Reverted to pre-pyromania, no health drain, no mark-for-death, 50% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s");
-	ItemDefine("Gunboats", "gunboats", "Reverted to release, -75% blast damage from rocket jumps", CLASSFLAG_SOLDIER, Wep_Gunboats);
-	ItemDefine("Half-Zatoichi", "zatoichi", "Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
-	ItemDefine("Liberty Launcher", "liberty", "Reverted to release, +40% projectile speed, -25% clip size", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
-	ItemDefine("Loch-n-Load", "lochload", "Reverted to pre-gunmettle, +20% damage against everything", CLASSFLAG_DEMOMAN, Wep_LochLoad);
-	ItemVariant(Wep_LochLoad, "Reverted to pre-2014, +20% damage (15% variance), -50% clip, +25% self dmg, no radius penalty, grenades tumble");
-	ItemDefine("Loose Cannon", "cannon", "Reverted to pre-toughbreak, +50% projectile speed, constant 60 dmg impacts", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
-	ItemDefine("Market Gardener", "gardener", "Reverted to pre-toughbreak, no attack speed penalty", CLASSFLAG_SOLDIER, Wep_MarketGardener);
-	ItemDefine("Natascha", "natascha", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_Natascha);
-	ItemDefine("Panic Attack", "panic", "Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
-	ItemDefine("Persian Persuader", "persuader", "Reverted to pre-toughbreak, picks up ammo as health, +100% charge recharge rate, no max ammo penalty", CLASSFLAG_DEMOMAN, Wep_Persian);
-	ItemDefine("Pomson 6000", "pomson", "Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range", CLASSFLAG_ENGINEER, Wep_Pomson);
-	ItemVariant(Wep_Pomson, "Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range");
-	ItemDefine("Powerjack", "powerjack", "Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal", CLASSFLAG_PYRO, Wep_Powerjack);
-	ItemVariant(Wep_Powerjack, "Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25% dmg bonus, no random crits");
-	ItemVariant(Wep_Powerjack, "Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20% melee vuln while active");	
-	ItemDefine("Pretty Boy's Pocket Pistol", "pocket", "Reverted to release, +15 max health, fall damage immunity, 25% slower fire rate, 50% fire vuln", CLASSFLAG_SCOUT, Wep_PocketPistol);
-	ItemVariant(Wep_PocketPistol, "Reverted to pre-2018, gain up to +7 health on hit");
+	ItemDefine("enforcer", "Enforcer_0", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemVariant(Wep_Enforcer, "Enforcer_1");
+	ItemDefine("equalizer", "Equalizer_0", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemVariant(Wep_Pickaxe, "Equalizer_1");
+	ItemVariant(Wep_Pickaxe, "Equalizer_2");
+	ItemDefine("eviction", "Eviction_0", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemVariant(Wep_Eviction, "Eviction_1");
+	ItemDefine("fiststeel", "FistSteel_0", CLASSFLAG_HEAVY, Wep_FistsSteel);
+	ItemDefine("guillotine", "Guillotine_0", CLASSFLAG_SCOUT, Wep_Cleaver);
+	ItemDefine("glovesru", "GlovesRU_0", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemVariant(Wep_GRU, "GlovesRU_1");
+	ItemDefine("gunboats", "Gunboats_0", CLASSFLAG_SOLDIER, Wep_Gunboats);
+	ItemDefine("zatoichi", "Zatoichi_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("liberty", "Liberty_0", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
+	ItemDefine("lochload", "LochLoad_0", CLASSFLAG_DEMOMAN, Wep_LochLoad);
+	ItemVariant(Wep_LochLoad, "LochLoad_1");
+	ItemDefine("cannon", "Cannon_0", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+	ItemDefine("gardener", "Gardener_0", CLASSFLAG_SOLDIER, Wep_MarketGardener);
+	ItemDefine("natascha", "Natascha_0", CLASSFLAG_HEAVY, Wep_Natascha);
+	ItemDefine("panic", "Panic_0", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
+	ItemDefine("persuader", "Persuader_0", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemDefine("pomson", "Pomson_0", CLASSFLAG_ENGINEER, Wep_Pomson);
+	ItemVariant(Wep_Pomson, "Pomson_1");
+	ItemDefine("powerjack", "Powerjack_0", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemVariant(Wep_Powerjack, "Powerjack_1");
+	ItemVariant(Wep_Powerjack, "Powerjack_2");	
+	ItemDefine("pocket", "Pocket_0", CLASSFLAG_SCOUT, Wep_PocketPistol);
+	ItemVariant(Wep_PocketPistol, "Pocket_1");
 #if defined VERDIUS_PATCHES
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-toughbreak, +25% uber build rate, can capture objectives when ubered", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_0", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
-	ItemDefine("Quick-Fix", "quickfix", "Reverted to pre-matchmaking, +25% uber build rate", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_0_Patchless", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
-	ItemDefine("Quickiebomb Launcher", "quickiebomb", "Reverted to toughbreak, max charge time decreased by 50%, up to +25% damage based on charge, -25% clip size, stickies fizzle 4 seconds after landing", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
-	ItemDefine("Razorback","razorback","Reverted to pre-inferno, can be overhealed, shield does not regenerate", CLASSFLAG_SNIPER, Wep_Razorback);
+	ItemDefine("quickiebomb", "Quickiebomb_0", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
+	ItemDefine("razorback","Razorback_0", CLASSFLAG_SNIPER, Wep_Razorback);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Rescue Ranger", "rescueranger", "Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups", CLASSFLAG_ENGINEER, Wep_RescueRanger);
+	ItemDefine("rescueranger", "RescueRanger_0", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
-	ItemDefine("Reserve Shooter", "reserve", "Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15% faster switch for all weapons", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
-	ItemVariant(Wep_ReserveShooter, "Reverted to pre-inferno, deals minicrits to airblasted targets again");
-	ItemDefine("Righteous Bison", "bison", "Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemDefine("Rocket Jumper", "rocketjmp", "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt", CLASSFLAG_SOLDIER, Wep_RocketJumper);
-	ItemVariant(Wep_RocketJumper, "Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel");
-	ItemDefine("Saharan Spy", "saharan", "Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required", CLASSFLAG_SPY, Wep_Saharan);
-	ItemDefine("Sandman", "sandman", "Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time", CLASSFLAG_SCOUT, Wep_Sandman);
-	ItemDefine("Scottish Resistance", "scottish", "Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus", CLASSFLAG_DEMOMAN, Wep_Scottish);
-	ItemDefine("Short Circuit", "circuit", "Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
-	ItemVariant(Wep_ShortCircuit, "Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire");
-	ItemDefine("Shortstop", "shortstop", "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemVariant(Wep_Shortstop, "Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept");
-	ItemDefine("Soda Popper", "sodapop", "Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits", CLASSFLAG_SCOUT, Wep_SodaPopper);
-	ItemVariant(Wep_SodaPopper, "Reverted to pre-matchmaking, run to build hype");
-	ItemDefine("Solemn Vow", "solemn", "Reverted to pre-gunmettle, firing speed penalty removed", CLASSFLAG_MEDIC, Wep_Solemn);
-	ItemDefine("Splendid Screen", "splendid", "Reverted to pre-toughbreak, 15% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
-	ItemDefine("Spy-cicle", "spycicle", "Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources", CLASSFLAG_SPY, Wep_Spycicle);
-	ItemDefine("Sticky Jumper", "stkjumper", "Reverted to Pyromania update, can have 8 stickybombs out at once again", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
-	ItemVariant(Wep_StickyJumper, "Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel");
-	ItemDefine("Sydney Sleeper", "sleeper", "Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction", CLASSFLAG_SNIPER, Wep_SydneySleeper);
-	ItemDefine("Tide Turner", "turner", "Reverted to pre-toughbreak, can deal full crits, 25% blast and fire resist, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_TideTurner);
-	ItemDefine("Tomislav", "tomislav", "Reverted to pre-pyromania, 40% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed", CLASSFLAG_HEAVY, Wep_Tomislav);
-	ItemVariant(Wep_Tomislav, "Reverted to release, 75% faster spinup, no accuracy bonus, no barrel spin sound, 20% slower firing speed");
-	ItemDefine("Tribalman's Shiv", "tribalshiv", "Reverted to release, 8 second bleed, 35% damage penalty", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
-	ItemDefine("Ullapool Caber", "caber", "Reverted to pre-gunmettle, always deals 175+ damage on melee explosion", CLASSFLAG_DEMOMAN, Wep_Caber);
-	ItemDefine("Vita-Saw", "vitasaw", "Reverted to pre-inferno, always preserves up to 20% uber on death", CLASSFLAG_MEDIC, Wep_VitaSaw);
-	ItemDefine("Warrior's Spirit", "warrior", "Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
+	ItemDefine("reserve", "Reserve_0", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
+	ItemVariant(Wep_ReserveShooter, "Reserve_1");
+	ItemDefine("bison", "Bison_0", CLASSFLAG_SOLDIER, Wep_Bison);
+	ItemDefine("rocketjmp", "RocketJmp_0", CLASSFLAG_SOLDIER, Wep_RocketJumper);
+	ItemVariant(Wep_RocketJumper, "RocketJmp_1");
+	ItemDefine("saharan", "Saharan_0", CLASSFLAG_SPY, Wep_Saharan);
+	ItemDefine("sandman", "Sandman_0", CLASSFLAG_SCOUT, Wep_Sandman);
+	ItemDefine("scottish", "Scottish_0", CLASSFLAG_DEMOMAN, Wep_Scottish);
+	ItemDefine("circuit", "Circuit_0", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
+	ItemVariant(Wep_ShortCircuit, "Circuit_1");
+	ItemDefine("shortstop", "Shortstop_0", CLASSFLAG_SCOUT, Wep_Shortstop);
+	ItemVariant(Wep_Shortstop, "Shortstop_1");
+	ItemDefine("sodapop", "Sodapop_0", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemVariant(Wep_SodaPopper, "Sodapop_1");
+	ItemDefine("solemn", "Solemn_0", CLASSFLAG_MEDIC, Wep_Solemn);
+	ItemDefine("splendid", "Splendid_0", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
+	ItemDefine("spycicle", "SpyCicle_0", CLASSFLAG_SPY, Wep_Spycicle);
+	ItemDefine("stkjumper", "StkJumper_0", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
+	ItemVariant(Wep_StickyJumper, "StkJumper_1");
+	ItemDefine("sleeper", "Sleeper_0", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemDefine("turner", "Turner_0", CLASSFLAG_DEMOMAN, Wep_TideTurner);
+	ItemDefine("tomislav", "Tomislav_0", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_Tomislav, "Tomislav_1");
+	ItemDefine("tribalshiv", "TribalShiv_0", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
+	ItemDefine("caber", "Caber_0", CLASSFLAG_DEMOMAN, Wep_Caber);
+	ItemDefine("vitasaw", "VitaSaw_0", CLASSFLAG_MEDIC, Wep_VitaSaw);
+	ItemDefine("warrior", "Warrior_0", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined VERDIUS_PATCHES
-	ItemDefine("Wrangler", "wrangler", "Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second dying", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("wrangler", "Wrangler_0", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
-	ItemDefine("Your Eternal Reward", "eternal", "Reverted to pre-inferno, cannot disguise, no cloak drain penalty", CLASSFLAG_SPY, Wep_EternalReward);
+	ItemDefine("eternal", "Eternal_0", CLASSFLAG_SPY, Wep_EternalReward);
 
 	menu_main = CreateMenu(MenuHandler_Main, (MenuAction_Select));
 	SetMenuTitle(menu_main, "Weapon Reverts");
@@ -2848,7 +2849,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					) {
 						variant_idx = GetItemVariant(i);
 						if (variant_idx > -1) {
-							Format(msg[count], sizeof(msg[count]), "{gold}%s {lightgreen}- %s", items[i].name, items_desc[i][variant_idx]);
+							Format(msg[count], sizeof(msg[count]), "{gold}%T {lightgreen}- %T", items[i].key, client, items_desc[i][variant_idx], client);
 							count++;
 						}
 					}
@@ -4024,15 +4025,13 @@ void ParticleShowSimple(char[] name, float position[3]) {
 /**
  * Define an item used for reverts.
  * 
- * @param name				Name of the item.
  * @param key				Key of the item used for the cvar.
  * @param desc				Description of the item.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
  */
-void ItemDefine(char[] name, char[] key, char[] desc, int flags, int wep_enum) {
+void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
-	strcopy(items[wep_enum].name, sizeof(items[].name), name);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	items[wep_enum].num_variants = 0;
@@ -4064,7 +4063,7 @@ void ItemFinalize() {
 		}
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
-		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %s"), items[idx].name);
+		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
 
 		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 	}
@@ -4125,7 +4124,7 @@ void ShowItemsDetails(int client) {
 			if (ItemIsEnabled(idx)) {
 				variant_idx = GetItemVariant(idx);
 				if (variant_idx > -1) {
-					Format(msg[count], sizeof(msg[]), "%s - %s", items[idx].name, items_desc[idx][variant_idx]);
+					Format(msg[count], sizeof(msg[]), "%T - %T", items[idx].key, client, items_desc[idx][variant_idx], client);
 					count++;
 				}
 			}
@@ -4181,7 +4180,7 @@ void ShowClassReverts(int client) {
 				if (variant_idx > -1) {
 					if (items[idx].flags & (1 << class_idx) == 0)
 						continue;
-					Format(msg[count], sizeof(msg[]), "{gold}%s {lightgreen}- %s", items[idx].name, items_desc[idx][variant_idx]);
+					Format(msg[count], sizeof(msg[]), "{gold}%T {lightgreen}- %T", items[idx].key, client, items_desc[idx][variant_idx], client);
 					count++;
 				}
 			}
