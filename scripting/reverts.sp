@@ -3868,7 +3868,7 @@ Action Command_Menu(int client, int args) {
 			menu_main.AddItem("classinfo", localizedClassInfo);
 			menu_main.AddItem("info", localizedInfo);
 			menu_main.AddItem("infotoggle", localizedInfoToggle);
-			DisplayMenu(menu_main, client, ITEM_MENU_TIME);
+			menu_main.Display(client, ITEM_MENU_TIME);
 		} else {
 			ReplyToCommand(client, "[SM] %t", "REVERT_DISABLED_REVERTS_HINT");
 		}
