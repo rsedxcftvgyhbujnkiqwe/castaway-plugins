@@ -622,25 +622,25 @@ public void OnPluginStart() {
 #endif
 		patch_RevertMiniguns_RampupNerf_Dmg =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFMinigun::GetProjectileDamage_JumpOverCheck");
+			"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck");
 		patch_RevertMiniguns_RampupNerf_Spread =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFMinigun::GetWeaponSpread_JumpOverCheck");
+			"CTFMinigun::GetWeaponSpread_JumpOver1SecondCheck");
 		patch_RevertWrangler_WrenchRepairNerf =
 			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::OnWrenchHit_ShieldHealRevert");
+			"CObjectSentrygun::OnWrenchHit_ShieldPreNerfRepair");
 		patch_RevertWrangler_WrenchRefillNerf_Shells =
 			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert");
+			"CObjectSentrygun::OnWrenchHit_ShieldPreNerfShellRefill");
 		patch_RevertWrangler_WrenchRefillNerf_Rockets =
 			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert");
+			"CObjectSentrygun::OnWrenchHit_ShieldPreNerfRocketRefill");
 		patch_RevertCozyCamper_FlinchNerf =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue");
+			"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition");
 		patch_RevertQuickFix_Uber_CannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert");
+			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
 		patch_RevertDalokohsBar_ChgFloatAddr =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
