@@ -47,7 +47,7 @@
 	{
 		"en"	"Disable these messages in the !revert menu or with !toggleinfo"
 	}
-	"REVERT_DISABLED_REVERTS_HINT"
+	"REVERT_REVERTS_DISABLED"
 	{
 		"en"	"Weapon reverts are not enabled right now"
 	}
@@ -55,11 +55,11 @@
 	{
 		"en"	"Weapon revert details printed to console"
 	}
-	"REVERT_ENABLED_REVERT_HINT"
+	"REVERT_ENABLED_REVERTS_HINT"
 	{
 		"en"	"Weapon reverts currently enabled on this server:"
 	}
-	"REVERT_EMPTY_REVERT"
+	"REVERT_EMPTY_REVERTS"
 	{
 		"en"	"There's nothing here... for some reason, all item cvars are off"
 	}
@@ -71,11 +71,11 @@
 	{
 		"en"	"Your class needs to be valid to use this command"
 	}
-	"REVERT_ENABLED_CLASS_REVERT_HINT"
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
 	{
 		"en"	"Weapon reverts currently enabled for %t:"
 	}
-	"REVERT_EMPTY_CLASS_REVERT"
+	"REVERT_EMPTY_CLASS_REVERTS"
 	{
 		"en"	"There's nothing here... for some reason, all %t reverts are disabled"
 	}

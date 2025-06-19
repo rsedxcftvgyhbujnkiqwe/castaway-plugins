@@ -48,7 +48,7 @@
 	{
 		"chi"	"用 !revert 菜单或 !toggleinfo 关闭这些信息"
 	}
-	"REVERT_DISABLED_REVERTS_HINT"
+	"REVERT_REVERTS_DISABLED"
 	{
 		"chi"	"武器回调已关闭"
 	}
@@ -56,11 +56,11 @@
 	{
 		"chi"	"武器回调信息已打印到控制台"
 	}
-	"REVERT_ENABLED_REVERT_HINT"
+	"REVERT_ENABLED_REVERTS_HINT"
 	{
 		"chi"	"这个服务器上开启的武器回调:"
 	}
-	"REVERT_EMPTY_REVERT"
+	"REVERT_EMPTY_REVERTS"
 	{
 		"chi"	"没有开启武器回调的武器"
 	}
@@ -72,11 +72,11 @@
 	{
 		"chi"	"你必须选择一个兵种才能使用这个命令"
 	}
-	"REVERT_ENABLED_CLASS_REVERT_HINT"
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
 	{
-		"chi"	"%t开启的武器回调:"
+		"chi"	"为%t开启的武器回调:"
 	}
-	"REVERT_EMPTY_CLASS_REVERT"
+	"REVERT_EMPTY_CLASS_REVERTS"
 	{
 		"chi"	"没有为%t开启的武器回调"
 	}

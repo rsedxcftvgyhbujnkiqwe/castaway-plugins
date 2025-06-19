@@ -3870,7 +3870,7 @@ Action Command_Menu(int client, int args) {
 		menu_main.AddItem("infotoggle", localizedInfoToggle);
 		menu_main.Display(client, ITEM_MENU_TIME);
 	} else {
-		ReplyToCommand(client, "[SM] %t", "REVERT_DISABLED_REVERTS_HINT");
+		ReplyToCommand(client, "[SM] %t", "REVERT_REVERTS_DISABLED");
 	}
 
 	return Plugin_Handled;
@@ -4141,7 +4141,7 @@ void ShowItemsDetails(int client) {
 	ReplyToCommand(client, "[SM] %t", "REVERT_PRINT_TO_CONSOLE_HINT");
 
 	PrintToConsole(client, "\n");
-	PrintToConsole(client, "%t", "REVERT_ENABLED_REVERT_HINT");
+	PrintToConsole(client, "%t", "REVERT_ENABLED_REVERTS_HINT");
 
 	if (count > 0) {
 		for (idx = 0; idx < sizeof(msg); idx++) {
@@ -4150,7 +4150,7 @@ void ShowItemsDetails(int client) {
 			}
 		}
 	} else {
-		PrintToConsole(client, "%t :\\", "REVERT_EMPTY_REVERT");
+		PrintToConsole(client, "%t :\\", "REVERT_EMPTY_REVERTS");
 	}
 
 	PrintToConsole(client, "");
@@ -4194,7 +4194,7 @@ void ShowClassReverts(int client) {
 		}
 	}
 
-	ReplyToCommand(client, "%t", "REVERT_ENABLED_CLASS_REVERT_HINT", class_names[class_idx]);
+	ReplyToCommand(client, "%t", "REVERT_ENABLED_CLASS_REVERTS_HINT", class_names[class_idx]);
 
 	if (count > 0) {
 		for (idx = 0; idx < sizeof(msg); idx++) {
@@ -4203,7 +4203,7 @@ void ShowClassReverts(int client) {
 			}
 		}
 	} else {
-		CReplyToCommand(client, "{lightgreen}%t :\\", "REVERT_EMPTY_CLASS_REVERT", class_names[class_idx]);
+		CReplyToCommand(client, "{lightgreen}%t :\\", "REVERT_EMPTY_CLASS_REVERTS", class_names[class_idx]);
 	}
 }
 
