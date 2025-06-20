@@ -4243,7 +4243,7 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 		event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
 		event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
 
-		FireEvent(event); // FIRE IN THE HOLE!!!!!!!
+		event.Fire(); // FIRE IN THE HOLE!!!!!!!
 	}
 
 	// Check if building owner and the engineer who shot the bolt
