@@ -418,6 +418,7 @@ public void OnPluginStart() {
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemVariant(Wep_BuffaloSteak, "Reverted to release, +35% faster move speed on use, mini-crits on dmg taken by wearer, speed multiplicatively stacks with GRU to 403.65 HU/s (+75.5%, run a bit faster than Scout)");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
@@ -1697,6 +1698,22 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
+
+	{
+		// buffalo steak sandvich minicrit on damage taken
+		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
+		// source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds 
+		if (
+			ItemIsEnabled(Wep_BuffaloSteak) &&
+			GetItemVariant(Wep_BuffaloSteak) == 1 &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			condition == TFCond_RestrictToMelee &&
+			TF2_IsPlayerInCondition(client, TFCond_CritCola)
+		) {			
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent); //historically didn't have the Marked-for-Death symbol, but this will be fine for now
+		}
+	}
+
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1711,6 +1728,21 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
+
+	{
+		//buffalo steak sandvich marked-for-death effect removal
+		if (
+			ItemIsEnabled(Wep_BuffaloSteak) &&
+			GetItemVariant(Wep_BuffaloSteak) == 1 &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			!TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
+			!TF2_IsPlayerInCondition(client, TFCond_RestrictToMelee) &&
+			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
+		) {
+			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+		}			
+	}
+
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -1854,8 +1886,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 311: { if (ItemIsEnabled(Wep_BuffaloSteak)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = GetItemVariant(Wep_BuffaloSteak) == 1;
 			TF2Items_SetNumAttributes(item1, 1);
-			TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+			if(!releaseVer)
+				TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+			if(releaseVer)
+				TF2Items_SetAttribute(item1, 0, 798, 1.00); // 0% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+				// mini-crits on damage taken handled elsewhere in TF2_OnConditionAdded and TF2_OnConditionRemoved
 		}}
 		case 232: { if (ItemIsEnabled(Wep_Bushwacka)) {
 			item1 = TF2Items_CreateItem(0);
