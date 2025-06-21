@@ -34,7 +34,7 @@ scripting/include/*
 gamedata/*
 !gamedata/reverts.txt
 !gamedata/stalemate.txt
-!gamedata/verdiusarcana_reverts.txt
+!gamedata/memorypatch_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*
 

@@ -31,31 +31,31 @@
 			"CTFProjectile_BallOfFire::Burn"
 			{
 				"library" "server"
-				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F" // Long Signatures go loooooong!
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F"
 				"linux"   "@_ZN24CTFProjectile_BallOfFire4BurnEP11CBaseEntity"
 			}
 			"CTFPistol_ScoutPrimary::SecondaryAttack"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xD8\x85\xDB\x0F\x84\x2A\x2A\x2A\x2A\x8B\x13\x8B\xCB\x8B\x92\x2A\x2A\x2A\x2A\xFF\xD2\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x06" // Oh god the signature is loooooong!
+				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xD8\x85\xDB\x0F\x84\x2A\x2A\x2A\x2A\x8B\x13\x8B\xCB\x8B\x92\x2A\x2A\x2A\x2A\xFF\xD2\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x8B\x06"
 				"linux"   "@_ZN22CTFPistol_ScoutPrimary15SecondaryAttackEv"
 			}
 			"CTFPistol_ScoutPrimary::Push"
 			{
 				"library" "server"
-				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xC1" // Long Signatures go loooooong!
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xC1"
 				"linux"   "@_ZN22CTFPistol_ScoutPrimary4PushEv"
 			}
 			"CTFMinigun::GetProjectileDamage"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A\x0F\x57\xD2\x0F\x2F\xCA\xA1\x2A\x2A\x2A\x2A\xD9\x55\x2A\x72\x2A\xF3\x0F\x10\x40\x2A\xF3\x0F\x5C\xC1\xEB\x2A\x0F\x28\xC2\xF3\x0F\x10\x9E\x2A\x2A\x2A\x2A\x0F\x2F\xDA\x5E\xF3\x0F\x5C\x05\x2A\x2A\x2A\x2A\x72\x2A\xF3\x0F\x10\x48\x2A\xF3\x0F\x5C\xCB\xEB\x2A\x0F\x28\xCA\x0F\x2F\xC1\x77\x2A\x0F\x28\xC1\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A\x0F\x2F\xD8\x76\x2A\xF3\x0F\x5C\x05" // Yes, The signature is long. No, I do not understand the maths/hex behind it. makesig.py attempts to make the shortest signature it can. Deal with it.
+				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A\x0F\x57\xD2\x0F\x2F\xCA\xA1\x2A\x2A\x2A\x2A\xD9\x55\x2A\x72\x2A\xF3\x0F\x10\x40\x2A\xF3\x0F\x5C\xC1\xEB\x2A\x0F\x28\xC2\xF3\x0F\x10\x9E\x2A\x2A\x2A\x2A\x0F\x2F\xDA\x5E\xF3\x0F\x5C\x05\x2A\x2A\x2A\x2A\x72\x2A\xF3\x0F\x10\x48\x2A\xF3\x0F\x5C\xCB\xEB\x2A\x0F\x28\xCA\x0F\x2F\xC1\x77\x2A\x0F\x28\xC1\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A\x0F\x2F\xD8\x76\x2A\xF3\x0F\x5C\x05" // Long signature. Deal with it.
 				"linux"   "@_ZN10CTFMinigun19GetProjectileDamageEv"
 			}
 			"CTFMinigun::GetWeaponSpread"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A\x0F\x57\xD2\x0F\x2F\xCA\xA1\x2A\x2A\x2A\x2A\xD9\x55\x2A\x72\x2A\xF3\x0F\x10\x40\x2A\xF3\x0F\x5C\xC1\xEB\x2A\x0F\x28\xC2\xF3\x0F\x10\x9E\x2A\x2A\x2A\x2A\x0F\x2F\xDA\x5E\xF3\x0F\x5C\x05\x2A\x2A\x2A\x2A\x72\x2A\xF3\x0F\x10\x48\x2A\xF3\x0F\x5C\xCB\xEB\x2A\x0F\x28\xCA\x0F\x2F\xC1\x77\x2A\x0F\x28\xC1\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A\x0F\x2F\xD8\x76\x2A\x0F\x57\xC9" // Yes, The signature is long. No, I do not understand the maths/hex behind it. makesig.py attempts to make the shortest signature it can. Deal with it.
+				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\xE8\x2A\x2A\x2A\x2A\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A\x0F\x57\xD2\x0F\x2F\xCA\xA1\x2A\x2A\x2A\x2A\xD9\x55\x2A\x72\x2A\xF3\x0F\x10\x40\x2A\xF3\x0F\x5C\xC1\xEB\x2A\x0F\x28\xC2\xF3\x0F\x10\x9E\x2A\x2A\x2A\x2A\x0F\x2F\xDA\x5E\xF3\x0F\x5C\x05\x2A\x2A\x2A\x2A\x72\x2A\xF3\x0F\x10\x48\x2A\xF3\x0F\x5C\xCB\xEB\x2A\x0F\x28\xCA\x0F\x2F\xC1\x77\x2A\x0F\x28\xC1\xF3\x0F\x10\x1D\x2A\x2A\x2A\x2A\x0F\x2F\xD8\x76\x2A\x0F\x57\xC9" // Long signature. Deal with it.
 				"linux"   "@_ZN10CTFMinigun15GetWeaponSpreadEv"
 			}
 			"CTFPlayer::ApplyPunchImpulseX"
@@ -82,7 +82,6 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x85\xFF\x74\x2A\x8B\x07\x8B\xCF\x8B\x80"
 				"linux"	"@_ZN12CTFGameRules21PlayerMayCapturePointEP11CBasePlayeriPci"
 			}
-			// Here and prepared incase there is a wish to revert Dalokohs Bar.
 			"CTFLunchBox::ApplyBiteEffects"
 			{
 				"library" "server"
@@ -113,7 +112,8 @@
 
 				// ================================================
 				//  Crit-A-Cola Mark For Death, removal.
-				//  Note: NOT IN USE! Left in gamedata if it becomes useful someday.
+				//  Note: NOT IN USE! Left in gamedata for 
+				//  if it becomes useful someday.
 
 				"CTFPlayerShared::OnAttack_JumpPatchForCritColaMFD"
 				{
@@ -139,18 +139,15 @@
 					"signature" "CTFWeaponBaseMelee::OnSwingHit"
 					"linux"
 					{
-						"offset"	"941"
-						"verify"	"\x68\x00\x00\x00\x40" // Verify that offset pushes 2.0f
-						"patch"	"\x68\x00\x00\x40\x40" // Change it to push 3.0f
+						"offset"    "941"
+						"verify"    "\x68\x00\x00\x00\x40" // PUSH 2.0f
+						"patch"     "\x68\x00\x00\x40\x40" // PUSH 3.0f
 					}
-					// Windows compiler turned it into something that points at a address instead
-					// of directly pushing the float value, so we prepare the windows version of the patch for
-					// a Address Of natives.
 					"windows"
 					{
-						"offset"	"1049"
-						"verify"	"\xD9\x05\x2A\x2A\x2A\x2A" // Verify that FLD instruction is there, address bytes MUST be wildcarded.
-						"patch"	"\xD9\x05\x00\x00\x00\x00" // Set the address part to 4 "00", will change after patch enable to point to our address
+						"offset"    "1049"
+						"verify"    "\xD9\x05\x2A\x2A\x2A\x2A" // FLD instruction, address wildcarded.
+						"patch"     "\xD9\x05\x00\x00\x00\x00" // FLD instruction, 00 x4 to prep for setup later in reverts.sp
 					}
 				}
 
@@ -159,23 +156,17 @@
 				// ╚══════════════════════════════════════════════╝
 
 				// ================================================
-				//  Dragons Fury bonus requires center of fireball
-				//  to hit target, removal
-
-				//  Extra notes: Compared to most other patches the last text after 
-				//  The _ is not
-				//  very descriptive, this is because the patches are ordered as the
-				//  original jumps appear in the assembly for future patching (Linux).
-
+				//  Dragons Fury bonus requires center of fireball hitbox
+				//  to hit enemy, removal
 
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA"
 				{
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2357"
-						"verify"	"\x77\x2A" // Verify that it is a Short JMP JA, wildcard the offset.
-						"patch"   "\x77\x22" // Short jump to the nearest LEAVE
+						"offset"    "2357"
+						"verify"    "\x77\x2A" // Verify that it is a Short JMP JA, wildcard the offset.
+						"patch"     "\x77\x22" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ"
@@ -183,9 +174,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2366"
-						"verify"	"\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"   "\x75\x19" // Short jump to the nearest LEAVE
+						"offset"    "2366"
+						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
+						"patch"     "\x75\x19" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ"
@@ -193,19 +184,17 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2375"
-						"verify"  "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
-						"patch"   "\x74\x10" // Short jump to the nearest LEAVE
+						"offset"    "2375"
+						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
+						"patch"     "\x74\x10" // Short jump to the nearest LEAVE
 					}
 				}
-				// Windows exclusive patch for Dragons Fury
-				// Only a single MemoryPatch was needed. Lmfao!
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ"
 				{
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"windows"
 					{
-						"offset"	  "1676"
+						"offset"    "1676"
 						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
 						"patch"     "\x90\x90" // Yes really, for windows all we need to do is to nop 2 bytes and we are done. Just Lmfao.
 					}
@@ -215,9 +204,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2389"
-						"verify"  "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"   "\x75\x02" // Short jump to the nearest LEAVE
+						"offset"    "2389"
+						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
+						"patch"     "\x75\x02" // Short jump to the nearest LEAVE
 					}
 				}
 				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ"
@@ -225,9 +214,9 @@
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
-						"offset"	"2393"
-						"verify"  "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
-						"patch"   "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
+						"offset"    "2393"
+						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
+						"patch"     "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
 					}
 				}
 
@@ -235,7 +224,7 @@
 				// ║                   Demoman                    ║
 				// ╚══════════════════════════════════════════════╝
 
-				//  Nothing to see in here. :(
+				//  Demoman related MemoryPatches go here.
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Heavy                     ║
@@ -245,89 +234,76 @@
 				//  Miniguns must spin for 1 second for full
 				//  damage/accuracy, removal.
 
-				"CTFMinigun::GetProjectileDamage_JumpOverCheck"
+				"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck"
 				{
 					"signature" "CTFMinigun::GetProjectileDamage"
 					"linux"
 					{
-						"offset"	"16"
-						"verify"	"\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"	"\xEB\x56\x90\x90\x90\x90\x90\x90" // Short jump (crashes with Near jump) to closest leave instruction.
+						"offset"    "16"
+						"verify"    "\xF3\x0F\x10\x9B\x2A\x2A\x2A\x2A" // MOVSS xmm3, [ebx+offset]
+						"patch"     "\xEB\x56\x90\x90\x90\x90\x90\x90" // JMP 0x56; NOP x6 (Jumps to closest leave instruction)
 					}
-
-					// Same shit as CTFMinigun::GetWeaponSpread go read the comments for that mess.
 					"windows"
-				     {
-				        "offset"	"12"
-				        "verify"  	"\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-				        "patch"   	"\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
-				     }
+					{
+						"offset"    "12"
+						"verify"    "\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // MOVSS xmm1, [esi+offset]
+						"patch"     "\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; ADD ESP, 4; POP EBP; RET; NOP x2
+					}
+				}
+				"CTFMinigun::GetWeaponSpread_JumpOver1SecondCheck"
+				{
+					"signature" "CTFMinigun::GetWeaponSpread"
+					"linux"
+					{
+						"offset"    "16"
+						"verify"    "\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // MOVSS xmm4, [ebx+offset]
+						"patch"     "\xE9\x56\x00\x00\x00\x90\x90\x90" // JMP +0x56 (near); NOP x3 — EB (Short Jmp) not safe to use due to Source/register jank.
+					}
+					"windows"
+					{
+						"offset"    "12"
+						"verify"    "\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // MOVSS xmm1, [esi+offset]
+						"patch"     "\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; ADD ESP, 4; POP EBP; RET; NOP x2
+					}	
 				}
 
 				// ===============================================
-				// Dalokohs Bar, Overheal to 400 hp again.
-				// WARNING: If GRU is not reverted to non-max health
-				// draining version, the infamous Dalokohs Exploit
-				// will return, until that is fixed (if it even can be fixed), 
-				// you must also use the GRU revert 
-				// if you want to avoid the exploit!
+				// Dalokohs Bar — Overheal to 400 HP again.
+				// WARNING: If GRU is not reverted to 
+				// non-max-health-draining version,
+				// the Dalokohs exploit will return.
 
 				"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400"
 				{
 					"signature" "CTFLunchBox::ApplyBiteEffects"
 					"linux"
 					{
-						"offset"	"258"
-						"verify"	"\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A"
-						"patch" 	"\xF3\x0F\x10\x0D\x90\x90\x90\x90"
+						"offset"    "258"
+						"verify"    "\xF3\x0F\x10\x0D\x2A\x2A\x2A\x2A" // MOVSS xmm1, [absolute addr]
+						"patch"     "\xF3\x0F\x10\x0D\x00\x00\x00\x00" // MOVSS xmm1, 00 x4 to prep for real addr in reverts.sp
 					}
 					"windows"
 					{
-						"offset"	"210"
-						"verify"	"\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A"
-						"patch" 	"\xF3\x0F\x10\x05\x90\x90\x90\x90"
+						"offset"    "210"
+						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // MOVSS xmm0, [absolute addr]
+						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // MOVSS xmm0, 00 x4 to prep for real addr in reverts.sp
 					}
-				}
+				}				
 				"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400"
 				{
 					"signature" "CTFLunchBox::ApplyBiteEffects"
 					"linux"
 					{
-						"offset"	"296"
-						"verify"	"\xB8\x5E\x01\x00\x00"
-						"patch" 	"\xB8\x90\x01\x00\x00"
+						"offset"    "296"
+						"verify"    "\xB8\x5E\x01\x00\x00" // MOV EAX, 0x15E (350)
+						"patch"     "\xB8\x90\x01\x00\x00" // MOV EAX, 0x190 (400)
 					}
 					"windows"
 					{
-						"offset"	"227"
-						"verify"	"\xBF\x5E\x01\x00\x00"
-						"patch" 	"\xBF\x90\x01\x00\x00"
-
+						"offset"    "227"
+						"verify"    "\xBF\x5E\x01\x00\x00" // MOV EDI, 0x15E (350)
+						"patch"     "\xBF\x90\x01\x00\x00" // MOV EDI, 0x190 (400)
 					}
-				}
-
-				"CTFMinigun::GetWeaponSpread_JumpOverCheck"
-				{
-					"signature" "CTFMinigun::GetWeaponSpread"
-					"linux"
-					{
-						"offset"	"16"
-						"verify"	"\xF3\x0F\x10\xA3\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"	"\xE9\x56\x00\x00\x00\x90\x90\x90" // Near jump to closest LEAVE instruction.
-					}
-					// Due to Windows pushing ESI but only popping it deep in the math soup,
-					// I had to write a custom early return to clean up and manually POP ESI,
-					// avoiding the demon-infested corner of undefined behavior from running
-					// instructions that rely on ones we just nuked out of "code flow".
-					// We still kinda do a jump over the check (when thinking about MemoryPatch variable name) 
-                    // so we can use the same MemoryPatch Var for windows too.
-
-					"windows"
-					{
-						"offset" 	"12"
-						"verify" 	"\xF3\x0F\x10\x8E\x2A\x2A\x2A\x2A" // If verify fails, re-examine the method.
-						"patch"  	"\x5E\x83\xC4\x04\x5D\xC3\x90\x90" // POP ESI; MOV ESP, EBP; POP EBP; RET; NOP x4
-					}	
 				}
 
 				// ╔══════════════════════════════════════════════╗
@@ -339,59 +315,54 @@
 				//  with wrenches, removal. (Rescue Ranger is a
 				//  hook and so it won't show up as memorypatch)
 
-				"CObjectSentrygun::OnWrenchHit_ShieldHealRevert"
+				"CObjectSentrygun::OnWrenchHit_ShieldPreNerfRepair"
 				{
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"592"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "592"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable heal nerf multiplier
 					}
 					"windows"
 					{
-						"offset"	"93"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "93"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable heal nerf multiplier
 					}
-				}
-				
-				// Patch to revert the nerf to wrangler shield effecting shell refill.
-				"CObjectSentrygun::OnWrenchHit_ShieldShellRefillRevert"
+				}		
+				"CObjectSentrygun::OnWrenchHit_ShieldPreNerfShellRefill"
 				{
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"708"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "708"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable shell refill nerf
 					}
 					"windows"
 					{
-						"offset"	"379"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "379"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable shell refill nerf
 					}	
 				}
-				
-				// Patch to revert the nerf to wrangler shield effecting rocket refill.
-				"CObjectSentrygun::OnWrenchHit_ShieldRocketRefillRevert"
+				"CObjectSentrygun::OnWrenchHit_ShieldPreNerfRocketRefill"
 				{
 					"signature" "CObjectSentrygun::OnWrenchHit"
 					"linux"
 					{
-						"offset"	"896"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "896"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable rocket refill nerf
 					}
 					"windows"
 					{
-						"offset"	"578"
-						"verify"	"\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // Verify that MULSS instruction is there.
-						"patch"	"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "578"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // MULSS xmm0, [absolute addr]
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable rocket refill nerf
 					}	
 				}
-
 				
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Medic                     ║
@@ -402,20 +373,20 @@
 				//  point capture, removal.
 				
 
-				"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCannotCaptureRevert"
+				"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint"
 				{
 					"signature" "CTFGameRules::PlayerMayCapturePoint"
 					"linux"
 					{
-						"offset"	"264"
-						"verify"	"\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards. There was no other way to do this better for Linux.
-						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "264"
+						"verify"    "\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Read readme-memorypatches.md for details
+						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
 					}
 					"windows"
 					{
-						"offset"	"92"
-						"verify"	"\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // Very long patch with lots of opcodes and wildcards, but not as horrible as Linux.
-						"patch"	"\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+						"offset"    "92"
+						"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
+						"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
 					}
 				}
 
@@ -427,46 +398,33 @@
 				// Cozy Camper requires a full sniper charge
 				// to provide the full flinch resistance, removal.
 
-				// New patch: Just fake the AL by setting it to 1
-				// By using B0 01 (MOV AL, 1) making the game belivie
-				// we are always fully charged. This has no effect
-				// on damage etc since we are not inside a damage function.
-
-				// All the nops (Linux) are neccesary to keep the byte count correct and avoid
-				// fucking with the stack for things that are no longer there (the call to IsFullyCharged)
-
-				// It's absolutely neccesary to NOP the SUB ESP,0xc, the PUSH EDI and
-				// the ADD ESP,0x10 or we will have problems. Those 3 are what's
-				// used for preperation for the IsFullyCharged call, and if we don't nop them, we will
-				// corrupt the stack and cause crashes.
-
-				"CTFPlayer::ApplyPunchImpulseX_FakeThirdALtoBeTrue"
+				"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition"
 				{
 					"signature" "CTFPlayer::ApplyPunchImpulseX"
 					"linux"
 					{
-						"offset" 	"149"
-						"verify" 	"\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // Verify that function preamble is there
-						"patch" 	"\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP all of it, but fake AL to be true using 2 bytes.
+						"offset"    "149"
+						"verify"    "\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // SUB ESP, 0xC; PUSH EDI; CALL rel32; ADD ESP, 0x10
+						"patch"     "\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP x4; MOV AL, 1; NOP x6 — force success return
 					}
-					// Verify for windows is a bit shorter as all we need to do is replace the call instead of the entire function preamble
-					// with a MOV AL,1 (Fakes AL). Compilers are weird. 
 					"windows"
 					{
-						"offset" 	"84"
-						"verify" 	"\xE8\x2A\x2A\x2A\x2A" // Verify that it is a CALL for a subroutine.
-						"patch" 	"\xB0\x01\x90\x90\x90" // Same thing here, Fake AL to be true.
+						"offset"    "84"
+						"verify"    "\xE8\x2A\x2A\x2A\x2A" // CALL rel32
+						"patch"     "\xB0\x01\x90\x90\x90" // MOV AL, 1; NOP x3 — skip call, return true
 					}
 				}
-				
-
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                     Spy                      ║
 				// ╚══════════════════════════════════════════════╝
 
-				//  Nothing to see in here. :(
-				
+				//  Demoman related MemoryPatches go here.
+
+				// ╔══════════════════════════════════════════════╗
+				// ║                    Misc                      ║
+				// ╚══════════════════════════════════════════════╝
+			
 				// Dropped weapon revert
 
 				// NOP outs the entire dropped weapon creation section
@@ -529,7 +487,7 @@
 					{
 						"type" "int"
 					}
-					"iCOunt"
+					"iCount"
 					{
 						"type" "int"
 					}
