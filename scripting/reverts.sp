@@ -418,7 +418,7 @@ public void OnPluginStart() {
 	ItemDefine("Brass Beast", "brassbeast", "Reverted to pre-matchmaking, 20% damage resistance (6.7% against crits) when spun up at any health", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("Bushwacka", "bushwacka", "Reverted to pre-love&war, 20% fire vuln at all times, random crits enabled", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemDefine("Buffalo Steak Sandvich", "buffalosteak", "Reverted to pre-matchmaking, immediately gain +35% faster move speed and 10% dmg vuln while buffed", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
-	ItemVariant(Wep_BuffaloSteak, "Reverted to release, +35% faster move speed on use, mini-crits on dmg taken by wearer, speed multiplicatively stacks with GRU to 403.65 HU/s (+75.5%, run a bit faster than Scout)");
+	ItemVariant(Wep_BuffaloSteak, "Reverted to release, +35% faster move speed on use, mini-crits on dmg taken by wearer, speed stacks with GRU (run a bit faster than Scout)");
 	ItemDefine("Chargin' Targe", "targe", "Reverted to pre-toughbreak, 40% blast resistance, afterburn immunity, crit after bash, no debuff removal", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("Claidheamh Mòr", "claidheamh", "Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("Cleaner's Carbine", "carbine", "Reverted to release, crits for 3 seconds on kill", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
@@ -4663,6 +4663,16 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			{
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
+				// release steak + GRU move speed stacking imitation code
+				// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
+				// note: whip speedboost doesn't stack with old steak + GRU speed stacking. the same behavior also exists for vanilla steak + GRU.
+				if(GetItemVariant(Wep_BuffaloSteak) == 1 && (index == 239 || index == 1084 || index == 1100)) {				
+					returnValue.Value = view_as<float>(returnValue.Value) * 1.30; 
+					// it rounds to 403.50 HU/s for some reason via cl_showpos 1, i gave up trying to get it to the exact value but this should be good enough
+					// technically 403.50 HU/s isn't historically accurate, but i have no idea why i can't get it to 403.65 HU/s despite setting it to exactly that value before
+					return MRES_Override;	
+				}
+
 				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
@@ -4678,18 +4688,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
 						return MRES_Override;
 					}				
-	
-					// clean this up later!!!
-					// release steak + GRU move speed stacking imitation code
-					else if(GetItemVariant(Wep_BuffaloSteak) == 1) {
-						if(index == 239 || index == 1084 || index == 1100) {
-							// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
-							// don't care about speedboost from disciplinary action, disciplinary action (2011) and old steak+GRU stacking (2010) never existed with each other in the past
-							returnValue.Value = view_as<float>(returnValue.Value) * 1.35;
-							return MRES_Override;
-						}
-						// eviction notice speed boost doesn't matter i think with the release steak
-					}
 					
 					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
