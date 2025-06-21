@@ -1,0 +1,468 @@
+"Phrases"
+{
+	// class names
+	// tf/resource/tf_schinese.txt:27-35
+	"SCOUT"
+	{
+		"chi"	"侦察兵"
+	}
+	"SNIPER"
+	{
+		"chi"	"狙击手"
+	}
+	"SOLDIER"
+	{
+		"chi"	"士兵"
+	}
+	"DEMOMAN"
+	{
+		"chi"	"爆破手"
+	}
+	"MEDIC"
+	{
+		"chi"	"医生"
+	}
+	"HEAVY"
+	{
+		"chi"	"机枪手"
+	}
+	"PYRO"
+	{
+		"chi"	"火焰兵"
+	}
+	"SPY"
+	{
+		"chi"	"间谍"
+	}
+	"ENGINEER"
+	{
+		"chi"	"工程师"
+	}
+
+	// ui
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"chi"	"目前配置开启的武器回调:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"chi"	"用 !revert 菜单或 !toggleinfo 关闭这些信息"
+	}
+	"REVERT_REVERTS_DISABLED"
+	{
+		"chi"	"武器回调已关闭"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"chi"	"武器回调信息已打印到控制台"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	{
+		"chi"	"这个服务器上开启的武器回调:"
+	}
+	"REVERT_EMPTY_REVERTS"
+	{
+		"chi"	"没有开启武器回调的武器"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"chi"	"你必须加入一个团队才能使用这个命令"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"chi"	"你必须选择一个兵种才能使用这个命令"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	{
+		"chi"	"为%t开启的武器回调:"
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"chi"	"没有为%t开启的武器回调"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"chi"	"已打开配置更改时武器回调的显示，下一次配置更改时会显示目前配置所开启的武器回调"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"chi"	"已关闭配置更改时武器回调的显示，用 !revertsinfo 或 !reverts 菜单开启"
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"chi"	"武器回调"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"chi"	"显示目前兵种的武器回调"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"chi"	"显示服务器上所有开启的武器回调"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"chi"	"打开/关闭配置更改时武器回调显示"
+	}
+
+	// item names
+	"airblast"
+	{
+		"chi"	"气爆"
+	}
+	"airstrike"
+	{
+		// https://wiki.teamfortress.com/wiki/Air_Strike/zh-hans
+		"chi"	"空袭火箭筒"
+	}
+	"miniramp"
+	{
+		"chi"	"所有转轮机枪"
+	}
+	"swords"
+	{
+		"chi"	"所有剑"
+	}
+	"ambassador"
+	{
+		// https://wiki.teamfortress.com/wiki/Ambassador/zh-hans
+		"chi"	"大使手枪"
+	}
+	"atomizer"
+	{
+		// https://wiki.teamfortress.com/wiki/Atomizer/zh-hans
+		"chi"	"原子能球棒"
+	}
+	"axtinguish"
+	{
+		// https://wiki.teamfortress.com/wiki/Axtinguisher/zh-hans
+		"chi"	"火焰战斧"
+	}
+	"backburner"
+	{
+		// https://wiki.teamfortress.com/wiki/Backburner/zh-hans
+		"chi"	"偷袭烈焰喷射器"
+	}
+	"basejump"
+	{
+		// https://wiki.teamfortress.com/wiki/B.A.S.E._Jumper/zh-hans
+		"chi"	"极限降落伞"
+	}
+	"babyface"
+	{
+		// https://wiki.teamfortress.com/wiki/Baby_Face%27s_Blaster/zh-hans
+		"chi"	"娃娃脸的冲击波"
+	}
+	"beggars"
+	{
+		// https://wiki.teamfortress.com/wiki/Beggar%27s_Bazooka/zh-hans
+		"chi"	"乞丐的火箭筒"
+	}
+	"blackbox"
+	{
+		// https://wiki.teamfortress.com/wiki/Black_box/zh-hans
+		"chi"	"黑匣子"
+	}
+	"bonk"
+	{
+		// https://wiki.teamfortress.com/wiki/Bonk!_Atomic_Punch/zh-hans
+		"chi"	"原子能饮料"
+	}
+	"booties"
+	{
+		// https://wiki.teamfortress.com/wiki/Ali_Baba%27s_Wee_Booties/zh-hans
+		// https://wiki.teamfortress.com/wiki/Bootlegger/zh-hans
+		"chi"	"阿里巴巴的尖头靴和海盗头子的假腿"
+	}
+	"brassbeast"
+	{
+		// https://wiki.teamfortress.com/wiki/Brass_Beast/zh-hans
+		"chi"	"黄铜猛兽"
+	}
+	"bushwacka"
+	{
+		// https://wiki.teamfortress.com/wiki/Bushwacka/zh-hans
+		"chi"	"灌木丛"
+	}
+	"buffalosteak"
+	{
+		// https://wiki.teamfortress.com/wiki/Buffalo_Steak_Sandvich/zh-hans
+		"chi"	"水牛排三明治"
+	}
+	"targe"
+	{
+		// https://wiki.teamfortress.com/wiki/Chargin%27_Targe/zh-hans
+		"chi"	"冲锋盾"
+	}
+	"claidheamh"
+	{
+		// https://wiki.teamfortress.com/wiki/Claidheamh_M%C3%B2r/zh-hans
+		"chi"	"摩尔巨剑"
+	}
+	"carbine"
+	{
+		// https://wiki.teamfortress.com/wiki/Cleaner%27s_Carbine/zh-hans
+		"chi"	"扫荡者卡宾"
+	}
+	"cozycamper"
+	{
+		// https://wiki.teamfortress.com/wiki/Cozy_Camper/zh-hans
+		"chi"	"惬意蹲坑汉"
+	}
+	"critcola"
+	{
+		// https://wiki.teamfortress.com/wiki/Crit-a-Cola/zh-hans
+		"chi"	"爆击可乐"
+	}
+	"dalokohsbar"
+	{
+		// https://wiki.teamfortress.com/wiki/Dalokohs_Bar/zh-hans
+		"chi"	"达勒克斯巧克力块"
+	}
+	"darwin"
+	{
+		// https://wiki.teamfortress.com/wiki/Darwin%27s_Danger_Shield/zh-hans
+		"chi"	"达尔文的危险之盾"
+	}
+	"ringer"
+	{
+		// https://wiki.teamfortress.com/wiki/Dead_Ringer/zh-hans
+		"chi"	"死亡之铃"
+	}
+	"degreaser"
+	{
+		// https://wiki.teamfortress.com/wiki/Degreaser/zh-hans
+		"chi"	"脱油剂"
+	}
+	"disciplinary"
+	{
+		// https://wiki.teamfortress.com/wiki/Disciplinary_Action/zh-hans
+		"chi"	"指挥官的军鞭"
+	}
+	"dragonfury"
+	{
+		// https://wiki.teamfortress.com/wiki/Dragon%27s_Fury/zh-hans
+		"chi"	"龙之怒焰"
+	}
+	"enforcer"
+	{
+		// https://wiki.teamfortress.com/wiki/Enforcer/zh-hans
+		"chi"	"执法者"
+	}
+	"equalizer"
+	{
+		// https://wiki.teamfortress.com/wiki/Equalizer/zh-hans
+		// https://wiki.teamfortress.com/wiki/Escape_Plan/zh-hans
+		"chi"	"十字镐和逃生计划镐"
+	}
+	"eviction"
+	{
+		// https://wiki.teamfortress.com/wiki/Eviction_Notice/zh-hans
+		"chi"	"驱逐警告"
+	}
+	"fiststeel"
+	{
+		// https://wiki.teamfortress.com/wiki/Fists_of_Steel/zh-hans
+		"chi"	"钢铁手套"
+	}
+	"guillotine"
+	{
+		// https://wiki.teamfortress.com/wiki/Flying_Guillotine/zh-hans
+		"chi"	"混混的菜刀"
+	}
+	"glovesru"
+	{
+		// https://wiki.teamfortress.com/wiki/Gloves_of_Running_Urgently/zh-hans
+		"chi"	"紧急逃跑手套"
+	}
+	"gunboats"
+	{
+		// https://wiki.teamfortress.com/wiki/Gunboats/zh-hans
+		"chi"	"炮艇"
+	}
+	"zatoichi"
+	{
+		// https://wiki.teamfortress.com/wiki/Half-Zatoichi/zh-hans
+		"chi"	"座头市之刀"
+	}
+	"liberty"
+	{
+		// https://wiki.teamfortress.com/wiki/Liberty_Launcher/zh-hans
+		"chi"	"自由推进炮"
+	}
+	"lochload"
+	{
+		// https://wiki.teamfortress.com/wiki/Loch-n-Load/zh-hans
+		"chi"	"双管榴弹发射器"
+	}
+	"cannon"
+	{
+		// https://wiki.teamfortress.com/wiki/Loose_Cannon/zh-hans
+		"chi"	"脱缰巨炮"
+	}
+	"gardener"
+	{
+		// https://wiki.teamfortress.com/wiki/Market_Gardener/zh-hans
+		"chi"	"市场花园铁锹"
+	}
+	"natascha"
+	{
+		// https://wiki.teamfortress.com/wiki/Natascha/zh-hans
+		"chi"	"娜塔莎转轮机枪"
+	}
+	"panic"
+	{
+		// https://wiki.teamfortress.com/wiki/Panic_Attack/zh-hans
+		"chi"	"恐慌打击"
+	}
+	"persuader"
+	{
+		// https://wiki.teamfortress.com/wiki/Persian_Persuader/zh-hans
+		"chi"	"波斯弯刀"
+	}
+	"pomson"
+	{
+		// https://wiki.teamfortress.com/wiki/Pomson_6000/zh-hans
+		"chi"	"歼灭者 6000"
+	}
+	"powerjack"
+	{
+		// https://wiki.teamfortress.com/wiki/Powerjack/zh-hans
+		"chi"	"强力千斤顶"
+	}
+	"pocket"
+	{
+		// https://wiki.teamfortress.com/wiki/Pretty_Boy%27s_Pocket_Pistol/zh-hans
+		"chi"	"帅气男孩的袖珍手枪"
+	}
+	"quickfix"
+	{
+		// https://wiki.teamfortress.com/wiki/Quick-fix/zh-hans
+		"chi"	"快速医疗枪"
+	}
+	"quickiebomb"
+	{
+		// https://wiki.teamfortress.com/wiki/Quickiebomb_Launcher/zh-hans
+		"chi"	"快速黏弹发射器"
+	}
+	"razorback"
+	{
+		// https://wiki.teamfortress.com/wiki/Razorback/zh-hans
+		"chi"	"电击背脊盾"
+	}
+	"rescueranger"
+	{
+		// https://wiki.teamfortress.com/wiki/Rescue_Ranger/zh-hans
+		"chi"	"火线救兵"
+	}
+	"reserve"
+	{
+		// https://wiki.teamfortress.com/wiki/Reserve_Shooter/zh-hans
+		"chi"	"预备役射手"
+	}
+	"bison"
+	{
+		// https://wiki.teamfortress.com/wiki/Righteous_Bison/zh-hans
+		"chi"	"正义野牛"
+	}
+	"rocketjmp"
+	{
+		// https://wiki.teamfortress.com/wiki/Rocket_Jumper/zh-hans
+		"chi"	"火箭伞兵"
+	}
+	"saharan"
+	{
+		// https://wiki.teamfortress.com/wiki/Saharan_Spy/zh-hans
+		"chi"	"撒哈拉间谍"
+	}
+	"sandman"
+	{
+		// https://wiki.teamfortress.com/wiki/Sandman/zh-hans
+		"chi"	"睡魔"
+	}
+	"scottish"
+	{
+		// https://wiki.teamfortress.com/wiki/Scottish_Resistance/zh-hans
+		"chi"	"苏格兰防御者"
+	}
+	"circuit"
+	{
+		// https://wiki.teamfortress.com/wiki/Short_Circuit/zh-hans
+		"chi"	"短路发生器"
+	}
+	"shortstop"
+	{
+		// https://wiki.teamfortress.com/wiki/Shortstop/zh-hans
+		"chi"	"游击手"
+	}
+	"sodapop"
+	{
+		// https://wiki.teamfortress.com/wiki/Soda_Popper/zh-hans
+		"chi"	"苏打炮手"
+	}
+	"solemn"
+	{
+		// https://wiki.teamfortress.com/wiki/Solemn_Vow/zh-hans
+		"chi"	"希波克拉底的塑像"
+	}
+	"splendid"
+	{
+		// https://wiki.teamfortress.com/wiki/Splendid_Screen/zh-hans
+		"chi"	"辉煌护盾"
+	}
+	"spycicle"
+	{
+		// https://wiki.teamfortress.com/wiki/Spy-cicle/zh-hans
+		"chi"	"神奇的冰柱"
+	}
+	"stkjumper"
+	{
+		// https://wiki.teamfortress.com/wiki/Sticky_Jumper/zh-hans
+		"chi"	"黏弹跳跃者"
+	}
+	"sleeper"
+	{
+		// https://wiki.teamfortress.com/wiki/Sydney_Sleeper/zh-hans
+		"chi"	"悉尼沉睡者"
+	}
+	"turner"
+	{
+		// https://wiki.teamfortress.com/wiki/Tide_Turner/zh-hans
+		"chi"	"力挽狂澜"
+	}
+	"tomislav"
+	{
+		// https://wiki.teamfortress.com/wiki/Tomislav/zh-hans
+		"chi"	"汤姆斯拉夫"
+	}
+	"tribalshiv"
+	{
+		// https://wiki.teamfortress.com/wiki/Tribalman%27s_Shiv/zh-hans
+		"chi"	"部落者刮刀"
+	}
+	"caber"
+	{
+		// https://wiki.teamfortress.com/wiki/Ullapool_Caber/zh-hans
+		"chi"	"木柄手榴弹"
+	}
+	"vitasaw"
+	{
+		// https://wiki.teamfortress.com/wiki/Vita-Saw/zh-hans
+		"chi"	"维塔锯"
+	}
+	"warrior"
+	{
+		// https://wiki.teamfortress.com/wiki/Warrior%27s_Spirit/zh-hans
+		"chi"	"勇士之魂"
+	}
+	"wrangler"
+	{
+		// https://wiki.teamfortress.com/wiki/Wrangler/zh-hans
+		"chi"	"遥控手柄"
+	}
+	"eternal"
+	{
+		// https://wiki.teamfortress.com/wiki/Your_Eternal_Reward/zh-hans
+		"chi"	"永生的回报"
+	}
+}

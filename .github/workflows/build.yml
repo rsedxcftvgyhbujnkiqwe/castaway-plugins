@@ -48,8 +48,10 @@ jobs:
         run: |
           mkdir -p artifact/plugins
           mkdir artifact/gamedata
+          mkdir artifact/translations
           mv scripting/compiled/*.smx artifact/plugins/
           mv gamedata/*.txt artifact/gamedata/
+          mv translations/* artifact/translations/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
