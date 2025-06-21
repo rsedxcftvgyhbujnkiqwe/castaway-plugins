@@ -1703,7 +1703,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	{
 		// buffalo steak sandvich minicrit on damage taken
 		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
-		// source code states the present buff effect lasts for 16 seconds, 2 seconds for taunt but the wiki states the taunt lasts 4.3 seconds 
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
@@ -1711,7 +1710,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			condition == TFCond_RestrictToMelee &&
 			TF2_IsPlayerInCondition(client, TFCond_CritCola)
 		) {			
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent); //historically didn't have the Marked-for-Death symbol, but this will be fine for now
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent); // historically didn't have the Marked-for-Death symbol in HUD, but a visual cue is good
 		}
 	}
 
@@ -1731,7 +1730,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 
 	{
-		//buffalo steak sandvich marked-for-death effect removal
+		// buffalo steak sandvich marked-for-death effect removal
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
@@ -4664,7 +4663,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			{
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-				// release steak + GRU move speed stacking imitation code
+				// Release steak + GRU move speed stacking imitation code
 				// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
 				// note: whip speedboost doesn't stack with old steak + GRU speed stacking. the same behavior also exists for vanilla steak + GRU.
 				if(GetItemVariant(Wep_BuffaloSteak) == 1 && (index == 239 || index == 1084 || index == 1100)) {				
@@ -4689,7 +4688,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
 						return MRES_Override;
 					}				
-					
+					// increase speed to 310.5 HU/s
 					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
