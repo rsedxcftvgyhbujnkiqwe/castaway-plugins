@@ -4667,6 +4667,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
 					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the reverted Steak buff is in effect. This happpens too with Vanilla.	
+					// initial returnValue.Value = ~299 HU/s
 					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
 						// Cap speed to 310.5 HU/s when speedboost on hit is active while under reverted Steak buff for the Gun Mettle variant of the Eviction Notice
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
@@ -4677,6 +4678,19 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
 						return MRES_Override;
 					}				
+	
+					// clean this up later!!!
+					// release steak + GRU move speed stacking imitation code
+					else if(GetItemVariant(Wep_BuffaloSteak) == 1) {
+						if(index == 239 || index == 1084 || index == 1100) {
+							// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
+							// don't care about speedboost from disciplinary action, disciplinary action (2011) and old steak+GRU stacking (2010) never existed with each other in the past
+							returnValue.Value = view_as<float>(returnValue.Value) * 1.35;
+							return MRES_Override;
+						}
+						// eviction notice speed boost doesn't matter i think with the release steak
+					}
+					
 					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}
