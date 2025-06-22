@@ -708,7 +708,7 @@
 	}
 	"Circuit_1"
 	{
-		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä, käytössä ei metallia apulaitteista, ei vaihtoehtotulitusta"
+		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä, ei metallia apulaitteista kun käytössä, ei vaihtoehtotulitusta"
 	}
 	"Shortstop_0"
 	{
