@@ -709,19 +709,19 @@
 	}
 	"Shortstop_0"
 	{
-		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove"
+		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_1"
 	{
-		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
+		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove"
 	}
 	"Shortstop_2"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo, no shove"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_3"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo; modern shove is kept"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo, no shove"
 	}
 	"Sodapop_0"
 	{

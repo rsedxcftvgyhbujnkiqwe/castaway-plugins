@@ -1035,7 +1035,7 @@ public void OnGameFrame() {
 					{
 						// shortstop shove removal
 
-						if (GetItemVariant(Wep_Shortstop) == 0 || GetItemVariant(Wep_Shortstop) == 2) {
+						if (GetItemVariant(Wep_Shortstop) == 1 || GetItemVariant(Wep_Shortstop) == 3) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
