@@ -1804,12 +1804,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 21, 0.50); // dmg penalty vs nonburning
 			TF2Items_SetAttribute(itemNew, 2, 772, 1.00); // single wep holster time increased
 			TF2Items_SetAttribute(itemNew, 3, 2067, 0.0); // attack minicrits and consumes burning
-
-			if (GetItemVariant(Wep_Axtinguisher) == 1) {
-				TF2Items_SetAttribute(itemNew, 4, 638, 1.0); // axtinguisher properties
-			} else {
-				TF2Items_SetAttribute(itemNew, 4, 20, 1.0); // crit vs burning players
-			}
+			TF2Items_SetAttribute(itemNew, 4, GetItemVariant(Wep_Axtinguisher) == 1 ? 638 : 20, 1.0); // axtinguisher properties, crit on burning players
 		}}
 		case 772: { if (ItemIsEnabled(Wep_BabyFace)) {
 			bool release = GetItemVariant(Wep_BabyFace) == 1;
@@ -1897,8 +1892,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 412, 1.00); // dmg taken
 			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // provide on active
 			TF2Items_SetAttribute(itemNew, 2, 125, -15.0); // max health additive penalty
-			//sword holster code handled here
-			if(swords) {
+			// sword holster code handled here
+			if (swords) {
 				TF2Items_SetAttribute(itemNew, 3, 781, 0.0); // is a sword
 				TF2Items_SetAttribute(itemNew, 4, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
@@ -2098,7 +2093,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 3, 782, 0.0); // remove "Ammo boxes collected also give Charge"
 			TF2Items_SetAttribute(itemNew, 4, 249, 2.00); // +100% increase in charge recharge rate, shields should take around 6 seconds to charge with persuader
 			TF2Items_SetAttribute(itemNew, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
-			if(swords) {
+			if (swords) {
 				TF2Items_SetAttribute(itemNew, 6, 781, 0.0); // is a sword
 				TF2Items_SetAttribute(itemNew, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
@@ -2154,25 +2149,26 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 614, 1.0); // no metal from dispensers while active
 		}}
 		case 220: { if (ItemIsEnabled(Wep_Shortstop)) {
-			
-			// Pre-Manniversary Shortstop
-			if(GetItemVariant(Wep_Shortstop) == 0 || GetItemVariant(Wep_Shortstop) == 1) {
-				TF2Items_SetNumAttributes(itemNew, 5);
-				TF2Items_SetAttribute(itemNew, 0, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
-				TF2Items_SetAttribute(itemNew, 1, 241, 1.0); // reload time increased hidden
-				TF2Items_SetAttribute(itemNew, 2, 534, 1.00); // airblast vulnerability multiplier hidden
-				TF2Items_SetAttribute(itemNew, 3, 535, 1.00); // damage force increase hidden
-				TF2Items_SetAttribute(itemNew, 4, 536, 1.00); // damage force increase text
-			}
-			// Pre-Gun Mettle Shortstop
-			else if(GetItemVariant(Wep_Shortstop) == 2 || GetItemVariant(Wep_Shortstop) == 3) {
-				TF2Items_SetNumAttributes(itemNew, 6);
-				TF2Items_SetAttribute(itemNew, 1, 526, 1.20); // 20% bonus healing from all sources
-				TF2Items_SetAttribute(itemNew, 2, 534, 1.40); // airblast vulnerability multiplier hidden
-				TF2Items_SetAttribute(itemNew, 3, 535, 1.40); // damage force increase hidden
-				TF2Items_SetAttribute(itemNew, 4, 536, 1.40); // damage force increase text
-				TF2Items_SetAttribute(itemNew, 5, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
-			}
+			switch (GetItemVariant(Wep_Shortstop)) {
+				case 0, 1: {
+					// Pre-Manniversary Shortstop
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
+					TF2Items_SetAttribute(itemNew, 1, 241, 1.0); // reload time increased hidden
+					TF2Items_SetAttribute(itemNew, 2, 534, 1.00); // airblast vulnerability multiplier hidden
+					TF2Items_SetAttribute(itemNew, 3, 535, 1.00); // damage force increase hidden
+					TF2Items_SetAttribute(itemNew, 4, 536, 1.00); // damage force increase text
+				}
+				case 2, 3: {
+					// Pre-Gun Mettle Shortstop
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 1, 526, 1.20); // 20% bonus healing from all sources
+					TF2Items_SetAttribute(itemNew, 2, 534, 1.40); // airblast vulnerability multiplier hidden
+					TF2Items_SetAttribute(itemNew, 3, 535, 1.40); // damage force increase hidden
+					TF2Items_SetAttribute(itemNew, 4, 536, 1.40); // damage force increase text
+					TF2Items_SetAttribute(itemNew, 5, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
+				}
+			}	
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
