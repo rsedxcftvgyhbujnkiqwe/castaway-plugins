@@ -475,6 +475,14 @@
 	{
 		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and 10%% dmg vuln while buffed"
 	}
+	"BuffaloSteak_1"
+	{
+		"en"	"Reverted to release, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed stacks with GRU (run a bit faster than Scout)"
+	}
+	"BuffaloSteak_2"
+	{
+		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
+	}
 	"Targe_0"
 	{
 		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal"

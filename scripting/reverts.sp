@@ -418,6 +418,8 @@ public void OnPluginStart() {
 	ItemDefine("brassbeast", "BrassBeast_0", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("bushwacka", "Bushwacka_0", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemDefine("buffalosteak", "BuffaloSteak_0", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_1");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_2");
 	ItemDefine("targe", "Targe_0", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_0", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_0", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
@@ -1689,6 +1691,21 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
 		}
 	}
+
+	{
+		// buffalo steak sandvich minicrit on damage taken
+		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
+		if (
+			ItemIsEnabled(Wep_BuffaloSteak) &&
+			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			condition == TFCond_RestrictToMelee &&
+			TF2_IsPlayerInCondition(client, TFCond_CritCola)
+		) {			
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent); // historically didn't have the Marked-for-Death symbol in HUD, but a visual cue is good
+		}
+	}
+
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1703,6 +1720,21 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
 		}
 	}
+
+	{
+		// buffalo steak sandvich marked-for-death effect removal
+		if (
+			ItemIsEnabled(Wep_BuffaloSteak) &&
+			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			!TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
+			!TF2_IsPlayerInCondition(client, TFCond_RestrictToMelee) &&
+			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
+		) {
+			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+		}			
+	}
+
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -1846,8 +1878,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 311: { if (ItemIsEnabled(Wep_BuffaloSteak)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
+			bool releaseVer = (GetItemVariant(Wep_BuffaloSteak) > 0);
 			TF2Items_SetNumAttributes(item1, 1);
-			TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+			if(!releaseVer)
+				TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+			if(releaseVer)
+				TF2Items_SetAttribute(item1, 0, 798, 1.00); // 0% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
+				// mini-crits on damage taken handled elsewhere in TF2_OnConditionAdded and TF2_OnConditionRemoved
 		}}
 		case 232: { if (ItemIsEnabled(Wep_Bushwacka)) {
 			item1 = TF2Items_CreateItem(0);
@@ -4632,10 +4669,21 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			{
 				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
+				// Release steak + GRU move speed stacking imitation code
+				// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
+				// note: whip speedboost doesn't stack with old steak + GRU speed stacking. the same behavior also exists for vanilla steak + GRU.
+				if(GetItemVariant(Wep_BuffaloSteak) == 1 && (index == 239 || index == 1084 || index == 1100)) {				
+					returnValue.Value = view_as<float>(returnValue.Value) * 1.30; 
+					// it rounds to 403.50 HU/s for some reason via cl_showpos 1, i gave up trying to get it to the exact value but this should be good enough
+					// technically 403.50 HU/s isn't historically accurate, but i have no idea why i can't get it to 403.65 HU/s despite setting it to exactly that value before
+					return MRES_Override;	
+				}
+
 				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
 				{
 					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
 					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the reverted Steak buff is in effect. This happpens too with Vanilla.	
+					// initial returnValue.Value = ~299 HU/s
 					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
 						// Cap speed to 310.5 HU/s when speedboost on hit is active while under reverted Steak buff for the Gun Mettle variant of the Eviction Notice
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
@@ -4646,6 +4694,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
 						return MRES_Override;
 					}				
+					// increase speed to 310.5 HU/s
 					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
 					return MRES_Override;
 				}

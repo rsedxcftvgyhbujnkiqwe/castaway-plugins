@@ -92,7 +92,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_nominate", Command_Nominate);
 	
 	RegAdminCmd("sm_nominate_addmap", Command_Addmap, ADMFLAG_CHANGEMAP, "sm_nominate_addmap <mapname> - Forces a map to be on the next mapvote.");
-	
+	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_ROOT, "Reload the nomination map cycle in-place");
+
 	g_mapTrie = new StringMap();
 }
 
@@ -233,6 +234,12 @@ public Action Command_Addmap(int client, int args)
 	LogAction(client, -1, "\"%L\" inserted map \"%s\".", client, mapname);
 
 	return Plugin_Handled;		
+}
+
+Action Cmd_ReloadNominations(int client, int args)
+{
+    OnConfigsExecuted();
+    return Plugin_Handled;
 }
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
