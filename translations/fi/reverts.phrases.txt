@@ -1,0 +1,797 @@
+"Phrases"
+{
+	// class names
+	// tf/resource/tf_finnish.txt:37-45
+	"SCOUT"
+	{
+		"fi"    "Scout"
+	}
+	"SNIPER"
+	{
+		"fi"    "Sniper"
+	}
+	"SOLDIER"
+	{
+		"fi"    "Soldier"
+	}
+	"DEMOMAN"
+	{
+		"fi"    "Demo"
+	}
+	"MEDIC"
+	{
+		"fi"    "Medic"
+	}
+	"HEAVY"
+	{
+		"fi"    "Heavy"
+	}
+	"PYRO"
+	{
+		"fi"    "Pyro"
+	}
+	"SPY"
+	{
+		"fi"    "Spy"
+	}
+	"ENGINEER"
+	{
+		"fi"    "Engineer"
+	}
+
+	// ui
+	// Note: translated as "historical weapons" rather than "weapon reverts"
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"fi"	"Varustelastin historialliset aseet:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"fi"	"Poista käytöstä nämä viestit !revert -valikosta tai komennolla !toggleinfo"
+	}
+	"REVERT_REVERTS_DISABLED"
+	{
+		"fi"	"Historialliset aseet eivät ole nyt käytössä"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"fi"	"Historiallisten aseiden tiedot tulostettu konsoliin"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	{
+		"fi"	"Palvelimella käytettävissä olevat historialliset aseet:"
+	}
+	"REVERT_EMPTY_REVERTS"
+	{
+		"fi"	"Täällä ei ole mitään... jostain syystä kaikki historialliset aseet ovat pois käytöstä"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"fi"	"Sinun täytyy olla tiimissä, jotta voit käyttää komentoa"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"fi"	"Luokkasi täytyy olla kelvollinen, jotta voit käyttää komentoa"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	{
+		"fi"	"Historialliset aseet käytettävissä luokalle %t:"
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"fi"	"Täällä ei ole mitään... jostain syystä kaikki historialliset aseet luokalle %t ovat pois käytöstä"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"fi"	"Otettiin käyttöön varustelastin historiallisten aseiden tiedot. Ne näytetään, kun vaihdat varustelastia."
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"fi"	"Poistettiin käytöstä varustelastin historiallisten aseiden tiedot. Ota ne uudelleen käyttöön kirjoittamalla !toggleinfo tai avaamalla !reverts -valikko."
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"fi"	"Historialliset aseet"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"fi"	"Näytä luokan historialliset aseet"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"fi"	"Näytä jokaisen historiallisen aseen tiedot"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"fi"	"Ota käyttöön/pois käytöstä varustelastin tiedot"
+	}
+
+	// item names
+	"airblast"
+	{
+		"fi"	"Ilmapuhallus"
+	}
+	"airstrike"
+	{
+		"fi"	"Ilmatuki"
+	}
+	"miniramp"
+	{
+		"fi"	"Kaikki konekiväärit"
+	}
+	"swords"
+	{
+		"fi"	"Kaikki miekat"
+	}
+	"ambassador"
+	{
+		"fi"	"Suurlähettiläs"
+	}
+	"atomizer"
+	{
+		"fi"	"Atomisoija"
+	}
+	"axtinguish"
+	{
+		"fi"	"Sammutuskirves"
+	}
+	"backburner"
+	{
+		"fi"	"Jälkipoltin"
+	}
+	"basejump"
+	{
+		"fi"	"Liitäjän laskuvarjo"
+	}
+	"babyface"
+	{
+		"fi"	"Pikkupojan paukkurauta"
+	}
+	"beggars"
+	{
+		"fi"	"Kerjäläisen kanuuna"
+	}
+	"blackbox"
+	{
+		"fi"	"Musta laatikko"
+	}
+	"bonk"
+	{
+		"fi"	"Bonk-atomijuoma"
+	}
+	"booties"
+	{
+		"fi"	"Poposet & Puujalka"
+	}
+	"brassbeast"
+	{
+		"fi"	"Messinkipeto"
+	}
+	"bushwacka"
+	{
+		"fi"	"Puskanpätkijä"
+	}
+	"buffalosteak"
+	{
+		"fi"	"Puhvelinpihvipurilainen"
+	}
+	"targe"
+	{
+		"fi"	"Rynnäkkökilpi"
+	}
+	"claidheamh"
+	{
+		"fi"	"Claidheamh Mòr"
+	}
+	"carbine"
+	{
+		"fi"	"Sarjatulisiivoaja"
+	}
+	"cozycamper"
+	{
+		"fi"	"Tyytyväinen telttailija"
+	}
+	"critcola"
+	{
+		"fi"	"Krittikola"
+	}
+	"dalokohsbar"
+	{
+		"fi"	"Suklaalevy"
+	}
+	"darwin"
+	{
+		"fi"	"Darwinin vaarakilpi"
+	}
+	"ringer"
+	{
+		"fi"	"Kuolemankello"
+	}
+	"degreaser"
+	{
+		"fi"	"Rasvanpolttaja"
+	}
+	"disciplinary"
+	{
+		"fi"	"Kuritoimenpide"
+	}
+	"dragonfury"
+	{
+		"fi"	"Leppymätön lohikäärme"
+	}
+	"enforcer"
+	{
+		"fi"	"Luottomies"
+	}
+	"equalizer"
+	{
+		"fi"	"Tasoittaja & Pakosuunnitelma"
+	}
+	"eviction"
+	{
+		"fi"	"Häätöilmoitus"
+	}
+	"fiststeel"
+	{
+		"fi"	"Teräsnyrkit"
+	}
+	"guillotine"
+	{
+		"fi"	"Lentävä giljotiini"
+	}
+	"glovesru"
+	{
+		"fi"	"Pikajuoksuhanskat"
+	}
+	"gunboats"
+	{
+		"fi"	"Terässaappaat"
+	}
+	"zatoichi"
+	{
+		"fi"	"Puolisokea samurai"
+	}
+	"liberty"
+	{
+		"fi"	"Vapaudenheitin"
+	}
+	"lochload"
+	{
+		"fi"	"Lataus ja Laattaus"
+	}
+	"cannon"
+	{
+		"fi"	"Hallitsematon höyhentäjä"
+	}
+	"gardener"
+	{
+		"fi"	"Joukkohaudankaivaja"
+	}
+	"natascha"
+	{
+		"fi"	"Natasha"
+	}
+	"panic"
+	{
+		"fi"	"Paniikkikohtaus"
+	}
+	"persuader"
+	{
+		"fi"	"Persialainen pieksentä"
+	}
+	"pomson"
+	{
+		"fi"	"Pomson 6000"
+	}
+	"powerjack"
+	{
+		"fi"	"Tunkki"
+	}
+	"pocket"
+	{
+		"fi"	"Söpönassun sormipyssy"
+	}
+	"quickfix"
+	{
+		"fi"	"Pikapiristys"
+	}
+	"quickiebomb"
+	{
+		"fi"	"Pikapomminheitin"
+	}
+	"razorback"
+	{
+		"fi"	"Selkäsuoja"
+	}
+	"rescueranger"
+	{
+		"fi"	"Pelastuspartiolainen"
+	}
+	"reserve"
+	{
+		"fi"	"Reserviräiskijä"
+	}
+	"bison"
+	{
+		"fi"	"Biisoninpaimennin"
+	}
+	"rocketjmp"
+	{
+		"fi"	"Rakettihyppääjä"
+	}
+	"saharan"
+	{
+		"fi"	"Saharan Spy"
+	}
+	"sandman"
+	{
+		"fi"	"Nukkumatti"
+	}
+	"scottish"
+	{
+		"fi"	"Skotlannin vastarinta"
+	}
+	"circuit"
+	{
+		"fi"	"Pallosalama"
+	}
+	"shortstop"
+	{
+		"fi"	"Pysäyttäjä"
+	}
+	"sodapop"
+	{
+		"fi"	"Limulataus"
+	}
+	"solemn"
+	{
+		"fi"	"Vakava vala"
+	}
+	"splendid"
+	{
+		"fi"	"Suotuisa suoja"
+	}
+	"spycicle"
+	{
+		"fi"	"Jääpuukko"
+	}
+	"stkjumper"
+	{
+		"fi"	"Tahmapomppija"
+	}
+	"sleeper"
+	{
+		"fi"	"Nukutuskivääri"
+	}
+	"turner"
+	{
+		"fi"	"Aallonmurtaja"
+	}
+	"tomislav"
+	{
+		"fi"	"Tomislav"
+	}
+	"tribalshiv"
+	{
+		"fi"	"Heimolaisterä"
+	}
+	"caber"
+	{
+		"fi"	"Ullapoolin tukki"
+	}
+	"vitasaw"
+	{
+		"fi"	"Vita-saha"
+	}
+	"warrior"
+	{
+		"fi"	"Soturin sielu"
+	}
+	"wrangler"
+	{
+		"fi"	"Kaukopaimen"
+	}
+	"eternal"
+	{
+		"fi"	"Ikuinen palkkiosi"
+	}
+
+	// item descriptions
+	"Airblast_0"
+	{
+		"fi"	"Kaikki liekinheitinten ilmapuhallus-mekaniikat ovat ennen Jungle Infernoa"
+	}
+	"Airstrike_0"
+	{
+		"fi"	"Ennen Tough Breakiä: räjähdysalue ei pienene rakettihypyn aikana"
+	}
+	"Minigun_ramp_0"
+	{
+		"fi"	"Ennen Love&Waria: heti pyörittäessä täysi vahinko ja tarkkuus"
+	}
+	"Swords_0"
+	{
+		"fi"	"Ennen Tough Breakiä: ei aseenvaihtoheikkoutta"
+	}
+	"Ambassador_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: täysi pääosumavahinko (102) kaikilla etäisyyksillä"
+	}
+	"Atomizer_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: kolmoishyppy on passiivinen, kolmoishyppy aiheuttaa 10 vahinkoa"
+	}
+	"Axtinguisher_0"
+	{
+		"fi"	"Ennen Love&Waria: aina tekee kriittisiä osumia (195) palaviin pelaajiin, ei nopeuslisää taposta"
+	}
+	"Axtinguisher_1"
+	{
+		"fi"	"Ennen Tough Breakiä: kriittisiä osumia takaa, minikriittisiä osumia edestä, ei nopeuslisää taposta"
+	}
+	"Backburner_0"
+	{
+		"fi"	"Hatless-päivitys versio: 10%% vahinkobonus"
+	}
+	"Backburner_1"
+	{
+		"fi"	"119. päivitys versio: 20%% vahinkobonus, ei ilmapuhallusta"
+	}
+	"BaseJumper_0"
+	{
+		"fi"	"Ennen Tough Breakiä: voi uudelleenavata, enemmän ilmaohjausta, ylösvirtaus tulessa ollessa"
+	}
+	"BabyFace_0"
+	{
+		"fi"	"Ennen Gun Mettleä: ei nopeusvähennystä vahingosta, vain -25%% ilmahypystä"
+	}
+	"BabyFace_1"
+	{
+		"fi"	"Julkaisuversio: 40%% tarkempi, suurempi lipas, ei nopeusvähennystä vahingosta, -35%% liikenopeus, -30%% vahinkoa, -100%% kaikista hypyistä"
+	}
+	"Beggars_0"
+	{
+		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta"
+	}
+	"BlackBox_0"
+	{
+		"fi"	"Ennen Gun Mettleä: rajoittamaton +15 terveyslisä etäisyydestä riippumatta"
+	}
+	"Bonk_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: ei hidasta tehosteen päätyttyä"
+	}
+	"Booties_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: kilpeä ei tarvi nopeuslisän saamiseen"
+	}
+	"BrassBeast_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
+	}
+	"Bushwacka_0"
+	{
+		"fi"	"Ennen Love&Waria: 20%% passiivinen tulialttius, voi tehdä satunnaisia kriittisiä osumia"
+	}
+	"BuffaloSteak_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: tehoste antaa +35%% nopeuslisän ja +10%% vahinkoalttiuden"
+	}
+	"BuffaloSteak_1"
+	{
+		"fi"	"Julkaisuversio: +35%% nopeusbonus, vahinko otettu on minikriittisenä, nopeus pinoaa Pikajuoksuhanskoilla"
+	}
+	"BuffaloSteak_2"
+	{
+		"fi"	"Ennen 2013 kesää: +35%% nopeusbonus, vahinko otettu on minikriittisenä"
+	}
+	
+	"Targe_0"
+	{
+		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
+	}
+	"Claidheamh_0"
+	{
+		"fi"	"Ennen Tough Breakiä: -15 maksimiterveys, ei vahinkoalttiutta, pidempi ryntäys on passiivinen"
+	}
+	"Carbine_0"
+	{
+		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen"
+	}
+	"CozyCamper_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: ei heilu tähdätessä lataustasosta riippumatta"
+	}
+	"CritCola_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: +25%% nopeuslisä, +10%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
+	}
+	"DalokohsBar_0"
+	{
+		"fi"	"Gun Mettle versio: kykenee taas yliparantamaan 400 HP asti"
+	}
+	"Darwin_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: +25 maksimiterveys, 15%% luotisieto, 20%% räjähdysalttius, ei tulisietoja"
+	}
+	"Darwin_1"
+	{
+		"fi"	"Ennen vuotta 2013: +25 maksimiterveys, ei vahinkomuunnoksia tai jälkipolttoimmuniteettiä"
+	}
+	"Ringer_0"
+	{
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahinkosieto jopa 6,5 sekunniksi (vahinko vähentää aikaa)"
+	}
+	"Degreaser_0"
+	{
+		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa"
+	}
+	"Disciplinary_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: tiimikaverit saavat 3 sekuntia nopeuslisää"
+	}
+	"DragonFury_0"
+	{
+		"fi"	"Julkaisuversio: suurempi projektiilin koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
+	}
+	"DragonFury_0_Patchless"
+	{
+		"fi"	"Palautettu julkaisuversion suurempi projektiilin koko"
+	}
+	"Enforcer_0"
+	{
+		"fi"	"Ennen Gun Mettleä: +20%% vahinkobonus naamioitumattomana, ei vahingonsietojen läpäisyä"
+	}
+	"Enforcer_1"
+	{
+		"fi"	"Julkaisuversio: +20%% yleinen vahinkobonus, ei läpäisyä, tekee satunnaisia kriittisiä osumia, +0,5s pidennetty aika verhoutumiseen"
+	}
+	"Equalizer_0"
+	{
+		"fi"	"Ennen Pyromaniaa: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 107 vahinkoa, kun terveys on 1"
+	}
+	"Equalizer_1"
+	{
+		"fi"	"Ennen Hatless-päivitystä: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 113 vahinkoa, kun terveys on 1"
+	}
+	"Equalizer_2"
+	{
+		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
+	}
+	"Eviction_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: ei laske terveyttä, +20%% vahinkoalttius"
+	}
+	"Eviction_1"
+	{
+		"fi"	"Ennen Tough Breakiä: +50%% tulitusnopeus, ei laske terveyttä, ei aktiivista nopeusbonusta"
+	}
+	"FistSteel_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: ei parannusheikkouksia"
+	}
+	"Guillotine_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: kaukaiset osumat minikriittisiä (ei vähennä latausaikaa), kriittiset osumat tainnutettuihin"
+	}
+	"GlovesRU_0"
+	{
+		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25% vahinkoa"
+	}
+	"GlovesRU_1"
+	{
+		"fi"	"Ennen Pyromaniaa: ei laske enimmäisterveyttä, ei poislaittoheikkoutta, aktiivisena poistaa 6 HP/s, -50%% vahinkoa"
+	}
+	"Gunboats_0"
+	{
+		"fi"	"Julkaisuversio: -75%% räjähdysvahinkoa rakettihypyistä"
+	}
+	"Zatoichi_0"
+	{
+		"fi"	"Ennen Tough Breakiä: nopea vaihto, lyhyempi kantama, ei voi vaihtaa ellei tee tappoa, täysi parannus, satunnaiset kriittiset osumat"
+	}
+	"Liberty_0"
+	{
+		"fi"	"Julkaisuversio: +40%% ammuksen nopeus, -25%% lippaan koko"
+	}
+	"LochLoad_0"
+	{
+		"fi"	"Ennen Gun Mettleä: +20%% vahinkobonus kaikkeen"
+	}
+	"LochLoad_1"
+	{
+		"fi"	"Ennen vuotta 2014: +20%% vahinkoa (vaihtelee 15%%), -50%% lipas, +25%% vahinkoa itselle, ei räjähdysalueheikkoutta, kranaatit pyörivät"
+	}
+	"Cannon_0"
+	{
+		"fi"	"Ennen Tough Breakiä: +50%% ammuksen nopeus, vakiot 60 vahingon osumat"
+	}
+	"Gardener_0"
+	{
+		"fi"	"Ennen Tough Breakiä: ei tulitusnopeusheikkoutta"
+	}
+	"Natascha_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
+	}
+	"Panic_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: lataa pitämällä pohjassa, päästä irti lauetakseen; ammu nopeammin leveämmällä hajonnalla, kun terveys laskee"
+	}
+	"Persuader_0"
+	{
+		"fi"	"Ennen Tough Breakiä: kerää ammuksia terveytenä, +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+	}
+	"Pomson_0"
+	{
+		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilatauksen ja verhoutumisen lasku ei putoa etäisyydellä"
+	}
+	"Pomson_1"
+	{
+		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee pelaajat, voi osua monta kertaa, ylilatauksen ja verhoutumisen lasku ei putoa etäisyydellä"
+	}
+	"Powerjack_0"
+	{
+		"fi"	"Ennen Gun Mettleä: samat ominaisuudet kuin perusversio, mutta tapot palauttavat 75 terveyttä (pystyy yliparantamaan)"
+	}
+	"Powerjack_1"
+	{
+		"fi"	"Julkaisuversio: ei nopeusbonusta tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), +25%% vahinkobonus, ei sat. kriittisiä osumia"
+	}
+	"Powerjack_2"
+	{
+		"fi"	"Julkaisuversio: ei nopeusbonusta tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), 20%% aktiivinen lähitaisteluaseen vahinkoalttius"
+	}
+	"Pocket_0"
+	{
+		"fi"	"Julkaisuversio: +15 maksimiterveys, putoamisvahinkoimmuniteetti, 25%% hitaampi tulitusnopeus, 50%% tulialttius"
+	}
+	"Pocket_1"
+	{
+		"fi"	"Ennen vuotta 2018: osumasta saa jopa +7 terveyttä"
+	}
+	"Quickfix_0"
+	{
+		"fi"	"Ennen Tough Breakiä: +25%% ylilatauksen latausnopeus, ylilatauksen alla voi vallata pisteitä"
+	}
+	"Quickfix_0_Patchless"
+	{
+		"fi"	"Ennen Meet your Matchiä: +25%% ylilatauksen latausnopeus"
+	}
+	"Quickiebomb_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: maksimilatausaika vähenentty 50%%, jopa +25%% vahinkoa latauksen perusteella, -25%% lipas, pommit hajoavat 4s jälkeen"
+	}
+	"Razorback_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: voi saada yliparannusta, suoja ei uudistu"
+	}
+	"RescueRanger_0"
+	{
+		"fi"	"Ennen Gun Mettleä: parantaa tasan +75, ei kuluta metallia, kaukonostot maksavat 130 metallia"
+	}
+	"Reserve_0"
+	{
+		"fi"	"Ennen Tough Breakiä: minikriittisiä osumia ilmassa oleville 5s ajan esilleoton jälkeen, 15%% nopeampi aseen vaihto"
+	}
+	"Reserve_1"
+	{
+		"fi"	"Ennen Jungle Infernoa: antaa minikriittisiä ilmapuhalletuille kohteille taas"
+	}
+	"Bison_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua samaa pelaajaa monta kertaa"
+	}
+	"RocketJmp_0"
+	{
+		"fi"	"Ennen vuotta 2013: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta"
+	}
+	"RocketJmp_1"
+	{
+		"fi"	"Ennen vuotta 2013: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta, käyttäjä voi kantaa tiedustelusalkkua"
+	}
+	"Saharan_0"
+	{
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Fantastista fetsiä ei tarvi"
+	}
+	"Sandman_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajia, 15 sekunnin latausaika"
+	}
+	"Scottish_0"
+	{
+		"fi"	"Julkaisuversio: 0,4s hitaampi viritysaika (0,8:sta), ei tulitusnopeusbonusta"
+	}
+	"Circuit_0"
+	{
+		"fi"	"Ennen Meet your Matchiä: vaihtoehtotulitus tuhoaa projektiilejä edessä, maksaa 15 metallia"
+	}
+	"Circuit_1"
+	{
+		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä, käytössä ei metallia apulaitteista, ei vaihtoehtotulitusta"
+	}
+	"Shortstop_0"
+	{
+		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
+	}
+	"Shortstop_1"
+	{
+		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
+	}
+	"Shortstop_2"
+	{
+		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa"
+	}
+	"Shortstop_3"
+	{
+		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa, ei tönäisyä"
+	}
+	"Sodapop_0"
+	{
+		"fi"	"Ennen Smissmas 2013: kerää hypeä juostessasi ja automaattisesti saat minikriittisiä"
+	}
+	"Sodapop_1"
+	{
+		"fi"	"Ennen Meet your Matchiä: kerää hypeä juostessasi"
+	}
+	"Solemn_0"
+	{
+		"fi"	"Ennen Gun Mettleä: ei tulitusnopeusheikkoutta"
+	}
+	"Splendid_0"
+	{
+		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+	}
+	"SpyCicle_0"
+	{
+		"fi"	"Ennen Gun Mettleä: 2s tuli-immuniteetti, hiljainen tappaja, ammukset eivät lataa puukkoa"
+	}
+	"StkJumper_0"
+	{
+		"fi"	"Pyromania-päivitys versio: voi olla taas enintään 8 tahmapommia"
+	}
+	"StkJumper_1"
+	{
+		"fi"	"Pyromania-päivitys versio: voi olla taas enintään 8 tahmapommia, käyttäjä voi kantaa tiedustelusalkkua"
+	}
+	"Sleeper_0"
+	{
+		"fi"	"Ennen vuotta 2018: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"
+	}
+	"Turner_0"
+	{
+		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
+	}
+	"Tomislav_0"
+	{
+		"fi"	"Ennen Pyromaniaa: 40%% nopeampi pyörimisaika, ei tarkkuusbonusta"
+	}
+	"Tomislav_1"
+	{
+		"fi"	"Julkaisuversio: 75%% nopeampi pyörimisaika, ei tarkkuusbonusta"
+	}
+	"TribalShiv_0"
+	{
+		"fi"	"Julkaisuversio: 8 sekunnin verenvuoto, 35%% vahinkovähennys"
+	}
+	"Caber_0"
+	{
+		"fi"	"Ennen Gun Mettleä: räjähdys tekee aina 175+ vahinkoa"
+	}
+	"VitaSaw_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: aina säilyttää jopa 20%% ylilatausta kuollessa"
+	}
+	"Warrior_0"
+	{
+		"fi"	"Ennen Tough Breakiä: parantaa 10 osumasta, ei vahinkoalttiutta, -20 maksimiterveys"
+	}
+	"Wrangler_0"
+	{
+		"fi"	"Ennen Gun Mettleä: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen"
+	}
+	"Eternal_0"
+	{
+		"fi"	"Ennen Jungle Infernoa: ei voi naamioitua, ei nopeuta verhoutumisen katoamista"
+	}
+}
