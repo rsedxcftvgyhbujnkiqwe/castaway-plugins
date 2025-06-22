@@ -715,6 +715,14 @@
 	{
 		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
 	}
+	"Shortstop_2"
+	{
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo, no shove"
+	}
+	"Shortstop_3"
+	{
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo; modern shove is kept"
+	}
 	"Sodapop_0"
 	{
 		"en"	"Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits"

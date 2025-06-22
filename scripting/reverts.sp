@@ -492,6 +492,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_ShortCircuit, "Circuit_1");
 	ItemDefine("shortstop", "Shortstop_0", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_1");
+	ItemVariant(Wep_Shortstop, "Shortstop_2");
+	ItemVariant(Wep_Shortstop, "Shortstop_3");
 	ItemDefine("sodapop", "Sodapop_0", CLASSFLAG_SCOUT, Wep_SodaPopper);
 	ItemVariant(Wep_SodaPopper, "Sodapop_1");
 	ItemDefine("solemn", "Solemn_0", CLASSFLAG_MEDIC, Wep_Solemn);
@@ -1031,9 +1033,9 @@ public void OnGameFrame() {
 					}
 
 					{
-						// shortstop shove
+						// shortstop shove removal
 
-						if (GetItemVariant(Wep_Shortstop) == 0) {
+						if (GetItemVariant(Wep_Shortstop) == 0 || GetItemVariant(Wep_Shortstop) == 2) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
@@ -2200,12 +2202,24 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 220: { if (ItemIsEnabled(Wep_Shortstop)) {
 			item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
-			TF2Items_SetNumAttributes(item1, 5);
-			TF2Items_SetAttribute(item1, 0, 241, 1.0); // reload time increased hidden
-			TF2Items_SetAttribute(item1, 1, 534, 1.00); // airblast vulnerability multiplier hidden
-			TF2Items_SetAttribute(item1, 2, 535, 1.00); // damage force increase hidden
-			TF2Items_SetAttribute(item1, 3, 536, 1.00); // damage force increase text
-			TF2Items_SetAttribute(item1, 4, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
+			// Pre-Manniversary Shortstop
+			if(GetItemVariant(Wep_Shortstop) == 0 || GetItemVariant(Wep_Shortstop) == 1) {
+				TF2Items_SetNumAttributes(item1, 5);
+				TF2Items_SetAttribute(item1, 0, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
+				TF2Items_SetAttribute(item1, 1, 241, 1.0); // reload time increased hidden
+				TF2Items_SetAttribute(item1, 2, 534, 1.00); // airblast vulnerability multiplier hidden
+				TF2Items_SetAttribute(item1, 3, 535, 1.00); // damage force increase hidden
+				TF2Items_SetAttribute(item1, 4, 536, 1.00); // damage force increase text
+			}
+			// Pre-Gun Mettle Shortstop
+			else if(GetItemVariant(Wep_Shortstop) == 2 || GetItemVariant(Wep_Shortstop) == 3) {
+				TF2Items_SetNumAttributes(item1, 6);
+				TF2Items_SetAttribute(item1, 1, 526, 1.20); // 20% bonus healing from all sources
+				TF2Items_SetAttribute(item1, 2, 534, 1.40); // airblast vulnerability multiplier hidden
+				TF2Items_SetAttribute(item1, 3, 535, 1.40); // damage force increase hidden
+				TF2Items_SetAttribute(item1, 4, 536, 1.40); // damage force increase text
+				TF2Items_SetAttribute(item1, 5, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
+			}
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
 			item1 = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES);
