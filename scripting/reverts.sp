@@ -1878,13 +1878,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 311: { if (ItemIsEnabled(Wep_BuffaloSteak)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool releaseVer = (GetItemVariant(Wep_BuffaloSteak) > 0);
 			TF2Items_SetNumAttributes(item1, 1);
-			if(!releaseVer)
-				TF2Items_SetAttribute(item1, 0, 798, 1.10); // +10% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
-			if(releaseVer)
-				TF2Items_SetAttribute(item1, 0, 798, 1.00); // 0% damage vulnerability while under the effect; energy_buff_dmg_taken_multiplier
-				// mini-crits on damage taken handled elsewhere in TF2_OnConditionAdded and TF2_OnConditionRemoved
+			// 0% damage vulnerability while under the effect on release
+			// +10% damage vulnerability while under the effect for current
+			// energy_buff_dmg_taken_multiplier
+			TF2Items_SetAttribute(item1, 0, 798, GetItemVariant(Wep_BuffaloSteak) > 0 ? 1.00 : 1.10);
+			// mini-crits on damage taken handled elsewhere in TF2_OnConditionAdded and TF2_OnConditionRemoved
 		}}
 		case 232: { if (ItemIsEnabled(Wep_Bushwacka)) {
 			item1 = TF2Items_CreateItem(0);
@@ -1970,13 +1969,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(item1, releaseVer ? 6 : 3);
 			TF2Items_SetAttribute(item1, 0, 797, 0.0); // dmg pierces resists absorbs
 			TF2Items_SetAttribute(item1, 1, 2, 1.20); // 20% damage bonus
-			if (!releaseVer) TF2Items_SetAttribute(item1, 2, 410, 0.83334); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total (1.0/1.2 = 0.833...)
 			// When the Spy fires while disguised, he gives less damage to both players and buildings.
 			if (releaseVer) {
 				TF2Items_SetAttribute(item1, 2, 5, 1.00); // increase back the firing rate to same as stock revolver; fire rate penalty attribute
 				TF2Items_SetAttribute(item1, 3, 15, 1.0); // add back random crits; crit mod enabled 
 				TF2Items_SetAttribute(item1, 4, 253, 0.5); // 0.5 sec increase in time taken to cloak
 				TF2Items_SetAttribute(item1, 5, 410, 1.0); // remove damage bonus while disguised
+			} else {
+				TF2Items_SetAttribute(item1, 2, 410, 1.0 / 1.2); // -16.667% damage bonus while disguised; cancels out the 20% dmg bonus to make it 0% total
 			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
@@ -2006,10 +2006,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 1;
 			TF2Items_SetNumAttributes(item1, gunMettleVer ? 3 : 2);
 			TF2Items_SetAttribute(item1, 0, 855, 0.0); // mod maxhealth drain rate
-			if (!gunMettleVer) TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
 			if (gunMettleVer) {
 				TF2Items_SetAttribute(item1, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
 				TF2Items_SetAttribute(item1, 2, 6, 0.50); // set faster firing speed to +50%; 
+			} else {
+				TF2Items_SetAttribute(item1, 1, 852, 1.20); // dmg taken increased
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
@@ -2121,12 +2122,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(item1, 0, 16, 7.0); // On Hit: Gain up to +7 health
 			}
 		}}
-		case 588: { if (ItemIsEnabled(Wep_Pomson)) {
+		case 588: { if (ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) == 1) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool releaseVer = GetItemVariant(Wep_Pomson) == 1;
 			TF2Items_SetNumAttributes(item1, 1);
-			if(releaseVer) TF2Items_SetAttribute(item1, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+			TF2Items_SetAttribute(item1, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
 		}}		
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			item1 = TF2Items_CreateItem(0);
@@ -2309,10 +2309,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			item1 = TF2Items_CreateItem(0);
 			TF2Items_SetFlags(item1, (OVERRIDE_ATTRIBUTES|PRESERVE_ATTRIBUTES));
-			bool releaseVer = GetItemVariant(Wep_Tomislav) == 1;
 			TF2Items_SetNumAttributes(item1, 2);
-			if (!releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.60); // 40% minigun spinup time decreased; mult_minigun_spinup_time
-			if (releaseVer) TF2Items_SetAttribute(item1, 0, 87, 0.25); // 75% minigun spinup time decreased; mult_minigun_spinup_time
+			// 75% minigun spinup time decreased on release
+			// 40% minigun spinup time decreased on current
+			// mult_minigun_spinup_time
+			TF2Items_SetAttribute(item1, 0, 87, GetItemVariant(Wep_Tomislav) == 1 ? 0.25 : 0.60);
 			TF2Items_SetAttribute(item1, 1, 106, 1.0); // 0% accuracy attribute; weapon spread bonus; mult_spread_scale
 			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 		}}
