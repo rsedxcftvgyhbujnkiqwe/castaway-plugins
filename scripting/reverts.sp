@@ -212,18 +212,7 @@ float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
 Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 #endif
 
-// The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
-// Check if we are compiling for Linux, if not then use the Windows one.
-#if !defined WIN32
-MemoryPatch patch_RevertTraceReqDragonsFury_JA;
-MemoryPatch patch_RevertTraceReqDragonsFury_JNZ;
-MemoryPatch patch_RevertTraceReqDragonsFury_JZ;
-MemoryPatch patch_RevertTraceReqDragonsFury_JNZ2;
-MemoryPatch patch_RevertTraceReqDragonsFury_FinalJNZ;
-#else
-// Dragons Fury Memorypatch for Windows.
-MemoryPatch patch_RevertTraceReqDragonsFury_NOP_JZ;
-#endif
+MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
@@ -605,28 +594,11 @@ public void OnPluginStart() {
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
 		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
 #endif
-#if defined WIN32
-		// Dragons fury need only one MemoryPatch on Windows.
-			patch_RevertTraceReqDragonsFury_NOP_JZ =
+
+		patch_RevertDragonsFury_CenterHitForBonusDmg =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
-#else
-		patch_RevertTraceReqDragonsFury_JA =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
-		patch_RevertTraceReqDragonsFury_JNZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ");
-		patch_RevertTraceReqDragonsFury_JZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ");
-		patch_RevertTraceReqDragonsFury_JNZ2 =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second");
-		patch_RevertTraceReqDragonsFury_FinalJNZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
-#endif
+			"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
+
 		patch_RevertMiniguns_RampupNerf_Dmg =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck");
@@ -674,16 +646,7 @@ public void OnPluginStart() {
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
 
-		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
-#if defined WIN32
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_NOP_JZ");
-#else
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JA");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JZ");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ2");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_FinalJNZ");
-#endif
+		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
 
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
@@ -801,25 +764,9 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_DragonFury: {
 			if (enable) {
-#if defined WIN32
-				patch_RevertTraceReqDragonsFury_NOP_JZ.Enable();
-#else
-				patch_RevertTraceReqDragonsFury_JA.Enable();
-				patch_RevertTraceReqDragonsFury_JZ.Enable();
-				patch_RevertTraceReqDragonsFury_JNZ.Enable();
-				patch_RevertTraceReqDragonsFury_JNZ2.Enable();
-				patch_RevertTraceReqDragonsFury_FinalJNZ.Enable();
-#endif
+				patch_RevertDragonsFury_CenterHitForBonusDmg.Enable();
 			} else {
-#if defined WIN32
-				patch_RevertTraceReqDragonsFury_NOP_JZ.Disable();
-#else
-				patch_RevertTraceReqDragonsFury_JA.Disable();
-				patch_RevertTraceReqDragonsFury_JZ.Disable();
-				patch_RevertTraceReqDragonsFury_JNZ.Disable();
-				patch_RevertTraceReqDragonsFury_JNZ2.Disable();
-				patch_RevertTraceReqDragonsFury_FinalJNZ.Disable();
-#endif
+				patch_RevertDragonsFury_CenterHitForBonusDmg.Disable();
 			}
 		}
 		case Feat_Minigun: {
