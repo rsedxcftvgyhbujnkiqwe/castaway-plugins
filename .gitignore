@@ -42,6 +42,8 @@ scripting/include/*
 !scripting/include/CTFWeaponInfo.inc
 !scripting/include/FileWeaponInfo_t.inc
 !scripting/include/WeaponData_t.inc
+!scripting/include/tf_item_constants.inc
+!scripting/include/tf_shareddefs.inc
 
 !gamedata/
 gamedata/*

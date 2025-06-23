@@ -10,7 +10,7 @@
 #endif
 #define NOTNHEAVY_SOURCEMOD_TYPE_COLLECTION_CBASEENTITY
 
-#include "CHandle.inc"
+#include <CHandle>
 
 // For projects where you'd like to provide custom entity data, you can also make an enum struct
 // and make a bunch of properties that index the enum struct members using the entity's entindex().
