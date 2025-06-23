@@ -178,9 +178,6 @@ enum struct Player {
 	bool player_jumped;
 }
 
-//item sets
-#define ItemSet_Saharan 1
-
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -284,6 +281,11 @@ enum
 	Feat_Sword, // All Swords	
 
 	//Item sets
+	Set_SpDelivery,
+	Set_GasJockey,
+	Set_Expert,
+	Set_Hibernate,
+	Set_CrocoStyle,
 	Set_Saharan,
 	
 	//Specific weapons
@@ -316,7 +318,7 @@ enum
 	Wep_Pickaxe, // Equalizer
 	Wep_Eviction,
 	Wep_FistsSteel,
-	Wep_Cleaver, // Flying Guillotine	
+	Wep_Cleaver, // Flying Guillotine
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
@@ -335,7 +337,7 @@ enum
 	Wep_Razorback,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
-	Wep_Bison, // Righteous Bison	
+	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
 	Wep_Sandman,
 	Wep_Scottish,
@@ -350,11 +352,11 @@ enum
 	Wep_Tomislav,
 	Wep_TideTurner,
 	Wep_TribalmansShiv,
-	Wep_Caber, // Ullapool Caber	
+	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
 	Wep_Wrangler,
-	Wep_EternalReward, // Your Eternal Reward	
+	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
 	NUM_ITEMS,
 }
@@ -430,6 +432,7 @@ public void OnPluginStart() {
 	ItemDefine("cozycamper","CozyCamper_0", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
 	ItemDefine("critcola", "CritCola_0", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemDefine("crocostyle", "CrocoStyle_0", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_0", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
@@ -452,12 +455,15 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Pickaxe, "Equalizer_2");
 	ItemDefine("eviction", "Eviction_0", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_1");
+	ItemDefine("expert", "Expert_0", CLASSFLAG_DEMOMAN, Set_Expert);
 	ItemDefine("fiststeel", "FistSteel_0", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("guillotine", "Guillotine_0", CLASSFLAG_SCOUT, Wep_Cleaver);
+	ItemDefine("gasjockey", "GasJockey_0", CLASSFLAG_PYRO, Set_GasJockey);
 	ItemDefine("glovesru", "GlovesRU_0", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemVariant(Wep_GRU, "GlovesRU_1");
 	ItemDefine("gunboats", "Gunboats_0", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("hibernate", "Hibernate_0", CLASSFLAG_HEAVY, Set_Hibernate);
 	ItemDefine("liberty", "Liberty_0", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("lochload", "LochLoad_0", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_1");
@@ -500,6 +506,7 @@ public void OnPluginStart() {
 	ItemDefine("sodapop", "Sodapop_0", CLASSFLAG_SCOUT, Wep_SodaPopper);
 	ItemVariant(Wep_SodaPopper, "Sodapop_1");
 	ItemDefine("solemn", "Solemn_0", CLASSFLAG_MEDIC, Wep_Solemn);
+	ItemDefine("spdelivery", "SpDelivery_0", CLASSFLAG_SCOUT, Set_SpDelivery);
 	ItemDefine("splendid", "Splendid_0", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("spycicle", "SpyCicle_0", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("stkjumper", "StkJumper_0", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
@@ -1905,7 +1912,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 798, 1.10); // +10% damage vulnerability while under the effect
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
-			bool dmg_mods = GetItemVariant(Wep_Darwin) == 0;
+			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
 			TF2Items_SetNumAttributes(itemNew, dmg_mods ? 5 : 3);
 			TF2Items_SetAttribute(itemNew, 0, 60, 1.0); // +0% fire damage resistance on wearer
 			TF2Items_SetAttribute(itemNew, 1, 527, 0.0); // remove afterburn immunity
@@ -2649,19 +2656,43 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		//item sets
 		if (
+			ItemIsEnabled(Set_SpDelivery) ||
+			ItemIsEnabled(Set_GasJockey) ||
+			ItemIsEnabled(Set_Expert) ||
+			ItemIsEnabled(Set_Hibernate) ||
+			ItemIsEnabled(Set_CrocoStyle) ||
 			ItemIsEnabled(Set_Saharan)
 		) {
 			// reset set bonuses on loadout changes
-			TFClassType client_class = TF2_GetPlayerClass(client);
-			switch (client_class)
+			switch (TF2_GetPlayerClass(client))
 			{
+				case TFClass_Scout:
+				{
+					TF2Attrib_SetByDefIndex(client, 517, 0.0); // SET BONUS: max health additive bonus
+				}
+				case TFClass_Pyro:
+				{
+					TF2Attrib_SetByDefIndex(client, 489, 1.0); // SET BONUS: move speed set bonus
+					TF2Attrib_SetByDefIndex(client, 516, 1.0); // SET BONUS: dmg taken from bullets increased 
+				}
+				case TFClass_DemoMan:
+				{
+					TF2Attrib_SetByDefIndex(client, 492, 1.0); // SET BONUS: dmg taken from fire reduced set bonus
+				}
+				case TFClass_Heavy:
+				{
+					TF2Attrib_SetByDefIndex(client, 491, 1.0); // SET BONUS: dmg taken from crit reduced set bonus
+				}
+				case TFClass_Sniper:
+				{
+					TF2Attrib_SetByDefIndex(client, 176, 0.0); // SET BONUS: no death from headshots
+				}
 				case TFClass_Spy:
 				{
 					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
 					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
 				}
 			}
-
 
 			//handle item sets
 			int wep_count = 0;
@@ -2677,6 +2708,70 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
+					// Special Delivery (set)
+					if(
+						ItemIsEnabled(Set_SpDelivery) &&
+						(StrEqual(classname, "tf_weapon_handgun_scout_primary") &&
+						(item_index == 220)) ||
+						(StrEqual(classname, "tf_weapon_jar_milk") &&
+						(item_index == 222)) ||
+						(StrEqual(classname, "tf_weapon_bat_fish") &&
+						(item_index == 221))
+					) {
+						wep_count++;
+						if(wep_count == 3) active_set = Set_SpDelivery;
+					}
+
+					// Gas Jockey's Gear
+					if(
+						ItemIsEnabled(Set_GasJockey) &&
+						(StrEqual(classname, "tf_weapon_flamethrower") &&
+						(item_index == 215)) ||
+						(StrEqual(classname, "tf_weapon_fireaxe") &&
+						(item_index == 214))
+					) {
+						wep_count++;
+						if(wep_count == 2) active_set = Set_GasJockey;
+					}
+
+					// Expert's Ordnance
+					if(
+						ItemIsEnabled(Set_Expert) &&
+						(StrEqual(classname, "tf_weapon_grenadelauncher") &&
+						(item_index == 308)) ||
+						(StrEqual(classname, "tf_weapon_stickbomb") &&
+						(item_index == 307))
+					) {
+						wep_count++;
+						if(wep_count == 2) active_set = Set_Expert;
+					}
+
+					// Hibernating Bear
+					if(
+						ItemIsEnabled(Set_Hibernate) &&
+						(StrEqual(classname, "tf_weapon_minigun") &&
+						(item_index == 312)) ||
+						(StrEqual(classname, "tf_weapon_lunchbox") &&
+						(item_index == 311)) ||
+						(StrEqual(classname, "tf_weapon_fists") &&
+						(item_index == 310))
+					) {
+						wep_count++;
+						if(wep_count == 3) active_set = Set_Hibernate;
+					}
+
+					// Croc-o-Style Kit
+					if(
+						ItemIsEnabled(Set_CrocoStyle) &&
+						(StrEqual(classname, "tf_weapon_sniperrifle") &&
+						(item_index == 230)) ||
+						(StrEqual(classname, "tf_weapon_club") &&
+						(item_index == 232))
+					) {
+						wep_count++;
+						if(wep_count == 2) active_set = Set_CrocoStyle;
+					}
+
 					// Saharan Spy
 					if(
 						ItemIsEnabled(Set_Saharan) &&
@@ -2686,36 +2781,66 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(item_index == 225 || item_index == 574))
 					) {
 						wep_count++;
-						if(wep_count == 2) active_set = ItemSet_Saharan;
+						if(wep_count == 2) active_set = Set_Saharan;
 					}
 				}
 			}
 
 			if (active_set)
 			{
-				bool validSet = true;
+				bool validSet = false;
 
-				//this code can be used if you want cosmetics to be a part of item sets
-				// bool validSet = false;
-				// int num_wearables = TF2Util_GetPlayerWearableCount(client);
-				// for (int i = 0; i < num_wearables; i++)
-				// {
-				// 	int wearable = TF2Util_GetPlayerWearable(client, i);
-				// 	int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
-				// 	if(
-				// 		(active_set == ItemSet_Saharan) &&
-				// 		(item_index == 223)
-				// 	) {
-				// 		validSet = true;
-				// 		break;
-				// 	}
-				// }
+				if (active_set == Set_CrocoStyle)
+				{
+					// this code can also be used if you want cosmetics to be a part of item sets
+					int num_wearables = TF2Util_GetPlayerWearableCount(client);
+					for (int i = 0; i < num_wearables; i++)
+					{
+						int wearable = TF2Util_GetPlayerWearable(client, i);
+						int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
+						if (
+							// This code only checks for Darwin's Danger Shield (231)
+							(item_index == 231)
+						) {
+							validSet = true;
+							break;
+						}
+					}
+				} else {
+					validSet = true;
+				}
 
 				if (validSet)
 				{
 					switch (active_set)
 					{
-						case ItemSet_Saharan:
+						case Set_SpDelivery:
+						{
+							player_weapons[client][Set_SpDelivery] = true;
+							TF2Attrib_SetByDefIndex(client, 517, 25.0); // SET BONUS: max health additive bonus
+						}
+						case Set_GasJockey:
+						{
+							player_weapons[client][Set_GasJockey] = true;
+							TF2Attrib_SetByDefIndex(client, 489, 1.10); // SET BONUS: move speed set bonus
+							TF2Attrib_SetByDefIndex(client, 516, 1.10); // SET BONUS: dmg taken from bullets increased
+						}
+						case Set_Expert:
+						{
+							player_weapons[client][Set_Expert] = true;
+							TF2Attrib_SetByDefIndex(client, 492, 0.90); // SET BONUS: dmg taken from fire reduced set bonus
+						}
+						case Set_Hibernate:
+						{
+							player_weapons[client][Set_Hibernate] = true;
+							TF2Attrib_SetByDefIndex(client, 491, 0.95); // SET BONUS: dmg taken from crit reduced set bonus
+						}
+						case Set_CrocoStyle:
+						{
+							player_weapons[client][Set_CrocoStyle] = true;
+							TF2Attrib_SetByDefIndex(client, 176, 1.0); // SET BONUS: no death from headshots
+						}
+						case Set_Saharan:
 						{
 							player_weapons[client][Set_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty

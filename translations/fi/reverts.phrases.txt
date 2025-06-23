@@ -512,11 +512,11 @@
 	}
 	"Darwin_0"
 	{
-		"fi"	"Ennen Jungle Infernoa: +25 maksimiterveys, 15%% luotisieto, 20%% räjähdysalttius, ei tulisietoja"
+		"fi"	"Ennen vuotta 2013: +25 maksimiterveys, ei vahinkomuunnoksia tai jälkipolttoimmuniteettiä"
 	}
 	"Darwin_1"
 	{
-		"fi"	"Ennen vuotta 2013: +25 maksimiterveys, ei vahinkomuunnoksia tai jälkipolttoimmuniteettiä"
+		"fi"	"Ennen Jungle Infernoa: +25 maksimiterveys, 15%% luotisieto, 20%% räjähdysalttius, ei tulisietoja"
 	}
 	"Ringer_0"
 	{
