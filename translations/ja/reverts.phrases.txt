@@ -1,0 +1,399 @@
+"Phrases"
+{
+	// class names
+	// tf/resource/tf_japanese.txt:36-44
+	"SCOUT"
+	{
+		"ja"	"スカウト"
+	}
+	"SNIPER"
+	{
+		"ja"	"スナイパー"
+	}
+	"SOLDIER"
+	{
+		"ja"	"ソルジャー"
+	}
+	"DEMOMAN"
+	{
+		"ja"	"デモマン"
+	}
+	"MEDIC"
+	{
+		"ja"	"メディック"
+	}
+	"HEAVY"
+	{
+		"ja"	"ヘビー"
+	}
+	"PYRO"
+	{
+		"ja"	"パイロ"
+	}
+	"SPY"
+	{
+		"ja"	"スパイ"
+	}
+	"ENGINEER"
+	{
+		"ja"	"エンジニア"
+	}
+
+	// ui
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"ja"	"Weapon reverts enabled for your loadout:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"ja"	"Disable these messages in the !revert menu or with !toggleinfo"
+	}
+	"REVERT_REVERTS_DISABLED"
+	{
+		"ja"	"Weapon reverts are not enabled right now"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"ja"	"Weapon revert details printed to console"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	{
+		"ja"	"Weapon reverts currently enabled on this server:"
+	}
+	"REVERT_EMPTY_REVERTS"
+	{
+		"ja"	"There's nothing here... for some reason, all item cvars are off"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"ja"	"You need to be in a team to use this command"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"ja"	"Your class needs to be valid to use this command"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	{
+		"ja"	"Weapon reverts currently enabled for %t:"
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"ja"	"There's nothing here... for some reason, all %t reverts are disabled"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"ja"	"Enabled loadout change revert info. They will be shown the next time you change loadouts."
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"ja"	"Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu."
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"ja"	"Weapon Reverts"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"ja"	"Show reverts for your current class"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"ja"	"Show information about each revert"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"ja"	"Toggle loadout change revert info"
+	}
+
+	// item names
+	// some items don't have japanese names in the TF2 wiki, so the english form is used instead
+	"airblast"
+	{
+		// https://wiki.teamfortress.com/wiki/Compression_blast/ja
+		"ja"	"エアーブラスト"
+	}
+	"airstrike"
+	{
+		"ja"	"Air Strike"
+	}
+	"miniramp"
+	{
+		"ja"	"全てのミニガン"
+	}
+	"swords"
+	{
+		"ja"	"All Swords"
+	}
+	"ambassador"
+	{
+		"ja"	"Ambassador"
+	}
+	"atomizer"
+	{
+		"ja"	"Atomizer"
+	}
+	"axtinguish"
+	{
+		"ja"	"Axtinguisher"
+	}
+	"backburner"
+	{
+		"ja"	"Backburner"
+	}
+	"basejump"
+	{
+		"ja"	"B.A.S.E. Jumper"
+	}
+	"babyface"
+	{
+		"ja"	"Baby Face's Blaster"
+	}
+	"beggars"
+	{
+		"ja"	"Beggar's Bazooka"
+	}
+	"blackbox"
+	{
+		"ja"	"Black Box"
+	}
+	"bonk"
+	{
+		"ja"	"Bonk! Atomic Punch"
+	}
+	"booties"
+	{
+		"ja"	"Booties & Bootlegger"
+	}
+	"brassbeast"
+	{
+		"ja"	"Brass Beast"
+	}
+	"bushwacka"
+	{
+		"ja"	"Bushwacka"
+	}
+	"buffalosteak"
+	{
+		"ja"	"Buffalo Steak Sandvich"
+	}
+	"targe"
+	{
+		"ja"	"Chargin' Targe"
+	}
+	"claidheamh"
+	{
+		"ja"	"Claidheamh Mòr"
+	}
+	"carbine"
+	{
+		"ja"	"Cleaner's Carbine"
+	}
+	"cozycamper"
+	{
+		"ja"	"Cozy Camper"
+	}
+	"critcola"
+	{
+		"ja"	"Crit-a-Cola"
+	}
+	"dalokohsbar"
+	{
+		"ja"	"Dalokohs Bar"
+	}
+	"darwin"
+	{
+		"ja"	"Darwin's Danger Shield"
+	}
+	"ringer"
+	{
+		"ja"	"Dead Ringer"
+	}
+	"degreaser"
+	{
+		"ja"	"Degreaser"
+	}
+	"disciplinary"
+	{
+		"ja"	"Disciplinary Action"
+	}
+	"dragonfury"
+	{
+		"ja"	"Dragon's Fury"
+	}
+	"enforcer"
+	{
+		"ja"	"Enforcer"
+	}
+	"equalizer"
+	{
+		"ja"	"Equalizer & Escape Plan"
+	}
+	"eviction"
+	{
+		"ja"	"Eviction Notice"
+	}
+	"fiststeel"
+	{
+		"ja"	"Fists of Steel"
+	}
+	"guillotine"
+	{
+		"ja"	"Flying Guillotine"
+	}
+	"glovesru"
+	{
+		"ja"	"Gloves of Running Urgently"
+	}
+	"gunboats"
+	{
+		"ja"	"Gunboats"
+	}
+	"zatoichi"
+	{
+		"ja"	"Half-Zatoichi"
+	}
+	"liberty"
+	{
+		"ja"	"Liberty Launcher"
+	}
+	"lochload"
+	{
+		"ja"	"Loch-n-Load"
+	}
+	"cannon"
+	{
+		"ja"	"Loose Cannon"
+	}
+	"gardener"
+	{
+		"ja"	"Market Gardener"
+	}
+	"natascha"
+	{
+		"ja"	"Natascha"
+	}
+	"panic"
+	{
+		"ja"	"Panic Attack"
+	}
+	"persuader"
+	{
+		"ja"	"Persian Persuader"
+	}
+	"pomson"
+	{
+		"ja"	"Pomson 6000"
+	}
+	"powerjack"
+	{
+		"ja"	"Powerjack"
+	}
+	"pocket"
+	{
+		"ja"	"Pretty Boy's Pocket Pistol"
+	}
+	"quickfix"
+	{
+		"ja"	"Quick-Fix"
+	}
+	"quickiebomb"
+	{
+		"ja"	"Quickiebomb Launcher"
+	}
+	"razorback"
+	{
+		"ja"	"Razorback"
+	}
+	"rescueranger"
+	{
+		"ja"	"Rescue Ranger"
+	}
+	"reserve"
+	{
+		"ja"	"Reserve Shooter"
+	}
+	"bison"
+	{
+		"ja"	"Righteous Bison"
+	}
+	"rocketjmp"
+	{
+		"ja"	"Rocket Jumper"
+	}
+	"saharan"
+	{
+		"ja"	"Saharan Spy"
+	}
+	"sandman"
+	{
+		"ja"	"Sandman"
+	}
+	"scottish"
+	{
+		"ja"	"Scottish Resistance"
+	}
+	"circuit"
+	{
+		"ja"	"Short Circuit"
+	}
+	"shortstop"
+	{
+		"ja"	"Shortstop"
+	}
+	"sodapop"
+	{
+		"ja"	"Soda Popper"
+	}
+	"solemn"
+	{
+		"ja"	"Solemn Vow"
+	}
+	"splendid"
+	{
+		"ja"	"Splendid Screen"
+	}
+	"spycicle"
+	{
+		"ja"	"Spy-cicle"
+	}
+	"stkjumper"
+	{
+		"ja"	"Sticky Jumper"
+	}
+	"sleeper"
+	{
+		"ja"	"Sydney Sleeper"
+	}
+	"turner"
+	{
+		"ja"	"Tide Turner"
+	}
+	"tomislav"
+	{
+		"ja"	"Tomislav"
+	}
+	"tribalshiv"
+	{
+		"ja"	"Tribalman's Shiv"
+	}
+	"caber"
+	{
+		"ja"	"Ullapool Caber"
+	}
+	"vitasaw"
+	{
+		"ja"	"Vita-Saw"
+	}
+	"warrior"
+	{
+		"ja"	"Warrior's Spirit"
+	}
+	"wrangler"
+	{
+		"ja"	"Wrangler"
+	}
+	"eternal"
+	{
+		"ja"	"Your Eternal Reward"
+	}
+}

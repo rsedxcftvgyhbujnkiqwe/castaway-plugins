@@ -44,6 +44,9 @@ translations/*
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
+!translations/ja/
+translations/ja/*
+!translations/ja/reverts.phrases.txt
 !translations/fi/
 translations/fi/*
 !translations/fi/reverts.phrases.txt
