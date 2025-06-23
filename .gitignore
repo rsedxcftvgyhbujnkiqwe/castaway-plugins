@@ -38,6 +38,7 @@ scripting/include/*
 !scripting/include/smmem/winnt.inc
 !scripting/include/SMTCHeader.inc
 !scripting/include/SMTC.inc
+!scripting/include/CHandle.inc
 !scripting/include/CBaseEntity.inc
 !scripting/include/CTFWeaponInfo.inc
 !scripting/include/FileWeaponInfo_t.inc
