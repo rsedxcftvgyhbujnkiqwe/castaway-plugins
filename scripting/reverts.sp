@@ -3760,6 +3760,12 @@ Action SDKHookCB_WeaponEquip(int client, int weapon) {
 	if (weaponInfo.m_bDontDrop) {
 		return Plugin_Continue;
 	}
+    // demoknight
+    char weaponClass[MAX_WEAPON_STRING];
+    weaponInfo.szClassName.ToCharBuffer(weaponClass, sizeof(weaponClass));
+	if (StrEqual(weaponClass, "tf_weapon_bottle") || StrEqual(weaponClass, "tf_weapon_sword")) {
+		return Plugin_Continue;
+	}
 	if (weaponInfo.m_iWeaponType == TF_WPN_TYPE_MELEE) {
 		weaponInfo.m_bDontDrop = true;
 		return Plugin_Changed;

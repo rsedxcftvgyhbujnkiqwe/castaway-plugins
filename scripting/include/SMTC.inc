@@ -53,7 +53,7 @@ static ArrayList g_Hooks;
 bool g_SMTCInitialized = false;
 
 // taken from server_srv.so for CDefOps<int>::LessFunc
-stock static char s_aDefaultLessFunc[] = "\x55\x89\xE5\x8B\x45\x0C\x8B\x55\x08\x5D\x8B\x00\x39\x02\x0F\x9C\xC0\xC3";
+//stock static char s_aDefaultLessFunc[] = "\x55\x89\xE5\x8B\x45\x0C\x8B\x55\x08\x5D\x8B\x00\x39\x02\x0F\x9C\xC0\xC3";
 
 //////////////////////////////////////////////////////////////////////////////
 // SMTC FORWARDS                                                            //
@@ -132,7 +132,7 @@ stock void SMTC_Initialize()
 
     // Set up hooks from the config file.
     GameData config = LoadGameConfigFile("NotnHeavy - SourceMod Type Collection");
-    char keyvalue[128];
+//    char keyvalue[128];
     
     OSTypeUsed = view_as<OSType>(config.GetOffset("OSTypeUsed"));
 
