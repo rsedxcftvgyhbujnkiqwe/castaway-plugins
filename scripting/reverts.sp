@@ -3749,20 +3749,18 @@ void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 }
 
 Action SDKHookCB_WeaponEquip(int client, int weapon) {
+	// this feels like the most object oriented piece of code i have written in sp somehow
 	if (!cvar_dropped_weapon_enable.BoolValue ||
 		(cvar_dropped_weapon_enable.BoolValue && cvar_dropped_weapon_drop_melee.BoolValue)) {
 		return Plugin_Continue;
 	}
 	CTFWeaponInfo weaponInfo = CBaseEntity.FromIndex(weapon).Dereference(SMTC_CTFWeaponBase_m_pWeaponInfo);
-	if (weaponInfo == NULL) {
+	if (weaponInfo == NULL || weaponInfo.m_bDontDrop) {
 		return Plugin_Continue;
 	}
-	if (weaponInfo.m_bDontDrop) {
-		return Plugin_Continue;
-	}
-    // demoknight
-    char weaponClass[MAX_WEAPON_STRING];
-    weaponInfo.szClassName.ToCharBuffer(weaponClass, sizeof(weaponClass));
+	// demoknight
+	char weaponClass[MAX_WEAPON_STRING];
+	weaponInfo.szClassName.ToCharBuffer(weaponClass, sizeof(weaponClass));
 	if (StrEqual(weaponClass, "tf_weapon_bottle") || StrEqual(weaponClass, "tf_weapon_sword")) {
 		return Plugin_Continue;
 	}
