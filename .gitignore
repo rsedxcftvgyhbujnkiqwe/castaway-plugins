@@ -29,12 +29,26 @@ scripting/include/*
 !scripting/include/tf2utils.inc
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
+!scripting/include/smmem.inc
+!scripting/include/smmem/
+!scripting/include/smmem/dynlib.inc
+!scripting/include/smmem/rtti.inc
+!scripting/include/smmem/stocks.inc
+!scripting/include/smmem/vec.inc
+!scripting/include/smmem/winnt.inc
+!scripting/include/SMTCHeader.inc
+!scripting/include/SMTC.inc
+!scripting/include/CBaseEntity.inc
+!scripting/include/CTFWeaponInfo.inc
+!scripting/include/FileWeaponInfo_t.inc
+!scripting/include/WeaponData_t.inc
 
 !gamedata/
 gamedata/*
 !gamedata/reverts.txt
 !gamedata/stalemate.txt
 !gamedata/memorypatch_reverts.txt
+!gamedata/NotnHeavy - SourceMod Type Collection.txt
 !gamedata/legacy
 !gamedata/legacy/*
 

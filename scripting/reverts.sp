@@ -44,6 +44,10 @@
 #include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
 #undef REQUIRE_PLUGIN
 #include <sourcescramble>
+#include <SMTCHeader>
+#include <CBaseEntity>
+#include <CTFWeaponInfo>
+#include <SMTC>
 #define REQUIRE_PLUGIN
 #pragma semicolon 1
 #pragma newdecls required
@@ -192,6 +196,7 @@ ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
+ConVar cvar_dropped_weapon_drop_melee;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -395,6 +400,7 @@ public void OnPluginStart() {
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+	cvar_dropped_weapon_drop_melee = CreateConVar("sm_reverts__enable_drop_melee", "0", (PLUGIN_NAME ... " - Drop melee weapons with reverted dropped weapon behaviour"), _, true, 0.0, true, 1.0);
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -879,6 +885,9 @@ public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
+#if defined MEMORY_PATCHES
+	SMTC_Initialize();
+#endif
 }
 
 public void OnGameFrame() {
@@ -1541,6 +1550,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_OnTakeDamagePost);
 	SDKHook(client, SDKHook_WeaponSwitchPost, SDKHookCB_WeaponSwitchPost);
+	SDKHook(client, SDKHook_WeaponEquip, SDKHookCB_WeaponEquip);
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -3736,6 +3746,25 @@ void SDKHookCB_OnTakeDamagePost(
 void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 {
 	players[client].ticks_since_switch = 0;
+}
+
+Action SDKHookCB_WeaponEquip(int client, int weapon) {
+	if (!cvar_dropped_weapon_enable.BoolValue ||
+		(cvar_dropped_weapon_enable.BoolValue && cvar_dropped_weapon_drop_melee.BoolValue)) {
+		return Plugin_Continue;
+	}
+	CTFWeaponInfo weaponInfo = CBaseEntity.FromIndex(weapon).Dereference(SMTC_CTFWeaponBase_m_pWeaponInfo);
+	if (weaponInfo == NULL) {
+		return Plugin_Continue;
+	}
+	if (weaponInfo.m_bDontDrop) {
+		return Plugin_Continue;
+	}
+	if (weaponInfo.m_iWeaponType == TF_WPN_TYPE_MELEE) {
+		weaponInfo.m_bDontDrop = true;
+		return Plugin_Changed;
+	}
+	return Plugin_Continue;
 }
 
 public Action OnPlayerRunCmd(

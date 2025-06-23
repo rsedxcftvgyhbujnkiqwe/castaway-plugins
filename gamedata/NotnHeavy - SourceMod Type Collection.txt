@@ -1,0 +1,419 @@
+// This is adjusted for TF2 only. 
+// If you are using SMTC for other games, you must modify the gamedata.
+"Games"
+{
+    "tf"
+    {
+		"Keys"
+		{
+			// /CUserCmd.inc
+			"CUserCmd_vtable"
+			{
+				"windows" ".?AVCUserCmd@@"
+				"linux"   "_ZTV8CUserCmd"
+			}
+
+			// /UTIL.inc
+			"CTraceFilterSimple_vtable"
+			{
+				"windows" ".?AVCTraceFilterSimple@@"
+				"linux"   "_ZTV18CTraceFilterSimple"
+			}
+			"CFlaggedEntitiesEnum_vtable"
+			{
+				"windows" ".?AVCFlaggedEntitiesEnum@@"
+				"linux"   "_ZTV20CFlaggedEntitiesEnum"
+			}
+
+			// /tf/tf_point_t.inc
+			"tf_point_t_vtable"
+			{
+				"windows" ".?AUtf_point_t@@"
+				"linux"   "_ZTV10tf_point_t"
+			}
+		}
+		"Addresses"
+		{
+			// /CEngineTrace.inc
+			"enginetrace"
+			{
+				"windows"
+				{
+					"signature" "CBaseEntity::HandleShotImpactingWater()"
+					"read"      "2024" // 55 -> 2024. what.
+				}
+				"linux"
+				{
+					"signature" "enginetrace"
+				}
+				"read" "0"
+			}
+
+			// /CGlobalVars.inc
+			"gpGlobals"
+			{
+				"windows"
+				{
+					"signature" "CTFPlayer::RuneRegenThink()"
+					"read"      "28"
+				}
+				"linux"
+				{
+					"signature" "gpGlobals"
+				}
+				"read" "0"
+			}
+
+			// /CLagCompensationManager.inc
+			"lagcompensation"
+			{
+				"windows"
+				{
+					"signature" "CTFPistol_ScoutPrimary::Push()"
+					"read"		"72"
+				}
+				"linux"
+				{
+					"signature" "lagcompensation"
+				}
+				"read" "0"
+			}
+			
+			// /CSpatialPartition.inc
+			"partition"
+			{
+				"windows"
+				{
+					"signature" "CC_VoxelTreeView()"
+					"read"      "13"
+				}
+				"linux"
+				{
+					"signature" "partition"
+				}
+				"read" "0"
+			}
+
+			// /tf/CTFGameRules.inc
+			"g_pGameRules"
+			{
+				"windows"
+				{
+					"signature" "cc_ShowRespawnTimes()"
+					"read"      "13"
+				}
+				"linux"
+				{
+					"signature" "g_pGameRules"
+				}
+				"read" "0"
+			}
+
+			// /tf/TFPlayerClassData_t.inc
+			"g_pTFPlayerClassDataMgr"
+			{
+				"windows"
+				{
+					"signature" "GetPlayerClassData()"
+					"read"      "11"
+				}
+				"linux"
+				{
+					"signature" "g_pTFPlayerClassDataMgr"
+				}
+				"read" "0"
+			}
+		}
+		"Offsets"
+		{
+			// CEngineTrace.inc
+			"IEngineTrace::ClipRayToEntity()"
+			{
+				"windows" "2"
+				"linux"   "2"
+			}
+			"IEngineTrace::TraceRay()"
+			{
+				"windows" "4"
+				"linux"   "4"
+			}
+
+			// /CSpatialPartition.inc
+			"CSpatialPartition::EnumerateElementsInBox()"
+			{
+				"windows" "13"
+				"linux"   "14"
+			}
+
+			// /CLagCompensationManager.inc
+			"CLagCompensationManager::m_thisOffset"
+			{
+				// this is probably the most suitable method i've decided (for now, at least)
+				// i.e. use signatures and read vtable info on linux to figure out the this offset
+				"windows" "0"
+				"linux"   "-12"
+			}
+			"CLagCompensationManager::m_isCurrentlyDoingCompensation"
+			{
+				// windows: find last func call in 2nd vtable (as a result of multiple inheritance), grab offset
+				// linux: just look up the function CLagCompensationManager::IsCurrentlyDoingLagCompensation() 
+				"windows" "85276"
+				"linux"   "85276"
+			}
+
+			// /tf/tf_point_t.inc
+			"CTFPointManager::AddPoint()"
+			{
+				"windows" "198"
+				"linux"   "199"
+			}
+			"CTFPointManager::GetMaxPoints()"
+			{
+				"windows" "215"
+				"linux"   "216"
+			}
+
+			// /tf/CTakeDamageInfo.inc
+			"Offset::CTFPlayer::OnTakeDamage()"
+			{
+				"windows" "64"
+				"linux"   "65"
+			}
+			"Offset::CTFPlayer::OnTakeDamage_Alive()"
+			{
+				"windows" "282"
+				"linux"   "283"
+			}
+
+			// /tf/FileWeaponInfo_t.inc
+			"FileWeaponInfo_t::Parse()"
+			{
+				"windows" "0"
+				"linux"   "0"
+			}
+
+			// /SMTC.inc
+			"OSTypeUsed"
+			{
+				"windows" "0"
+				"linux"   "1"
+				"mac"     "2"
+			}
+		}
+        "Signatures"
+        {
+			// /CEngineTrace.inc
+			"enginetrace"
+			{
+				"library" "server"
+				"linux"   "@enginetrace"
+			}
+			"CBaseEntity::HandleShotImpactingWater()"
+			{
+				"library" "server"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x68\x03\x00\x00\x56\x57"  // xrefs to "gunshotsplash"
+			}
+
+			// /CGlobalVars.inc
+			"gpGlobals"
+			{
+				"library" "server"
+				"linux"   "@gpGlobals"
+			}
+			"CTFPlayer::RuneRegenThink()" // xref to string "RuneRegenThink", one with smaller offset
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x74\x56\x8B\xF1\x8B\x06"
+			}
+
+			// /CBaseEntity.inc
+			"CBaseEntity::TakeDamage()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x98\x00\x00\x00\x53\x56\x57\x8B\xF9\x8B\x0D\x2A\x2A\x2A\x2A" // offset aCbaseentityTak ; "CBaseEntity::TakeDamage:  with inputInf"...
+				"linux"   "@_ZN11CBaseEntity10TakeDamageERK15CTakeDamageInfo"
+			}
+
+			// /CLagCompensationManager.inc
+			"lagcompensation"
+			{
+				"library" "server"
+				"linux"   "@lagcompensation"
+			}
+			"CLagCompensationManager::StartLagCompensation()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x28\x57\x8B\xF9\x89\x7D\xE4" // offset aTryingToStartA ; "Trying to start a new lag compensation "...
+				"linux"   "@_ZN23CLagCompensationManager20StartLagCompensationEP11CBasePlayerP8CUserCmd"
+			}
+			"CLagCompensationManager::FinishLagCompensation()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x40\x8B\x15\x2A\x2A\x2A\x2A\x53\x56\x33\xF6\x8B\xD9" // offset aFinishlagcompe ; "FinishLagCompensation"
+				"linux"   "@_ZN23CLagCompensationManager21FinishLagCompensationEP11CBasePlayer"
+			}
+			"CTFPistol_ScoutPrimary::Push()"
+			{
+				"library" "server"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xC1" // offset aWeaponHandsPus_0 ; "Weapon_Hands.PushImpact"
+			}
+
+			// /CSpatialPartition.inc
+			"partition"
+			{
+				"library" "server"
+				"linux"   "@partition"
+			}
+			"CC_VoxelTreeView()"
+			{
+				// holy shit i am fucking lucky with this signature
+				"library" "server"
+				"windows" "\x68\x2A\x2A\x2A\x2A\xFF\x15\x2A\x2A\x2A\x2A\x8B\x0D\x2A\x2A\x2A\x2A\xD9\x05\x2A\x2A\x2A\x2A" // offset aVoxeltreeview ; "VoxelTreeView\n"
+			}
+
+			// /tf/TFPlayerClassData_t.inc
+			"GetPlayerClassData()" // offset aMultPlayerAimi ; "mult_player_aiming_movespeed", first call since last checked, subroutine has number 2288 last checked
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x69\x4D\x08\xF0\x08\x00\x00"
+			}
+			"g_pTFPlayerClassDataMgr"
+			{
+				"library" "server"
+				"linux"   "@g_pTFPlayerClassDataMgr"
+			}
+
+			// /tf/CTakeDamageInfo.inc
+            "CTFPlayer::OnTakeDamage_Alive()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x80\x01\x00\x00\x56" // offset aBleedingDurati ; "bleeding_duration"
+				"linux"   "@_ZN9CTFPlayer18OnTakeDamage_AliveERK15CTakeDamageInfo"
+			}
+
+			// /tf/CTFRadiusDamageInfo.inc
+			"CTFRadiusDamageInfo::CalculateFalloff()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x51\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x57" // offset aMultDmgFalloff ; "mult_dmg_falloff"
+				"linux"	  "@_ZN19CTFRadiusDamageInfo16CalculateFalloffEv"
+			}
+			"CTFRadiusDamageInfo::ApplyToEntity()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x3C\x01\x00\x00\x56" // offset aProjectileDire ; "projectile_direct_hit", xref to subroutine that has no strings
+				"linux"   "@_ZN19CTFRadiusDamageInfo13ApplyToEntityEP11CBaseEntity"
+			}
+			"CTFGameRules::RadiusDamage()" 
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x24\x08\x00\x00\x53" // offset aAddHealthOnRad ; "add_health_on_radius_damage"
+				"linux"	  "@_ZN12CTFGameRules12RadiusDamageER19CTFRadiusDamageInfo"
+			}
+
+			// /tf/CTFGameRules.inc
+			"g_pGameRules"
+			{
+				"library" "server"
+				"linux"   "@g_pGameRules"
+			}
+			"cc_ShowRespawnTimes()" // (offset aShowTheMinResp ; "Show the min respawn times for the team", call below) OR (offset aRedMinSpawn22f ; "Red:  Min Spawn %2.2f, Scalar %2.2f, Ne"...)
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x18\x01\x00\x00\x56\x57\x8B\x3D\x2A\x2A\x2A\x2A"
+			}
+        }
+        "Functions"
+        {
+			// CBaseEntity.inc
+			"Offset::CTFPlayer::OnTakeDamage_Alive()"
+			{
+				"offset"   "CTFPlayer::OnTakeDamage_Alive()"
+				"hooktype" "entity"
+				"this"	   "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"info"
+					{
+						"type" "int"
+					}
+				}
+			}
+
+			// /tf/tf_point_t.inc
+			"CTFPointManager::AddPoint()"
+			{
+				"offset"   "CTFPointManager::AddPoint()"
+				"hooktype" "entity"
+				"this"	   "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"nSpawnTime"
+					{
+						"type"	"int"
+					}
+				}	
+			}
+			
+			// /tf/CTakeDamageInfo.inc
+            "Signature::CTFPlayer::OnTakeDamage_Alive()"
+			{
+				"signature"	"CTFPlayer::OnTakeDamage_Alive()"
+				"callconv"	"thiscall"
+				"return"	"int" 
+				"this"		"entity"
+				"arguments"
+				{
+					"info"
+					{
+						"type" "int"
+					}
+				}
+			}
+			"CTFPlayer::OnTakeDamage_Alive()" // ADDED FOR BACKWARDS COMPATIBILITY!
+			{
+				"signature"	"CTFPlayer::OnTakeDamage_Alive()"
+				"callconv"	"thiscall"
+				"return"	"int" 
+				"this"		"entity"
+				"arguments"
+				{
+					"info"
+					{
+						"type" "int"
+					}
+				}
+			}
+			"Offset::CTFPlayer::OnTakeDamage()"
+			{
+				"offset"   "Offset::CTFPlayer::OnTakeDamage()"
+				"hooktype" "entity"
+				"this"	   "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"info"
+					{
+						"type" "int"
+					}
+				}	
+			}
+			"Offset::CTFPlayer::OnTakeDamage_Alive()"
+			{
+				"offset"   "Offset::CTFPlayer::OnTakeDamage_Alive()"
+				"hooktype" "entity"
+				"this"	   "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"info"
+					{
+						"type" "int"
+					}
+				}	
+			}
+        }
+    }
+}
