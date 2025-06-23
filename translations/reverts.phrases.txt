@@ -525,7 +525,7 @@
 	}
 	"CrocoStyle_0"
 	{
-		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, Ol' Snaggletooth not required"
+		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
 	}
 	"DalokohsBar_0"
 	{
@@ -589,7 +589,7 @@
 	}
 	"Expert_0"
 	{
-		"en"	"Restored release item set bonus. +10% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, Scotch Bonnet not required"
+		"en"	"Restored release item set bonus. +10% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
 	}
 	"FistSteel_0"
 	{
@@ -621,7 +621,7 @@
 	}
 	"Hibernate_0"
 	{
-		"en"	"Restored release item set bonus, +5% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, Big Chief not required"
+		"en"	"Restored release item set bonus, +5% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
 	}
 	"Liberty_0"
 	{
@@ -725,7 +725,7 @@
 	}
 	"Saharan_0"
 	{
-		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required"
+		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, the hat is not required"
 	}
 	"Sandman_0"
 	{
@@ -773,7 +773,7 @@
 	}
 	"SpDelivery_0"
 	{
-		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and Holy Mackerel to gain the bonus, Milkman not required"
+		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and Holy Mackerel to gain the bonus, the hat is not required"
 	}
 	"Splendid_0"
 	{
