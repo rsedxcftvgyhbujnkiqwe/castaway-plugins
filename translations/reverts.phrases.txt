@@ -589,7 +589,7 @@
 	}
 	"Expert_0"
 	{
-		"en"	"Restored release item set bonus. +10% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
+		"en"	"Restored release item set bonus. +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
 	}
 	"FistSteel_0"
 	{
@@ -601,7 +601,7 @@
 	}
 	"GasJockey_0"
 	{
-		"en"	"Restored release item set bonus, +10% movespeed and bullet vuln. Equip the Degreaser and Powerjack to gain the bonus, the hat is not required"
+		"en"	"Restored release item set bonus, +10%% movespeed and bullet vuln. Equip the Degreaser and Powerjack to gain the bonus, the hat is not required"
 	}
 	"GlovesRU_0"
 	{
@@ -621,7 +621,7 @@
 	}
 	"Hibernate_0"
 	{
-		"en"	"Restored release item set bonus, +5% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
+		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
 	}
 	"Liberty_0"
 	{
