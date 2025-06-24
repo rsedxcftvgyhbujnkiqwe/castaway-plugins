@@ -195,8 +195,10 @@ ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
+#if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_dropped_weapon_drop_melee;
+#endif
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -399,11 +401,15 @@ public void OnPluginStart() {
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_drop_melee = CreateConVar("sm_reverts__enable_drop_melee", "0", (PLUGIN_NAME ... " - Drop melee weapons with reverted dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+#endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
+#endif
 
 	ItemDefine("airblast", "Airblast_0", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_0", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -542,6 +548,10 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+
+#if !defined MEMORY_PATCHES
+	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeChange);
+#endif
 
 	RegConsoleCmd("sm_revert", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
 	RegConsoleCmd("sm_reverts", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
@@ -744,6 +754,7 @@ public void OnPluginStart() {
 	}
 }
 
+#if defined MEMORY_PATCHES
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
@@ -753,6 +764,11 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		Patch_DroppedWeapon.Disable();
 	}
 }
+#else
+public void OnDroppedWeaponLifetimeChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	SetConVarMaybe(convar, "0", cvar_enabled.BoolValue);
+}
+#endif
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
@@ -1550,7 +1566,9 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, SDKHookCB_OnTakeDamageAlive);
 	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_OnTakeDamagePost);
 	SDKHook(client, SDKHook_WeaponSwitchPost, SDKHookCB_WeaponSwitchPost);
+#if defined MEMORY_PATCHES
 	SDKHook(client, SDKHook_WeaponEquip, SDKHookCB_WeaponEquip);
+#endif
 }
 
 public void OnEntityCreated(int entity, const char[] class) {
@@ -3748,6 +3766,7 @@ void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 	players[client].ticks_since_switch = 0;
 }
 
+#if defined MEMORY_PATCHES
 Action SDKHookCB_WeaponEquip(int client, int weapon) {
 	// this feels like the most object oriented piece of code i have written in sp somehow
 	if (!cvar_dropped_weapon_enable.BoolValue ||
@@ -3770,6 +3789,7 @@ Action SDKHookCB_WeaponEquip(int client, int weapon) {
 	}
 	return Plugin_Continue;
 }
+#endif
 
 public Action OnPlayerRunCmd(
 	int client, int& buttons, int& impulse, float vel[3], float angles[3],
