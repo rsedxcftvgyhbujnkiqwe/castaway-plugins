@@ -249,6 +249,10 @@
 	{
 		"en"	"Half-Zatoichi"
 	}
+	"jag"
+	{
+		"en"	"Jag"
+	}	
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -587,6 +591,14 @@
 	{
 		"en"	"Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits"
 	}
+	"Jag_0"
+	{
+		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
+	}
+	"Jag_1"
+	{
+		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
+	}	
 	"Liberty_0"
 	{
 		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"

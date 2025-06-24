@@ -321,6 +321,7 @@ enum
 	Wep_GRU,
 	Wep_Gunboats,
 	Wep_Zatoichi, // Half-Zatoichi
+	Wep_Jag,
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
 	Wep_LooseCannon,
@@ -458,6 +459,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_GRU, "GlovesRU_1");
 	ItemDefine("gunboats", "Gunboats_0", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("jag", "Jag_0", CLASSFLAG_ENGINEER, Wep_Jag);
+	ItemVariant(Wep_Jag, "Jag_1");
 	ItemDefine("liberty", "Liberty_0", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("lochload", "LochLoad_0", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_1");
@@ -1999,6 +2002,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
 		}}
+		case 329: { if (ItemIsEnabled(Wep_Jag)) {
+			bool preToughBreak = GetItemVariant(Wep_Jag) == 1;
+			TF2Items_SetNumAttributes(itemNew, preToughBreak ? 3 : 1);
+			TF2Items_SetAttribute(itemNew, 0, 775, 1.00); // -0% damage penalty vs buildings
+			if (preToughBreak) {
+				TF2Items_SetAttribute(itemNew, 1, 6, 1.00); // +0% faster firing speed
+				TF2Items_SetAttribute(itemNew, 2, 95, 1.00); // -0% slower repair rate
+			}
+		}}		
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
 			TF2Items_SetNumAttributes(itemNew, 4);
 			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
@@ -2590,6 +2602,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
+						case 329: player_weapons[client][Wep_Jag] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
 						case 41: player_weapons[client][Wep_Natascha] = true;
