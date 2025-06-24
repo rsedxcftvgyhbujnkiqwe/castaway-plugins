@@ -529,7 +529,7 @@
 	}
 	"CritCola_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, +25%% movespeed, +10%% damage taken, mark-for-death after effect ends"
+		"en"	"Reverted to pre-inferno, +25%% movespeed, +10%% damage taken, 2 sec mark-for-death after effect ends"
 	}
 	"CritCola_PreDec2013"
 	{
