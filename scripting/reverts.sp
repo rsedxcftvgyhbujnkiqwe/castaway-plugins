@@ -135,6 +135,7 @@ enum struct Item {
 	char key[64];
 	int flags;
 	int num_variants;
+	int default_variant;
 	ConVar cvar;
 }
 
@@ -3968,6 +3969,7 @@ void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	items[wep_enum].num_variants = 0;
+	items[wep_enum].default_variant = 1;
 }
 
 /**
@@ -3981,10 +3983,24 @@ void ItemVariant(int wep_enum, char[] desc) {
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
 }
 
+/**
+ * Set the default variant of an item
+ * 
+ * @param wep_enum			Weapon enum.
+ * @param default_variant	Index of the default variant.
+ */
+void SetDefaultVariant(int wep_enum, int default_variant) {
+	if (default_variant < 0 || default_variant > items[wep_enum].num_variants + 1) {
+		SetFailState("Variant index out of bounds.");
+	}
+	items[wep_enum].default_variant = default_variant;
+}
+
 void ItemFinalize() {
 	int idx;
 	char cvar_name[64];
 	char cvar_desc[256];
+	char cvar_default[2];
 
 	for (idx = 0; idx < NUM_ITEMS; idx++) {
 		if (items[idx].cvar != null) {
@@ -3995,10 +4011,11 @@ void ItemFinalize() {
 			SetFailState("Tried to initialize an item with more than %d variants", MAX_VARIANTS);
 		}
 
+		IntToString(items[idx].default_variant, cvar_default, sizeof(cvar_default));
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+		items[idx].cvar = CreateConVar(cvar_name, cvar_default, cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 	}
 }
 
