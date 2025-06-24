@@ -2787,11 +2787,16 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				GetItemVariant(Wep_SodaPopper) == 0 &&
 				players[client].is_under_hype
 			) {
-				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
-				if (has_lunchbox)
-				{
+				if (player_weapons[client][Wep_SodaPopper]) {
+					if (
+						player_weapons[client][Wep_Bonk] ||
+						player_weapons[client][Wep_CritCola]
+					){
+						players[client].is_under_hype = false;
+						TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
+					}
+				} else {
 					players[client].is_under_hype = false;
-					TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
 				}
 			}
 		}
