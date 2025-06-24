@@ -422,6 +422,8 @@ public void OnPluginStart() {
 	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemVariant(Wep_CritCola, "CritCola_PreJI");
+	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh);
@@ -1736,6 +1738,17 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 			}
 		}
 	}
+	{
+		// pre-inferno crit-a-cola mark-for-death on expire
+		if (
+			GetItemVariant(Wep_CritCola) == 1 &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			condition == TFCond_CritCola &&
+			GetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter") <= 0.0
+		) {
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
+		}
+	}
 	return Plugin_Continue;
 }
 
@@ -1859,7 +1872,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
-			TF2Items_SetAttribute(itemNew, 1, 798, 1.10); // +10% damage vulnerability while under the effect
+			// +25% or +10% damage vulnerability while under the effect, depending on variant
+			float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
+			TF2Items_SetAttribute(itemNew, 1, 798, vuln);
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;

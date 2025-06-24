@@ -527,6 +527,14 @@
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"
 	}
+	"CritCola_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, +25%% movespeed, +10%% damage taken, mark-for-death after effect ends"
+	}
+	"CritCola_PreDec2013"
+	{
+		"en"	"Reverted to pre-Smissmas 2013, +25%% movespeed, +25%% damage taken, no mark-for-death on attack"
+	}
 	"CrocoStyle_Release"
 	{
 		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
