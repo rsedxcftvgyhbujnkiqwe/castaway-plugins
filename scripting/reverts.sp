@@ -314,6 +314,7 @@ enum
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
+	Wep_EurekaEffect,
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine	
@@ -451,6 +452,7 @@ public void OnPluginStart() {
 	ItemDefine("equalizer", "Equalizer_0", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemVariant(Wep_Pickaxe, "Equalizer_1");
 	ItemVariant(Wep_Pickaxe, "Equalizer_2");
+	ItemDefine("eureka", "Eureka_0", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_0", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_1");
 	ItemDefine("fiststeel", "FistSteel_0", CLASSFLAG_HEAVY, Wep_FistsSteel);
@@ -1949,11 +1951,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 2, 740, 1.0); // reduced healing from medics
 			TF2Items_SetAttribute(itemNew, 3, index == 128 ? 115 : 235, 2.0); // mod shovel damage boost
 		}}
+		case 589: { if (ItemIsEnabled(Wep_EurekaEffect)) {
+			TF2Items_SetNumAttributes(itemNew, 5);
+			TF2Items_SetAttribute(itemNew, 0, 93, 1.00); // Construction hit speed boost decreased by 0%
+			TF2Items_SetAttribute(itemNew, 1, 732, 1.00); // 0% less metal from pickups and dispensers
+			TF2Items_SetAttribute(itemNew, 2, 790, 1.00); // -0% metal cost when constructing or upgrading teleporters
+			TF2Items_SetAttribute(itemNew, 3, 95, 0.50); // 50% slower repair rate
+			TF2Items_SetAttribute(itemNew, 4, 2043, 0.50); // 50% slower upgrade rate
+		}}
 		case 225, 574: { if (ItemIsEnabled(Wep_EternalReward)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 34, 1.00); // mult cloak meter consume rate
 			TF2Items_SetAttribute(itemNew, 1, 155, 1.00); // cannot disguise
-		}}
+		}}		
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			bool gunMettleVer = GetItemVariant(Wep_Eviction) == 1;
 			TF2Items_SetNumAttributes(itemNew, gunMettleVer ? 3 : 2);
@@ -2597,6 +2607,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
+						case 589: player_weapons[client][Wep_EurekaEffect] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
