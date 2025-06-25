@@ -178,9 +178,6 @@ enum struct Player {
 	bool player_jumped;
 }
 
-//item sets
-#define ItemSet_Saharan 1
-
 enum struct Entity {
 	bool exists;
 	float spawn_time;
@@ -212,18 +209,7 @@ float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
 Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 #endif
 
-// The Dragons Fury needs 5 memorypatches for Linux and only 1 for Windows.
-// Check if we are compiling for Linux, if not then use the Windows one.
-#if !defined WIN32
-MemoryPatch patch_RevertTraceReqDragonsFury_JA;
-MemoryPatch patch_RevertTraceReqDragonsFury_JNZ;
-MemoryPatch patch_RevertTraceReqDragonsFury_JZ;
-MemoryPatch patch_RevertTraceReqDragonsFury_JNZ2;
-MemoryPatch patch_RevertTraceReqDragonsFury_FinalJNZ;
-#else
-// Dragons Fury Memorypatch for Windows.
-MemoryPatch patch_RevertTraceReqDragonsFury_NOP_JZ;
-#endif
+MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
@@ -284,6 +270,11 @@ enum
 	Feat_Sword, // All Swords	
 
 	//Item sets
+	Set_SpDelivery,
+	Set_GasJockey,
+	Set_Expert,
+	Set_Hibernate,
+	Set_CrocoStyle,
 	Set_Saharan,
 	
 	//Specific weapons
@@ -317,7 +308,7 @@ enum
 	Wep_EurekaEffect,
 	Wep_Eviction,
 	Wep_FistsSteel,
-	Wep_Cleaver, // Flying Guillotine	
+	Wep_Cleaver, // Flying Guillotine
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
@@ -337,7 +328,7 @@ enum
 	Wep_Razorback,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
-	Wep_Bison, // Righteous Bison	
+	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
 	Wep_Sandman,
 	Wep_Scottish,
@@ -352,11 +343,11 @@ enum
 	Wep_Tomislav,
 	Wep_TideTurner,
 	Wep_TribalmansShiv,
-	Wep_Caber, // Ullapool Caber	
+	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
 	Wep_Wrangler,
-	Wep_EternalReward, // Your Eternal Reward	
+	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
 	NUM_ITEMS,
 }
@@ -432,6 +423,7 @@ public void OnPluginStart() {
 	ItemDefine("cozycamper","CozyCamper_0", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
 	ItemDefine("critcola", "CritCola_0", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemDefine("crocostyle", "CrocoStyle_0", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_0", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
@@ -455,12 +447,15 @@ public void OnPluginStart() {
 	ItemDefine("eureka", "Eureka_0", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_0", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_1");
+	ItemDefine("expert", "Expert_0", CLASSFLAG_DEMOMAN, Set_Expert);
 	ItemDefine("fiststeel", "FistSteel_0", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemDefine("guillotine", "Guillotine_0", CLASSFLAG_SCOUT, Wep_Cleaver);
+	ItemDefine("gasjockey", "GasJockey_0", CLASSFLAG_PYRO, Set_GasJockey);
 	ItemDefine("glovesru", "GlovesRU_0", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemVariant(Wep_GRU, "GlovesRU_1");
 	ItemDefine("gunboats", "Gunboats_0", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("hibernate", "Hibernate_0", CLASSFLAG_HEAVY, Set_Hibernate);
 	ItemDefine("jag", "Jag_0", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_1");
 	ItemDefine("liberty", "Liberty_0", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
@@ -505,6 +500,7 @@ public void OnPluginStart() {
 	ItemDefine("sodapop", "Sodapop_0", CLASSFLAG_SCOUT, Wep_SodaPopper);
 	ItemVariant(Wep_SodaPopper, "Sodapop_1");
 	ItemDefine("solemn", "Solemn_0", CLASSFLAG_MEDIC, Wep_Solemn);
+	ItemDefine("spdelivery", "SpDelivery_0", CLASSFLAG_SCOUT, Set_SpDelivery);
 	ItemDefine("splendid", "Splendid_0", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemDefine("spycicle", "SpyCicle_0", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("stkjumper", "StkJumper_0", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
@@ -610,28 +606,11 @@ public void OnPluginStart() {
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
 		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
 #endif
-#if defined WIN32
-		// Dragons fury need only one MemoryPatch on Windows.
-			patch_RevertTraceReqDragonsFury_NOP_JZ =
+
+		patch_RevertDragonsFury_CenterHitForBonusDmg =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ");
-#else
-		patch_RevertTraceReqDragonsFury_JA =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA");
-		patch_RevertTraceReqDragonsFury_JNZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ");
-		patch_RevertTraceReqDragonsFury_JZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ");
-		patch_RevertTraceReqDragonsFury_JNZ2 =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second");
-		patch_RevertTraceReqDragonsFury_FinalJNZ =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ");
-#endif
+			"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
+
 		patch_RevertMiniguns_RampupNerf_Dmg =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck");
@@ -679,16 +658,7 @@ public void OnPluginStart() {
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
 
-		// Because we use only one MemoryPatch for Windows, we need to make sure we only try to Validate and Nullcheck one MemoryPatch.
-#if defined WIN32
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_NOP_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_NOP_JZ");
-#else
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JA)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JA");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JZ");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_JNZ2)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_JNZ2");
-			if (!ValidateAndNullCheck(patch_RevertTraceReqDragonsFury_FinalJNZ)) SetFailState("Failed to create patch_RevertTraceReqDragonsFury_FinalJNZ");
-#endif
+		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
 
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
@@ -806,25 +776,9 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_DragonFury: {
 			if (enable) {
-#if defined WIN32
-				patch_RevertTraceReqDragonsFury_NOP_JZ.Enable();
-#else
-				patch_RevertTraceReqDragonsFury_JA.Enable();
-				patch_RevertTraceReqDragonsFury_JZ.Enable();
-				patch_RevertTraceReqDragonsFury_JNZ.Enable();
-				patch_RevertTraceReqDragonsFury_JNZ2.Enable();
-				patch_RevertTraceReqDragonsFury_FinalJNZ.Enable();
-#endif
+				patch_RevertDragonsFury_CenterHitForBonusDmg.Enable();
 			} else {
-#if defined WIN32
-				patch_RevertTraceReqDragonsFury_NOP_JZ.Disable();
-#else
-				patch_RevertTraceReqDragonsFury_JA.Disable();
-				patch_RevertTraceReqDragonsFury_JZ.Disable();
-				patch_RevertTraceReqDragonsFury_JNZ.Disable();
-				patch_RevertTraceReqDragonsFury_JNZ2.Disable();
-				patch_RevertTraceReqDragonsFury_FinalJNZ.Disable();
-#endif
+				patch_RevertDragonsFury_CenterHitForBonusDmg.Disable();
 			}
 		}
 		case Feat_Minigun: {
@@ -1910,7 +1864,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 798, 1.10); // +10% damage vulnerability while under the effect
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
-			bool dmg_mods = GetItemVariant(Wep_Darwin) == 0;
+			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
 			TF2Items_SetNumAttributes(itemNew, dmg_mods ? 5 : 3);
 			TF2Items_SetAttribute(itemNew, 0, 60, 1.0); // +0% fire damage resistance on wearer
 			TF2Items_SetAttribute(itemNew, 1, 527, 0.0); // remove afterburn immunity
@@ -2673,19 +2627,43 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		//item sets
 		if (
+			ItemIsEnabled(Set_SpDelivery) ||
+			ItemIsEnabled(Set_GasJockey) ||
+			ItemIsEnabled(Set_Expert) ||
+			ItemIsEnabled(Set_Hibernate) ||
+			ItemIsEnabled(Set_CrocoStyle) ||
 			ItemIsEnabled(Set_Saharan)
 		) {
 			// reset set bonuses on loadout changes
-			TFClassType client_class = TF2_GetPlayerClass(client);
-			switch (client_class)
+			switch (TF2_GetPlayerClass(client))
 			{
+				case TFClass_Scout:
+				{
+					TF2Attrib_SetByDefIndex(client, 517, 0.0); // SET BONUS: max health additive bonus
+				}
+				case TFClass_Pyro:
+				{
+					TF2Attrib_SetByDefIndex(client, 489, 1.0); // SET BONUS: move speed set bonus
+					TF2Attrib_SetByDefIndex(client, 516, 1.0); // SET BONUS: dmg taken from bullets increased 
+				}
+				case TFClass_DemoMan:
+				{
+					TF2Attrib_SetByDefIndex(client, 492, 1.0); // SET BONUS: dmg taken from fire reduced set bonus
+				}
+				case TFClass_Heavy:
+				{
+					TF2Attrib_SetByDefIndex(client, 491, 1.0); // SET BONUS: dmg taken from crit reduced set bonus
+				}
+				case TFClass_Sniper:
+				{
+					TF2Attrib_SetByDefIndex(client, 176, 0.0); // SET BONUS: no death from headshots
+				}
 				case TFClass_Spy:
 				{
 					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
 					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
 				}
 			}
-
 
 			//handle item sets
 			int wep_count = 0;
@@ -2701,45 +2679,108 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, classname, sizeof(class));
 					int item_index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
 
-					// Saharan Spy
-					if(
-						ItemIsEnabled(Set_Saharan) &&
-						(StrEqual(classname, "tf_weapon_revolver") &&
-						(item_index == 224)) ||
-						(StrEqual(classname, "tf_weapon_knife") &&
-						(item_index == 225 || item_index == 574))
-					) {
-						wep_count++;
-						if(wep_count == 2) active_set = ItemSet_Saharan;
+					switch(item_index) {
+						// Special Delivery
+						case 220, 221, 222: {
+							if(ItemIsEnabled(Set_SpDelivery)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_SpDelivery;
+							}
+						}
+						// Gas Jockey's Gear
+						case 214, 215: {
+							if(ItemIsEnabled(Set_GasJockey)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_GasJockey;
+							}
+						}
+						// Expert's Ordnance
+						case 307, 308: {
+							if(ItemIsEnabled(Set_Expert)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_Expert;
+							}
+						}
+						// Hibernating Bear
+						case 310, 311, 312: {
+							if(ItemIsEnabled(Set_Hibernate)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_Hibernate;
+							}
+						}
+						// Croc-o-Style Kit
+						case 230, 232: {
+							if(ItemIsEnabled(Set_CrocoStyle)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_CrocoStyle;
+							}
+						}
+						// Saharan Spy
+						case 224, 225, 574: {
+							if(ItemIsEnabled(Set_Saharan)) {
+								wep_count++;
+								if(wep_count == 2) active_set = Set_Saharan;
+							}
+						}
 					}
 				}
 			}
 
 			if (active_set)
 			{
-				bool validSet = true;
+				bool validSet = false;
 
-				//this code can be used if you want cosmetics to be a part of item sets
-				// bool validSet = false;
-				// int num_wearables = TF2Util_GetPlayerWearableCount(client);
-				// for (int i = 0; i < num_wearables; i++)
-				// {
-				// 	int wearable = TF2Util_GetPlayerWearable(client, i);
-				// 	int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
-				// 	if(
-				// 		(active_set == ItemSet_Saharan) &&
-				// 		(item_index == 223)
-				// 	) {
-				// 		validSet = true;
-				// 		break;
-				// 	}
-				// }
+				if (active_set == Set_CrocoStyle)
+				{
+					// this code can also be used if you want cosmetics to be a part of item sets
+					int num_wearables = TF2Util_GetPlayerWearableCount(client);
+					for (int i = 0; i < num_wearables; i++)
+					{
+						int wearable = TF2Util_GetPlayerWearable(client, i);
+						int item_index = GetEntProp(wearable,Prop_Send,"m_iItemDefinitionIndex");
+						if (
+							// This code only checks for Darwin's Danger Shield (231)
+							(item_index == 231)
+						) {
+							validSet = true;
+							break;
+						}
+					}
+				} else {
+					validSet = true;
+				}
 
 				if (validSet)
 				{
 					switch (active_set)
 					{
-						case ItemSet_Saharan:
+						case Set_SpDelivery:
+						{
+							player_weapons[client][Set_SpDelivery] = true;
+							TF2Attrib_SetByDefIndex(client, 517, 25.0); // SET BONUS: max health additive bonus
+						}
+						case Set_GasJockey:
+						{
+							player_weapons[client][Set_GasJockey] = true;
+							TF2Attrib_SetByDefIndex(client, 489, 1.10); // SET BONUS: move speed set bonus
+							TF2Attrib_SetByDefIndex(client, 516, 1.10); // SET BONUS: dmg taken from bullets increased
+						}
+						case Set_Expert:
+						{
+							player_weapons[client][Set_Expert] = true;
+							TF2Attrib_SetByDefIndex(client, 492, 0.90); // SET BONUS: dmg taken from fire reduced set bonus
+						}
+						case Set_Hibernate:
+						{
+							player_weapons[client][Set_Hibernate] = true;
+							TF2Attrib_SetByDefIndex(client, 491, 0.95); // SET BONUS: dmg taken from crit reduced set bonus
+						}
+						case Set_CrocoStyle:
+						{
+							player_weapons[client][Set_CrocoStyle] = true;
+							TF2Attrib_SetByDefIndex(client, 176, 1.0); // SET BONUS: no death from headshots
+						}
+						case Set_Saharan:
 						{
 							player_weapons[client][Set_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
