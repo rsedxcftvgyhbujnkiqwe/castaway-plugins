@@ -1671,6 +1671,17 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 
+	{
+		// crit-a-cola damage taken minicrits
+		if (
+			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			condition == TFCond_CritCola &&
+			player_weapons[client][Wep_CritCola] == true
+		) {
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
+		}
+	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1732,23 +1743,15 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 	}
 	{
 		// crit-a-cola release variant duration modification
-		// also mark the user for death for pre-July2013 and release variants
-		// historically didn't have the Marked-for-Death symbol in HUD, but a visual cue is good
-		int item_variant = GetItemVariant(Wep_CritCola);
+		// crit-a-cola normally applies 9 seconds, then relies on the energy drink meter to have it be 8 seconds
 		if (
-			(item_variant == 3 || item_variant == 4) &&
+			GetItemVariant(Wep_CritCola) == 4 &&
 			condition == TFCond_CritCola &&
+			time == 9.0 &&
 			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
-			// crit-a-cola normally applies 9 seconds, then relies on the energy drink meter to have it be 8 seconds
-			if (item_variant == 4 && time == 9.0) {
-				TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 6.0);
-				time = 6.0;
-				return Plugin_Changed;
-			}
-
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0);
-			return Plugin_Continue;
+			time = 6.0;
+			return Plugin_Changed;
 		}
 	}
 	return Plugin_Continue;
