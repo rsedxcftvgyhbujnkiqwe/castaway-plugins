@@ -3693,16 +3693,27 @@ Action SDKHookCB_OnTakeDamage(
 										// When charge is less than 100.0, Spy loses 20% cloak. If charge is exactly 100.0 and the reverted DR is active, Spy loses 70% cloak.
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
 										TF2_AddCondition(victim, TFCond_DeadRingered);
-											//PrintToChatAll("charge after hit: %f", charge);
+											PrintToChatAll("charge after hit (if): %f", charge);
+									}
+									// 70% cloak drain if unreverted Dead Ringer and reverted Pomson are used
+									else if (
+										!ItemIsEnabled(Wep_DeadRinger) &&
+										damage1 >= 1 && 
+										charge < 100 && 
+										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+										players[victim].spy_is_feigning == false &&
+										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+									) {
+										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 50.0);
+											PrintToChatAll("charge after hit (else if): set to 50", charge);
 									}
 									else {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
-											//PrintToChatAll("charge after hit: %f", charge);
+											PrintToChatAll("charge after hit (else): %f", charge);
 									}
 
 									// Bug fix to trigger Dead Ringer feign death from distances greater than 512 hammer units
 									if (
-										ItemIsEnabled(Wep_DeadRinger) &&
 										damage1 > 0 && // damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 										players[victim].spy_is_feigning == false
