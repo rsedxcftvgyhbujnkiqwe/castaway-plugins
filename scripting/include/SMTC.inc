@@ -136,41 +136,41 @@ stock void SMTC_Initialize()
     
     OSTypeUsed = view_as<OSType>(config.GetOffset("OSTypeUsed"));
 
-    SMTC_DHooks_Signature_CTFPlayer_OnTakeDamage_Alive = DynamicDetour.FromConf(config, "Signature::CTFPlayer::OnTakeDamage_Alive()");
+    // SMTC_DHooks_Signature_CTFPlayer_OnTakeDamage_Alive = DynamicDetour.FromConf(config, "Signature::CTFPlayer::OnTakeDamage_Alive()");
     
-    SMTC_DHooks_CTFPointManager_AddPoint = DynamicHook.FromConf(config, "CTFPointManager::AddPoint()");
-    SMTC_DHooks_Offset_CTFPlayer_OnTakeDamage = DynamicHook.FromConf(config, "Offset::CTFPlayer::OnTakeDamage()");
-    SMTC_DHooks_Offset_CTFPlayer_OnTakeDamage_Alive = DynamicHook.FromConf(config, "Offset::CTFPlayer::OnTakeDamage_Alive()");
+    // SMTC_DHooks_CTFPointManager_AddPoint = DynamicHook.FromConf(config, "CTFPointManager::AddPoint()");
+    // SMTC_DHooks_Offset_CTFPlayer_OnTakeDamage = DynamicHook.FromConf(config, "Offset::CTFPlayer::OnTakeDamage()");
+    // SMTC_DHooks_Offset_CTFPlayer_OnTakeDamage_Alive = DynamicHook.FromConf(config, "Offset::CTFPlayer::OnTakeDamage_Alive()");
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "IEngineTrace::ClipRayToEntity()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Ray_t&
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // unsigned int
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // IHandleEntity*
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // trace_t*
-    SMTC_SDKCall_IEngineTrace_ClipRayToEntity = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "IEngineTrace::ClipRayToEntity()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Ray_t&
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // unsigned int
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // IHandleEntity*
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // trace_t*
+    // SMTC_SDKCall_IEngineTrace_ClipRayToEntity = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "IEngineTrace::TraceRay()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Ray_t&
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // unsigned int
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // ITraceFilter*
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // trace_t*
-    SMTC_SDKCall_IEngineTrace_TraceRay = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "IEngineTrace::TraceRay()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Ray_t&
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // unsigned int
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // ITraceFilter*
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // trace_t*
+    // SMTC_SDKCall_IEngineTrace_TraceRay = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CSpatialPartition::EnumerateElementsInBox()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // SpatialPartitionListMask_t listMask;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Vector& mins;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Vector& maxs;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // bool coarseTest;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // IPartitionEnumerator* pIterator;
-    SMTC_SDKCall_CSpatialPartition_EnumerateElementsInBox = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CSpatialPartition::EnumerateElementsInBox()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // SpatialPartitionListMask_t listMask;
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Vector& mins;
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const Vector& maxs;
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // bool coarseTest;
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // IPartitionEnumerator* pIterator;
+    // SMTC_SDKCall_CSpatialPartition_EnumerateElementsInBox = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFPointManager::GetMaxPoints()");
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-    SMTC_SDKCall_CTFPointManager_GetMaxPoints = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFPointManager::GetMaxPoints()");
+    // PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    // SMTC_SDKCall_CTFPointManager_GetMaxPoints = EndPrepSDKCall();
 
     StartPrepSDKCall(SDKCall_Raw);
     PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "FileWeaponInfo_t::Parse()");
@@ -178,40 +178,40 @@ stock void SMTC_Initialize()
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const char* szWeaponName;
     SMTC_SDKCall_FileWeaponInfo_t_Parse = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CBaseEntity::TakeDamage()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const CTakeDamageInfo&;
-    PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain); // float
-    SMTC_SDKCall_CBaseEntity_TakeDamage = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CBaseEntity::TakeDamage()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // const CTakeDamageInfo&;
+    // PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain); // float
+    // SMTC_SDKCall_CBaseEntity_TakeDamage = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CLagCompensationManager::StartLagCompensation()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBasePlayer* player;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CUserCmd* cmd;
-    SMTC_SDKCall_CLagCompensationManager_StartLagCompensation = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CLagCompensationManager::StartLagCompensation()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBasePlayer* player;
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CUserCmd* cmd;
+    // SMTC_SDKCall_CLagCompensationManager_StartLagCompensation = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CLagCompensationManager::FinishLagCompensation()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBasePlayer* player;
-    SMTC_SDKCall_CLagCompensationManager_FinishLagCompensation = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CLagCompensationManager::FinishLagCompensation()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBasePlayer* player;
+    // SMTC_SDKCall_CLagCompensationManager_FinishLagCompensation = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFRadiusDamageInfo::CalculateFalloff()");
-    SMTC_SDKCall_CTFRadiusDamageInfo_CalculateFalloff = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFRadiusDamageInfo::CalculateFalloff()");
+    // SMTC_SDKCall_CTFRadiusDamageInfo_CalculateFalloff = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFRadiusDamageInfo::ApplyToEntity()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBaseEntity* pEntity
-    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // int
-    SMTC_SDKCall_CTFRadiusDamageInfo_ApplyToEntity = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFRadiusDamageInfo::ApplyToEntity()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CBaseEntity* pEntity
+    // PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); // int
+    // SMTC_SDKCall_CTFRadiusDamageInfo_ApplyToEntity = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Raw);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFGameRules::RadiusDamage()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CTFRadiusDamageInfo& info
-    SMTC_SDKCall_CTFGameRules_RadiusDamage = EndPrepSDKCall();
+    // StartPrepSDKCall(SDKCall_Raw);
+    // PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFGameRules::RadiusDamage()");
+    // PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // CTFRadiusDamageInfo& info
+    // SMTC_SDKCall_CTFGameRules_RadiusDamage = EndPrepSDKCall();
 
-    SMTC_CLagCompensationManager_m_thisOffset = config.GetOffset("CLagCompensationManager::m_thisOffset");
-    SMTC_CLagCompensationManager_m_isCurrentlyDoingCompensation = config.GetOffset("CLagCompensationManager::m_isCurrentlyDoingCompensation");
+    // SMTC_CLagCompensationManager_m_thisOffset = config.GetOffset("CLagCompensationManager::m_thisOffset");
+    // SMTC_CLagCompensationManager_m_isCurrentlyDoingCompensation = config.GetOffset("CLagCompensationManager::m_isCurrentlyDoingCompensation");
 
     // Generate SDKCalls used around the code: see function definition.
     SMTC_GenerateSDKCallInfo();
@@ -265,10 +265,10 @@ stock void SMTC_Initialize()
     // because the world entity has not yet been initialised. Instead, I decided to go with getting the props
     // from CBasePlayer, which is part of the Source SDK.
     //int m_angRotation = FindDataMapInfo(0, "m_angRotation"), m_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
-    int m_angRotation = FindSendPropInfo("CBasePlayer", "m_angRotation"), m_vecViewOffset = FindSendPropInfo("CBasePlayer", "m_vecViewOffset[0]");
-    if (m_angRotation + 0x0C != m_vecViewOffset - 0x04)
-        ThrowError("Could not calculate offset for CBaseEntity::m_RefEHandle.");
-    SMTC_CBaseEntity_m_RefEHandle = m_angRotation + 0x0C;
+    // int m_angRotation = FindSendPropInfo("CBasePlayer", "m_angRotation"), m_vecViewOffset = FindSendPropInfo("CBasePlayer", "m_vecViewOffset[0]");
+    // if (m_angRotation + 0x0C != m_vecViewOffset - 0x04)
+    //     ThrowError("Could not calculate offset for CBaseEntity::m_RefEHandle.");
+    // SMTC_CBaseEntity_m_RefEHandle = m_angRotation + 0x0C;
 
 #if defined NOTNHEAVY_SOURCEMOD_TYPE_COLLECTION_CUSERCMD
     SMTC_CBasePlayer_m_pCurrentCommand = FindSendPropInfo("CBasePlayer", "m_hViewModel") + 76;
