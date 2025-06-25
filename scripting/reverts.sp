@@ -3682,7 +3682,7 @@ Action SDKHookCB_OnTakeDamage(
 									// Prevents 70% cloak getting drained when distance is less than 512 HU.
 									// Drain only 20% cloak from distances less than 512 hammer units on feign
 									if (
-										ItemIsEnabled(Wep_DeadRinger) && 
+										ItemIsEnabled(Wep_DeadRinger) &&
 										damage1 == 0 && 
 										charge == 100 && 
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
@@ -3695,7 +3695,7 @@ Action SDKHookCB_OnTakeDamage(
 										TF2_AddCondition(victim, TFCond_DeadRingered);
 											//PrintToChatAll("charge after hit (if): %f", charge);
 									}
-									// 70% cloak drain if unreverted Dead Ringer and reverted Pomson are used
+									// 70% cloak drain if hit with unreverted Dead Ringer by reverted Pomson from a distance greater than 512 HU
 									else if (
 										!ItemIsEnabled(Wep_DeadRinger) &&
 										damage1 >= 1 && 
@@ -3706,7 +3706,7 @@ Action SDKHookCB_OnTakeDamage(
 									) {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 50.0);
 											//PrintToChatAll("charge after hit (else if): set to 50", charge);
-									}
+									}								
 									else {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 											//PrintToChatAll("charge after hit (else): %f", charge);
@@ -3720,6 +3720,28 @@ Action SDKHookCB_OnTakeDamage(
 									) {
 										TF2_AddCondition(victim, TFCond_DeadRingered);
 									}									
+								}
+							}
+						}
+
+						{
+							// When Pomson revert is turned off and Dead Ringer revert is turned on, prevent 70% cloak drain on hit at any distance
+							if (
+								ItemIsEnabled(Wep_DeadRinger) && !ItemIsEnabled(Wep_Pomson) &&
+								StrEqual(class, "tf_weapon_drg_pomson") &&
+								TF2_GetPlayerClass(victim) == TFClass_Spy &&
+								GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+								players[victim].spy_is_feigning == false &&
+								!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+							) {
+								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+								damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+
+								if(damage1 <= 1) {
+									SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
+									TF2_AddCondition(victim, TFCond_DeadRingered);
 								}
 							}
 						}
