@@ -229,10 +229,6 @@
 	{
 		"en"	"Equalizer & Escape Plan"
 	}
-	"eureka"
-	{
-		"en"	"Eureka Effect"
-	}	
 	"eviction"
 	{
 		"en"	"Eviction Notice"
@@ -587,10 +583,6 @@
 	{
 		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max hp: 125 dmg at 58 hp, 150 dmg at 20 hp, 162 dmg at 1 hp"
 	}
-	"Eureka_PreGM"
-	{
-		"en"	"Reverted to pre-gunmettle, 50%% slower repair and upgrade rates, no construction hit boost decrease, no metal pickup penalty, no teleporter metal cost bonus"
-	}	
 	"Eviction_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
