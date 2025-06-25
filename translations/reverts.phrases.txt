@@ -193,6 +193,10 @@
 	{
 		"en"	"Crit-a-Cola"
 	}
+	"crocostyle"
+	{
+		"en"	"Croc-o-Style Kit"
+	}
 	"dalokohsbar"
 	{
 		"en"	"Dalokohs Bar"
@@ -229,6 +233,10 @@
 	{
 		"en"	"Eviction Notice"
 	}
+	"expert"
+	{
+		"en"	"Expert's Ordnance"
+	}
 	"fiststeel"
 	{
 		"en"	"Fists of Steel"
@@ -236,6 +244,10 @@
 	"guillotine"
 	{
 		"en"	"Flying Guillotine"
+	}
+	"gasjockey"
+	{
+		"en"	"Gas Jockey's Gear"
 	}
 	"glovesru"
 	{
@@ -248,6 +260,10 @@
 	"zatoichi"
 	{
 		"en"	"Half-Zatoichi"
+	}
+	"hibernate"
+	{
+		"en"	"Hibernating Bear"
 	}
 	"liberty"
 	{
@@ -344,6 +360,10 @@
 	"solemn"
 	{
 		"en"	"Solemn Vow"
+	}
+	"spdelivery"
+	{
+		"en"	"Special Delivery (set)"
 	}
 	"splendid"
 	{
@@ -503,17 +523,21 @@
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"
 	}
+	"CrocoStyle_0"
+	{
+		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
+	}
 	"DalokohsBar_0"
 	{
 		"en"	"Reverted to Gun Mettle update, can now overheal to 400 hp again"
 	}
 	"Darwin_0"
 	{
-		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (4.7%% against crit bullets), 20%% blast vuln, no fire resists"
+		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"		
 	}
 	"Darwin_1"
 	{
-		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"
+		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (4.7%% against crit bullets), 20%% blast vuln, no fire resists"
 	}
 	"Ringer_0"
 	{
@@ -563,6 +587,10 @@
 	{
 		"en"	"Reverted to gunmettle, +50%% faster firing speed, no 20%% dmg vuln, no health drain, no move speed bonus"
 	}
+	"Expert_0"
+	{
+		"en"	"Restored release item set bonus. +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
+	}
 	"FistSteel_0"
 	{
 		"en"	"Reverted to pre-inferno, no healing penalties"
@@ -570,6 +598,10 @@
 	"Guillotine_0"
 	{
 		"en"	"Reverted to pre-inferno, stun crits, distance mini-crits, no recharge"
+	}
+	"GasJockey_0"
+	{
+		"en"	"Restored release item set bonus, +10%% movespeed and bullet vuln. Equip the Degreaser and Powerjack to gain the bonus, the hat is not required"
 	}
 	"GlovesRU_0"
 	{
@@ -586,6 +618,10 @@
 	"Zatoichi_0"
 	{
 		"en"	"Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits"
+	}
+	"Hibernate_0"
+	{
+		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
 	}
 	"Liberty_0"
 	{
@@ -689,7 +725,7 @@
 	}
 	"Saharan_0"
 	{
-		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, Familiar Fez not required"
+		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, the hat is not required"
 	}
 	"Sandman_0"
 	{
@@ -734,6 +770,10 @@
 	"Solemn_0"
 	{
 		"en"	"Reverted to pre-gunmettle, firing speed penalty removed"
+	}
+	"SpDelivery_0"
+	{
+		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and Holy Mackerel to gain the bonus, the hat is not required"
 	}
 	"Splendid_0"
 	{
