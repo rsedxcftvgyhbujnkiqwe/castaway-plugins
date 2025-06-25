@@ -265,6 +265,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"jag"
+	{
+		"en"	"Jag"
+	}	
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -415,419 +419,427 @@
 	}
 
 	// item descriptions
-	"Airblast_0"
+	"Airblast_PreJI"
 	{
 		"en"	"All flamethrowers' airblast mechanics are reverted to pre-inferno"
 	}
-	"Airstrike_0"
+	"Airstrike_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
 	}
-	"Minigun_ramp_0"
+	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
 	}
-	"Swords_0"
+	"Swords_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
 	}
-	"Ambassador_0"
+	"Ambassador_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	}
-	"Atomizer_0"
+	"Atomizer_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
 	}
-	"Axtinguisher_0"
+	"Axtinguisher_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill"
 	}
-	"Axtinguisher_1"
+	"Axtinguisher_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill"
 	}
-	"Backburner_0"
+	"Backburner_PreHat"
 	{
 		"en"	"Reverted to Hatless update, 10%% damage bonus"
 	}
-	"Backburner_1"
+	"Backburner_119"
 	{
 		"en"	"Reverted to 119th update, 20%% damage bonus, no airblast"
 	}
-	"BaseJumper_0"
+	"BaseJumper_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire"
 	}
-	"BabyFace_0"
+	"BabyFace_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, no boost loss on damage, only -25%% on air jump"
 	}
-	"BabyFace_1"
+	"BabyFace_Release"
 	{
 		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, -100%% on any jump"
 	}
-	"Beggars_0"
+	"Beggars_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip"
 	}
-	"BlackBox_0"
+	"BlackBox_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
 	}
-	"Bonk_0"
+	"Bonk_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no longer slows after the effect wears off"
 	}
-	"Booties_0"
+	"Booties_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, shield not required for speed bonus"
 	}
-	"BrassBeast_0"
+	"BrassBeast_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
-	"Bushwacka_0"
+	"Bushwacka_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
 	}
-	"BuffaloSteak_0"
+	"BuffaloSteak_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and 10%% dmg vuln while buffed"
 	}
-	"BuffaloSteak_1"
+	"BuffaloSteak_Release"
 	{
 		"en"	"Reverted to release, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed stacks with GRU (run a bit faster than Scout)"
 	}
-	"BuffaloSteak_2"
+	"BuffaloSteak_Pre2013"
 	{
 		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
 	}
-	"Targe_0"
+	"Targe_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal"
 	}
-	"Claidheamh_0"
+	"Claidheamh_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive"
 	}
-	"Carbine_0"
+	"Carbine_Release"
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill"
 	}
-	"CozyCamper_0"
+	"CozyCamper_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, flinch resist at any charge level"
 	}
-	"CritCola_0"
+	"CritCola_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"
 	}
-	"CrocoStyle_0"
+	"CrocoStyle_Release"
 	{
 		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
 	}
-	"DalokohsBar_0"
+	"DalokohsBar_PreMYM"
 	{
 		"en"	"Reverted to Gun Mettle update, can now overheal to 400 hp again"
 	}
-	"Darwin_0"
+	"Darwin_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"		
 	}
-	"Darwin_1"
+	"Darwin_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (4.7%% against crit bullets), 20%% blast vuln, no fire resists"
 	}
-	"Ringer_0"
+	"Ringer_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken)"
 	}
-	"Degreaser_0"
+	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties"
 	}
-	"Disciplinary_0"
+	"Disciplinary_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit"
 	}
-	"DragonFury_0"
+	"DragonFury_Release"
 	{
 		"en"	"Reverted to release, increased projectile size and no center-hit requirement for bonus damage"
 	}
-	"DragonFury_0_Patchless"
+	"DragonFury_Release_Patchless"
 	{
 		"en"	"Partially reverted to release, increased projectile size"
 	}
-	"Enforcer_0"
+	"Enforcer_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% damage bonus while undisguised, no piercing"
 	}
-	"Enforcer_1"
+	"Enforcer_Release"
 	{
 		"en"	"Reverted to release, +20%% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty"
 	}
-	"Equalizer_0"
+	"Equalizer_PrePyro"
 	{
 		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 hp"
 	}
-	"Equalizer_1"
+	"Equalizer_PreHat"
 	{
 		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 hp"
 	}
-	"Equalizer_2"
+	"Equalizer_Release"
 	{
 		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max hp: 125 dmg at 58 hp, 150 dmg at 20 hp, 162 dmg at 1 hp"
 	}
-	"Eviction_0"
+	"Eviction_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
 	}
-	"Eviction_1"
+	"Eviction_PreMYM"
 	{
 		"en"	"Reverted to gunmettle, +50%% faster firing speed, no 20%% dmg vuln, no health drain, no move speed bonus"
 	}
-	"Expert_0"
+	"Expert_Release"
 	{
 		"en"	"Restored release item set bonus. +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
 	}
-	"FistSteel_0"
+	"FistSteel_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no healing penalties"
 	}
-	"Guillotine_0"
+	"Guillotine_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, stun crits, distance mini-crits, no recharge"
 	}
-	"GasJockey_0"
+	"GasJockey_Release"
 	{
 		"en"	"Restored release item set bonus, +10%% movespeed and bullet vuln. Equip the Degreaser and Powerjack to gain the bonus, the hat is not required"
 	}
-	"GlovesRU_0"
+	"GlovesRU_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25%% damage"
 	}
-	"GlovesRU_1"
+	"GlovesRU_PrePyro"
 	{
 		"en"	"Reverted to pre-pyromania, no health drain, no mark-for-death, 50%% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s"
 	}
-	"Gunboats_0"
+	"Gunboats_Release"
 	{
 		"en"	"Reverted to release, -75%% blast damage from rocket jumps"
 	}
-	"Zatoichi_0"
+	"Zatoichi_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits"
 	}
-	"Hibernate_0"
+	"Hibernate_Release"
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
 	}
-	"Liberty_0"
+	"Jag_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
+	}
+	"Jag_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
+	}	
+	"Liberty_Release"
 	{
 		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"
 	}
-	"LochLoad_0"
+	"LochLoad_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% damage against everything"
 	}
-	"LochLoad_1"
+	"LochLoad_2013"
 	{
 		"en"	"Reverted to pre-2014, +20%% damage (15%% variance), -50%% clip, +25%% self dmg, no radius penalty, grenades tumble"
 	}
-	"Cannon_0"
+	"Cannon_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 dmg impacts"
 	}
-	"Gardener_0"
+	"Gardener_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no attack speed penalty"
 	}
-	"Natascha_0"
+	"Natascha_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
-	"Panic_0"
+	"Panic_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health"
 	}
-	"Persuader_0"
+	"Persuader_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty"
 	}
-	"Pomson_0"
+	"Pomson_PreGM"
 	{
 		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range"
 	}
-	"Pomson_1"
+	"Pomson_Release"
 	{
 		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range"
 	}
-	"Powerjack_0"
+	"Powerjack_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal"
 	}
-	"Powerjack_1"
+	"Powerjack_Release"
 	{
 		"en"	"Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25%% dmg bonus, no random crits"
 	}
-	"Powerjack_2"
+	"Powerjack_Pre2013"
 	{
 		"en"	"Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20%% melee vuln while active"
 	}
-	"Pocket_0"
+	"Pocket_Release"
 	{
 		"en"	"Reverted to release, +15 max health, fall damage immunity, 25%% slower fire rate, 50%% fire vuln"
 	}
-	"Pocket_1"
+	"Pocket_PreBM"
 	{
 		"en"	"Reverted to pre-2018, gain up to +7 health on hit"
 	}
-	"Quickfix_0"
+	"Quickfix_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +25%% uber build rate, can capture objectives when ubered"
 	}
-	"Quickfix_0_Patchless"
+	"Quickfix_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% uber build rate"
 	}
-	"Quickiebomb_0"
+	"Quickiebomb_PreMYM"
 	{
 		"en"	"Reverted to toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
 	}
-	"Razorback_0"
+	"Razorback_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can be overhealed, shield does not regenerate"
 	}
-	"RescueRanger_0"
+	"RescueRanger_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups"
 	}
-	"Reserve_0"
+	"Reserve_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster switch for all weapons"
 	}
-	"Reserve_1"
+	"Reserve_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
 	}
-	"Bison_0"
+	"Bison_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times"
 	}
-	"RocketJmp_0"
+	"RocketJmp_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt"
 	}
-	"RocketJmp_1"
+	"RocketJmp_Pre2013_Intel"
 	{
 		"en"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel"
 	}
-	"Saharan_0"
+	"Saharan_Release"
 	{
 		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger and YER to gain the bonus, the hat is not required"
 	}
-	"Sandman_0"
+	"Sandman_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time"
 	}
-	"Scottish_0"
+	"Scottish_Release"
 	{
 		"en"	"Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus"
 	}
-	"Circuit_0"
+	"Circuit_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, alt-fire destroys projectiles in front, costs 15 metal per shot"
 	}
-	"Circuit_1"
+	"Circuit_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire"
 	}
-	"Shortstop_0"
+	"Shortstop_PreMnvy_Shove"
 	{
 		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
 	}
-	"Shortstop_1"
+	"Shortstop_PreMnvy"
 	{
 		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove"
 	}
-	"Shortstop_2"
+	"Shortstop_PreGM_Shove"
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
-	"Shortstop_3"
+	"Shortstop_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo, no shove"
 	}
-	"Sodapop_0"
+	"Sodapop_Pre2013"
 	{
 		"en"	"Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits"
 	}
-	"Sodapop_1"
+	"Sodapop_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, run to build hype"
 	}
-	"Solemn_0"
+	"Solemn_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, firing speed penalty removed"
 	}
-	"SpDelivery_0"
+	"SpDelivery_Release"
 	{
 		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and Holy Mackerel to gain the bonus, the hat is not required"
 	}
-	"Splendid_0"
+	"Splendid_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
 	}
-	"SpyCicle_0"
+	"SpyCicle_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources"
 	}
-	"StkJumper_0"
+	"StkJumper_Pre2013"
 	{
 		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once again"
 	}
-	"StkJumper_1"
+	"StkJumper_Pre2013_Intel"
 	{
 		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel"
 	}
-	"Sleeper_0"
+	"Sleeper_PreBM"
 	{
 		"en"	"Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction"
 	}
-	"Turner_0"
+	"Turner_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal"
 	}
-	"Tomislav_0"
+	"Tomislav_PrePyro"
 	{
 		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
 	}
-	"Tomislav_1"
+	"Tomislav_Release"
 	{
 		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
 	}
-	"TribalShiv_0"
+	"TribalShiv_Release"
 	{
 		"en"	"Reverted to release, 8 second bleed, 35%% damage penalty"
 	}
-	"Caber_0"
+	"Caber_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion"
 	}
-	"VitaSaw_0"
+	"VitaSaw_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, always preserves up to 20%% uber on death"
 	}
-	"Warrior_0"
+	"Warrior_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health"
 	}
-	"Wrangler_0"
+	"Wrangler_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second dying"
 	}
-	"Eternal_0"
+	"Eternal_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, cannot disguise, no cloak drain penalty"
 	}

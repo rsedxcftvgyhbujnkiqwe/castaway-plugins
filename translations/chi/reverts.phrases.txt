@@ -478,399 +478,399 @@
 	// mym update: https://wiki.teamfortress.com/wiki/Meet_Your_Match_Update/zh-hans
 	// pyromania update: https://wiki.teamfortress.com/wiki/Pyromania_Update/zh-hans
 	// manniversary: https://wiki.teamfortress.com/wiki/Manniversary_Update_%26_Sale/zh-hans
-	"Airblast_0"
+	"Airblast_PreJI"
 	{
 		"chi"	"所有火焰喷射器压缩空气机制回调到丛林炼狱更新前"
 	}
-	"Airstrike_0"
+	"Airstrike_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，爆炸起跳过程中不会有爆炸范围减少"
 	}
-	"Minigun_ramp_0"
+	"Minigun_ramp_PreLW"
 	{
 		"chi"	"回调到爱情与战争更新前，转轮机枪不再有刚开火时的伤害和精确度缩水"
 	}
-	"Swords_0"
+	"Swords_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，不会有取出和收回速度减慢"
 	}
-	"Ambassador_0"
+	"Ambassador_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，在所有距离都能做完整的爆头伤害（102）"
 	}
-	"Atomizer_0"
+	"Atomizer_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，任何时候都能进行三连跳，每次三连跳会受到 10 点伤害"
 	}
-	"Axtinguisher_0"
+	"Axtinguisher_PreLW"
 	{
 		"chi"	"回调到到爱情与战争更新前，任何时候都能对着火敌人做 195 点全暴击伤害，击杀着火敌人后不会提高移动速度"
 	}
-	"Axtinguisher_1"
+	"Axtinguisher_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，从背后攻击时会产生爆击，从身前攻击时会产生迷你爆击，击杀着火敌人不会提高移动速度"
 	}
-	"Backburner_0"
+	"Backburner_PreHat"
 	{
 		"chi"	"回调到无帽更新，伤害 +10%%"
 	}
-	"Backburner_1"
+	"Backburner_119"
 	{
 		"chi"	"回调到第 119 次更新，伤害 +20%%，没有压缩空气"
 	}
-	"BaseJumper_0"
+	"BaseJumper_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，可以重新打开降落伞，更好的空中控制，在空中打开降落伞的状态下着火会使气流上升"
 	}
-	"BabyFace_0"
+	"BabyFace_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，没有被击中时速度加成蓄能减少，空中跳跃减少的能量 -25%%"
 	}
-	"BabyFace_1"
+	"BabyFace_Release"
 	{
 		"chi"	"回调到发布，+40%% 准确度，没有弹匣容量减少或被击中时速度加成蓄能减少，速度 -35%%，伤害 -30%%，空中跳跃减少的能量 -100%%"
 	}
-	"Beggars_0"
+	"Beggars_Pre2013"
 	{
 		"chi"	"回调到 2013 年以前，没有爆炸半径减少，装填过多弹药不会导致炸膛"
 	}
-	"BlackBox_0"
+	"BlackBox_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，在任何距离攻击都能获得 15 点生命值"
 	}
-	"Bonk_0"
+	"Bonk_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，在无敌结束后不会减速"
 	}
-	"Booties_0"
+	"Booties_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，穿戴者移动速度增加不需要装备盾牌"
 	}
-	"BrassBeast_0"
+	"BrassBeast_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，在任何生命值下枪管高速旋转时所受伤害 -20%% (对抗暴击伤害 -6.7%%）"
 	}
-	"Bushwacka_0"
+	"Bushwacka_PreLW"
 	{
 		"chi"	"回调到爱情与战争更新前，在任何状况下受由火造成的伤害 -20%%，有随机暴击"
 	}
-	"BuffaloSteak_0"
+	"BuffaloSteak_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，吃掉后马上获得移动速度 +35%% 和伤害 -10%%"
 	}
-	"BuffaloSteak_1"
+	"BuffaloSteak_Release"
 	{
 		"chi"	"回调到发布，吃掉后移动速度 +35%%，穿戴者所受到的伤害转换为迷你暴击，速度加成可以与紧急逃跑手套叠加（比侦察兵快一点）"
 	}
-	"BuffaloSteak_2"
+	"BuffaloSteak_Pre2013"
 	{
 		"chi"	"回调到 2013 年夏季前，吃掉后移动速度 +35%%，穿戴者所受到的伤害转换为迷你暴击，速度加成不可以与紧急逃跑手套叠加"
 	}
-	"Targe_0"
+	"Targe_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +40%%，对余焰免疫，冲锋后获得暴击，没有负面效果移除"
 	}
-	"Claidheamh_0"
+	"Claidheamh_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，生命值 -15，没有穿戴时受到的伤害增加，长时间冲锋转化为被动"
 	}
-	"Carbine_0"
+	"Carbine_Release"
 	{
 		"chi"	"回调到发布，击杀敌人后获得持续 3 秒的暴击"
 	}
-	"CozyCamper_0"
+	"CozyCamper_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，在任何蓄力等级下视野不会晃动"
 	}
-	"CritCola_0"
+	"CritCola_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，移动速度 +25%%，所受伤害 +10%%，攻击后不会打上死亡标记"
 	}
-	"DalokohsBar_0"
+	"DalokohsBar_PreMYM"
 	{
 		"chi"	"回调到枪魂更新，可以超量治疗到 400 生命值"
 	}
-	"Darwin_0"
+	"Darwin_Pre2013"
 	{
 		"chi"	"回调到丛林炼狱更新前，最大生命值 +25，受到的子弹伤害抗性 +15%%（对抗暴击子弹 +4.7%%），受到的爆炸伤害 -20%%，不对余焰免疫"
 	}
-	"Darwin_1"
+	"Darwin_PreJI"
 	{
 		"chi"	"回调到 2013 年前，最大生命值 +25，没有伤害与伤害抗性修改并且不对余焰免疫"
 	}
-	"Ringer_0"
+	"Ringer_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，能捡起弹药包补充隐形能量，6.5 秒内受到的获得 90%% 的伤害抗性（由受到的伤害减少）"
 	}
-	"Degreaser_0"
+	"Degreaser_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，部署速度 +65%%，伤害 -10%%，余焰伤害 -25%%"
 	}
-	"Disciplinary_0"
+	"Disciplinary_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，击中队友后加快双方的移动速度 3 秒"
 	}
-	"DragonFury_0"
+	"DragonFury_Release"
 	{
 		"chi"	"回调到发布，增大了火球大小，击中着火敌人造成额外伤害不需要在火球内部与敌人命中判定碰撞"
 	}
-	"DragonFury_0_Patchless"
+	"DragonFury_Release_Patchless"
 	{
 		"chi"	"部分回调到发布，增大了火球大小"
 	}
-	"Enforcer_0"
+	"Enforcer_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，非伪装状态下伤害 +20%%，没有攻击穿透抗性"
 	}
-	"Enforcer_1"
+	"Enforcer_Release"
 	{
 		"chi"	"回调到发布，任何状态下伤害 +20%%，有随机暴击，没有攻击穿透抗性，隐形时间增加 0.5 秒"
 	}
-	"Equalizer_0"
+	"Equalizer_PrePyro"
 	{
 		"chi"	"合并并回调到纵火狂更新前；手持武器时：无法得到治疗，无法呼叫医生，不会打上死亡标记，1 生命值下造成 107 伤害"
 	}
-	"Equalizer_1"
+	"Equalizer_PreHat"
 	{
 		"chi"	"合并并回调到无帽更新前；手持武器时：无法得到治疗，无法呼叫医生，不会打上死亡标记，1 生命值下造成 113 伤害"
 	}
-	"Equalizer_2"
+	"Equalizer_Release"
 	{
 		"chi"	"合并并回调到发布；手持武器时：无法得到治疗，无法呼叫医生，不会打上死亡标记；最高 200 生命值时：在 58 生命值下造成 125 伤害，在 20 生命值下造成 150 伤害，在 1 生命值下造成 162 伤害"
 	}
-	"Eviction_0"
+	"Eviction_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，手持时不会扣除生命值上限，受到伤害 +20%%"
 	}
-	"Eviction_1"
+	"Eviction_PreMYM"
 	{
 		"chi"	"回调到枪魂更新，开火速度 +50%%，没有携带时伤害 -20%% 的属性，手持时不会扣除生命值上限，没有速度加成"
 	}
-	"FistSteel_0"
+	"FistSteel_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，没有治疗量减少"
 	}
-	"Guillotine_0"
+	"Guillotine_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，对眩晕状态玩家爆击，远距离造成迷你爆击，没有重新充能"
 	}
-	"GlovesRU_0"
+	"GlovesRU_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，没有生命值上限和收回速度减少，有死亡标记，伤害 -25%%"
 	}
-	"GlovesRU_1"
+	"GlovesRU_PrePyro"
 	{
 		"chi"	"回调到纵火狂更新前，没有生命值上线减少，没有死亡标记，伤害 -50%%，手持武器时 -6 生命值/秒，-6 生命值/秒状况下增加跳跃高度"
 	}
-	"Gunboats_0"
+	"Gunboats_Release"
 	{
 		"chi"	"回调到发布，火箭跳跃时受到的爆炸伤害 -75%%"
 	}
-	"Zatoichi_0"
+	"Zatoichi_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，可以快速切换武器，近战范围减少，击杀敌人前不能切换武器，完整的治疗效果，有随机暴击"
 	}
-	"Liberty_0"
+	"Liberty_Release"
 	{
 		"chi"	"回调到发布，炮弹速度 +40%%，弹匣容量 -25%%"
 	}
-	"LochLoad_0"
+	"LochLoad_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，对任何对象伤害 +20%%"
 	}
-	"LochLoad_1"
+	"LochLoad_2013"
 	{
 		"chi"	"回调到 2014 年以前，伤害 +20%%（15%% 波动），弹匣容量 -50%%，自身伤害 +25%%，没有爆炸半径减少，榴弹不会粉碎"
 	}
-	"Cannon_0"
+	"Cannon_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，炮弹速度 +50%%，击中时能保持 60 伤害输出"
 	}
-	"Gardener_0"
+	"Gardener_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，没有开火速度减少"
 	}
-	"Natascha_0"
+	"Natascha_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，在任何生命值下转动时伤害 -20%%（对抗暴击伤害 -6.7%%）"
 	}
-	"Panic_0"
+	"Panic_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，长按开火键装弹，松开来开火，在低生命值下开火速度加快并且弹丸分布扩大"
 	}
-	"Persuader_0"
+	"Persuader_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，拾取弹药箱可以回复生命值，冲锋重新充能时间 +100%%，没有最大弹匣容量减少"
 	}
-	"Pomson_0"
+	"Pomson_PreGM"
 	{
 		"chi"	"增大了判定箱大小（和正义野牛判定箱一样），可以穿越团队，在任何距离下没有被击中者的医疗枪能量或隐身能量损失"
 	}
-	"Pomson_1"
+	"Pomson_Release"
 	{
 		"chi"	"回调到发布，和正义野牛伤害相同，增大了判定箱大小，可以穿越其他玩家，在任何距离下没有被击中者的医疗枪能量或隐身能量损失"
 	}
-	"Powerjack_0"
+	"Powerjack_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，保留了原有的一些属性，击杀敌人可以获得 75 生命值并且可以超量治疗"
 	}
-	"Powerjack_1"
+	"Powerjack_Release"
 	{
 		"chi"	"回调到发布，手持武器时穿戴时移动速度不会加快，击杀敌人可以获得 75 生命值并且可以超量治疗，伤害 +25%%，没有随机暴击"
 	}
-	"Powerjack_2"
+	"Powerjack_Pre2013"
 	{
 		"chi"	"回调到无帽更新，手持武器时穿戴时移动速度不会加快，击杀敌人可以获得 75 生命值并且可以超量治疗，手持武器时受到的近战伤害 +20%%"
 	}
-	"Pocket_0"
+	"Pocket_Release"
 	{
 		"chi"	"回调到发布，最高生命值 +15，不受掉落伤害，开火速度 -25%%，受到的火焰伤害 +50%%"
 	}
-	"Pocket_1"
+	"Pocket_PreBM"
 	{
 		"chi"	"回调到 2018 年以前，击中时最高获得 7 生命值"
 	}
-	"Quickfix_0"
+	"Quickfix_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，超能冲锋蓄积速度 +25%%，超能冲锋状况下可以携带情报"
 	}
-	"Quickfix_0_Patchless"
+	"Quickfix_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，超能冲锋蓄积速度 +25%%"
 	}
-	"Quickiebomb_0"
+	"Quickiebomb_PreMYM"
 	{
 		"chi"	"回调到艰难假日更新，最大蓄力时间 50%%，最大伤害加成 +25%%，弹夹容量 -25%%，黏弹会在 4 秒后消失"
 	}
-	"Razorback_0"
+	"Razorback_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，可以超量治疗，不能重新充能"
 	}
-	"RescueRanger_0"
+	"RescueRanger_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，一发能量弹有 75 建筑治疗量，没有金属消耗，远距离搬运建筑消耗金属 130"
 	}
-	"Reserve_0"
+	"Reserve_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，部署 5 秒后空中目标造成迷你爆击，对所有武器部署速度 +15%%"
 	}
-	"Reserve_1"
+	"Reserve_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，对压缩气爆击退的敌人造成迷你暴击"
 	}
-	"Bison_0"
+	"Bison_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，增大了判定箱大小，可以多次击中同一玩家"
 	}
-	"RocketJmp_0"
+	"RocketJmp_Pre2013"
 	{
 		"chi"	"回调到 2013 年以前，对手雷自爆嘲讽自杀效果免疫"
 	}
-	"RocketJmp_1"
+	"RocketJmp_Pre2013_Intel"
 	{
 		"chi"	"回调到 2013 年以前，对手雷自爆嘲讽自杀效果免疫，穿戴者可以捡起情报"
 	}
-	"Saharan_0"
+	"Saharan_Release"
 	{
 		"chi"	"还原发布时套装的效果加成，减小解除隐形声音，增加 0.5 秒额外隐形时间。佩戴陌生人和永生的回报来获得套装的效果加成，不需要熟悉的非斯帽"
 	}
-	"Sandman_0"
+	"Sandman_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，远距离棒球使玩家失去反击能力，15 秒重新充能时间"
 	}
-	"Scottish_0"
+	"Scottish_Release"
 	{
 		"chi"	"回调到发布，炸弹就绪时间减慢 0.4 秒（原 0.8 秒），无开火速度加成"
 	}
-	"Circuit_0"
+	"Circuit_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，辅助开火能摧毁前方的飞行物，消耗 15 金属"
 	}
-	"Circuit_1"
+	"Circuit_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，开火能摧毁飞行物，手持武器时从补给器无法获取金属，无辅助开火功能"
 	}
-	"Shortstop_0"
+	"Shortstop_PreMnvy_Shove"
 	{
 		"chi"	"回调到曼恩周年庆更新以前，可以快速换弹，没有击退力度减少，使用副武器弹药；可以推开敌人"
 	}
-	"Shortstop_1"
+	"Shortstop_PreMnvy"
 	{
 		"chi"	"回调到曼恩周年庆更新以前，可以快速换弹，没有击退力度减少，使用副武器弹药，不能推开敌人"
 	}
-	"Shortstop_2"
+	"Shortstop_PreGM_Shove"
 	{
 		"chi"	"回调到枪魂更新前，手持武器时受治疗效果 +20%%，所有情况下受到的击退力度 +40%%，使用副武器弹药；可以推开敌人"
 	}
-	"Shortstop_3"
+	"Shortstop_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，手持武器时受治疗效果 +20%%，所有情况下受到的击退力度 +40%%，使用副武器弹药，不能推开敌人"
 	}
-	"Sodapop_0"
+	"Sodapop_Pre2013"
 	{
 		"chi"	"回调到圣诞节 2013 更新以前，跑步时积聚能量并且自动获取迷你暴击"
 	}
-	"Sodapop_1"
+	"Sodapop_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，跑步时积聚能量"
 	}
-	"Solemn_0"
+	"Solemn_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，没有开火速度减慢"
 	}
-	"Splendid_0"
+	"Splendid_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +15%%，没有冷却速率加成，冲锋后获得暴击，没有负面效果移除，在任何距离获得冲锋伤害"
 	}
-	"SpyCicle_0"
+	"SpyCicle_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，2 秒火焰免疫时间，无声杀手，不能从弹药包恢复计时器"
 	}
-	"StkJumper_0"
+	"StkJumper_Pre2013"
 	{
 		"chi"	"回调到纵火狂更新，最多可以有 8 个黏性炸弹"
 	}
-	"StkJumper_1"
+	"StkJumper_Pre2013_Intel"
 	{
 		"chi"	"回调到纵火狂更新，最多可以有 8 个黏性炸弹，穿戴者可以捡起情报"
 	}
-	"Sleeper_0"
+	"Sleeper_PreBM"
 	{
 		"chi"	"回调到 2018 年以前，开镜爆头并且完整蓄能可以射出让目标周围的玩家浇灌的瓶手道，没有瓶手道冷却时间缩短"
 	}
-	"Turner_0"
+	"Turner_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，可以做出全暴击，爆炸伤害抗性和火焰伤害抗性 +25%%，冲锋和获得暴击，没有负面效果移除"
 	}
-	"Tomislav_0"
+	"Tomislav_PrePyro"
 	{
 		"chi"	"回调到纵火狂更新前，机枪预热速度 +40%%，没有准确度加成，没有枪管转动的声音，开火速度 -20%%"
 	}
-	"Tomislav_1"
+	"Tomislav_Release"
 	{
 		"chi"	"回调到发布，机枪预热速度 +75%%，没有准确度加成，没有枪管转动的声音，开火速度 -20%%"
 	}
-	"TribalShiv_0"
+	"TribalShiv_Release"
 	{
 		"chi"	"回调到发布，击中后使对方持续失血 8 秒，伤害 -35%%"
 	}
-	"Caber_0"
+	"Caber_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，近战爆炸能做出 175+ 伤害"
 	}
-	"VitaSaw_0"
+	"VitaSaw_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，死亡时能保持 20%% 的超能冲锋能量"
 	}
-	"Warrior_0"
+	"Warrior_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，每次攻击后会获得 10 点的生命值回复，没有穿戴时受到的伤害加成，最大生命值 -20"
 	}
-	"Wrangler_0"
+	"Wrangler_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，护盾保护下可以没有伤害和维修效果减少，工程师死亡后只会瘫痪 1 秒"
 	}
-	"Eternal_0"
+	"Eternal_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，不能伪装，没有隐身能量消耗速度减少"
 	}
