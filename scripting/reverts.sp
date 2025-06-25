@@ -3664,24 +3664,46 @@ Action SDKHookCB_OnTakeDamage(
 								}
 
 								if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
+										//PrintToChatAll("damage1 before: %f", damage1);
 									damage1 = (20.0 * (1.0 - damage1));
+										//PrintToChatAll("damage1 after: %f", damage1);
 									damage1 = float(RoundToCeil(damage1));
+										//PrintToChatAll("damage1 final float(RoundToCeil): %f", damage1);
 
 									charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+										//PrintToChatAll("charge before: %f", charge);
 
 									charge = (charge - damage1);
+										//PrintToChatAll("charge - damage1: %f", charge);
 									charge = (charge < 0.0 ? 0.0 : charge);
-
-									SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
+										//PrintToChatAll("charge final: %f", charge);
+									
+									// Bug fix for reverted Dead Ringer losing 70% cloak when hit by Pomson at close range
+									// Prevents 70% cloak getting drained when distance is less than 512 HU.
+									// Drain only 20% cloak from distances less than 512 hammer units on feign
+									if (
+										ItemIsEnabled(Wep_DeadRinger) && 
+										damage1 == 0 && 
+										charge == 100 && 
+										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+										players[victim].spy_is_feigning == false &&
+										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+									) {
+										// Set charge to 99.99 so it only drains 20% cloak, since charge is always 100.0 when hit if distance is less than 512 HU.
+										// When charge is less than 100.0, Spy loses 20% cloak. If charge is exactly 100.0 and the reverted DR is active, Spy loses 70% cloak.
+										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
+										TF2_AddCondition(victim, TFCond_DeadRingered);
+											//PrintToChatAll("charge after hit: %f", charge);
+									}
+									else {
+										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
+											//PrintToChatAll("charge after hit: %f", charge);
+									}
 
 									// Bug fix to trigger Dead Ringer feign death from distances greater than 512 hammer units
-									// This drains 20% cloak from distances greater than 512 hammer units on feign,
-									// But for some reason when its less than 512 hammer units, ~70% cloak is drained.
-									// Because w/ vanilla DR, 50% cloak is removed when less than 512 HU with the Pomson. So 50% + 20% = 70% cloak reduction
-									// Need to investigate more in older TF2 builds. Confirmed that it was only 20% reduction.
 									if (
 										ItemIsEnabled(Wep_DeadRinger) &&
-										damage1 > 0 && 
+										damage1 > 0 && // damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 										players[victim].spy_is_feigning == false
 									) {
