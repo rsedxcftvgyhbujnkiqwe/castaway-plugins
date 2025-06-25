@@ -392,131 +392,131 @@ public void OnPluginStart() {
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
-	ItemDefine("airblast", "Airblast_0", CLASSFLAG_PYRO, Feat_Airblast);
-	ItemDefine("airstrike", "Airstrike_0", CLASSFLAG_SOLDIER, Wep_Airstrike);
+	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
+	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
-	ItemDefine("miniramp", "Minigun_ramp_0", CLASSFLAG_HEAVY, Feat_Minigun);
+	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
 #endif
-	ItemDefine("swords", "Swords_0", CLASSFLAG_DEMOMAN, Feat_Sword);
-	ItemDefine("ambassador", "Ambassador_0", CLASSFLAG_SPY, Wep_Ambassador);
-	ItemDefine("atomizer", "Atomizer_0", CLASSFLAG_SCOUT, Wep_Atomizer);
-	ItemDefine("axtinguish", "Axtinguisher_0", CLASSFLAG_PYRO, Wep_Axtinguisher);
-	ItemVariant(Wep_Axtinguisher, "Axtinguisher_1");
-	ItemDefine("backburner", "Backburner_0", CLASSFLAG_PYRO, Wep_Backburner);
-	ItemVariant(Wep_Backburner, "Backburner_1");
-	ItemDefine("basejump", "BaseJumper_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
-	ItemDefine("babyface", "BabyFace_0", CLASSFLAG_SCOUT, Wep_BabyFace);
-	ItemVariant(Wep_BabyFace, "BabyFace_1");
-	ItemDefine("beggars", "Beggars_0", CLASSFLAG_SOLDIER, Wep_Beggars);
-	ItemDefine("blackbox", "BlackBox_0", CLASSFLAG_SOLDIER, Wep_BlackBox);
-	ItemDefine("bonk", "Bonk_0", CLASSFLAG_SCOUT, Wep_Bonk);
-	ItemDefine("booties", "Booties_0", CLASSFLAG_DEMOMAN, Wep_Booties);
-	ItemDefine("brassbeast", "BrassBeast_0", CLASSFLAG_HEAVY, Wep_BrassBeast);
-	ItemDefine("bushwacka", "Bushwacka_0", CLASSFLAG_SNIPER, Wep_Bushwacka);
-	ItemDefine("buffalosteak", "BuffaloSteak_0", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_1");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_2");
-	ItemDefine("targe", "Targe_0", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
-	ItemDefine("claidheamh", "Claidheamh_0", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
-	ItemDefine("carbine", "Carbine_0", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
+	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
+	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
+	ItemDefine("axtinguish", "Axtinguisher_PreLW", CLASSFLAG_PYRO, Wep_Axtinguisher);
+	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreTB");
+	ItemDefine("backburner", "Backburner_PreHat", CLASSFLAG_PYRO, Wep_Backburner);
+	ItemVariant(Wep_Backburner, "Backburner_119");
+	ItemDefine("basejump", "BaseJumper_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
+	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
+	ItemVariant(Wep_BabyFace, "BabyFace_Release");
+	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
+	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
+	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
+	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
+	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
+	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
+	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2013");
+	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
+	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
+	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 #if defined MEMORY_PATCHES
-	ItemDefine("cozycamper","CozyCamper_0", CLASSFLAG_SNIPER, Wep_CozyCamper);
+	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
-	ItemDefine("critcola", "CritCola_0", CLASSFLAG_SCOUT, Wep_CritCola);
-	ItemDefine("crocostyle", "CrocoStyle_0", CLASSFLAG_SNIPER, Set_CrocoStyle);
+	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_0", CLASSFLAG_HEAVY, Wep_Dalokoh);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh);
 #endif
-	ItemDefine("darwin", "Darwin_0", CLASSFLAG_SNIPER, Wep_Darwin);
-	ItemVariant(Wep_Darwin, "Darwin_1");
-	ItemDefine("ringer", "Ringer_0", CLASSFLAG_SPY, Wep_DeadRinger);
-	ItemDefine("degreaser", "Degreaser_0", CLASSFLAG_PYRO, Wep_Degreaser);
+	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
+	ItemVariant(Wep_Darwin, "Darwin_PreJI");
+	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
+	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined MEMORY_PATCHES
-	ItemDefine("disciplinary", "Disciplinary_0", CLASSFLAG_SOLDIER, Wep_Disciplinary);
+	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #endif
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_0", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury);
 #else
-	ItemDefine("dragonfury", "DragonFury_0_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
-	ItemDefine("enforcer", "Enforcer_0", CLASSFLAG_SPY, Wep_Enforcer);
-	ItemVariant(Wep_Enforcer, "Enforcer_1");
-	ItemDefine("equalizer", "Equalizer_0", CLASSFLAG_SOLDIER, Wep_Pickaxe);
-	ItemVariant(Wep_Pickaxe, "Equalizer_1");
-	ItemVariant(Wep_Pickaxe, "Equalizer_2");
-	ItemDefine("eureka", "Eureka_0", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
-	ItemDefine("eviction", "Eviction_0", CLASSFLAG_HEAVY, Wep_Eviction);
-	ItemVariant(Wep_Eviction, "Eviction_1");
-	ItemDefine("expert", "Expert_0", CLASSFLAG_DEMOMAN, Set_Expert);
-	ItemDefine("fiststeel", "FistSteel_0", CLASSFLAG_HEAVY, Wep_FistsSteel);
-	ItemDefine("guillotine", "Guillotine_0", CLASSFLAG_SCOUT, Wep_Cleaver);
-	ItemDefine("gasjockey", "GasJockey_0", CLASSFLAG_PYRO, Set_GasJockey);
-	ItemDefine("glovesru", "GlovesRU_0", CLASSFLAG_HEAVY, Wep_GRU);
-	ItemVariant(Wep_GRU, "GlovesRU_1");
-	ItemDefine("gunboats", "Gunboats_0", CLASSFLAG_SOLDIER, Wep_Gunboats);
-	ItemDefine("zatoichi", "Zatoichi_0", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
-	ItemDefine("hibernate", "Hibernate_0", CLASSFLAG_HEAVY, Set_Hibernate);
-	ItemDefine("jag", "Jag_0", CLASSFLAG_ENGINEER, Wep_Jag);
-	ItemVariant(Wep_Jag, "Jag_1");
-	ItemDefine("liberty", "Liberty_0", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
-	ItemDefine("lochload", "LochLoad_0", CLASSFLAG_DEMOMAN, Wep_LochLoad);
-	ItemVariant(Wep_LochLoad, "LochLoad_1");
-	ItemDefine("cannon", "Cannon_0", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
-	ItemDefine("gardener", "Gardener_0", CLASSFLAG_SOLDIER, Wep_MarketGardener);
-	ItemDefine("natascha", "Natascha_0", CLASSFLAG_HEAVY, Wep_Natascha);
-	ItemDefine("panic", "Panic_0", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
-	ItemDefine("persuader", "Persuader_0", CLASSFLAG_DEMOMAN, Wep_Persian);
-	ItemDefine("pomson", "Pomson_0", CLASSFLAG_ENGINEER, Wep_Pomson);
-	ItemVariant(Wep_Pomson, "Pomson_1");
-	ItemDefine("powerjack", "Powerjack_0", CLASSFLAG_PYRO, Wep_Powerjack);
-	ItemVariant(Wep_Powerjack, "Powerjack_1");
-	ItemVariant(Wep_Powerjack, "Powerjack_2");	
-	ItemDefine("pocket", "Pocket_0", CLASSFLAG_SCOUT, Wep_PocketPistol);
-	ItemVariant(Wep_PocketPistol, "Pocket_1");
+	ItemDefine("enforcer", "Enforcer_PreGM", CLASSFLAG_SPY, Wep_Enforcer);
+	ItemVariant(Wep_Enforcer, "Enforcer_Release");
+	ItemDefine("equalizer", "Equalizer_PrePyro", CLASSFLAG_SOLDIER, Wep_Pickaxe);
+	ItemVariant(Wep_Pickaxe, "Equalizer_PreHat");
+	ItemVariant(Wep_Pickaxe, "Equalizer_Release");
+	ItemDefine("eureka", "Eureka_PreGM", CLASSFLAG_ENGINEER, Wep_EurekaEffect);  
+	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
+	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
+	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN, Set_Expert);
+	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
+	ItemDefine("guillotine", "Guillotine_PreJI", CLASSFLAG_SCOUT, Wep_Cleaver);
+	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO, Set_GasJockey);
+	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
+	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
+	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY, Set_Hibernate);
+	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
+	ItemVariant(Wep_Jag, "Jag_PreGM");  
+	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
+	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
+	ItemVariant(Wep_LochLoad, "LochLoad_2013");
+	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
+	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
+	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
+	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
+	ItemVariant(Wep_Pomson, "Pomson_Release");
+	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
+	ItemVariant(Wep_Powerjack, "Powerjack_Release");
+	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
+	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
+	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 #if defined MEMORY_PATCHES
-	ItemDefine("quickfix", "Quickfix_0", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix);
 #else
-	ItemDefine("quickfix", "Quickfix_0_Patchless", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
-	ItemDefine("quickiebomb", "Quickiebomb_0", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
-	ItemDefine("razorback","Razorback_0", CLASSFLAG_SNIPER, Wep_Razorback);
+	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
+	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 #if defined MEMORY_PATCHES
-	ItemDefine("rescueranger", "RescueRanger_0", CLASSFLAG_ENGINEER, Wep_RescueRanger);
+	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 #endif
-	ItemDefine("reserve", "Reserve_0", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
-	ItemVariant(Wep_ReserveShooter, "Reserve_1");
-	ItemDefine("bison", "Bison_0", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemDefine("rocketjmp", "RocketJmp_0", CLASSFLAG_SOLDIER, Wep_RocketJumper);
-	ItemVariant(Wep_RocketJumper, "RocketJmp_1");
-	ItemDefine("saharan", "Saharan_0", CLASSFLAG_SPY, Set_Saharan);
-	ItemDefine("sandman", "Sandman_0", CLASSFLAG_SCOUT, Wep_Sandman);
-	ItemDefine("scottish", "Scottish_0", CLASSFLAG_DEMOMAN, Wep_Scottish);
-	ItemDefine("circuit", "Circuit_0", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
-	ItemVariant(Wep_ShortCircuit, "Circuit_1");
-	ItemDefine("shortstop", "Shortstop_0", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemVariant(Wep_Shortstop, "Shortstop_1");
-	ItemVariant(Wep_Shortstop, "Shortstop_2");
-	ItemVariant(Wep_Shortstop, "Shortstop_3");
-	ItemDefine("sodapop", "Sodapop_0", CLASSFLAG_SCOUT, Wep_SodaPopper);
-	ItemVariant(Wep_SodaPopper, "Sodapop_1");
-	ItemDefine("solemn", "Solemn_0", CLASSFLAG_MEDIC, Wep_Solemn);
-	ItemDefine("spdelivery", "SpDelivery_0", CLASSFLAG_SCOUT, Set_SpDelivery);
-	ItemDefine("splendid", "Splendid_0", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
-	ItemDefine("spycicle", "SpyCicle_0", CLASSFLAG_SPY, Wep_Spycicle);
-	ItemDefine("stkjumper", "StkJumper_0", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
-	ItemVariant(Wep_StickyJumper, "StkJumper_1");
-	ItemDefine("sleeper", "Sleeper_0", CLASSFLAG_SNIPER, Wep_SydneySleeper);
-	ItemDefine("turner", "Turner_0", CLASSFLAG_DEMOMAN, Wep_TideTurner);
-	ItemDefine("tomislav", "Tomislav_0", CLASSFLAG_HEAVY, Wep_Tomislav);
-	ItemVariant(Wep_Tomislav, "Tomislav_1");
-	ItemDefine("tribalshiv", "TribalShiv_0", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
-	ItemDefine("caber", "Caber_0", CLASSFLAG_DEMOMAN, Wep_Caber);
-	ItemDefine("vitasaw", "VitaSaw_0", CLASSFLAG_MEDIC, Wep_VitaSaw);
-	ItemDefine("warrior", "Warrior_0", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
+	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
+	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
+	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
+	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2013_Intel");
+	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
+	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
+	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
+	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
+	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
+	ItemDefine("shortstop", "Shortstop_PreMnvy_Shove", CLASSFLAG_SCOUT, Wep_Shortstop);
+	ItemVariant(Wep_Shortstop, "Shortstop_PreMnvy");
+	ItemVariant(Wep_Shortstop, "Shortstop_PreGM_Shove");
+	ItemVariant(Wep_Shortstop, "Shortstop_PreGM");
+	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemVariant(Wep_SodaPopper, "Sodapop_PreMYM");
+	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
+	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT, Set_SpDelivery);
+	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
+	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
+	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
+	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
+	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
+	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_Tomislav, "Tomislav_Release");
+	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
+	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
+	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
+	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined MEMORY_PATCHES
-	ItemDefine("wrangler", "Wrangler_0", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
 #endif
-	ItemDefine("eternal", "Eternal_0", CLASSFLAG_SPY, Wep_EternalReward);
+	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
 	ItemFinalize();
 
