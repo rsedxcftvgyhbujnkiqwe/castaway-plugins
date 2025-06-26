@@ -699,6 +699,10 @@
 	{
 		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range"
 	}
+	"Pomson_PreGM_Historical"
+	{
+		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off at any range"
+	}	
 	"Powerjack_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal"

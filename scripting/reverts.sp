@@ -472,6 +472,7 @@ public void OnPluginStart() {
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
+	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
@@ -3124,7 +3125,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 
 					if (StrEqual(class, "tf_weapon_drg_pomson")) {
 						if (
-							ItemIsEnabled(Wep_Pomson) &&
+							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 &&
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
 						) {
 							return Plugin_Handled;
