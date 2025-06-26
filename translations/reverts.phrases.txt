@@ -613,7 +613,15 @@
 	}
 	"FistSteel_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, no healing penalties"
+		"en"	"Reverted to pre-inferno, no healing penalties, while active: -40%% ranged damage, 100%% melee damage vuln"
+	}
+	"FistSteel_PreTB"
+	{
+		"en"	"Reverted to pre-tough break, 20%% longer weapon switch, no healing and holster penalties, while active: -40%% ranged damage, 100%% melee damage vuln"
+	}
+	"FistSteel_Release"
+	{
+		"en"	"Reverted to release, no healing and holster penalties, while active: -60%% ranged damage, 100%% melee damage vuln"
 	}
 	"Guillotine_PreJI"
 	{
