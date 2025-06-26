@@ -1985,31 +1985,28 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
-			switch(Wep_FistsSteel) {
+			switch(GetItemVariant(Wep_FistsSteel)) {
 				case 0: {
 				// Pre-Inferno FoS
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 772, 2.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
-					TF2Items_SetAttribute(itemNew, 1, 177, 1.0); // 20% longer weapon switch; mult_deploy_time
-					TF2Items_SetAttribute(itemNew, 2, 853, 1.0); // mult patient overheal penalty active
-					TF2Items_SetAttribute(itemNew, 3, 854, 1.0); // mult health fromhealers penalty active
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active
 				}
-				// ATTRIB 772 AND 177 DOESN'T WORK FOR SOME REASON FOR THE VARIANTS BELOW, WHY?
 				case 1: {
 				// Pre-Tough Break FoS
 					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
-					TF2Items_SetAttribute(itemNew, 1, 177, 1.2); // 20% longer weapon switch; mult_deploy_time
-					TF2Items_SetAttribute(itemNew, 2, 853, 1.0); // mult patient overheal penalty active
-					TF2Items_SetAttribute(itemNew, 3, 854, 1.0); // mult health fromhealers penalty active
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active					
+					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
+					TF2Items_SetAttribute(itemNew, 3, 177, 1.2); // 20% longer weapon switch; mult_deploy_time
 				}
 				case 2: {
 				// Release FoS
 					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
-					TF2Items_SetAttribute(itemNew, 1, 205, 0.4); // -60% damage from ranged sources while active; dmg_from_ranged
-					TF2Items_SetAttribute(itemNew, 2, 853, 1.0); // mult patient overheal penalty active
-					TF2Items_SetAttribute(itemNew, 3, 854, 1.0); // mult health fromhealers penalty active
+					TF2Items_SetAttribute(itemNew, 0, 853, 1.0); // mult patient overheal penalty active
+					TF2Items_SetAttribute(itemNew, 1, 854, 1.0); // mult health fromhealers penalty active
+					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
+					TF2Items_SetAttribute(itemNew, 3, 205, 0.4); // -60% damage from ranged sources while active; dmg_from_ranged
 				}
 			}	
 		}}
