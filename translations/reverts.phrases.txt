@@ -459,6 +459,10 @@
 	{
 		"en"	"Reverted to 119th update, 20%% damage bonus, no airblast"
 	}
+	"Backburner_Release"
+	{
+		"en"	"Reverted to release, +50 max hp on wearer, no airblast"
+	}
 	"BaseJumper_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire"

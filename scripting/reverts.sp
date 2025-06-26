@@ -403,6 +403,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreTB");
 	ItemDefine("backburner", "Backburner_PreHat", CLASSFLAG_PYRO, Wep_Backburner);
 	ItemVariant(Wep_Backburner, "Backburner_119");
+	ItemVariant(Wep_Backburner, "Backburner_Release");
 	ItemDefine("basejump", "BaseJumper_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
@@ -1831,11 +1832,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 40, 1146: { if (ItemIsEnabled(Wep_Backburner)) {
 			bool airblast = GetItemVariant(Wep_Backburner) == 0;
 			TF2Items_SetNumAttributes(itemNew, airblast ? 1 : 2);
-			if (airblast) {
-				TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // 10% damage bonus
-			} else {
-				TF2Items_SetAttribute(itemNew, 0, 2, 1.2); // 20% damage bonus
-				TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast
+			switch(GetItemVariant(Wep_Backburner)) 
+			{
+				case 0: 
+				{
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // 10% damage bonus; mult_dmg
+				}
+				case 1, 2: 
+				{
+					TF2Items_SetAttribute(itemNew, 0, 356, 1.0); // no airblast; airblast_disabled
+					if (GetItemVariant(Wep_Backburner == 1))
+						TF2Items_SetAttribute(itemNew, 1, 2, 1.2); // 20% damage bonus
+					else if (GetItemVariant(Wep_Backburner == 2))
+						TF2Items_SetAttribute(itemNew, 1, 26, 50.0); // +50 max health on wearer; add_maxhealth
+				}
 			}
 		}}
 		case 237: { if (GetItemVariant(Wep_RocketJumper) == 1) {
@@ -2490,6 +2500,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						) {
 							health_cur = GetClientHealth(attacker);
 							int pyro_overheal_max = 260; // this needs to be adjusted in case the backburner is reverted to the release version
+							if (GetItemVariant(Wep_Backburner) == 2) {
+								pyro_overheal_max = 335;
+								// 175 + 50 = 225 hp, then multiply for overheal: 225*1.5 = 337.5 hp. 
+								// According to the wiki, max overheal hp is found by rounding down to the nearest multiple of 5, so 335 max overheal	
+							}
+						
 							{
 								event1 = CreateEvent("player_healonhit", true);
 								SetEventInt(event1, "amount", intMin(pyro_overheal_max - health_cur, 75));
