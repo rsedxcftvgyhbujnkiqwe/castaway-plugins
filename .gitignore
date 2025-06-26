@@ -42,7 +42,11 @@ gamedata/*
 translations/*
 !translations/reverts.phrases.txt
 !translations/chi/
+translations/chi/*
 !translations/chi/reverts.phrases.txt
+!translations/fi/
+translations/fi/*
+!translations/fi/reverts.phrases.txt
 
 !cfg/
 !cfg/*
