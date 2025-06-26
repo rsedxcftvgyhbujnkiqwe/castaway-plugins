@@ -1838,13 +1838,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				{
 					TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // 10% damage bonus; mult_dmg
 				}
-				case 1, 2: 
+				case 1: 
 				{
-					TF2Items_SetAttribute(itemNew, 0, 356, 1.0); // no airblast; airblast_disabled
-					if (GetItemVariant(Wep_Backburner == 1))
-						TF2Items_SetAttribute(itemNew, 1, 2, 1.2); // 20% damage bonus
-					else if (GetItemVariant(Wep_Backburner == 2))
-						TF2Items_SetAttribute(itemNew, 1, 26, 50.0); // +50 max health on wearer; add_maxhealth
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.2); // 20% damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
+				}
+				case 2:
+				{
+					TF2Items_SetAttribute(itemNew, 0, 26, 50.0); // +50 max health on wearer; add_maxhealth
+					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
 				}
 			}
 		}}
