@@ -743,7 +743,11 @@
 	}
 	"Saharan_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger ja Ikuinen palkkiosi saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger (poistaa +40% verh. keston) ja Ikuinen palkkiosi saadaksesi edun."
+	}
+	"Saharan_ExtraCloak"
+	{
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger ja Ikuinen palkkiosi (tai Mustan magian piikki) saadaksesi edun."
 	}
 	"Sandman_PreJI"
 	{
