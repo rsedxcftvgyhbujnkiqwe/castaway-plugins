@@ -422,6 +422,10 @@ public void OnPluginStart() {
 	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
+	ItemVariant(Wep_CritCola, "CritCola_PreJI");
+	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
+	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
+	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh);
@@ -1667,6 +1671,17 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 
+	{
+		// crit-a-cola damage taken minicrits
+		if (
+			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			condition == TFCond_CritCola &&
+			player_weapons[client][Wep_CritCola] == true
+		) {
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
+		}
+	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1688,14 +1703,23 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			!TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
-			!TF2_IsPlayerInCondition(client, TFCond_RestrictToMelee) &&
+			(condition == TFCond_CritCola || condition == TFCond_RestrictToMelee) &&
 			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
 		) {
 			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
 		}			
 	}
-
+	{
+		// crit-a-cola mark-for-death removal for pre-July2013 and release variants
+		if (
+			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
+			condition == TFCond_CritCola &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
+		) {
+			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+		}
+	}
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -1717,6 +1741,19 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			return Plugin_Continue;
 		}
 	}
+	{
+		// crit-a-cola release variant duration modification
+		// crit-a-cola normally applies 9 seconds, then relies on the energy drink meter to have it be 8 seconds
+		if (
+			GetItemVariant(Wep_CritCola) == 4 &&
+			condition == TFCond_CritCola &&
+			time == 9.0 &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
+		) {
+			time = 6.0;
+			return Plugin_Changed;
+		}
+	}
 	return Plugin_Continue;
 }
 
@@ -1734,6 +1771,17 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 				if (condition == debuffs[i])
 					return Plugin_Handled;
 			}
+		}
+	}
+	{
+		// pre-inferno crit-a-cola mark-for-death on expire
+		if (
+			GetItemVariant(Wep_CritCola) == 1 &&
+			TF2_GetPlayerClass(client) == TFClass_Scout &&
+			condition == TFCond_CritCola &&
+			GetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter") <= 0.0
+		) {
+			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
 		}
 	}
 	return Plugin_Continue;
@@ -1857,9 +1905,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			sword_reverted = true;
 		}}
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
-			TF2Items_SetNumAttributes(itemNew, 2);
-			TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
-			TF2Items_SetAttribute(itemNew, 1, 798, 1.10); // +10% damage vulnerability while under the effect
+			switch (GetItemVariant(Wep_CritCola))
+			{
+				case 0, 1, 2:
+				{
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
+					// +25% or +10% damage vulnerability while under the effect, depending on variant
+					float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
+					TF2Items_SetAttribute(itemNew, 1, 798, vuln);
+				}
+				case 3, 4:
+				{
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
+					// Mini-crit vulnerability handled elsewhere
+				}
+			}
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			bool dmg_mods = GetItemVariant(Wep_Darwin) == 1;
@@ -2787,11 +2849,16 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				GetItemVariant(Wep_SodaPopper) == 0 &&
 				players[client].is_under_hype
 			) {
-				bool has_lunchbox = (player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]);
-				if (has_lunchbox)
-				{
+				if (player_weapons[client][Wep_SodaPopper]) {
+					if (
+						player_weapons[client][Wep_Bonk] ||
+						player_weapons[client][Wep_CritCola]
+					){
+						players[client].is_under_hype = false;
+						TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
+					}
+				} else {
 					players[client].is_under_hype = false;
-					TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
 				}
 			}
 		}
@@ -4641,6 +4708,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			float multiplier = 1.0;
 			if (
 				ItemIsEnabled(Wep_CritCola) &&
+				GetItemVariant(Wep_CritCola) != 4 &&
 				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
 				player_weapons[entity][Wep_CritCola]
 			) {

@@ -195,6 +195,10 @@
 	{
 		"fi"	"Krittikola"
 	}
+	"crocostyle"
+	{
+		"fi"	"Krokotyyli-pakkaus"
+	}
 	"dalokohsbar"
 	{
 		"fi"	"Suklaalevy"
@@ -231,6 +235,10 @@
 	{
 		"fi"	"Häätöilmoitus"
 	}
+	"expert"
+	{
+		"fi"	"Asiantuntijan taisteluvarusteet"
+	}
 	"fiststeel"
 	{
 		"fi"	"Teräsnyrkit"
@@ -238,6 +246,10 @@
 	"guillotine"
 	{
 		"fi"	"Lentävä giljotiini"
+	}
+	"gasjockey"
+	{
+		"fi"	"Bensapojan varusteet"
 	}
 	"glovesru"
 	{
@@ -250,6 +262,10 @@
 	"zatoichi"
 	{
 		"fi"	"Puolisokea samurai"
+	}
+	"hibernate"
+	{
+		"fi"	"Nukkuva karhu"
 	}
 	"liberty"
 	{
@@ -346,6 +362,10 @@
 	"solemn"
 	{
 		"fi"	"Vakava vala"
+	}
+	"spdelivery"
+	{
+		"fi"	"Erikoistoimitus"
 	}
 	"splendid"
 	{
@@ -459,7 +479,7 @@
 	}
 	"Bonk_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: ei hidasta tehosteen päätyttyä"
+		"fi"	"Ennen Jungle Infernoa: ei hidasta vaikutuksen päätyttyä"
 	}
 	"Booties_PreMYM"
 	{
@@ -475,7 +495,7 @@
 	}
 	"BuffaloSteak_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: tehoste antaa +35%% nopeuslisän ja +10%% vahinkoalttiuden"
+		"fi"	"Ennen Meet your Matchiä: vaikutus antaa +35%% nopeuslisän ja +10%% vahinkoalttiuden"
 	}
 	"BuffaloSteak_Release"
 	{
@@ -485,7 +505,6 @@
 	{
 		"fi"	"Ennen 2013 kesää: +35%% nopeusbonus, vahinko otettu on minikriittisenä"
 	}
-	
 	"Targe_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
@@ -505,6 +524,26 @@
 	"CritCola_PreMYM"
 	{
 		"fi"	"Ennen Meet your Matchiä: +25%% nopeuslisä, +10%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
+	}
+	"CritCola_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: +25%% nopeuslisä, +10%% vahinkoalttius, 2 sekunnin kuolemanmerkkaus vaikutuksen päättyessä"
+	}
+	"CritCola_PreDec2013"
+	{
+		"fi"	"Ennen Smissmas 2013: +25%% nopeuslisä, +25%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
+	}
+	"CritCola_PreJuly2013"
+	{
+		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittisenä"
+	}
+	"CritCola_Release"
+	{
+		"fi"	"Julkaisuversio: vahinko otettu on minikriittisenä, vaikutus kestää 6 sekuntia"
+	}
+	"CrocoStyle_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun."
 	}
 	"DalokohsBar_PreMYM"
 	{
@@ -566,6 +605,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: +50%% tulitusnopeus, ei laske terveyttä, ei aktiivista nopeusbonusta"
 	}
+	"Expert_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +10%% tulisieto. Varusta Lataus ja Laattaus sekä Ullapoolin tukki saadaksesi edun."
+	}
 	"FistSteel_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: ei parannusheikkouksia"
@@ -573,6 +616,10 @@
 	"Guillotine_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: kaukaiset osumat minikriittisiä (ei vähennä latausaikaa), kriittiset osumat tainnutettuihin"
+	}
+	"GasJockey_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +10%% nopeuslisä ja luotialttius. Varusta Rasvanpolttaja ja Tunkki saadaksesi edun."
 	}
 	"GlovesRU_PreTB"
 	{
@@ -589,6 +636,10 @@
 	"Zatoichi_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: nopea vaihto, lyhyempi kantama, ei voi vaihtaa ellei tee tappoa, täysi parannus, satunnaiset kriittiset osumat"
+	}
+	"Hibernate_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +5%% kriittisen osuman sieto. Varusta Messinkipeto, Puhvelinpihvipurilainen ja Soturin sielu saadaksesi edun."
 	}
 	"Liberty_Release"
 	{
@@ -692,7 +743,7 @@
 	}
 	"Saharan_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Fantastista fetsiä ei tarvi"
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger ja Ikuinen palkkiosi saadaksesi edun."
 	}
 	"Sandman_PreJI"
 	{
@@ -737,6 +788,10 @@
 	"Solemn_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: ei tulitusnopeusheikkoutta"
+	}
+	"SpDelivery_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +25 maksimiterveys. Varusta Pysäyttäjä, Hullu maito ja Pyhä makrilli saadaksesi edun."
 	}
 	"Splendid_PreTB"
 	{

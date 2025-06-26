@@ -527,6 +527,22 @@
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"
 	}
+	"CritCola_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, +25%% movespeed, +10%% damage taken, 2 sec mark-for-death after buff expires"
+	}
+	"CritCola_PreDec2013"
+	{
+		"en"	"Reverted to pre-Smissmas 2013, +25%% movespeed, +25%% damage taken, no mark-for-death on attack"
+	}
+	"CritCola_PreJuly2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, +25%% movespeed, damage taken mini-crits"
+	}
+	"CritCola_Release"
+	{
+		"en"	"Reverted to release, damage taken mini-crits, buff lasts 6 seconds"
+	}
 	"CrocoStyle_Release"
 	{
 		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
@@ -593,7 +609,7 @@
 	}
 	"Expert_Release"
 	{
-		"en"	"Restored release item set bonus. +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
+		"en"	"Restored release item set bonus, +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
 	}
 	"FistSteel_PreJI"
 	{
