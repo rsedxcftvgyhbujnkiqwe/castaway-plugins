@@ -491,6 +491,7 @@ public void OnPluginStart() {
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2013_Intel");
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
+	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
@@ -2677,48 +2678,36 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		//item sets
-		if (
-			ItemIsEnabled(Set_SpDelivery) ||
-			ItemIsEnabled(Set_GasJockey) ||
-			ItemIsEnabled(Set_Expert) ||
-			ItemIsEnabled(Set_Hibernate) ||
-			ItemIsEnabled(Set_CrocoStyle) ||
-			ItemIsEnabled(Set_Saharan)
-		) {
+		{
 			// reset set bonuses on loadout changes
 			switch (TF2_GetPlayerClass(client))
 			{
-				case TFClass_Scout:
-				{
+				case TFClass_Scout: { if (ItemIsEnabled(Set_SpDelivery)) {
 					TF2Attrib_SetByDefIndex(client, 517, 0.0); // SET BONUS: max health additive bonus
-				}
-				case TFClass_Pyro:
-				{
+				}}
+				case TFClass_Pyro: { if (ItemIsEnabled(Set_GasJockey)) {
 					TF2Attrib_SetByDefIndex(client, 489, 1.0); // SET BONUS: move speed set bonus
-					TF2Attrib_SetByDefIndex(client, 516, 1.0); // SET BONUS: dmg taken from bullets increased 
-				}
-				case TFClass_DemoMan:
-				{
+					TF2Attrib_SetByDefIndex(client, 516, 1.0); // SET BONUS: dmg taken from bullets increased	
+				}}
+				case TFClass_DemoMan: { if (ItemIsEnabled(Set_Expert)) {
 					TF2Attrib_SetByDefIndex(client, 492, 1.0); // SET BONUS: dmg taken from fire reduced set bonus
-				}
-				case TFClass_Heavy:
-				{
+				}}
+				case TFClass_Heavy: { if (ItemIsEnabled(Set_Hibernate)) {
 					TF2Attrib_SetByDefIndex(client, 491, 1.0); // SET BONUS: dmg taken from crit reduced set bonus
-				}
-				case TFClass_Sniper:
-				{
+				}}
+				case TFClass_Sniper: { if (ItemIsEnabled(Set_CrocoStyle)) {
 					TF2Attrib_SetByDefIndex(client, 176, 0.0); // SET BONUS: no death from headshots
-				}
-				case TFClass_Spy:
-				{
+				}}
+				case TFClass_Spy: { if (ItemIsEnabled(Set_Saharan)) {
 					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
 					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
-				}
+				}}
 			}
 
 			//handle item sets
 			int wep_count = 0;
 			int active_set = 0;
+			int first_wep = -1;
 
 			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
 			for (int i;i < length; i++)
@@ -2768,7 +2757,17 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						}
 						// Saharan Spy
 						case 224, 225, 574: {
-							if(ItemIsEnabled(Set_Saharan)) {
+							if (
+								GetItemVariant(Set_Saharan) == 0 &&
+								item_index != 574 // exclude Wanga Prick
+							) {
+								if (item_index == 224 && first_wep == -1) { // reset L'Etranger cloak duration
+									first_wep = weapon;
+									TF2Attrib_SetByDefIndex(first_wep, 83, 0.6); // +40% cloak duration
+								}
+								wep_count++;
+								if(wep_count == 2) active_set = Set_Saharan;
+							}else if(GetItemVariant(Set_Saharan) == 1) {
 								wep_count++;
 								if(wep_count == 2) active_set = Set_Saharan;
 							}
@@ -2836,6 +2835,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							player_weapons[client][Set_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
 							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
+							if (GetItemVariant(Set_Saharan) == 0)
+							{
+								TF2Attrib_SetByDefIndex(first_wep, 83, 1.0); // +0% cloak duration
+							}
 						}
 					}
 				}
