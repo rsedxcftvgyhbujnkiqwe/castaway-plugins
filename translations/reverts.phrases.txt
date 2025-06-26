@@ -453,11 +453,11 @@
 	}
 	"Backburner_PreHat"
 	{
-		"en"	"Reverted to Hatless update, 10%% damage bonus"
+		"en"	"Reverted to Hatless update, +10%% damage bonus"
 	}
 	"Backburner_119"
 	{
-		"en"	"Reverted to 119th update, 20%% damage bonus, no airblast"
+		"en"	"Reverted to 119th update, +20%% damage bonus, no airblast"
 	}
 	"Backburner_Release"
 	{
