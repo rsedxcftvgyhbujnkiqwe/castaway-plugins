@@ -3676,7 +3676,7 @@ Action SDKHookCB_OnTakeDamage(
 							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
 							if (
 								StrEqual(class, "tf_weapon_raygun") || 
-								(GetItemVariant(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson") && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
+								(StrEqual(class, "tf_weapon_drg_pomson") && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
 							) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
