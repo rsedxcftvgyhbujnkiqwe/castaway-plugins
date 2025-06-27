@@ -2835,7 +2835,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							player_weapons[client][Set_Saharan] = true;
 							TF2Attrib_SetByDefIndex(client, 159, 0.5); // SET BONUS: cloak blink time penalty
 							TF2Attrib_SetByDefIndex(client, 160, 1.0); // SET BONUS: quiet unstealth
-							if (GetItemVariant(Set_Saharan) == 0)
+							if (GetItemVariant(Set_Saharan) == 0 && first_wep != -1)
 							{
 								TF2Attrib_SetByDefIndex(first_wep, 83, 1.0); // +0% cloak duration
 							}
