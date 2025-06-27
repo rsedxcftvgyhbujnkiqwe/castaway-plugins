@@ -2678,30 +2678,43 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		//item sets
-		{
+		if (
+			ItemIsEnabled(Set_SpDelivery) ||
+			ItemIsEnabled(Set_GasJockey) ||
+			ItemIsEnabled(Set_Expert) ||
+			ItemIsEnabled(Set_Hibernate) ||
+			ItemIsEnabled(Set_CrocoStyle) ||
+			ItemIsEnabled(Set_Saharan)
+		) {
 			// reset set bonuses on loadout changes
 			switch (TF2_GetPlayerClass(client))
 			{
-				case TFClass_Scout: { if (ItemIsEnabled(Set_SpDelivery)) {
-					TF2Attrib_SetByDefIndex(client, 517, 0.0); // SET BONUS: max health additive bonus
-				}}
-				case TFClass_Pyro: { if (ItemIsEnabled(Set_GasJockey)) {
-					TF2Attrib_SetByDefIndex(client, 489, 1.0); // SET BONUS: move speed set bonus
-					TF2Attrib_SetByDefIndex(client, 516, 1.0); // SET BONUS: dmg taken from bullets increased	
-				}}
-				case TFClass_DemoMan: { if (ItemIsEnabled(Set_Expert)) {
-					TF2Attrib_SetByDefIndex(client, 492, 1.0); // SET BONUS: dmg taken from fire reduced set bonus
-				}}
-				case TFClass_Heavy: { if (ItemIsEnabled(Set_Hibernate)) {
-					TF2Attrib_SetByDefIndex(client, 491, 1.0); // SET BONUS: dmg taken from crit reduced set bonus
-				}}
-				case TFClass_Sniper: { if (ItemIsEnabled(Set_CrocoStyle)) {
-					TF2Attrib_SetByDefIndex(client, 176, 0.0); // SET BONUS: no death from headshots
-				}}
-				case TFClass_Spy: { if (ItemIsEnabled(Set_Saharan)) {
-					TF2Attrib_SetByDefIndex(client, 159, 0.0); // SET BONUS: cloak blink time penalty
-					TF2Attrib_SetByDefIndex(client, 160, 0.0); // SET BONUS: quiet unstealth
-				}}
+				case TFClass_Scout:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 517); // SET BONUS: max health additive bonus
+				}
+				case TFClass_Pyro:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 489); // SET BONUS: move speed set bonus
+					TF2Attrib_RemoveByDefIndex(client, 516); // SET BONUS: dmg taken from bullets increased 
+				}
+				case TFClass_DemoMan:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 492); // SET BONUS: dmg taken from fire reduced set bonus
+				}
+				case TFClass_Heavy:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 491); // SET BONUS: dmg taken from crit reduced set bonus
+				}
+				case TFClass_Sniper:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 176); // SET BONUS: no death from headshots
+				}
+				case TFClass_Spy:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 159); // SET BONUS: cloak blink time penalty
+					TF2Attrib_RemoveByDefIndex(client, 160); // SET BONUS: quiet unstealth
+				}
 			}
 
 			//handle item sets
