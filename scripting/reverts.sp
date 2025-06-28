@@ -3158,7 +3158,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 					if (StrEqual(class, "tf_weapon_drg_pomson")) 
 					{
 						if (
-							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 && // Check if variant isn't the historical pre-GM Pomson
+							ItemIsEnabled(Wep_Pomson) && // Check if variant isn't the historical pre-GM Pomson
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
 						) {
 							// Pomson lighting friendly Huntsman arrows
