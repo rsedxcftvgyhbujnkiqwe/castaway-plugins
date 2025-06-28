@@ -3150,15 +3150,13 @@ Action SDKHookCB_Touch(int entity, int other) {
 						weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
 							GetEntityClassname(weapon, class, sizeof(class));
-							if (StrEqual(class, "tf_weapon_compound_bow")) {
-								if (weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon")) {
-									SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
-								}						
-							}
+							if (StrEqual(class, "tf_weapon_compound_bow") && weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon")) 
+								SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 						}
 					}
 
-					if (StrEqual(class, "tf_weapon_drg_pomson")) {
+					if (StrEqual(class, "tf_weapon_drg_pomson")) 
+					{
 						if (
 							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 && // Check if variant isn't the historical pre-GM Pomson
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
@@ -3170,13 +3168,11 @@ Action SDKHookCB_Touch(int entity, int other) {
 								weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 								if (weapon > 0) {
 									GetEntityClassname(weapon, class, sizeof(class));
-									if (StrEqual(class, "tf_weapon_compound_bow")) {
-										if (weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon")) {
-											SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
-										}						
-									}
+									if (StrEqual(class, "tf_weapon_compound_bow") && weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon"))
+										SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 								}
 							}
+						
 							if (GetItemVariant(Wep_Pomson) != 2) // Check if variant isn't the historical pre-GM Pomson. If it is, block projectile passing through teammates.
 								return Plugin_Handled;
 						}
