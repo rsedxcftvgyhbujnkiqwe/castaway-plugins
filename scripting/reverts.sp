@@ -2734,7 +2734,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					switch(item_index) {
 						// Special Delivery
-						case 220, 221, 222: {
+						case 220, 221, 222, 1121: {
 							if(ItemIsEnabled(Set_SpDelivery)) {
 								wep_count++;
 								if(wep_count == 3) active_set = Set_SpDelivery;
