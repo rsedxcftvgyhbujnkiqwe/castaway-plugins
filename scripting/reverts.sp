@@ -3157,7 +3157,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 						// Pomson pass through teammates
 						// If Pomson variant is pre-Gun Mettle, block its projectiles passing through teammates.
 						if (
-							GetItemVariant(Wep_Pomson) != 2 &&
+							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 &&
 							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
 						) {
 							return Plugin_Handled;
