@@ -267,6 +267,10 @@
 	{
 		"fi"	"Nukkuva karhu"
 	}
+	"jag"
+	{
+		"fi"	"Väkänen"
+	}
 	"liberty"
 	{
 		"fi"	"Vapaudenheitin"
@@ -457,6 +461,10 @@
 	{
 		"fi"	"119. päivitys versio: 20%% vahinkobonus, ei ilmapuhallusta"
 	}
+	"Backburner_Release"
+	{
+		"fi"	"Julkaisuversio: +50 maksimiterveys, ei ilmapuhallusta"
+	}
 	"BaseJumper_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: voi uudelleenavata, enemmän ilmaohjausta, ylösvirtaus tulessa ollessa"
@@ -515,7 +523,7 @@
 	}
 	"Carbine_Release"
 	{
-		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen"
+		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen, 35%% hitaampi tulitusnopeus (25%%:sta)"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -531,7 +539,7 @@
 	}
 	"CritCola_PreDec2013"
 	{
-		"fi"	"Ennen Smissmas 2013: +25%% nopeuslisä, +25%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
+		"fi"	"Ennen 2013 joulua: +25%% nopeuslisä, +25%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
 	}
 	"CritCola_PreJuly2013"
 	{
@@ -559,7 +567,15 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahinkosieto jopa 6,5 sekunniksi (vahinko vähentää aikaa)"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahinkosieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää"
+	}
+	"Ringer_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: samat perusominaisuudet, mutta voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
+	}
+	"Ringer_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: samat perusominaisuudet, mutta 50%% ensimmäisen osuman vahinkosieto ja voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
 	}
 	"Degreaser_PreTB"
 	{
@@ -613,6 +629,14 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: ei parannusheikkouksia"
 	}
+	"FistSteel_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: 20%% hitaampi aseen vaihto, ei poislaittoheikkoutta tai parannusheikkouksia"
+	}
+	"FistSteel_Release"
+	{
+		"fi"	"Julkaisuversio: ei parannus- tai aseenvaihtoheikkouksia, -60%% vahinkoa ampuma-aseista kun käytössä (-40%%)"
+	}
 	"Guillotine_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: kaukaiset osumat minikriittisiä (ei vähennä latausaikaa), kriittiset osumat tainnutettuihin"
@@ -641,6 +665,14 @@
 	{
 		"fi"	"Palautettu esinejoukkoetu, +5%% kriittisen osuman sieto. Varusta Messinkipeto, Puhvelinpihvipurilainen ja Soturin sielu saadaksesi edun."
 	}
+	"Jag_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: ei vahinkovähennystä rakennuksiin (poista tyhjentäjät kahdella osumalla)"
+	}
+	"Jag_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: ei vahinkovähennystä rakennuksiin (poista tyhjentäjät kahdella osumalla), ei hitaampaa korjausaikaa tai nopeampaa tulitusnopeutta"
+	}	
 	"Liberty_Release"
 	{
 		"fi"	"Julkaisuversio: +40%% ammuksen nopeus, -25%% lippaan koko"
@@ -675,15 +707,19 @@
 	}
 	"Pomson_PreGM"
 	{
-		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilatauksen ja verhoutumisen lasku ei putoa etäisyydellä"
+		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
 	}
 	"Pomson_Release"
 	{
-		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee pelaajat, voi osua monta kertaa, ylilatauksen ja verhoutumisen lasku ei putoa etäisyydellä"
+		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee pelaajat, voi osua monta kertaa, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
 	}
+	"Pomson_PreGM_Historical"
+	{
+		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
+	}	
 	"Powerjack_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: samat ominaisuudet kuin perusversio, mutta tapot palauttavat 75 terveyttä (pystyy yliparantamaan)"
+		"fi"	"Ennen Gun Mettleä: samat perusominaisuudet, mutta tapot palauttavat 75 terveyttä (pystyy yliparantamaan)"
 	}
 	"Powerjack_Release"
 	{
@@ -703,11 +739,11 @@
 	}
 	"Quickfix_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: +25%% ylilatauksen latausnopeus, ylilatauksen alla voi vallata pisteitä"
+		"fi"	"Ennen Tough Breakiä: +25%% ylilatauksen kerääntymisnopeus, ylilatauksen alla voi vallata pisteitä"
 	}
 	"Quickfix_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: +25%% ylilatauksen latausnopeus"
+		"fi"	"Ennen Meet your Matchiä: +25%% ylilatauksen kerääntymisnopeus"
 	}
 	"Quickiebomb_PreMYM"
 	{
@@ -731,7 +767,7 @@
 	}
 	"Bison_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua samaa pelaajaa monta kertaa"
+		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua samaa pelaajaa monta kertaa, sytyttää tiimin Metsämiehen nuolet"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -783,7 +819,7 @@
 	}
 	"Sodapop_Pre2013"
 	{
-		"fi"	"Ennen Smissmas 2013: kerää hypeä juostessasi ja automaattisesti saat minikriittisiä"
+		"fi"	"Ennen 2013 joulua: kerää hypeä juostessasi ja automaattisesti saat minikriittisiä"
 	}
 	"Sodapop_PreMYM"
 	{

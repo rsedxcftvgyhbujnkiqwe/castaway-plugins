@@ -461,7 +461,7 @@
 	}
 	"Backburner_Release"
 	{
-		"en"	"Reverted to release, +50 max hp on wearer, no airblast"
+		"en"	"Reverted to release, +50 max health, no airblast"
 	}
 	"BaseJumper_PreTB"
 	{
@@ -521,7 +521,7 @@
 	}
 	"Carbine_Release"
 	{
-		"en"	"Reverted to release, crits for 3 seconds on kill"
+		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -561,11 +561,11 @@
 	}
 	"Darwin_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (4.7%% against crit bullets), 20%% blast vuln, no fire resists"
+		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (5%% against crit bullets), 20%% blast vuln, no fire resists"
 	}
 	"Ringer_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken)"
+		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken), no speedboost"
 	}
 	"Ringer_PreJI"
 	{
@@ -597,7 +597,7 @@
 	}
 	"Enforcer_Release"
 	{
-		"en"	"Reverted to release, +20%% damage bonus overall, random crits, no piercing, +0.5 s cloak time increase penalty"
+		"en"	"Reverted to release, +20%% damage bonus overall, random crits, no piercing, +0.5s cloak time increase penalty"
 	}
 	"Equalizer_PrePyro"
 	{
@@ -617,7 +617,7 @@
 	}
 	"Eviction_PreMYM"
 	{
-		"en"	"Reverted to gunmettle, +50%% faster firing speed, no 20%% dmg vuln, no health drain, no move speed bonus"
+		"en"	"Reverted to gunmettle, +50%% faster firing speed, no health drain or move speed bonus"
 	}
 	"Expert_Release"
 	{
@@ -625,15 +625,15 @@
 	}
 	"FistSteel_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, no healing penalties, while active: -40%% ranged damage, 100%% melee damage vuln"
+		"en"	"Reverted to pre-inferno, no healing penalties"
 	}
 	"FistSteel_PreTB"
 	{
-		"en"	"Reverted to pre-tough break, 20%% longer weapon switch, no healing and holster penalties, while active: -40%% ranged damage, 100%% melee damage vuln"
+		"en"	"Reverted to pre-toughbreak, 20%% longer weapon switch, no holster penalty, no healing penalties"
 	}
 	"FistSteel_Release"
 	{
-		"en"	"Reverted to release, no healing and holster penalties, while active: -60%% ranged damage, 100%% melee damage vuln"
+		"en"	"Reverted to release, no healing or switching penalties -60%% ranged damage while active (from -40%%)"
 	}
 	"Guillotine_PreJI"
 	{
@@ -649,7 +649,7 @@
 	}
 	"GlovesRU_PrePyro"
 	{
-		"en"	"Reverted to pre-pyromania, no health drain, no mark-for-death, 50%% dmg penalty, -6hp/s while active, jump a bit higher every -6hp/s"
+		"en"	"Reverted to pre-pyromania, no health drain or holster penalty, -6 HP/s while active (jump a bit higher on dmg tick), -50%% damage"
 	}
 	"Gunboats_Release"
 	{
@@ -705,15 +705,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at any range, lights up friendly Huntsman arrows"
+		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off at range, lights up friendly Huntsman arrows"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at any range, lights up friendly Huntsman arrows"
+		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off at range, lights up friendly Huntsman arrows"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off at any range, lights up friendly Huntsman arrows"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), no uber & cloak drain fall-off at range, lights up friendly Huntsman arrows"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -721,11 +721,11 @@
 	}
 	"Powerjack_Release"
 	{
-		"en"	"Reverted to release, no faster move speed while active, kills restore 75 health with overheal, +25%% dmg bonus, no random crits"
+		"en"	"Reverted to release, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, +25%% dmg bonus, no random crits"
 	}
 	"Powerjack_Pre2013"
 	{
-		"en"	"Reverted to Hatless Update, no faster move speed while active, kills restore 75 health with overheal, 20%% melee vuln while active"
+		"en"	"Reverted to Hatless Update, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, 20%% melee vuln while active"
 	}
 	"Pocket_Release"
 	{
@@ -757,7 +757,7 @@
 	}
 	"Reserve_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster switch for all weapons"
+		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster weapon switch"
 	}
 	"Reserve_PreJI"
 	{
@@ -809,11 +809,11 @@
 	}
 	"Shortstop_PreGM_Shove"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo; modern shove is kept"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% more knockback vuln at all times, shares pistol ammo, no shove"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo, no shove"
 	}
 	"Sodapop_Pre2013"
 	{
@@ -857,11 +857,11 @@
 	}
 	"Tomislav_PrePyro"
 	{
-		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
+		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus"
 	}
 	"Tomislav_Release"
 	{
-		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, no barrel spin sound, 20%% slower firing speed"
+		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus"
 	}
 	"TribalShiv_Release"
 	{
