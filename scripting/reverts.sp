@@ -3865,9 +3865,9 @@ Action SDKHookCB_OnTakeDamage(
 										TF2_AddCondition(victim, TFCond_DeadRingered);
 											//PrintToChatAll("charge after hit (if): set to %f", charge);
 									}
-									// 70% cloak drain if hit with vanilla/pre-inferno/pre-tough break Dead Ringer by reverted Pomson from a distance greater than 512 HU
-									// Only causes 50% cloak drain at very far ranges due to Pomson fall-off even if reverted! Need to tackle this issue!
-									// Could probably use a linear equation instead? Where charge amount scales with damage1
+									// When distance is greater than 512 HU for vanilla/pre-inferno/pre-tough break Dead Ringer
+									// 70% cloak drain if hit by reverted Pomson
+									// At ranges near 1536 HU and beyond, drain cloak to 30% so it acts like 70% cloak drain on hit from any range
 									else if (
 										(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1 || GetItemVariant(Wep_DeadRinger) == 2) &&
 										damage1 >= 1 && 
@@ -3876,17 +3876,21 @@ Action SDKHookCB_OnTakeDamage(
 										players[victim].spy_is_feigning == false &&
 										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 									) {
-										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 50.0);
-											//PrintToChatAll("charge after hit (else if): set to %f", charge);
-									}								
+										float charge_remap = 0.0;
+										charge_remap = ValveRemapVal(damage1, 1.0, 20.0, 50.0, 30.0);
+										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge_remap);
+											//PrintToChatAll("charge after hit (else if): set to %f", charge_remap);
+									}
+									// When distance is greater than 512 HU
 									else {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 											//PrintToChatAll("charge after hit (else): %f", charge);
 									}
 
 									// Bug fix to trigger Dead Ringer feign death for all variants from distances greater than 512 hammer units
+									// damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units, and 20 if greater than 1536 HU
 									if (
-										damage1 > 0 && // damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units
+										damage1 > 0 &&
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 										players[victim].spy_is_feigning == false
 									) {
