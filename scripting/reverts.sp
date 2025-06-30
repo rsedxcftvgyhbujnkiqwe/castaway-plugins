@@ -1262,9 +1262,8 @@ public void OnGameFrame() {
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
-					
-					if (GetItemVariant(Wep_DeadRinger) == 0) {
-						// pre-gun mettle dead ringer cloak meter mechanics
+					{
+						// dead ringer cloak meter mechanics
 
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
@@ -1315,10 +1314,10 @@ public void OnGameFrame() {
 						players[idx].spy_cloak_meter = cloak;
 					}
 
-					if(GetItemVariant(Wep_DeadRinger) == 0) {
+					{
 						// pre-gun mettle deadringer cancel condition when feign buff ends
 						if (
-							ItemIsEnabled(Wep_DeadRinger) &&
+							GetItemVariant(Wep_DeadRinger) == 0 &&
 							players[idx].spy_is_feigning &&
 							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
 							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
@@ -1616,8 +1615,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// pre-gun mettle dead ringer stuff
 
 		if (
-			(GetItemVariant(Wep_DeadRinger) == 0) &&
-			ItemIsEnabled(Wep_DeadRinger) &&
+			GetItemVariant(Wep_DeadRinger) == 0 &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			if (condition == TFCond_DeadRingered) {
