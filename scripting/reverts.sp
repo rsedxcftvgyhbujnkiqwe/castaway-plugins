@@ -1263,8 +1263,8 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
 					
-					if (GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) {
-						// dead ringer cloak meter mechanics
+					if (GetItemVariant(Wep_DeadRinger) == 0) {
+						// pre-gun mettle dead ringer cloak meter mechanics
 
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
@@ -1315,8 +1315,8 @@ public void OnGameFrame() {
 						players[idx].spy_cloak_meter = cloak;
 					}
 
-					if(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) {
-						// deadringer cancel condition when feign buff ends
+					if(GetItemVariant(Wep_DeadRinger) == 0) {
+						// pre-gun mettle deadringer cancel condition when feign buff ends
 						if (
 							ItemIsEnabled(Wep_DeadRinger) &&
 							players[idx].spy_is_feigning &&
@@ -1613,10 +1613,10 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	}
 
 	{
-		// dead ringer stuff
+		// pre-gun mettle dead ringer stuff
 
 		if (
-			(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) &&
+			(GetItemVariant(Wep_DeadRinger) == 0) &&
 			ItemIsEnabled(Wep_DeadRinger) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
@@ -1733,10 +1733,10 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
 	{
-		// prevent speed boost being applied on feign death
+		// pre-gun mettle dead ringer prevent speed boost being applied on feign death
 		if (
 			ItemIsEnabled(Wep_DeadRinger) &&
-			(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) &&
+			(GetItemVariant(Wep_DeadRinger) == 0) &&
 			condition == TFCond_SpeedBuffAlly &&
 			TF2_GetPlayerClass(client) == TFClass_Spy &&
 			players[client].ticks_since_feign_ready == GetGameTickCount()
@@ -2198,10 +2198,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 2, 547, 1.0); // This weapon deploys 0% faster
 		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
-			bool preGunMettle = (GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2); 
-			// i'm making it != 1 || !=2 to make it easier adding in other pre-GM DR variants
+			bool preGunMettle = (GetItemVariant(Wep_DeadRinger) == 0);
+			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 2);
 			if(preGunMettle) {
-				TF2Items_SetNumAttributes(itemNew, 5);
 				TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 				TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 				TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
@@ -2209,7 +2208,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
 			}
 			else if (!preGunMettle) {
-				TF2Items_SetNumAttributes(itemNew, 2);
 				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
 				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
 			}
@@ -3268,7 +3266,7 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						if (
 							ItemIsEnabled(Wep_DeadRinger) && 
-							(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2)
+							GetItemVariant(Wep_DeadRinger) == 0
 						) {
 							cvar_ref_tf_feign_death_duration.FloatValue = 6.5;
 							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.5;
@@ -3279,7 +3277,10 @@ Action SDKHookCB_OnTakeDamage(
 							ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 2
 						) {
 							// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+							ResetConVar(cvar_ref_tf_feign_death_duration);
+							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
+							ResetConVar(cvar_ref_tf_feign_death_damage_scale);							
 						} else {
 							ResetConVar(cvar_ref_tf_feign_death_duration);
 							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
@@ -3289,10 +3290,9 @@ Action SDKHookCB_OnTakeDamage(
 					}
 				}
 
-				// dead ringer track when feign begins
+				// pre-gun mettle dead ringer track when feign begins
 				if (
-					ItemIsEnabled(Wep_DeadRinger) && 
-					(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2)
+					ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0
 				) {
 					if (
 						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
@@ -3843,12 +3843,12 @@ Action SDKHookCB_OnTakeDamage(
 									charge = (charge < 0.0 ? 0.0 : charge);
 										//PrintToChatAll("charge final: %f", charge);
 									
-									// Bug fix for reverted Dead Ringer losing 70% cloak when hit by Pomson at close range
+									// Bug fix for reverted pre-gun mettle Dead Ringer losing 70% cloak when hit by Pomson at close range
 									// Prevents 70% cloak getting drained when distance is less than 512 HU.
 									// Drain only 20% cloak from distances less than 512 hammer units on feign
 									if (
 										ItemIsEnabled(Wep_DeadRinger) && 
-										(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) &&
+										GetItemVariant(Wep_DeadRinger) == 0 &&
 										damage1 == 0 && 
 										charge == 100 && 
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
@@ -3861,9 +3861,9 @@ Action SDKHookCB_OnTakeDamage(
 										TF2_AddCondition(victim, TFCond_DeadRingered);
 											//PrintToChatAll("charge after hit (if): %f", charge);
 									}
-									// 70% cloak drain if hit with unreverted/pre-inferno Dead Ringer by reverted Pomson from a distance greater than 512 HU
+									// 70% cloak drain if hit with vanilla/pre-inferno/pre-tough break Dead Ringer by reverted Pomson from a distance greater than 512 HU
 									else if (
-										(GetItemVariant(Wep_DeadRinger) <= -1 || GetItemVariant(Wep_DeadRinger) == 1) &&
+										(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1 || GetItemVariant(Wep_DeadRinger) == 2) &&
 										damage1 >= 1 && 
 										charge < 100 && 
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
@@ -3891,8 +3891,8 @@ Action SDKHookCB_OnTakeDamage(
 							}
 						}
 
-						if(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) {
-							// When Pomson revert is turned off and pre-GM Dead Ringer revert is turned on, prevent 70% cloak drain on hit at any distance
+						if(GetItemVariant(Wep_DeadRinger) == 0) {
+							// When Pomson revert is turned off and pre-gun mettle Dead Ringer revert is turned on, prevent 70% cloak drain on hit at any distance
 							if (
 								ItemIsEnabled(Wep_DeadRinger) && !ItemIsEnabled(Wep_Pomson) &&
 								StrEqual(class, "tf_weapon_drg_pomson") &&
@@ -3997,12 +3997,12 @@ void SDKHookCB_OnTakeDamagePost(
 	int weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
 	if (
-		(GetItemVariant(Wep_DeadRinger) != 1 || GetItemVariant(Wep_DeadRinger) != 2) &&
+		(GetItemVariant(Wep_DeadRinger) == 0) &&
 		victim >= 1 &&
 		victim <= MaxClients &&
 		TF2_GetPlayerClass(victim) == TFClass_Spy
 	) {
-		// dead ringer damage tracking
+		// pre-gun mettle dead ringer damage tracking
 		if (TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)) {
 			players[victim].damage_taken_during_feign += damage;
 		}
