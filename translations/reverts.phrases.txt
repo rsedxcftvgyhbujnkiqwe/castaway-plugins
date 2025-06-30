@@ -569,11 +569,11 @@
 	}
 	"Ringer_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, same modern stats but can pick up ammo to regenerate while uncloaked"
+		"en"	"Reverted to pre-inferno, same modern stats but can pick up ammo while uncloaked, -35%% less cloak from ammo boxes"
 	}
 	"Ringer_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, same modern stats but 50%% initial dmg resist, can pick up ammo to regenerate while uncloaked"
+		"en"	"Reverted to pre-toughbreak, same modern stats but 50%% initial dmg resist, can pick up ammo while uncloaked, -35%% less cloak from ammo boxes"
 	}
 	"Degreaser_PreTB"
 	{

@@ -2199,7 +2199,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			bool preGunMettle = (GetItemVariant(Wep_DeadRinger) == 0);
-			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 2);
+			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 3);
 			if(preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 				TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
@@ -2210,6 +2210,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			else if (!preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
 				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
+				TF2Items_SetAttribute(itemNew, 2, 729, 0.35); // ReducedCloakFromAmmo
 			}
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
@@ -3265,8 +3266,7 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
 						if (
-							ItemIsEnabled(Wep_DeadRinger) && 
-							GetItemVariant(Wep_DeadRinger) == 0
+							ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0
 						) {
 							cvar_ref_tf_feign_death_duration.FloatValue = 6.5;
 							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.5;
@@ -3281,7 +3281,9 @@ Action SDKHookCB_OnTakeDamage(
 							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
 							ResetConVar(cvar_ref_tf_feign_death_damage_scale);							
-						} else {
+						} else if (
+							(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1) // just making sure
+						) {
 							ResetConVar(cvar_ref_tf_feign_death_duration);
 							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
 							ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
