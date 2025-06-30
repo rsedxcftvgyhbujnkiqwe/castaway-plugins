@@ -3268,6 +3268,7 @@ Action SDKHookCB_OnTakeDamage(
 						if (
 							ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0
 						) {
+							// Pre-Gun Mettle Dead Ringer Stats
 							cvar_ref_tf_feign_death_duration.FloatValue = 6.5;
 							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.5;
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
@@ -3284,6 +3285,7 @@ Action SDKHookCB_OnTakeDamage(
 						} else if (
 							(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1) // just making sure
 						) {
+							// Pre-Inferno and Vanilla Dead Ringer Stat reset
 							ResetConVar(cvar_ref_tf_feign_death_duration);
 							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
 							ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
@@ -3861,9 +3863,11 @@ Action SDKHookCB_OnTakeDamage(
 										// When charge is less than 100.0, Spy loses 20% cloak. If charge is exactly 100.0 and the reverted DR is active, Spy loses 70% cloak.
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
 										TF2_AddCondition(victim, TFCond_DeadRingered);
-											//PrintToChatAll("charge after hit (if): %f", charge);
+											//PrintToChatAll("charge after hit (if): set to %f", charge);
 									}
 									// 70% cloak drain if hit with vanilla/pre-inferno/pre-tough break Dead Ringer by reverted Pomson from a distance greater than 512 HU
+									// Only causes 50% cloak drain at very far ranges due to Pomson fall-off even if reverted! Need to tackle this issue!
+									// Could probably use a linear equation instead? Where charge amount scales with damage1
 									else if (
 										(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1 || GetItemVariant(Wep_DeadRinger) == 2) &&
 										damage1 >= 1 && 
@@ -3873,15 +3877,14 @@ Action SDKHookCB_OnTakeDamage(
 										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 									) {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 50.0);
-											//PrintToChatAll("charge after hit (else if): set to 50", charge);
+											//PrintToChatAll("charge after hit (else if): set to %f", charge);
 									}								
 									else {
 										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 											//PrintToChatAll("charge after hit (else): %f", charge);
 									}
 
-									// Bug fix to trigger Dead Ringer feign death from distances greater than 512 hammer units
-									// is this for any dead ringer version vs. reverted pomson?
+									// Bug fix to trigger Dead Ringer feign death for all variants from distances greater than 512 hammer units
 									if (
 										damage1 > 0 && // damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units
 										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
