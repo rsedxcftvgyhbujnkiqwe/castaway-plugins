@@ -1276,7 +1276,7 @@ public void OnGameFrame() {
 							) {
 								players[idx].spy_is_feigning = false;
 
-								if (ItemIsEnabled(Wep_DeadRinger)) {
+								if (ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0) {
 									// when uncloaking, cloak is drained to 40%
 
 									if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 40.0) {
