@@ -1263,7 +1263,7 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
 					{
-						// dead ringer cloak meter mechanics
+						// pre-gun mettle dead ringer cloak meter mechanics
 
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
@@ -1276,7 +1276,7 @@ public void OnGameFrame() {
 							) {
 								players[idx].spy_is_feigning = false;
 
-								if (ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0) {
+								if (GetItemVariant(Wep_DeadRinger) == 0) {
 									// when uncloaking, cloak is drained to 40%
 
 									if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 40.0) {
@@ -1303,9 +1303,9 @@ public void OnGameFrame() {
 										GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59
 									) {
 										// ammo boxes only give 35% cloak max
-
 										cloak = (players[idx].spy_cloak_meter + 35.0);
-										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
+										if (GetItemVariant(Wep_DeadRinger) == 0)
+											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 									}
 								}
 							}
@@ -2208,7 +2208,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			else if (!preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
 				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
-				TF2Items_SetAttribute(itemNew, 2, 729, 0.35); // ReducedCloakFromAmmo
+				TF2Items_SetAttribute(itemNew, 2, 729, 0.35); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
 			}
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
