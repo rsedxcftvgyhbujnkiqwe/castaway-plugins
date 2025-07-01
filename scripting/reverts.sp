@@ -2208,7 +2208,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			else if (!preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 810, 0.0); // mod cloak no regen from items
 				TF2Items_SetAttribute(itemNew, 1, 728, 1.0); // NoCloakWhenCloaked
-				TF2Items_SetAttribute(itemNew, 2, 729, 0.35); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
+				TF2Items_SetAttribute(itemNew, 2, 729, 0.65); // ReducedCloakFromAmmo; this means 35% LESS cloak from ammo packs, NOT -35% max cloak from ammo packs!!!
 			}
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
