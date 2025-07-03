@@ -2230,21 +2230,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Shortstop)) {
 				case 0, 1: {
 					// Pre-Manniversary Shortstop
-					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 76, 1.125); // 12.5% max primary ammo on wearer, reverts max ammo back to 36, required for ammo sharing to work
-					TF2Items_SetAttribute(itemNew, 1, 241, 1.0); // reload time increased hidden
-					TF2Items_SetAttribute(itemNew, 2, 534, 1.00); // airblast vulnerability multiplier hidden
-					TF2Items_SetAttribute(itemNew, 3, 535, 1.00); // damage force increase hidden
-					TF2Items_SetAttribute(itemNew, 4, 536, 1.00); // damage force increase text
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 241, 1.0); // reload time increased hidden
+					TF2Items_SetAttribute(itemNew, 1, 534, 1.00); // airblast vulnerability multiplier hidden
+					TF2Items_SetAttribute(itemNew, 2, 535, 1.00); // damage force increase hidden
 				}
 				case 2, 3: {
 					// Pre-Gun Mettle Shortstop
-					TF2Items_SetNumAttributes(itemNew, 6);
-					TF2Items_SetAttribute(itemNew, 1, 526, 1.20); // 20% bonus healing from all sources
-					TF2Items_SetAttribute(itemNew, 2, 534, 1.40); // airblast vulnerability multiplier hidden
-					TF2Items_SetAttribute(itemNew, 3, 535, 1.40); // damage force increase hidden
-					TF2Items_SetAttribute(itemNew, 4, 536, 1.40); // damage force increase text
-					TF2Items_SetAttribute(itemNew, 5, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 526, 1.20); // 20% bonus healing from all sources
+					TF2Items_SetAttribute(itemNew, 1, 534, 1.40); // airblast vulnerability multiplier hidden
+					TF2Items_SetAttribute(itemNew, 2, 535, 1.40); // damage force increase hidden
+					TF2Items_SetAttribute(itemNew, 3, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
 				}
 			}	
 		}}
