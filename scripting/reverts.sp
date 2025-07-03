@@ -189,6 +189,7 @@ ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
+ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -388,6 +389,7 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
+	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 
@@ -2598,6 +2600,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		// apply pre-toughbreak weapon switch if cvar is enabled
+		if (cvar_pre_toughbreak_switch.BoolValue)
+			TF2Attrib_SetByDefIndex(client, 177, 1.34); // 34% longer weapon switch
+		else
+			TF2Attrib_RemoveByDefIndex(client, 177);
+
 		bool should_display_info_msg = false;
 
 		//cache players weapons for later funcs
@@ -4276,6 +4284,11 @@ void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
  */
 void ItemVariant(int wep_enum, char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
+
+	if (items[wep_enum].num_variants > MAX_VARIANTS) {
+		SetFailState("Tried to define more than %d variants", MAX_VARIANTS);
+	}
+
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
 }
 
@@ -4287,10 +4300,6 @@ void ItemFinalize() {
 	for (idx = 0; idx < NUM_ITEMS; idx++) {
 		if (items[idx].cvar != null) {
 			SetFailState("Tried to initialize items more than once");
-		}
-
-		if (items[idx].num_variants > MAX_VARIANTS) {
-			SetFailState("Tried to initialize an item with more than %d variants", MAX_VARIANTS);
 		}
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
