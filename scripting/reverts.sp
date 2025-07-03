@@ -2246,9 +2246,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}	
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
-			TF2Items_SetNumAttributes(itemNew, 2);
-			TF2Items_SetAttribute(itemNew, 0, 42, 0.0); // sniper no headshots
-			TF2Items_SetAttribute(itemNew, 1, 175, 0.0); // jarate duration
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			bool minicrits = GetItemVariant(Wep_SodaPopper) == 0;
@@ -2559,31 +2558,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 									SetEntityHealth(attacker, health_cur);
 								}
 							}
-						}
-					}
-				}
-			}
-
-			{
-				// fix sydney sleeper headshot kill icon (unless crit-boosted)
-
-				if (
-					GetEventInt(event, "customkill") == TF_CUSTOM_HEADSHOT &&
-					players[attacker].headshot_frame == GetGameTickCount() &&
-					PlayerIsCritboosted(attacker) == false
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							ItemIsEnabled(Wep_SydneySleeper) &&
-							StrEqual(class, "tf_weapon_sniperrifle") &&
-							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
-						) {
-							SetEventInt(event, "customkill", TF_DMG_CUSTOM_NONE);
-							return Plugin_Changed;
 						}
 					}
 				}
@@ -3612,16 +3586,6 @@ Action SDKHookCB_OnTakeDamage(
 							players[attacker].sleeper_piss_explode = true;
 						}
 					}
-
-					// disable headshot crits
-					// ...is this even needed?
-					if (
-						damage_type & DMG_CRIT != 0 &&
-						PlayerIsCritboosted(attacker) == false
-					) {
-						damage_type = (damage_type & ~DMG_CRIT);
-						return Plugin_Changed;
-					}
 				}
 			}
 
@@ -4185,6 +4149,7 @@ bool PlayerIsInvulnerable(int client) {
 	);
 }
 
+/*
 TFCond critboosts[] =
 {
 	TFCond_Kritzkrieged,
@@ -4208,6 +4173,7 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
+*/
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
