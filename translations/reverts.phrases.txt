@@ -713,7 +713,7 @@
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), no uber & cloak drain fall-off, lights up friendly Huntsman arrows"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows"
 	}	
 	"Powerjack_PreGM"
 	{
