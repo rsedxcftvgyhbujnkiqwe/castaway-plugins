@@ -1003,24 +1003,6 @@ public void OnGameFrame() {
 					}
 
 					{
-						// shortstop shove removal
-
-						if (GetItemVariant(Wep_Shortstop) == 1 || GetItemVariant(Wep_Shortstop) == 3) {
-							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-									// disable secondary attack
-									// this is somewhat broken, can still shove by holding m2 when reload ends
-									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
-								}
-							}
-						}
-					}
-
-					{
 						// guillotine recharge
 
 						if (ItemIsEnabled(Wep_Cleaver)) {
@@ -4040,41 +4022,63 @@ public Action OnPlayerRunCmd(
 	int client, int& buttons, int& impulse, float vel[3], float angles[3],
 	int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2]
 ) {
+	Action returnValue = Plugin_Continue;
+	int weapon1;
+	char class[64];
+
 	if (TF2_GetPlayerClass(client) == TFClass_Scout) {
 		if (
 			GetItemVariant(Wep_BabyFace) == 1 &&
 			player_weapons[client][Wep_BabyFace]
 		) {
 			// Release Baby Face's Blaster boost reset on jump
-			switch (buttons & IN_JUMP != 0)
+			if (buttons & IN_JUMP != 0)
 			{
-				case true:
+				if (!players[client].player_jumped)
 				{
-					if (!players[client].player_jumped)
-					{
-						if (
-							GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
-							GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && // don't reset if swimming 
-							buttons & IN_DUCK == 0 && // don't reset if crouching
-							(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne
-							// the attrib for reducing boost will reset for air jumps
-						) {
-							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
-							// apply the following so movement gets reset immediately, maybe there's a better way
-							TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
-						}
-						players[client].player_jumped = true;
+					if (
+						GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
+						GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && // don't reset if swimming 
+						buttons & IN_DUCK == 0 && // don't reset if crouching
+						(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne, the attribute will handle air jumps
+					) {
+						SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
+						// apply the following so movement gets reset immediately, maybe there's a better way
+						TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
 					}
+					players[client].player_jumped = true;
 				}
-				case false:
-				{
-					players[client].player_jumped = false;
+			}
+			else
+			{
+				players[client].player_jumped = false;
+			}
+		}
+		
+		if (
+			(GetItemVariant(Wep_Shortstop) == 1 ||
+			GetItemVariant(Wep_Shortstop) == 3) &&
+			player_weapons[client][Wep_Shortstop]
+		) {
+			// shortstop shove removal
+			weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+			if (weapon1 > 0) {
+				GetEntityClassname(weapon1, class, sizeof(class));
+
+				if (
+					StrEqual(class, "tf_weapon_handgun_scout_primary") &&
+					buttons & IN_ATTACK2 != 0
+				) {
+					// disable secondary attack
+					buttons ^= IN_ATTACK2;
+					returnValue = Plugin_Changed;
 				}
 			}
 		}
 	}
 	
-	return Plugin_Continue;
+	return returnValue;
 }
 
 Action Command_Menu(int client, int args) {
