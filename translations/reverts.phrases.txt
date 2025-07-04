@@ -553,7 +553,7 @@
 	}
 	"DalokohsBar_PreMYM"
 	{
-		"en"	"Reverted to Gun Mettle update, can now overheal to 400 hp again"
+		"en"	"Reverted to Gun Mettle update, can now overheal to 400 HP again"
 	}
 	"Darwin_Pre2013"
 	{
@@ -561,7 +561,7 @@
 	}
 	"Darwin_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, +25 max hp, 15%% bullet resist (5%% against crit bullets), 20%% blast vuln, no fire resists"
+		"en"	"Reverted to pre-inferno, +25 max HP, 15%% bullet resist (5%% against crit bullets), 20%% blast vuln, no fire resists"
 	}
 	"Ringer_PreGM"
 	{
@@ -601,15 +601,15 @@
 	}
 	"Equalizer_PrePyro"
 	{
-		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 hp"
+		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 HP"
 	}
 	"Equalizer_PreHat"
 	{
-		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 hp"
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP"
 	}
 	"Equalizer_Release"
 	{
-		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max hp: 125 dmg at 58 hp, 150 dmg at 20 hp, 162 dmg at 1 hp"
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP"
 	}
 	"Eviction_PreJI"
 	{
