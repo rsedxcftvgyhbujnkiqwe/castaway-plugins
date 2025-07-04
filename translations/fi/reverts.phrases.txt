@@ -635,7 +635,7 @@
 	}
 	"FistSteel_Release"
 	{
-		"fi"	"Julkaisuversio: ei parannus- tai aseenvaihtoheikkouksia, -60%% vahinkoa ampuma-aseista kun käytössä (-40%%)"
+		"fi"	"Julkaisuversio: ei parannus- tai aseenvaihtoheikkouksia, -60%% vahinkoa ampuma-aseista kun käytössä (-40%%:sta)"
 	}
 	"Guillotine_PreJI"
 	{
