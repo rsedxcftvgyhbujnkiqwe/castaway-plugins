@@ -50,7 +50,7 @@
 
 #define PLUGIN_NAME "TF2 Weapon Reverts"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
-#define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons"
+#define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
 #define PLUGIN_VERSION_NUM "2.0.0"
 // Add a OS suffix if Memorypatch reverts are used
