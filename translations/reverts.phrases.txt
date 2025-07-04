@@ -617,7 +617,7 @@
 	}
 	"Eviction_PreMYM"
 	{
-		"en"	"Reverted to gunmettle, +50%% faster firing speed, no health drain or move speed bonus"
+		"en"	"Reverted to gunmettle, +50%% faster firing speed, no health drain penalty and move speed bonus"
 	}
 	"Expert_Release"
 	{
