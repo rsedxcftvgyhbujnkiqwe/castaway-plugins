@@ -103,6 +103,7 @@ public Plugin myinfo = {
 #define TF_DMG_CUSTOM_BASEBALL 22
 #define TF_DMG_CUSTOM_CHARGE_IMPACT 23
 #define TF_DMG_CUSTOM_PICKAXE 27
+#define TF_DMG_CUSTOM_PLAYER_SENTRY 30
 #define TF_DMG_CUSTOM_STICKBOMB_EXPLOSION 42
 #define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
@@ -582,6 +583,7 @@ public void OnPluginStart() {
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined MEMORY_PATCHES
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler, true);
+	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
 #endif
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
@@ -3590,6 +3592,34 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 		}
+
+#if defined MEMORY_PATCHES
+		{
+			// wrangler variant no falloff
+			if (
+				GetItemVariant(Wep_Wrangler) == 1 &&
+				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY &&
+				damage_type & DMG_USEDISTANCEMOD != 0
+			) {
+				// calculate rampup based on Engineer's position
+				damage_type ^= DMG_USEDISTANCEMOD;
+				damage1 = damage;
+
+				GetClientEyePosition(attacker, pos1);
+
+				GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+				pos2[2] += PLAYER_CENTER_HEIGHT;
+
+				damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
+
+				if (damage < damage1) // no falloff
+					damage = damage1;
+
+				return Plugin_Changed;
+			}
+		}
+#endif
 	}
 
 	if (

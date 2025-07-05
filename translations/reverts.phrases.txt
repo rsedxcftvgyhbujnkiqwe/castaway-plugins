@@ -958,7 +958,11 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second dying"
+		"en"	"Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second on death"
+	}
+	"Wrangler_PreLW"
+	{
+		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range"
 	}
 	"Eternal_PreJI"
 	{
