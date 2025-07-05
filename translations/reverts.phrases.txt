@@ -705,15 +705,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows"
+		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off, lights up friendly Huntsman arrows"
+		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -765,7 +765,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows"
+		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, ignores dmg resists"
+	}
+	"Bison_PreMYM_Historical"
+	{
+		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, ignores dmg resists, old dmg falloff"
 	}
 	"RocketJmp_Pre2013"
 	{
