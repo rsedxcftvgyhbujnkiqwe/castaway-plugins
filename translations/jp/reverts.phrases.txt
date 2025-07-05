@@ -1,0 +1,403 @@
+"Phrases"
+{
+	// class names
+	// tf/resource/tf_japanese.txt:36-44
+	"SCOUT"
+	{
+		"jp"	"スカウト"
+	}
+	"SNIPER"
+	{
+		"jp"	"スナイパー"
+	}
+	"SOLDIER"
+	{
+		"jp"	"ソルジャー"
+	}
+	"DEMOMAN"
+	{
+		"jp"	"デモマン"
+	}
+	"MEDIC"
+	{
+		"jp"	"メディック"
+	}
+	"HEAVY"
+	{
+		"jp"	"ヘビー"
+	}
+	"PYRO"
+	{
+		"jp"	"パイロ"
+	}
+	"SPY"
+	{
+		"jp"	"スパイ"
+	}
+	"ENGINEER"
+	{
+		"jp"	"エンジニア"
+	}
+
+	// ui
+	// Weapon reverts literally translated as "restored weapons" (復元武器)
+	// I barely know Japanese and only know the alphabet, basic grammar, and basic Kanji, so I am using the help of machine translation (DeepL).
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"jp"	"復元武器はロードアウトにある："
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"jp"	"これらのメッセージは、!revertのメニューまたは!toggleinfoで無効にできる。"
+	}
+	"REVERT_REVERTS_DISABLED"
+	{
+		"jp"	"復元武器は使用不可"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"jp"	"コンソールに出力される復元武器の情報"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	{
+		"jp"	"このサーバーでは、復元武器が有効になっています："
+	}
+	"REVERT_EMPTY_REVERTS"
+	{
+		"jp"	"全ての復元武器のアイテムのCVARがオフ"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"jp"	"このコマンドを使用するには、チームに所属している必要があります。"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"jp"	"このコマンドを使用するには、クラスが有効である必要があります。"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	{
+		"jp"	"復元武器は現在%tで有効になっている："
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"jp"	"全ての%tの復元武器がオフ"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"jp"	"ロードアウト変更時に復元の武器情報を表示するようにした。ロードアウトを変更すると情報が表示される。"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"jp"	"ロードアウト変更時の復原武器情報表示を無効化。!revertsinfoと入力するか、復元武器メニューを開いて情報を再度表示する。."
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"jp"	"復元武器"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"jp"	"現在のクラスの復元武器を表示する"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"jp"	"各復元武器に関する情報を表示する"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"jp"	"ロードアウトの変更に関する情報をトグルする"
+	}
+
+	// item names
+	// Reference for Weapon Names: https://wiki.teamfortress.com/wiki/Weapons/ja
+	// A lot of weapons don't have Japanese names in the TF2 wiki, so the English form is used instead.
+	// Apparently the Japanese localization for TF2 is unfinished.
+	"airblast"
+	{
+		// https://wiki.teamfortress.com/wiki/Compression_blast/ja
+		"jp"	"エアーブラスト"
+	}
+	"airstrike"
+	{
+		"jp"	"Air Strike"
+	}
+	"miniramp"
+	{
+		"jp"	"全てのミニガン"
+	}
+	"swords"
+	{
+		"jp"	"全ての剣"
+	}
+	"ambassador"
+	{
+		"jp"	"Ambassador"
+	}
+	"atomizer"
+	{
+		"jp"	"Atomizer"
+	}
+	"axtinguish"
+	{
+		"jp"	"Axtinguisher"
+	}
+	"backburner"
+	{
+		"jp"	"Backburner"
+	}
+	"basejump"
+	{
+		"jp"	"B.A.S.E. Jumper"
+	}
+	"babyface"
+	{
+		"jp"	"Baby Face's Blaster"
+	}
+	"beggars"
+	{
+		"jp"	"Beggar's Bazooka"
+	}
+	"blackbox"
+	{
+		"jp"	"Black Box"
+	}
+	"bonk"
+	{
+		"jp"	"喉ごしガツン! アトミックパンチ"
+	}
+	"booties"
+	{
+		"jp"	"Booties & Bootlegger"
+	}
+	"brassbeast"
+	{
+		"jp"	"Brass Beast"
+	}
+	"bushwacka"
+	{
+		"jp"	"Bushwacka"
+	}
+	"buffalosteak"
+	{
+		"jp"	"Buffalo Steak Sandvich"
+	}
+	"targe"
+	{
+		"jp"	"Chargin' Targe"
+	}
+	"claidheamh"
+	{
+		"jp"	"Claidheamh Mòr"
+	}
+	"carbine"
+	{
+		"jp"	"Cleaner's Carbine"
+	}
+	"cozycamper"
+	{
+		"jp"	"Cozy Camper"
+	}
+	"critcola"
+	{
+		"jp"	"クリティコーラ"
+	}
+	"dalokohsbar"
+	{
+		"jp"	"Dalokohs Bar"
+	}
+	"darwin"
+	{
+		"jp"	"Darwin's Danger Shield"
+	}
+	"ringer"
+	{
+		"jp"	"Dead Ringer"
+	}
+	"degreaser"
+	{
+		"jp"	"Degreaser"
+	}
+	"disciplinary"
+	{
+		"jp"	"Disciplinary Action"
+	}
+	"dragonfury"
+	{
+		"jp"	"Dragon's Fury"
+	}
+	"enforcer"
+	{
+		"jp"	"Enforcer"
+	}
+	"equalizer"
+	{
+		"jp"	"Equalizer & Escape Plan"
+	}
+	"eviction"
+	{
+		"jp"	"Eviction Notice"
+	}
+	"fiststeel"
+	{
+		"jp"	"Fists of Steel"
+	}
+	"guillotine"
+	{
+		"jp"	"Flying Guillotine"
+	}
+	"glovesru"
+	{
+		"jp"	"Gloves of Running Urgently"
+	}
+	"gunboats"
+	{
+		"jp"	"Gunboats"
+	}
+	"zatoichi"
+	{
+		"jp"	"ハーフ座頭市"
+	}
+	"liberty"
+	{
+		"jp"	"Liberty Launcher"
+	}
+	"lochload"
+	{
+		"jp"	"Loch-n-Load"
+	}
+	"cannon"
+	{
+		"jp"	"Loose Cannon"
+	}
+	"gardener"
+	{
+		"jp"	"Market Gardener"
+	}
+	"natascha"
+	{
+		"jp"	"ナターシャ"
+	}
+	"panic"
+	{
+		"jp"	"Panic Attack"
+	}
+	"persuader"
+	{
+		"jp"	"Persian Persuader"
+	}
+	"pomson"
+	{
+		"jp"	"Pomson 6000"
+	}
+	"powerjack"
+	{
+		"jp"	"Powerjack"
+	}
+	"pocket"
+	{
+		"jp"	"Pretty Boy's Pocket Pistol"
+	}
+	"quickfix"
+	{
+		"jp"	"Quick-Fix"
+	}
+	"quickiebomb"
+	{
+		"jp"	"Quickiebomb Launcher"
+	}
+	"razorback"
+	{
+		"jp"	"Razorback"
+	}
+	"rescueranger"
+	{
+		"jp"	"Rescue Ranger"
+	}
+	"reserve"
+	{
+		"jp"	"Reserve Shooter"
+	}
+	"bison"
+	{
+		"jp"	"Righteous Bison"
+	}
+	"rocketjmp"
+	{
+		"jp"	"Rocket Jumper"
+	}
+	"saharan"
+	{
+		"jp"	"Saharan Spy"
+	}
+	"sandman"
+	{
+		"jp"	"Sandman"
+	}
+	"scottish"
+	{
+		"jp"	"Scottish Resistance"
+	}
+	"circuit"
+	{
+		"jp"	"Short Circuit"
+	}
+	"shortstop"
+	{
+		"jp"	"Shortstop"
+	}
+	"sodapop"
+	{
+		"jp"	"Soda Popper"
+	}
+	"solemn"
+	{
+		"jp"	"Solemn Vow"
+	}
+	"splendid"
+	{
+		"jp"	"Splendid Screen"
+	}
+	"spycicle"
+	{
+		"jp"	"Spy-cicle"
+	}
+	"stkjumper"
+	{
+		"jp"	"Sticky Jumper"
+	}
+	"sleeper"
+	{
+		"jp"	"Sydney Sleeper"
+	}
+	"turner"
+	{
+		"jp"	"Tide Turner"
+	}
+	"tomislav"
+	{
+		"jp"	"Tomislav"
+	}
+	"tribalshiv"
+	{
+		"jp"	"Tribalman's Shiv"
+	}
+	"caber"
+	{
+		"jp"	"Ullapool Caber"
+	}
+	"vitasaw"
+	{
+		"jp"	"Vita-Saw"
+	}
+	"warrior"
+	{
+		"jp"	"Warrior's Spirit"
+	}
+	"wrangler"
+	{
+		"jp"	"Wrangler"
+	}
+	"eternal"
+	{
+		"jp"	"Your Eternal Reward"
+	}
+}
