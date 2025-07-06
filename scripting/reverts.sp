@@ -182,7 +182,6 @@ enum struct Entity {
 	bool exists;
 	float spawn_time;
 	bool is_demo_shield;
-	float spawn_timestamp;
 }
 
 ConVar cvar_enable;
