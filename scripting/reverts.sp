@@ -1502,8 +1502,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		return;
 	}
 
-	entities[entity].spawn_timestamp = GetGameTime(); // for bison/pomson damage numbers handling
-
 	entities[entity].exists = true;
 	entities[entity].spawn_time = 0.0;
 	entities[entity].is_demo_shield = false;
