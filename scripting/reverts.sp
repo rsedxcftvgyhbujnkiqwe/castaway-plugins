@@ -3873,7 +3873,7 @@ Action SDKHookCB_OnTakeDamage(
 									damage_type = DMG_PREVENT_PHYSICS_FORCE + DMG_CRIT; // Add back crit damage if the shot is a crit
 								*/
 
-								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_timestamp), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
+								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
 
 								return Plugin_Changed;
 							}
