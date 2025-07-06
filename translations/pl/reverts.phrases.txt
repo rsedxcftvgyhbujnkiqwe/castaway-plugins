@@ -93,7 +93,7 @@
 	}
 	"REVERT_MENU_SHOW_CLASSINFO"
 	{
-		"pl"	"Pokaż szczegóły przywróconych broni dla twojej aktualnej klasy"
+		"pl"	"Pokaż szczegóły przywróconych broni dla twojej klasy"
 	}
 	"REVERT_MENU_SHOW_ALL"
 	{
@@ -101,7 +101,7 @@
 	}
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
-		"pl"	"Włącz lub wyłącz szczegóły przywróconych broni po zmianie wyposażenia"
+		"pl"	"Włącz/wyłącz szczegóły broni po zmianie wyposażenia"
 	}
 
 	// item names
