@@ -94,7 +94,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_nominate", Command_Nominate);
 	
 	RegAdminCmd("sm_nominate_addmap", Command_Addmap, ADMFLAG_CHANGEMAP, "sm_nominate_addmap <mapname> - Forces a map to be on the next mapvote.");
-	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_ROOT, "Reload the nomination map cycle in-place");
+	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_RCON, "Reload the nomination map cycle in-place");
 
 	g_mapTrie = new StringMap();
 }
