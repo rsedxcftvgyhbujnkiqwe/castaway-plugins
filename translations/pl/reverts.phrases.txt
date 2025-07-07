@@ -421,103 +421,102 @@
 	// item descriptions
 	"Airblast_PreJI"
 	{
-		"pl"	"Strumień sprężonego powietrza wszystkich Miotaczy Ognia przywrócony do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno)"
+		"pl"	"Strumień sprężonego powietrza wszystkich Miotaczy Ognia przywrócony do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno)"
 	}
 	"Airstrike_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), brak dodatkowej redukcji pola rażenia podczas rakietowych skoków"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak dodatkowej redukcji pola rażenia podczas rakietowych skoków"
 	}
 	"Minigun_ramp_PreLW"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Miłość i Wojna (Love & War), pełna celność oraz obrażenia natychmiast po rozkręceniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), pełna celność oraz obrażenia natychmiast po rozkręceniu"
 	}
 	"Swords_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), standardowa prędkość wyciągania oraz chowania (0.5s)"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), standardowa prędkość wyciągania oraz chowania (0.5s)"
 	}
 	"Ambassador_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje pełne obrażenia krytyczne przy trafieniu w głowę niezależnie od dystansu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje pełne obrażenia krytyczne przy trafieniu w głowę niezależnie od dystansu"
 	}
 	"Atomizer_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), trzeci skok jest zawsze dostępny oraz zadaje 10 punktów obrażeń użytkownikowi"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), trzeci skok jest zawsze dostępny oraz zadaje 10 punktów obrażeń użytkownikowi"
 	}
 	"Axtinguisher_PreLW"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Miłość i Wojna (Love & War), zawsze zadaje 195 punktów obrażeń podpalonym przeciwnikom, brak premii do szybkości"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), zawsze zadaje 195 punktów obrażeń podpalonym przeciwnikom, brak premii do szybkości"
 	}
 	"Axtinguisher_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), zadaje trafienia krytyczne od tyłu, minikrytyczne od przodu, brak premii do szybkości"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zadaje trafienia krytyczne od tyłu, minikrytyczne od przodu, brak premii do szybkości"
 	}
 	"Backburner_PreHat"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Pyromanii, +10%% zadawanych obrażeń"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, +10%% zadawanych obrażeń"
 	}
 	"Backburner_119"
 	{
-		"pl"	"Przywrócono do stanu z 119 aktualizacji (kwiecień, 2010), +20%% zadawanych obrażeń, brak strumienia sprężonego powietrza"
+		"pl"	"Przywrócono do stanu z 119 Aktualizacji (kwiecień, 2010), +20%% zadawanych obrażeń, brak strumienia sprężonego powietrza"
 	}
 	"Backburner_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyro (2008), +50 maks. punktów zdrowia, brak sprężonego powietrza"
+		"pl"	"Przywrócono do stanu z Aktualizacji Pyro (2008), +50 maks. HP, brak sprężonego powietrza"
 	}
 	"BaseJumper_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), możliwość ponownego otwarcia po zamknięciu, więcej kontroli w powietrzu, możliwość szybowania, gdy użytkownik jest podpalony"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), możliwość ponownego otwarcia po zamknięciu, więcej kontroli w powietrzu, możliwość szybowania, gdy użytkownik jest podpalony"
 	}
 	"BabyFace_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), brak utraty sprintu po otrzymaniu obrażeń, -25%% utraty sprintu po podwójnym skoku"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), brak utraty sprintu po otrzymaniu obrażeń, -25%% utraty sprintu po podwójnym skoku"
 	}
 	"BabyFace_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +40%% celności, brak redukcji pojemności magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% zadawanych obrażeń, -100%% sprintu przy jakimkolwiek skoku"
-	}
+		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
 	"Beggars_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji z 10 lipca 2013 roku, brak redukcji pola rażenia, niewypały nie usuwają rakiet z magazynka"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, brak redukcji pola rażenia, niewypały nie usuwają rakiet z magazynka"
 	}
 	"BlackBox_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), +15 punktów zdrowia za każdą trafioną osobę niezależnie od zadanych obrażeń"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), +15 HP za każdą trafioną osobę niezależnie od zadanych obrażeń"
 	}
 	"Bonk_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), brak spowolnienia po przedawnieniu się efektu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak spowolnienia po przedawnieniu się efektu"
 	}
 	"Booties_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje +10%% prędkości ruchu nawet bez tarczy"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje +10%% prędkości ruchu nawet bez tarczy"
 	}
 	"BrassBeast_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje 20%% odporności na obrażenia (6.7%% przeciwko trafieniom krytycznym) podczas rozkręcenia niezależnie od aktualnych punktów zdrowia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), 20%% odporności na obrażenia (6.7%% przeciwko trafieniom krytycznym) podczas rozkręcenia niezależnie od aktualnych HP"
 	}
 	"Bushwacka_PreLW"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Miłość i Wojna (Love & War), zawsze przyznaje 20%% podatności na obrażenia od ognia, możliwość zadania losowych trafień krytycznych"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), zawsze przyznaje 20%% podatności na obrażenia od ognia, możliwość zadania losowych trafień krytycznych"
 	}
 	"BuffaloSteak_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje +35%% prędkości poruszania się oraz +10%% podatności na obrażenia, gdy efekt jest aktywny"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje +35%% prędkości poruszania się oraz +10%% podatności na obrażenia, gdy efekt jest aktywny"
 	}
 	"BuffaloSteak_Release"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji Australijskie Święta (2010), przyznaje +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się kumuluje się z GRU (Gruby biegnie trochę szybciej od skauta)"
+		"pl"	"Przywrócono do stanu z Aktualizacji Australijskie Święta (2010), +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się kumuluje się z GRU (Gruby biegnie trochę szybciej od skauta)"
 	}
 	"BuffaloSteak_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji z 10 lipca 2013 roku, przyznaje +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się nie kumuluje się z GRU"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, przyznaje +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się nie kumuluje się z GRU"
 	}
 	"Targe_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +40%% odporności na obrażenia od wybuchów, +50%% odporności na obrażenia od ognia, odporność na obrażenia po podpaleniu, przyznaje trafienie krytyczne po uderzeniu szarżą, nie usuwa negatywnych efektów"
+		"pl"	"+40%% odporności na obrażenia od wybuchów, +50%% odporności na obrażenia od ognia, odporność na obrażenia po podpaleniu, trafienie krytyczne po uderzeniu, nie usuwa negatywnych efektów"
 	}
 	"Claidheamh_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), -15 punktów zdrowia, brak podatności na obrażenia, dłuższa szarża nie wymaga wyciągniecia miecza"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), -15 HP, brak podatności na obrażenia, dłuższa szarża nie wymaga wyciągniecia miecza"
 	}
 	"Carbine_Release"
 	{
@@ -525,75 +524,74 @@
 	}
 	"CozyCamper_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), brak drgań podczas celowania niezależnie od poziomu naładowania strzału"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), brak drgań podczas celowania niezależnie od poziomu naładowania strzału"
 	}
 	"CritCola_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), +25%% prędkości poruszania się, +10%% podatności na obrażenia, brak piętna śmierci"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), +25%% prędkości poruszania się, +10%% podatności na obrażenia, brak piętna śmierci"
 	}
 	"CritCola_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło W Dżungli, +25%% prędkości poruszania się, +10%% podatności na obrażenia, 2 sekundy piętna śmierci po przedawnieniu się efektu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło W Dżungli, +25%% prędkości poruszania się, +10%% podatności na obrażenia, 2 sekundy piętna śmierci po przedawnieniu się efektu"
 	}
 	"CritCola_PreDec2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śnięta 2013, +25%% prędkości poruszania się, +25%% podatności na obrażenia, brak piętna śmierci"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2013, +25%% prędkości poruszania się, +25%% podatności na obrażenia, brak piętna śmierci"
 	}
 	"CritCola_PreJuly2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji z 10 lipca 2013 roku, +25%% prędkości poruszania się, piętno śmierci podczas efektu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, +25%% prędkości poruszania się, piętno śmierci podczas efektu"
 	}
 	"CritCola_Release"
 	{
-		"pl"	"Przywrócono do stanu z 119 aktualizacji (kwiecień 2010), piętno śmierci podczas efektu, który trwa 6 sekund"
+		"pl"	"Przywrócono do stanu z 119 Aktualizacji (kwiecień 2010), piętno śmierci podczas efektu, który trwa 6 sekund"
 	}
 	"CrocoStyle_Release"
 	{
-		"pl"	"Przywrócono stary bonus zestawu: Użytkownik nie może umrzeć od trafień w głowę, jeśli posiada wiecęj niż 1 punkt zdrowia. Załóż Sydnejski Usypiacz, Darwińską Tarczę Ochronną oraz Bandytę z Buszu, aby uzyskać bonus. Czapka nie jest wymagana"
+		"pl"	"Przywrócono stary bonus zestawu: Użytkownik może przeżyć jeden strzał w głowę. Załóż Sydnejski Usypiacz, Darwińską Tarczę Ochronną oraz Bandytę z Buszu, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
 	"DalokohsBar_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji Siła charakteru, (Gun Mettle), tabliczka może nadleczyć do 400 punktów zdrowia"
+		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru, (Gun Mettle), tabliczka może nadleczyć do 400 HP"
 	}
 	"Darwin_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji z 10 lipca 2013 roku, +25 maks. punktów zdrowia, brak jakichkolwiek odporności oraz podatności na obrażenia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, +25 maks. HP, brak jakichkolwiek odporności oraz podatności na obrażenia"
 	}
 	"Darwin_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli, (Jungle Inferno), +25 maks. punktów zdrowia, +15%% odporności na obrażenia od pocisków (5%% przeciwko trafieniom krytycznym), +20%% podatności na obrażenia od wybuchów, brak odporności na obrażenia od ognia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), +25 HP, +15%% odporności na obrażenia od pocisków, +20%% podatności na obrażenia od wybuchów, brak odporności na ogień"
 	}
 	"Ringer_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odporności na obrażenia na maks. 6.5 sekundy (skracane przez otrzymywanie obrażeń), brak premii do prędkości"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odporności na obrażenia na maks. 6.5s, brak premii do prędkości"
 	}
 	"Ringer_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), statystyki  identyczne do teraźniejszych. Dodatkowo, możliwość podnoszenia paczek z amunicją, gdy nie jest się niewidzialnym, -35%% zapasu energii z paczek z amunicją"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), możliwość podnoszenia paczek z amunicją, gdy nie jest się niewidzialnym, -35%% energii z paczek z amunicją"
 	}
 	"Ringer_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), statystyki identyczne do teraźniejszych, lecz atak który aktywuje zegarek jest zredukowany o 50%%, możliwość podnoszenia paczek z amunicją, gdy nie jest się niewidzialnym, -35%% zapasu energii z paczek z amunicją"
-	}
+		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), atak aktywujący zegarek zredukowany o 50%%, możliwość podnoszenia paczek, gdy nie jest się niewidzialnym, -35%% energii z paczek"
 	"Degreaser_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% zadawanych obrażeń, -25%% zadawanych obrażeń po podpaleniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% zadawanych obrażeń, -25%% zadawanych obrażeń po podpaleniu"
 	}
 	"Disciplinary_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), premia do prędkości poruszania się dla sojuszników wynosi 3 sekundy"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), premia do prędkości poruszania się dla sojuszników wynosi 3 sekundy"
 	}
 	"DragonFury_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli oraz brak wymagania trafienia w środek hitboxu przeciwnika aby uzyskać dodatkowe obrażenia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli oraz brak wymagania trafienia w środek hitboxu przeciwnika aby uzyskać dodatkowe obrażenia"
 	}
 	"DragonFury_Release_Patchless"
 	{
-		"pl"	"Częściowo przywrócono do stanu sprzed aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli"
+		"pl"	"Częściowo przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli"
 	}
 	"Enforcer_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), +20%% zadawanych obrażeń bez przebrania, brak penetracji odporności"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), +20%% zadawanych obrażeń bez przebrania, brak penetracji odporności"
 	}
 	"Enforcer_Release"
 	{
@@ -601,23 +599,23 @@
 	}
 	"Equalizer_PrePyro"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, Plan Ucieczki i Wyrównywacz ponownie połączone w jedno; Gdy broń jest aktywna: blokuje leczenie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 107 punktów obrażeń przy 1 punkcie zdrowia"
+		"pl"	"Przywrócono do stanu sprzed ak. Pyromanii, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 107 pkt obrażeń przy 1 HP"
 	}
 	"Equalizer_PreHat"
 	{
-		"pl"	"Przywrócono do stanu sprzed Bezczapkowej Aktualizacji, Plan Ucieczki i Wyrównywacz ponownie połączone w jedno; Gdy broń jest aktywna: blokuje leczenie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 113 punktów obrażeń przy 1 punkcie zdrowia"
+		"pl"	"Przywrócono do stanu sprzed ak. Bezczapkowej, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 113 pkt obrażeń przy 1 HP"
 	}
 	"Equalizer_Release"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji WOJNA! (WAR!), Plan Ucieczki i Wyrównywacz ponownie połączone w jedno; Gdy broń jest aktywna: blokuje lecznie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 125 punktów obrażeń przy 58 punktach zdrowia, 150 obrażeń przy 20 punktach zdrowia, 162 obrażeń przy 1 punkcie zdrowia"
+		"pl"	"Przywrócono do stanu z ak. WOJNA!, Plan Ucieczki i Wyrównywacz połączone w jedno; blokuje lecznie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 162 obrażeń przy 1 HP"
 	}
 	"Eviction_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), +20%% podatności na obrażenia, brak zmniejszania maks. punktów zdrowia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), +20%% podatności na obrażenia, brak zmniejszania maks. HP"
 	}
 	"Eviction_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji Siła charakteru (Gun Mettle), +50%% częstotliwości ataku, brak zmniejszania maks. punktów zdrowia oraz premii do szybkości poruszania się"
+		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru (Gun Mettle), +50%% częstotliwości ataku, brak zmniejszania maks. HP oraz premii do szybkości poruszania się"
 	}
 	"Expert_Release"
 	{
@@ -625,11 +623,11 @@
 	}
 	"FistSteel_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), brak redukcji otrzymywanego leczenia oraz nadleczenia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak redukcji otrzymywanego leczenia oraz nadleczenia"
 	}
 	"FistSteel_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum, (Tough Break), +20%% do czasu zmiany broni, standardowy czas chowania broni, brak redukcji otrzymywanego leczenia i nadleczenia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum, (Tough Break), +20%% do czasu zmiany broni, standardowy czas chowania broni, brak redukcji otrzymywanego leczenia i nadleczenia"
 	}
 	"FistSteel_Release"
 	{
@@ -637,7 +635,7 @@
 	}
 	"Guillotine_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), trafienia krytyczne przeciwko ogłuszonym przeciwnikom, trafienia minikrytyczne na długim dystansie, brak bonusu do szybszej regeneracji"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), trafienia krytyczne przeciwko ogłuszonym celom, trafienia minikrytyczne na długim dystansie, brak bonusu do czasu odnawiania"
 	}
 	"GasJockey_Release"
 	{
@@ -645,11 +643,11 @@
 	}
 	"GlovesRU_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), brak zmniejszania maks. punktów zdrowia oraz szybkości chowania broni, piętno śmierci, -25%% zadawanych obrażeń"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak zmniejszania maks. HP oraz szybkości chowania broni, piętno śmierci, -25%% zadawanych obrażeń"
 	}
 	"GlovesRU_PrePyro"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, brak zmniejszania maks. punktów zdrowia oraz szybkości chowania broni, -6 punktów punktów zdrowia na sekundę, -50%% zadawanych obrażeń"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, brak zmniejszania maks. HP oraz szybkości chowania broni, -6 punktów HP na sekundę, -50%% zadawanych obrażeń"
 	}
 	"Gunboats_Release"
 	{
@@ -657,7 +655,7 @@
 	}
 	"Zatoichi_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), standardowa prędkość zmiany broni, mniej zasięgu, brak możliwości schowania broni, dopóki nie zdobędziesz zabójstwa, leczy 100%% punktów zdrowia po zabójstwie, ale nie nadlecza, losowe trafienia krytyczne"
+		"pl"	"Standardowa prędkość zmiany broni, losowe trafienia krytyczne, mniej zasięgu, brak możliwości schowania broni, dopóki nie zdobędziesz zabójstwa, leczy 100%% HP po zabójstwie, ale nie nadlecza"
 	}
 	"Hibernate_Release"
 	{
@@ -665,11 +663,11 @@
 	}
 	"Jag_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), niszczy saper dwoma uderzeniami"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), niszczy saper dwoma uderzeniami"
 	}
 	"Jag_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), niszczy saper dwoma uderzeniami, brak redukcji leczenia budynków, brak szybszej częstotliwości ataku"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), niszczy saper dwoma uderzeniami, brak redukcji leczenia budynków, brak szybszej częstotliwości ataku"
 	}	
 	"Liberty_Release"
 	{
@@ -677,95 +675,99 @@
 	}
 	"LochLoad_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), +20%% zadawanych obrażeń ogółem"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), +20%% zadawanych obrażeń ogółem"
 	}
 	"LochLoad_2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śnięta 2014, +20%% zadawanych obrażeń (15%% rozbieżności), -50%% pojemności magazynka, +25%% obrażeń zadawanych sobie, brak redukcji pola rażenia, granaty nie przewracają się w powietrzu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2014, +20%% obrażeń, 15%% rozbieżności, 50%% poj. magazynka, +25%% obrażeń zadanych sobie, brak redukcji p. rażenia, granaty przewracają się w powietrzu"
 	}
 	"Cannon_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +50%% prędkości pocisku, kule armatnie zawsze zadają 60 punktów obrażeń przy trafieniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +50%% prędkości pocisku, kule armatnie zawsze zadają 60 punktów obrażeń przy trafieniu"
 	}
 	"Gardener_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), brak redukcji częstotliwości ataku"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak redukcji częstotliwości ataku"
 	}
 	"Natascha_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje 20%% odporności na obrażenia (6.7%% przeciwko trafieniom krytycznym) podczas rozkręcenia niezależnie od aktualnych punktów zdrowia" 
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), +20%% odporności na obrażenia podczas rozkręcenia niezależnie od aktualnych HP" 
 	}
 	"Panic_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), przytrzymaj przycisk ataku, aby załadować broń, puść przycisk, aby uwolnić salwę, częstotliwość ataku oraz szerokość strzału są odwrotnie proporcjonalne do punktów zdrowia użytkownika"
+		"pl"	"Przytrzymaj przycisk ataku, aby załadować broń, puść przycisk, aby uwolnić salwę. Częstotliwość ataku oraz szerokość strzału są odwrotnie proporcjonalne do HP użytkownika"
 	}
 	"Persuader_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), paczki z amunicją odnawiają punkty zdrowia, +100%% do prędkości odnawiania szarży, brak redukcji maks. zapasu amunicji"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), paczki z amunicją odnawiają punkty zdrowia, +100%% do prędkości odnawiania szarży, brak redukcji maks. zapasu amunicji"
 	}
 	"Pomson_PreGM"
 	{
-		"pl"	"Zwiększony rozmiar pocisku (taki sam jak Prawy Bizon), pociski przelatują przez sojuszników, wyczerpywanie Ubercharge'a oraz energii niewidzialności nie zależy od dystansu, pocisk podpala strzały Łowcy"
+		"pl"	"Zwiększony rozmiar pocisku (taki sam jak Prawy Bizon), wyczerpywanie Ubercharge oraz niewidzialności nie zależy od dystansu, pocisk przelatuje przez sojuszników, podpala strzały, ignoruje odporności"
 	}
 	"Pomson_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji MvM, obrażenia identyczne do Prawego Bizona, większy rozmiar pocisku, penetracja graczy, wyczerpywanie Ubercharge'a oraz energii niewidzialności nie zależy od dystansu, pocisk podpala strzały Łowcy"
+		"pl"	"Obrażenia identyczne do Prawego Bizona, większy rozmiar pocisku, penetracja graczy, wyczerpywanie Ubercharge oraz niewidzialności nie zależy od dystansu, pocisk podpala strzały i ignoruje odporności"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), zwiększony rozmiar pocisku (taki sam jak Prawy Bizon), pociski nie przelatują przez sojuszników, wyczerpywanie Ubercharge'a oraz energii niewidzialności nie zależy od dystansu, pocisk podpala strzały Łowcy"
+		"pl"	"Większy rozmiar pocisku (taki sam jak Prawy Bizon), wyczerpywanie Ubercharge oraz niewidzialności nie zależy od dystansu, pocisk nie przelatuje przez sojuszników, podpala strzały, ignoruje odporności"
 	}	
 	"Powerjack_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), statystyki identyczne do teraźniejszych, ale odnawia 75 punktów zdrowia oraz nadlecza"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), statystyki identyczne do teraźniejszych, ale odnawia 75 HP oraz nadlecza"
 	}
 	"Powerjack_Release"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji Mann-konomii, brak premii do prędkości poruszania się oraz brak podatności na obrażenia, zabójstwa odnawiają 75 punktów zdrowia oraz nadleczają, +25%% zadawanych obrażeń, brak losowych trafień krytycznych"
+		"pl"	"Brak premii do prędkości poruszania się oraz brak podatności na obrażenia, zabójstwa odnawiają 75 HP oraz nadleczają, +25%% zadawanych obrażeń, brak losowych trafień krytycznych"
 	}
 	"Powerjack_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Bezczapkowej, brak premii do prędkości poruszania, zabójstwa odnawiają 75 punktów zdrowia oraz nadleczają, +20%% podatności na obrażenia w walce wręcz"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Bezczapkowej, brak premii do prędkości poruszania, zabójstwa odnawiają 75 HP oraz nadleczają, +20%% podatności na obrażenia w walce wręcz"
 	}
 	"Pocket_Release"
 	{
-		"pl"	"Przywrócono do stanu z aktualizacji Pyromanii, +15 maks. punktów zdrowia, odporność na obrażenia od upadku, -25%% częstotliwości ataku, +50%% podatności na obrażenia od ognia"
+		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +15 maks. HP, odporność na obrażenia od upadku, -25%% częstotliwości ataku, +50%% podatności na obrażenia od ognia"
 	}
 	"Pocket_PreBM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Błękitnego Księżyca (Blue moon), +7 punktów zdrowia przy trafieniu, +15%% częstotliwości ataku, -25%% pojemności magazynka"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), +7 HP przy trafieniu, +15%% częstotliwości ataku, -25%% pojemności magazynka"
 	}
 	"Quickfix_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +25%% tempa ładowania Ubercharge, możliwość przejmowania punktów podczas efektu Ubercharge"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +25%% tempa ładowania Ubercharge, możliwość przejmowania punktów podczas efektu Ubercharge"
 	}
 	"Quickfix_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), +25%% tempa ładowania Ubercharge"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), +25%% tempa ładowania Ubercharge"
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), maks. czas ładowania zmniejszony o 50%%, do +25%% obrażeń w zależności od czasu ładowania, -25%% pojemności magazynka, bomby samoprzylepne znikają 4 sekundy po wylądowaniu"
+		"pl"	"Przywrócono do stanu sprzed ak. Poznaj Wroga Swego (Meet your Match), -50%% czasu ładowania, do +25%% obrażeń w zależności od czasu ładowania, -25%% poj. magazynka, bomby znikają 4s po wylądowaniu"
 	}
 	"Razorback_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), tarcza nie odnawia się po dźgnięciu, możliwość nadleczenia do 185 punktów zdrowia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), tarcza nie odnawia się po dźgnięciu, możliwość nadleczenia do 185 HP"
 	}
 	"RescueRanger_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), pocisk odnawia 75 punktów zdrowia budynków, brak kosztu przy naprawie, podnoszenie budynków z dystansu kosztuje 130 metalu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), pocisk odnawia 75 HP budynków, brak kosztu przy naprawie, podnoszenie budynków z dystansu kosztuje 130 metalu"
 	}
 	"Reserve_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), zadaje obrażenia minikrytyczne wszystkim celom, które znajdują się w powietrzu przez 5 sekund po wyciągnieciu, +15%% prędkości do zmiany broni"
+		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), zadaje obrażenia minikrytyczne wszystkim celom, które znajdują się w powietrzu przez 5s po wyciągnieciu, +15%% prędkości do zmiany broni"
 	}
 	"Reserve_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje obrażenia minikrytyczne celom wyrzuconym w powietrze przez strumień sprężonego powietrza"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje obrażenia minikrytyczne celom wyrzuconym w powietrze przez strumień sprężonego powietrza"
 	}
 	"Bison_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), zwiększony rozmiar pocisku, możliwość trafienia tego samego celu kilka razy, podpala strzały Łowcy"
+		"pl"	"Przywrócono do stanu sprzed ak. Poznaj Wroga Swego (Meet your Match), zwiększony rozmiar pocisku, możliwość trafienia tego samego celu kilka razy, pocisk podpala strzały, ignoruje odporności"
+	}
+	"Bison_PreMYM_Historical"
+	{
+		"pl"	"Zwiększony rozmiar pocisku, możliwość trafienia tego samego celu kilka razy, pocisk podpala strzały i ignoruje odporności. Obrażenia pocisku maleją wraz z zwiększającym się dystansem"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -777,15 +779,15 @@
 	}
 	"Saharan_Release"
 	{
-		"pl"	"Przywrócono stary bonus zestawu: Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka ukrycia. Załóż L'etranger oraz Ostateczną Nagrodę aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"
+		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"
 	}
 	"Saharan_ExtraCloak"
 	{
-		"pl"	"Przywrócono stary bonus zestawu: Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka ukrycia. Załóż L'etranger oraz Ostateczną Nagrodę (lub Kłujkę voodoo) aby uzyskać bonus. Czapka nie jest wymagana"
+		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę (lub Kłujkę voodoo) aby uzyskać bonus. Czapka nie jest wymagana"
 	}
 	"Sandman_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), ogłusza graczy po trafieniu, piłka regeneruje się 15 sekund"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), ogłusza graczy po trafieniu, piłka regeneruje się 15 sekund"
 	}
 	"Scottish_Release"
 	{
@@ -793,11 +795,11 @@
 	}
 	"Circuit_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), atak alternatywny niszczy pociski przed użytkownikiem, -15 metalu po strzale"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), atak alternatywny niszczy pociski przed użytkownikiem, -15 metalu po strzale"
 	}
 	"Circuit_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), atak niszczy pociski przed użytkownikiem, brak metalu z dispenserów, gdy broń jest aktywna oraz brak ataku alternatywnego"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), atak niszczy pociski przed użytkownikiem, brak metalu z dispenserów, gdy broń jest aktywna oraz brak ataku alternatywnego"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
@@ -809,35 +811,35 @@
 	}
 	"Shortstop_PreGM_Shove"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), +20%% premii do otrzymywanego leczenia, gdy broń jest aktywna, +40%% podatności do permanentnej siły odrzutu, dzieli amunicję z pistoletem, atak alternatywny popycha wroga"
+		"pl"	"Przywrócono do stanu sprzed ak. Siła charakteru (Gun Mettle), +40%% podatności do permanentnej siły odrzutu, +20%% leczenia, gdy broń jest aktywna, dzieli amunicję z pistoletem, atak alt popycha wroga"
 	}
 	"Shortstop_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), +20%% premii do otrzymywanego leczenia, gdy broń jest aktywna, +40%% podatności do permanentnej siły odrzutu, dzieli amunicję z pistoletem, brak ataku alternatywnego"
+		"pl"	"Przywrócono do stanu sprzed ak. Siła charakteru (Gun Mettle), +40%% podatności do permanentnej siły odrzutu, +20%% leczenia, gdy broń jest aktywna, dzieli amunicję z pistoletem, brak ataku alt."
 	}
 	"Sodapop_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śnięta 2013, bieganie ładuje odlot, który przyznaje trafienia minikrytyczne oraz aktywuje się automatycznie po zapełnieniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2013, bieganie ładuje odlot, który przyznaje trafienia minikrytyczne oraz aktywuje się automatycznie po zapełnieniu"
 	}
 	"Sodapop_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Poznaj Wroga Swego (Meet your Match), bieganie ładuje odlot, który przyznaje dodatkowe skoki"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), bieganie ładuje odlot, który przyznaje dodatkowe skoki"
 	}
 	"Solemn_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), brak redukcji częstotliwości ataku"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), brak redukcji częstotliwości ataku"
 	}
 	"SpDelivery_Release"
 	{
-		"pl"	"Przywrócono stary bonus zestawu: +25 maks. punktów zdrowia. Załóż Wstrzymywacz, Wściekłe Mleko oraz Świętą Makrelę, aby uzyskać bonus. Czapka nie jest wymagana"
+		"pl"	"Przywrócono stary bonus zestawu: +25 maks. HP. Załóż Wstrzymywacz, Wściekłe Mleko oraz Świętą Makrelę, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
 	"Splendid_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +15%% odporności na obrażenia od wybuchów, brak szybszej regeneracji szarży, przyznaje trafienie krytyczne po uderzeniu szarżą, nie usuwa negatywnych efektów, szarża zadaje obrażenia na każdym dystansie"
+		"pl"	"+15%% odporności ana obrażenia wybuchów oraz ognia, brak szybszej regeneracji, trafienie krytyczne po uderzeniu, pełne obrażenia na każdym dystansie, nie usuwa negatywnych efektów"
 	}
 	"SpyCicle_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), 2s odporności na ogień, cichy zabójca, brak możliwości regeneracji paczkami amunicji"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), 2s odporności na ogień, cichy zabójca, brak możliwości regeneracji paczkami amunicji"
 	}
 	"StkJumper_Pre2013"
 	{
@@ -849,11 +851,11 @@
 	}
 	"Sleeper_PreBM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Błękitnego Księżyca (Blue Moon), trafienia w głowę oraz w pełni naładowane strzały powodują eksplozję Sikwonda, brak redukcji do czasu regeneracji Sikwonda"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue Moon), trafienia w głowę oraz w pełni naładowane strzały powodują eksplozję Sikwonda, brak redukcji do czasu regeneracji Sikwonda"
 	}
 	"Turner_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), szarża przyznaje trafienia krytyczne, +25%% odporności na obrażenia od wybuchów i ognia, przyznaje trafienie krytyczne po uderzeniu szarżą, nie usuwa negatywnych efektów"
+		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odporności na wybuchy i ogień, nie usuwa negatywnych efektów"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -869,22 +871,22 @@
 	}
 	"Caber_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), zawsze zadaje 175+ obrażeń przy celnym uderzeniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), zawsze zadaje 175+ obrażeń przy celnym uderzeniu"
 	}
 	"VitaSaw_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), zawsze zachowuje do 20%% Ubercharge po śmierci"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zawsze zachowuje do 20%% Ubercharge po śmierci"
 	}
 	"Warrior_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Śniąteczne Fatum (Tough Break), +10 punktów zdrowia po trafieniu, brak podatności na obrażenia, -20 maks. punktów zdrowia"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +10 HP po trafieniu, brak podatności na obrażenia, -20 maks. HP"
 	}
 	"Wrangler_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Siła charakteru (Gun Mettle), brak redukcji leczenia, gdy tarcza jest aktywna, dodatkowo tarcza deaktywuje się 1s po śmierci użytkownika"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), brak redukcji leczenia, gdy tarcza jest aktywna, dodatkowo tarcza deaktywuje się 1s po śmierci użytkownika"
 	}
 	"Eternal_PreJI"
 	{
-		"pl"	"Przywrócono do stanu sprzed aktualizacji Piekło w Dżungli (Jungle Inferno), brak możliwości przebrania się, brak redukcji do czasu niewidzialności"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak możliwości przebrania się, brak redukcji do czasu niewidzialności"
 	}
 }
