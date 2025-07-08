@@ -1520,6 +1520,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 	}
 
+	if (
+		StrEqual(class, "obj_sentrygun") ||
+		StrEqual(class, "obj_dispenser") ||
+		StrEqual(class, "obj_teleporter")
+	) {
+		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
+	}
+
 	if (StrEqual(class, "tf_projectile_rocket")) {
 		// keep track of when rockets are created
 
@@ -3418,6 +3426,7 @@ Action SDKHookCB_OnTakeDamage(
 					)
 				) {
 					damage_type = (damage_type | DMG_CRIT);
+					players[victim].crit_flag = true;
 					return Plugin_Changed;
 				}
 			}
@@ -3437,12 +3446,16 @@ Action SDKHookCB_OnTakeDamage(
 					health_cur = GetClientHealth(attacker);
 					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					if(GetItemVariant(Wep_Pickaxe) == 0) // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 hp
-						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.65, 0.5));
-					else if(GetItemVariant(Wep_Pickaxe) == 1) // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 hp
-						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 1.75, 0.5));
-					else if(GetItemVariant(Wep_Pickaxe) == 2) // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 hp
-						damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), 2.50, 0.5));
+					float multiplier = 1.0;
+
+					switch (GetItemVariant(Wep_Pickaxe))
+					{
+						case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
+						case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
+						case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
+					}
+
+					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
 
 					return Plugin_Changed;
 				}
@@ -3691,7 +3704,7 @@ Action SDKHookCB_OnTakeDamage(
 					if (player_weapons[attacker][Wep_SplendidScreen] == false)
 					{
 						charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");
-						if (charge > 40.0) // check if this is the correct value
+						if (charge > 40.0)
 						{
 							return Plugin_Handled;
 						}
@@ -3904,6 +3917,92 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Continue;
 					}
 				}
+			}
+		}
+	}
+
+	return Plugin_Continue;
+}
+
+Action SDKHookCB_OnTakeDamage_Building(
+	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
+	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
+) {
+	//int idx;
+	char class[64];
+	int health_cur;
+	int health_max;
+	//float damage1;
+	//int weapon1;
+
+	if (
+		attacker >= 1 && attacker <= MaxClients &&
+		weapon > MaxClients
+	) {
+		GetEntityClassname(weapon, class, sizeof(class));
+
+		{
+			// caber damage
+
+			if (
+				ItemIsEnabled(Wep_Caber) &&
+				StrEqual(class, "tf_weapon_stickbomb")
+			) {
+				if (
+					damage_custom == TF_DMG_CUSTOM_NONE &&
+					damage == 55.0
+				) {
+					// melee damage is always 35
+					damage = 35.0;
+					return Plugin_Changed;
+				}
+
+				if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
+					// base explosion is 100 damage
+					damage = 100.0;
+					return Plugin_Changed;
+				}
+			}
+		}
+		{
+			// cannon impact damage
+
+			if (
+				ItemIsEnabled(Wep_LooseCannon) &&
+				StrEqual(class, "tf_weapon_cannon") &&
+				damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
+			) {
+				damage = 60.0;
+				return Plugin_Changed;
+			}
+		}
+		{
+			// equalizer damage bonus
+
+			if (
+				ItemIsEnabled(Wep_Pickaxe) &&
+				damage_custom == TF_DMG_CUSTOM_PICKAXE &&
+				StrEqual(class, "tf_weapon_shovel") &&
+				(
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 ||
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775
+				)
+			) {
+				health_cur = GetClientHealth(attacker);
+				health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
+
+				float multiplier = 1.0;
+
+				switch (GetItemVariant(Wep_Pickaxe))
+				{
+					case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
+					case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
+					case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
+				}
+
+				damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
+
+				return Plugin_Changed;
 			}
 		}
 	}
