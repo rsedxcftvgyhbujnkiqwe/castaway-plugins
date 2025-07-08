@@ -61,3 +61,4 @@ translations/pl/*
 !.github/workflows/build.yml
 
 !reverts-git-commit.sh
+!check-translations.py
