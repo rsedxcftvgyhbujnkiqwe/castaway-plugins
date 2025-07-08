@@ -57,6 +57,10 @@ with open("translations/reverts.phrases.txt", encoding="utf-8") as f:
 if all_phrases is None:
     raise ValueError("Phrases not valid.")
 
+tasklist_symbol = ""
+if os.environ.get("FORMAT_TASKLIST", "0") == "1" and format_markdown:
+    tasklist_symbol = "[ ] "
+
 # pylint: disable = invalid-name
 for i in languages:
     if (language := ALL_LANGUAGES.get(i)) is None:
@@ -83,7 +87,7 @@ for i in languages:
             formatted_key = key
             if format_markdown:
                 formatted_key = f"`{key}`"
-            print(f"- Key {formatted_key} doesn't exist for {language}")
+            print(f"- {tasklist_symbol}Key {formatted_key} doesn't exist for {language}")
             problems_count += 1
 
     last_modified_commit = next(repo.iter_commits(max_count=1, paths=TRANSLATION_FILE_PATH))
@@ -100,7 +104,7 @@ for i in languages:
             formatted_commit = repo.git.rev_parse(last_modified_commit.hexsha, short=True)
             if format_markdown:
                 formatted_commit = f"`{formatted_commit}`"
-            print(f"- Key {formatted_key} was changed from commit {formatted_commit}")
+            print(f"- {tasklist_symbol}Key {formatted_key} was changed from commit {formatted_commit}")
             problems_count += 1
 
     if not problems_count:
