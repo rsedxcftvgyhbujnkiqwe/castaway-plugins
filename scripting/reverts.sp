@@ -1971,11 +1971,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
-			TF2Items_SetNumAttributes(itemNew, 4);
-			TF2Items_SetAttribute(itemNew, 0, 236, 1.0); // mod weapon blocks healing
-			TF2Items_SetAttribute(itemNew, 1, 414, 0.0); // self mark for death
-			TF2Items_SetAttribute(itemNew, 2, 740, 1.0); // reduced healing from medics
-			TF2Items_SetAttribute(itemNew, 3, index == 128 ? 115 : 235, 2.0); // mod shovel damage boost
+			TF2Items_SetNumAttributes(itemNew, index == 775 ? 5 : 4);
+			TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost
+			TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
+			TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
+			TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
+			if (index == 775)
+				TF2Items_SetAttribute(itemNew, 4, 414, 0.0); // self mark for death
 		}}
 		case 225, 574: { if (ItemIsEnabled(Wep_EternalReward)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
