@@ -1,0 +1,894 @@
+"Phrases"
+{
+	// class names
+	"SCOUT"
+	{
+		"fr"	"Scout"
+	}
+	"SNIPER"
+	{
+		"fr"	"Sniper"
+	}
+	"SOLDIER"
+	{
+		"fr"	"Soldier"
+	}
+	"DEMOMAN"
+	{
+		"fr"	"Demoman"
+	}
+	"MEDIC"
+	{
+		"fr"	"Medic"
+	}
+	"HEAVY"
+	{
+		"fr"	"Heavy"
+	}
+	"PYRO"
+	{
+		"fr"	"Pyro"
+	}
+	"SPY"
+	{
+		"fr"	"Spy"
+	}
+	"ENGINEER"
+	{
+		"fr"	"Engineer"
+	}
+
+	// ui
+	"REVERT_LOADOUT_CHANGE_INIT"
+	{
+		"fr"	"Réversions d'armes actives pour votre équipement:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	{
+		"fr"	"Désactivez ces messages dans le menu !revert ou avec !toggleinfo"
+	}
+	"REVERT_REVERTS_DISABLED"
+	{
+		"fr"	"Réversions d'armes ne sont pas activées pour le moment"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	{
+		"fr"	"Détails des réversions d'armes affichés dans la console"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	{
+		"fr"	"Réversions d'armes actuellement activées dans ce serveur:"
+	}
+	"REVERT_EMPTY_REVERTS"
+	{
+		"fr"	"Il n'y a rien ici... pour une raison quelconque, toutes les cvars d'objets sont désactivés"
+	}
+	"REVERT_INVALID_TEAM"
+	{
+		"fr"	"Vous avez besoin d'être dans une équipe pour utiliser cette commande"
+	}
+	"REVERT_INVALID_CLASS"
+	{
+		"fr"	"Votre classe doit être valide pour utiliser cette commande"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	{
+		"fr"	"Réversions d'armes actuellement actives pour %t:"
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"fr"	"Il n'y a rien ici... pour une raison quelconque, toutes les réversions pour %t sont désactivées"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"fr"	"Infos de réversion au changement d'équipement activées. Elles seront présentées au prochain changement d'équipement"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"fr"	"Infos de réversion au changement d'équipement désactivées. Réactivez-les en tapant !revertsinfo ou en ouvrant le menu !reverts"
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"fr"	"Réversions d'armes"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"fr"	"Afficher les réversions pour votre classe actuelle"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"fr"	"Afficher les informations de chaque réversion"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"fr"	"Basculer l’affichage des infos de réversion au changement d’équipement"
+	}
+
+	// item names
+	"airblast"
+	{
+		"fr"	"Tir d'air comprimé"
+	}
+	"airstrike"
+	{
+		"fr"	"Frappe aérienne"
+	}
+	"miniramp"
+	{
+		"fr"	"Tous les Miniguns"
+	}
+	"swords"
+	{
+		"fr"	"Toutes les Épées"
+	}
+	"ambassador"
+	{
+		"fr"	"Ambassadeur"
+	}
+	"atomizer"
+	{
+		"fr"	"Atomiseur"
+	}
+	"axtinguish"
+	{
+		"fr"	"Hachtincteur"
+	}
+	"backburner"
+	{
+		"fr"	"Brûleur arrière"
+	}
+	"basejump"
+	{
+		"fr"	"B.A.S.E. Jumper"
+	}
+	"babyface"
+	{
+		"fr"	"Exploseur de Tête d'Ange"
+	}
+	"beggars"
+	{
+		"fr"	"Bazooka du mendiant"
+	}
+	"blackbox"
+	{
+		"fr"	"Boîte Noire"
+	}
+	"bonk"
+	{
+		"fr"	"Bonk! Atomic Punch"
+	}
+	"booties"
+	{
+		"fr"	"Alibabouches & Contrebandier"
+	}
+	"brassbeast"
+	{
+		"fr"	"Bête de Bronze"
+	}
+	"bushwacka"
+	{
+		"fr"	"Bushwacka"
+	}
+	"buffalosteak"
+	{
+		"fr"	"Sandvich au Steak de Bison"
+	}
+	"targe"
+	{
+		"fr"	"Bouclier bélier"
+	}
+	"claidheamh"
+	{
+		"fr"	"Claidheamh Mòr"
+	}
+	"carbine"
+	{
+		"fr"	"Carabine du Nettoyeur"
+	}
+	"cozycamper"
+	{
+		"fr"	"Campeur Aisé"
+	}
+	"critcola"
+	{
+		"fr"	"Crit-a-Cola"
+	}
+	"crocostyle"
+	{
+		"fr"	"Crocostyle"
+	}
+	"dalokohsbar"
+	{
+		"fr"	"Barre de Dalokohs"
+	}
+	"darwin"
+	{
+		"fr"	"Bouclier du risque Darwinien"
+	}
+	"ringer"
+	{
+		"fr"	"Dead Ringer"
+	}
+	"degreaser"
+	{
+		"fr"	"Dégraisseur"
+	}
+	"disciplinary"
+	{
+		"fr"	"Action Disciplinaire"
+	}
+	"dragonfury"
+	{
+		"fr"	"Fureur du dragon"
+	}
+	"enforcer"
+	{
+		"fr"	"Exécutant"
+	}
+	"equalizer"
+	{
+		"fr"	"Equalizer & Plan d'Évasion"
+	}
+	"eviction"
+	{
+		"fr"	"Avis d'Expulsion"
+	}
+	"expert"
+	{
+		"fr"	"Artillerie de l'Expert"
+	}
+	"fiststeel"
+	{
+		"fr"	"Poings d'Acier"
+	}
+	"guillotine"
+	{
+		"fr"	"Guillotine volante"
+	}
+	"gasjockey"
+	{
+		"fr"	"Matos du Pompiste"
+	}
+	"glovesru"
+	{
+		"fr"	"Gants de Retraite Urgente"
+	}
+	"gunboats"
+	{
+		"fr"	"Bottes de sûreté"
+	}
+	"zatoichi"
+	{
+		"fr"	"Demi-Zatoichi"
+	}
+	"hibernate"
+	{
+		"fr"	"Ours en Hibernation"
+	}
+	"jag"
+	{
+		"fr"	"Crochet"
+	}	
+	"liberty"
+	{
+		"fr"	"Libérateur"
+	}
+	"lochload"
+	{
+		"fr"	"Loch-n-Load"
+	}
+	"cannon"
+	{
+		"fr"	"Danger public"
+	}
+	"gardener"
+	{
+		"fr"	"Jardinier"
+	}
+	"natascha"
+	{
+		"fr"	"Natascha"
+	}
+	"panic"
+	{
+		"fr"	"Crise de Panique"
+	}
+	"persuader"
+	{
+		"fr"	"Persuasion persane"
+	}
+	"pomson"
+	{
+		"fr"	"Pomson 6000"
+	}
+	"powerjack"
+	{
+		"fr"	"Powerjack"
+	}
+	"pocket"
+	{
+		"fr"	"Pistolet de Poche du Beau Gosse"
+	}
+	"quickfix"
+	{
+		"fr"	"Secou'rapide"
+	}
+	"quickiebomb"
+	{
+		"fr"	"Lanceur de Bombes rapides"
+	}
+	"razorback"
+	{
+		"fr"	"Razorback"
+	}
+	"rescueranger"
+	{
+		"fr"	"Ranger du risque"
+	}
+	"reserve"
+	{
+		"fr"	"Tireur Réserviste"
+	}
+	"bison"
+	{
+		"fr"	"Bison Vertueux"
+	}
+	"rocketjmp"
+	{
+		"fr"	"Propul'sauteur"
+	}
+	"saharan"
+	{
+		"fr"	"Spy du Caire"
+	}
+	"sandman"
+	{
+		"fr"	"Marchand de sable"
+	}
+	"scottish"
+	{
+		"fr"	"Scottish Resistance"
+	}
+	"circuit"
+	{
+		"fr"	"Court-Circuit"
+	}
+	"shortstop"
+	{
+		"fr"	"Arrêt-court"
+	}
+	"sodapop"
+	{
+		"fr"	"Rafraîchisseur"
+	}
+	"solemn"
+	{
+		"fr"	"Voeu Solennel"
+	}
+	"spdelivery"
+	{
+		"fr"	"Livraison spéciale (ensemble d'objet)"
+	}
+	"splendid"
+	{
+		"fr"	"Mirage Éblouissant"
+	}
+	"spycicle"
+	{
+		"fr"	"Spy-lactite"
+	}
+	"stkjumper"
+	{
+		"fr"	"Explo'sauteur"
+	}
+	"sleeper"
+	{
+		"fr"	"Sarbacane de Sydney"
+	}
+	"turner"
+	{
+		"fr"	"Gouvernail"
+	}
+	"tomislav"
+	{
+		"fr"	"Tomislav"
+	}
+	"tribalshiv"
+	{
+		"fr"	"Couteau Aborigène"
+	}
+	"caber"
+	{
+		"fr"	"Caber d'Ullapool"
+	}
+	"vitasaw"
+	{
+		"fr"	"Vita-Scie"
+	}
+	"warrior"
+	{
+		"fr"	"Esprit du Guerrier"
+	}
+	"wrangler"
+	{
+		"fr"	"Dompteur"
+	}
+	"eternal"
+	{
+		"fr"	"Ton Éternelle Récompense"
+	}
+
+	// item descriptions
+	"Airblast_PreJI"
+	{
+		"fr"	"Le tir d'air comprimé de tous les lance-flammes a été rétabli à leur version pré-Inferno"
+	}
+	"Airstrike_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de rayon d'explosion lors d'un saut propulsé"
+	}
+	"Minigun_ramp_PreLW"
+	{
+		"fr"	"Réversion à pré-Love & War, précision et dégâts maximaux dès la mise en route du Minigun"
+	}
+	"Swords_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de vitesse de déploiement et de rangement de l'arme"
+	}
+	"Ambassador_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, dégâts de tir en pleine tête maximaux (102) à n'importe quelle portée"
+	}
+	"Atomizer_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, triple saut à tout moment, infligant 10 dégâts au porteur à chaque fois"
+	}
+	"Axtinguisher_PreLW"
+	{
+		"fr"	"Réversion à pré-Love & War, inflige toujours 195 dégâts aux cibles en feu, pas de bonus de vitesse en tuant"
+	}
+	"Axtinguisher_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, crits par derrière, mini-crits par devant, pas de bonus de vitesse en tuant"
+	}
+	"Backburner_PreHat"
+	{
+		"fr"	"Réversion à la mise à jour Sans-Chapeau, +10%% de dégâts"
+	}
+	"Backburner_119"
+	{
+		"fr"	"Réversion à la 119ème mise à jour, +20%% de dégâts, pas de tir d'air comprimé"
+	}
+	"Backburner_Release"
+	{
+		"fr"	"Réversion à la version d'origine, santé max +50, pas de tir d'air comprimé"
+	}
+	"BaseJumper_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, peut être redéployé, plus de contrôle aérien, gain d'élévation si en feu quand déployé"
+	}
+	"BabyFace_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, pas de perte de boost quand touché, seulement -25%% par saut dans les airs"
+	}
+	"BabyFace_Release"
+	{
+		"fr"	"Réversion à la version d'origine, +40%% de précision, pas de pénalité de capacité chargeur, pas de perte de boost quand touché, -35%% de vitesse de déplacement, -30%% de dégâts, -100%% pour tout saut"
+	}
+	"Beggars_Pre2013"
+	{
+		"fr"	"Réversion à pré-2013, pas de pénalité de rayon d'explosion, surcharges n'enlèvent pas de munitions du chargeur"
+	}
+	"BlackBox_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, +15 santé par coup porté à n'importe quelle distance, sans limite"
+	}
+	"Bonk_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, ne ralentit plus une fois l'effet dissipé"
+	}
+	"Booties_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, bouclier non requis pour le bonus de vitesse"
+	}
+	"BrassBeast_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, 20%% de résistance aux dégâts (6.7%% pour les crits) lorsque mis en route à n'importe quelle santé"
+	}
+	"Bushwacka_PreLW"
+	{
+		"fr"	"Réversion à pré-Love & War, 20%% de vulnérabilité au feu à tout moment, crits aléatoires"
+	}
+	"BuffaloSteak_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, +35%% de vitesse de déplacement et 10%% de vulnérabilité aux dégâts une fois utilisé"
+	}
+	"BuffaloSteak_Release"
+	{
+		"fr"	"Réversion à la version d'origine, +35%% de vitesse de déplacement et dégâts reçus deviennent des mini-crits une fois utilisé, vitesse s'additionne avec GRU (un peu plus rapide qu'un Scout)"
+	}
+	"BuffaloSteak_Pre2013"
+	{
+		"fr"	"Réversion à pré-Été 2013, +35%% de vitesse de déplacement et dégâts reçus deviennent des mini-crits une fois utilisé, vitesse ne s'additionne pas avec GRU"
+	}
+	"Targe_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, 40%% de résistance aux explosions, immunité à la postcombustion, crit après impact, pas de suppression de debuffs"
+	}
+	"Claidheamh_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, santé max -15, pas de vulnérabilité aux dégâts, augmentation de durée de charge est passive"
+	}
+	"Carbine_Release"
+	{
+		"fr"	"Réversion à la version d'origine, crits pendant 3s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
+	}
+	"CozyCamper_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, visée stable à n'importe quel niveau de charge"
+	}
+	"CritCola_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, +25%% de vitesse de déplacement, +10%% de dégâts reçus, pas marqué à mort en attaquant"
+	}
+	"CritCola_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, +25%% de vitesse de déplacement, +10%% de dégâts reçus, marqué à mort 2s après expiration du buff"
+	}
+	"CritCola_PreDec2013"
+	{
+		"fr"	"Réversion à pré-Smissmas 2013, +25%% de vitesse de déplacement, +25%% de dégâts reçus, pas marqué à mort en attaquant"
+	}
+	"CritCola_PreJuly2013"
+	{
+		"fr"	"Réversion à pré-Été 2013, +25%% de vitesse de déplacement, dégâts reçus deviennent des mini-crits"
+	}
+	"CritCola_Release"
+	{
+		"fr"	"Réversion à la version d'origine, dégâts reçus deviennent des mini-crits, buff actif 6s"
+	}
+	"CrocoStyle_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, ne peut pas être tué par les tirs en pleine tête quand la santé est plus que 1. Equipe la Sarbacane de Sydney, Bouclier du risque Darwinien et Bushwacka pour obtenir le bonus, chapeau non-requis"
+	}
+	"DalokohsBar_PreMYM"
+	{
+		"fr"	"Réversion à Gun Mettle, peut donner un bonus d'extra santé jusqu'à 400"
+	}
+	"Darwin_Pre2013"
+	{
+		"fr"	"Réversion à pré-2013, santé max +25, aucun modificateur de dégâts ou d'immunité à la postcombustion"		
+	}
+	"Darwin_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, santé max +25, 15%% de résistance aux balles (5%% pour les balles critiques), 20%% de vulnérabilité aux explosions, pas de résistance au feu"
+	}
+	"Ringer_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse"
+	}
+	"Ringer_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, même stats modernes mais peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
+	}
+	"Ringer_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, même stats modernes mais 50%% initial de resistance aux dégâts, peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
+	}
+	"Degreaser_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion"
+	}
+	"Disciplinary_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, donne 3s de buff de vitesse aux alliés frappés"
+	}
+	"DragonFury_Release"
+	{
+		"fr"	"Réversion à la version d'origine, taille du projectile augmentée et pas de tir centre-masse nécessaire pour dégâts bonus"
+	}
+	"DragonFury_Release_Patchless"
+	{
+		"fr"	"Réversion partielle à la version d'origine, taille du projectile augmentée"
+	}
+	"Enforcer_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, +20%% de dégâts quand non déguisé, pas de perçage"
+	}
+	"Enforcer_Release"
+	{
+		"fr"	"Réversion à la version d'origine, +20%% de dégâts tout le temps, crits aléatoires, pas de perçage, temps pour se rendre invisible +0.5s"
+	}
+	"Equalizer_PrePyro"
+	{
+		"fr"	"Refusionné à pré-Pyromania, pas de soins par Medic et impossible d'appeler un Medic quand actif, pas de marquage à mort, 107 dégâts à 1 PV"
+	}
+	"Equalizer_PreHat"
+	{
+		"fr"	"Refusionné à pré-mise à jour Sans-Chapeau, pas de soins par Medic et impossible d'appeler un Medic quand actif, pas de marquage à mort, 113 dégâts à 1 PV"
+	}
+	"Equalizer_Release"
+	{
+		"fr"	"Refusionné à la version d'origine, pas de soins par Medic et impossible d'appeler un Medic quand actif, pas de marquage à mort, (si santé max 200) 125 dégâts à 58 PV, 150 dégâts à 20 PV, 162 dégâts à 1 PV"
+	}
+	"Eviction_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de drain de santé, +20%% de vulnérabilité aux dégâts"
+	}
+	"Eviction_PreMYM"
+	{
+		"fr"	"Réversion à Gun Mettle, cadence 50%% plus rapide, pas de drain de santé, pas de bonus de vitesse"
+	}
+	"Expert_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, 10%% de résistance au feu. Equipe le Loch-n-Load et Caber d'Ullapool pour obtenir le bonus, chapeau non-requis"
+	}
+	"FistSteel_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de pénalité de soin"
+	}
+	"FistSteel_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, déploiement de l'arme 20%% plus lent, pas de pénalité de soin, pas de pénalité de rangement de l'arme"
+	}
+	"FistSteel_Release"
+	{
+		"fr"	"Réversion à la version d'origine, pas de pénalité de soin, pas de pénalité de rangement de l'arme, 60%% de résistance aux dégâts à distance quand actif (au lieu de 40%%)"
+	}
+	"Guillotine_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, crits contre joueurs étourdis, mini-crits à longue portée, pas de réduction de rechargement"
+	}
+	"GasJockey_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, +10%% de vitesse de déplacement, 10%% de vulnérabilité aux balles. Equipe le Dégraisseur et Powerjack pour obtenir le bonus, chapeau non-requis"
+	}
+	"GlovesRU_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de drain de santé, pas de pénalité de rangement de l'arme, marquage à mort, -25%% de dégâts"
+	}
+	"GlovesRU_PrePyro"
+	{
+		"fr"	"Réversion à pré-Pyromania, pas de drain de santé, pas de pénalité de rangement de l'arme, -6 santé/s quand actif (saute un peu plus haut à chaque tick de dégâts), -50%% de dégâts"
+	}
+	"Gunboats_Release"
+	{
+		"fr"	"Réversion à la version d'origine, -75%% de dégâts d'explosion par sauts propulsés"
+	}
+	"Zatoichi_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, changement d'arme plus rapide, portée plus courte, impossible de changer d'arme sans tuer, soigne completement, crits aléatoires"
+	}
+	"Hibernate_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, +5%% de résistance aux crits. Equipe la Bête de Bronze, Sandvich au Steak de Bison et Esprit du Guerrier pour obtenir le bonus, chapeau non-requis"
+	}
+	"Jag_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de dégâts contre les constructions (détruit les Saboteurs en 2 coups)"
+	}
+	"Jag_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, pas de pénalité de dégâts contre les constructions (détruit les Saboteurs en 2 coups), pas de pénalité de vitesse de réparation, pas de bonus de cadence"
+	}	
+	"Liberty_Release"
+	{
+		"fr"	"Réversion à la version d'origine, +40%% de vitesse de projectile, -25%% de capacité chargeur"
+	}
+	"LochLoad_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, +20%% de dégâts contre tout"
+	}
+	"LochLoad_2013"
+	{
+		"fr"	"Réversion à pré-2014, +20%% de dégâts (15%% de variation), -50%% de capacité chargeur, +25%% de dégâts personnels, pas de pénalité de rayon d'explosion, les grenades culbutes"
+	}
+	"Cannon_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, +50%% de vitesse de projectile, 60 dégâts consistant d'impact"
+	}
+	"Gardener_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de cadence"
+	}
+	"Natascha_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, résistance aux dégâts de 20%% (6.7%% pour les crits) quand mis en route à n'importe quelle santé"
+	}
+	"Panic_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, maintenir tir pour charger, relâcher pour tirer, tire plus vite avec une dispersion plus grande à santé basse"
+	}
+	"Persuader_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, ramasse munitions en santé, +100%% de vitesse de recharge de jauge de charge, pas de pénalité de munitions max"
+	}
+	"Pomson_PreGM"
+	{
+		"fr"	"Taille de hitbox augmentée (pareil que le Bison), passe à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+	}
+	"Pomson_Release"
+	{
+		"fr"	"Réversion à la version d'origine, même dégâts que le Bison, plus grande hitbox, passe à travers les joueurs, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+	}
+	"Pomson_PreGM_Historical"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, taille de hitbox augmentée (pareil que le Bison), ne passe pas à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+	}	
+	"Powerjack_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, même stats que vanilla mais soigne +75 de santé avec extra santé en tuant"
+	}
+	"Powerjack_Release"
+	{
+		"fr"	"Réversion à la version d'origine, pas de bonus de vitesse ou de vulnérabilité quand actif, soigne +75 de santé avec extra santé en tuant, +25%% de dégâts, pas de crits aléatoires"
+	}
+	"Powerjack_Pre2013"
+	{
+		"fr"	"Réversion à la mise à jour Sans-Chapeau, pas de bonus de vitesse ou de vulnérabilité quand actif, soigne +75 de santé avec extra santé en tuant, 20%% de vulnérabilité aux dégâts de corps-à-corps quand actif"
+	}
+	"Pocket_Release"
+	{
+		"fr"	"Réversion à la version d'origine, santé max +15, immunité aux dégâts de chute, cadence 25%% plus lente, 50%% de vulnérabilité au feu"
+	}
+	"Pocket_PreBM"
+	{
+		"fr"	"Réversion à pré-2018, récupère jusqu'à +7 santé par coup porté"
+	}
+	"Quickfix_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, +25%% de taux d'Über, peut capturer les objectifs pendant l'Über"
+	}
+	"Quickfix_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, +25%% de taux d'Über"
+	}
+	"Quickiebomb_PreMYM"
+	{
+		"fr"	"Réversion à Tough Break, temps de charge max reduit de 50%%, jusqu'à +25%% de dégâts basé sur la charge, capacité chargeur -25%%, bombes collantes disparaissent 4s après avoir atterri"
+	}
+	"Razorback_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, peut recevoir un bonus d'extra-santé, bouclier ne se régénère pas"
+	}
+	"RescueRanger_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, soigne +75 fixe sans coût de métal, récupérations à distance coûtent 130"
+	}
+	"Reserve_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, mini-crits sur toutes cibles en l'air durant 5s après déploiement, changement d'arme 15%% plus rapide"
+	}
+	"Reserve_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, inflige de nouveau des mini-crits aux cibles propulsées dans les airs par tir d'air comprimé"
+	}
+	"Bison_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, taille de hitbox augmentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+	}
+	"Bison_PreMYM_Historical"
+	{
+		"en"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts, ancienne diminution des dégâts par distance"
+	}
+	"RocketJmp_Pre2013"
+	{
+		"fr"	"Réversion à pré-2013, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion"
+	}
+	"RocketJmp_Pre2013_Intel"
+	{
+		"fr"	"Réversion à pré-2013, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel"
+	}
+	"Saharan_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, moins de son de fin d'invisibilité, silhouette semi-invisible apparaît 0.5s plus longtemps. Equipe L'Étranger (enlève le +40%% de durée d'invisibilité) et Ton Éternelle Récompense pour obtenir le bonus, chapeau non-requis"
+	}
+	"Saharan_ExtraCloak"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, moins de son de fin d'invisibilité, silhouette semi-invisible apparaît 0.5s plus longtemps. Equipe L'Étranger et Ton Éternelle Récompense (ou l'Aiguille de Wanga) pour obtenir le bonus, chapeau non-requis"
+	}
+	"Sandman_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, étourdit de nouveau les joueurs, rechargement de balle de 15s"
+	}
+	"Scottish_Release"
+	{
+		"fr"	"Réversion à la version d'origine, pénalité d'activation de 0.4s (au lieu de 0.8s), pas de bonus de cadence"
+	}
+	"Circuit_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, tir alternatif détruit les projectiles devant, coûte 15 métal par tir"
+	}
+	"Circuit_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, tir principal détruit les projectiles, pas de métal par distributeur quand actif, pas de tir alternatif"
+	}
+	"Shortstop_PreMnvy_Shove"
+	{
+		"fr"	"Réversion à pré-Manniversaire, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, bousculade est conservée"
+	}
+	"Shortstop_PreMnvy"
+	{
+		"fr"	"Réversion à pré-Manniversaire, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, pas de bousculade"
+	}
+	"Shortstop_PreGM_Shove"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, bousculade est conservée"
+	}
+	"Shortstop_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, pas de bousculade"
+	}
+	"Sodapop_Pre2013"
+	{
+		"fr"	"Réversion à pré-Smissmas 2013, jauge d'excitation se remplit en courant, mode excité s'active automatiquement et donne des mini-crits"
+	}
+	"Sodapop_PreMYM"
+	{
+		"fr"	"Réversion à pré-Matchmaking, jauge d'excitation se remplit en courant"
+	}
+	"Solemn_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, pas de pénalité de cadence"
+	}
+	"SpDelivery_Release"
+	{
+		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, santé max +25. Equipe l'Arrêt-court, Lait frelaté et Maquereau sacré pour obtenir le bonus, chapeau non-requis"
+	}
+	"Splendid_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
+	}
+	"SpyCicle_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, immunité au feu de 2s, tue en silence, ne peut pas se régénérer avec des munitions"
+	}
+	"StkJumper_Pre2013"
+	{
+		"fr"	"Réversion à la mise à jour Pyromania, peut déployer jusqu'à 8 bombes collantes en même temps"
+	}
+	"StkJumper_Pre2013_Intel"
+	{
+		"fr"	"Réversion à la mise à jour Pyromania, peut déployer jusqu'à 8 bombes collantes en même temps, porteur peut récupérer l'intel"
+	}
+	"Sleeper_PreBM"
+	{
+		"fr"	"Réversion à pré-2018, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"
+	}
+	"Turner_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff"
+	}
+	"Tomislav_PrePyro"
+	{
+		"fr"	"Réversion à pré-Pyromania, mise en route 40%% plus rapide, pas de bonus de précision"
+	}
+	"Tomislav_Release"
+	{
+		"fr"	"Réversion à la version d'origine, mise en route 75%% plus rapide, pas de bonus de précision"
+	}
+	"TribalShiv_Release"
+	{
+		"fr"	"Réversion à la version d'origine, saignement de 8s, pénalité de dégâts de 35%%"
+	}
+	"Caber_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, inflige 175+ dégâts avec l'explosion"
+	}
+	"VitaSaw_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, conserve jusqu'à 20%% d'Über après la mort"
+	}
+	"Warrior_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, soigne +10 santé par coup porté, pas de vulnérabilité aux dégâts, santé max -20"
+	}
+	"Wrangler_PreGM"
+	{
+		"fr"	"Réversion à pré-Gun Mettle, pas de réduction de réparations et de munitions données quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'Engineer"
+	}
+	"Eternal_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, impossibilité de se déguiser, pas de pénalité d'utilisation d'invisibilité"
+	}
+}
