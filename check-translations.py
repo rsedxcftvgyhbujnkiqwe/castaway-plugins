@@ -97,7 +97,7 @@ for i in languages:
             formatted_key = key
             if format_markdown:
                 formatted_key = f"`{key}`"
-            formatted_commit = repo.git.rev_parse(last_modified_commit.hexsha, short=6)
+            formatted_commit = repo.git.rev_parse(last_modified_commit.hexsha, short=True)
             if format_markdown:
                 formatted_commit = f"`{formatted_commit}`"
             print(f"- Key {formatted_key} was changed from commit {formatted_commit}")
