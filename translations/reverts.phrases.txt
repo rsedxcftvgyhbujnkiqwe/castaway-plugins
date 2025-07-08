@@ -268,7 +268,7 @@
 	"jag"
 	{
 		"en"	"Jag"
-	}	
+	}
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
