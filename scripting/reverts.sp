@@ -2200,7 +2200,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			bool preGunMettle = GetItemVariant(Wep_DeadRinger) == 0;
 			TF2Items_SetNumAttributes(itemNew, preGunMettle ? 5 : 3);
-			if(preGunMettle) {
+			if (preGunMettle) {
 				TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 				TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 				TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
