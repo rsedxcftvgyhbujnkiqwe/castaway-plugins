@@ -2141,18 +2141,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 588: { if (ItemIsEnabled(Wep_Pomson)) {
-			switch (GetItemVariant(Wep_Pomson)) {
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
-					TF2Items_SetAttribute(itemNew, 1, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
-				}
-			}
+		case 588: { if (GetItemVariant(Wep_Pomson) == 1) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
 		}}		
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			// health bonus with overheal for all variants handled elsewhere
@@ -2223,11 +2214,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 114, 0.0); // mod mini-crit airborne
 			TF2Items_SetAttribute(itemNew, 1, 178, 0.85); // 15% faster weapon switch
 			TF2Items_SetAttribute(itemNew, 2, 547, 1.0); // This weapon deploys 0% faster
-		}}
-		case 442: { if (ItemIsEnabled(Wep_Bison)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 797, 1.0); // mod_pierce_resists_absorbs; pierce resistances so it acts like untyped damage
-		}}			
+		}}		
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			switch (GetItemVariant(Wep_DeadRinger)) {
 				case 0: {
@@ -3806,157 +3793,26 @@ Action SDKHookCB_OnTakeDamage(
 								players[victim].bison_hit_frame = GetGameTickCount();
 							}
 
-							if (
-								StrEqual(class, "tf_weapon_drg_pomson") &&
-								PlayerIsInvulnerable(victim) == false
-							) {
-								// cloak/uber drain
+							// cloak/uber drain is done in OnTakeDamagePost
 
-								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-								damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
-
-								if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
-									weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
-
-									if (weapon1 > 0) {
-										GetEntityClassname(weapon1, class, sizeof(class));
-
-										if (StrEqual(class, "tf_weapon_medigun")) {
-											if (
-												GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
-												GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
-											) {
-												damage1 = (10.0 * (1.0 - damage1));
-												damage1 = float(RoundToCeil(damage1));
-
-												charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
-
-												charge = (charge - (damage1 / 100.0));
-												charge = (charge < 0.0 ? 0.0 : charge);
-
-												if (charge > 0.1) {
-													// fix 0.89999999 values
-													charge = (charge += 0.001);
-												}
-
-												SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
-											}
-										}
-									}
-								}
-
-								if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
-										//PrintToChatAll("damage1 before: %f", damage1);
-									damage1 = (20.0 * (1.0 - damage1));
-										//PrintToChatAll("damage1 after: %f", damage1);
-									damage1 = float(RoundToCeil(damage1));
-										//PrintToChatAll("damage1 final float(RoundToCeil): %f", damage1);
-
-									charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
-										//PrintToChatAll("charge before: %f", charge);
-
-									charge = (charge - damage1);
-										//PrintToChatAll("charge - damage1: %f", charge);
-									charge = (charge < 0.0 ? 0.0 : charge);
-										//PrintToChatAll("charge final: %f", charge);
-									
-									// Bug fix for reverted pre-gun mettle Dead Ringer losing 70% cloak when hit by Pomson at close range
-									// Prevents 70% cloak getting drained when distance is less than 512 HU.
-									// Drain only 20% cloak from distances less than 512 hammer units on feign
-									if (
-										ItemIsEnabled(Wep_DeadRinger) && 
-										GetItemVariant(Wep_DeadRinger) == 0 &&
-										damage1 == 0 && 
-										charge == 100 && 
-										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-										players[victim].spy_is_feigning == false &&
-										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-									) {
-										// Set charge to 99.99 so it only drains 20% cloak, since charge is always 100.0 when hit if distance is less than 512 HU.
-										// When charge is less than 100.0, Spy loses 20% cloak. If charge is exactly 100.0 and the reverted DR is active, Spy loses 70% cloak.
-										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
-										TF2_AddCondition(victim, TFCond_DeadRingered);
-											//PrintToChatAll("charge after hit (if): set to %f", charge);
-									}
-									// When distance is greater than 512 HU for vanilla/pre-inferno/pre-tough break Dead Ringer
-									// 70% cloak drain if hit by reverted Pomson
-									// At ranges near 1536 HU and beyond, drain cloak to 30% so it acts like 70% cloak drain on hit from any range
-									else if (
-										(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1 || GetItemVariant(Wep_DeadRinger) == 2) &&
-										damage1 >= 1 && 
-										charge < 100 && 
-										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-										players[victim].spy_is_feigning == false &&
-										!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-									) {
-										float charge_remap = 0.0;
-										charge_remap = ValveRemapVal(damage1, 1.0, 20.0, 50.0, 30.0);
-										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge_remap);
-											//PrintToChatAll("charge after hit (else if): set to %f", charge_remap);
-									}
-									// When distance is greater than 512 HU
-									else {
-										SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
-											//PrintToChatAll("charge after hit (else): %f", charge);
-									}
-
-									// Bug fix to trigger Dead Ringer feign death for all variants from distances greater than 512 hammer units
-									// damage1 value is always 1.0 and greater if hit distance is more than 512 hammer units, and 20 if greater than 1536 HU
-									if (
-										damage1 > 0 &&
-										GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-										players[victim].spy_is_feigning == false
-									) {
-										TF2_AddCondition(victim, TFCond_DeadRingered);
-									}								
-								}
-							}
+							// Damage type modification
 
 							// Historically accurate Pre-MyM Bison damage numbers against players ported from NotnHeavy's pre-GM plugin
 							// Using this code does not work with the Pomson for some reason. I do not know why.
 							if (
-								(StrEqual(class, "tf_weapon_raygun") && GetItemVariant(Wep_Bison) == 1)
+								StrEqual(class, "tf_weapon_raygun") &&
+								GetItemVariant(Wep_Bison) == 1
 							) {
-								damage_type ^= DMG_USEDISTANCEMOD; // Do not use internal rampup/falloff.
+								// Do not use internal rampup/falloff.
+								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
-								// Use piercing attribute instead which ignores damage resistances and does not ignore vulnerabilities just like untyped damage
-								// I am leaving this in just in case. If you want to test how "Untyped" damage type works, use the vanilla Flying Guillotine - the first hit and Bleed are "Untyped" damage types.
-								/*
-								// Ignore vaccinator resistance by changing damage types
-								if (damage_type & DMG_CRIT == 0)
-									damage_type = DMG_PREVENT_PHYSICS_FORCE; 
-								else if (damage_type & DMG_CRIT != 0)
-									damage_type = DMG_PREVENT_PHYSICS_FORCE + DMG_CRIT; // Add back crit damage if the shot is a crit
-								*/
-
 								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
-
-								return Plugin_Changed;
 							}
-						}
 
-						if(GetItemVariant(Wep_DeadRinger) == 0) {
-							// When Pomson revert is turned off and pre-gun mettle Dead Ringer revert is turned on, prevent 70% cloak drain on hit at any distance
-							if (
-								ItemIsEnabled(Wep_DeadRinger) && !ItemIsEnabled(Wep_Pomson) &&
-								StrEqual(class, "tf_weapon_drg_pomson") &&
-								TF2_GetPlayerClass(victim) == TFClass_Spy &&
-								GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-								players[victim].spy_is_feigning == false &&
-								!TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-							) {
-								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-								damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
-
-								if(damage1 <= 1) {
-									SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", 99.99);
-									TF2_AddCondition(victim, TFCond_DeadRingered);
-								}
-							}
+							// Remove bullet damage flags so it's untyped damage
+							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
+							if (damage_type & DMG_BUCKSHOT != 0) damage_type ^= DMG_BUCKSHOT;
+							return Plugin_Changed;
 						}
 
 						return Plugin_Continue;
@@ -4128,6 +3984,14 @@ void SDKHookCB_OnTakeDamagePost(
 	int victim, int attacker, int inflictor, float damage, int damage_type,
 	int weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
+	//int idx;
+	char class[64];
+	float pos1[3];
+	float pos2[3];
+	float charge;
+	float damage1;
+	int weapon1;
+
 	if (
 		(GetItemVariant(Wep_DeadRinger) == 0) &&
 		victim >= 1 &&
@@ -4152,6 +4016,69 @@ void SDKHookCB_OnTakeDamagePost(
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
+		}
+
+		if (inflictor > MaxClients) {
+			GetEntityClassname(inflictor, class, sizeof(class));
+
+			// pomson cloak/uber drain
+
+			if (StrEqual(class, "tf_projectile_energy_ring")) {
+				GetEntityClassname(weapon, class, sizeof(class));
+
+				if (
+					ItemIsEnabled(Wep_Pomson) &&
+					StrEqual(class, "tf_weapon_drg_pomson") &&
+					PlayerIsInvulnerable(victim) == false
+				) {
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+					damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+
+					if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
+						weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
+
+						if (weapon1 > 0) {
+							GetEntityClassname(weapon1, class, sizeof(class));
+
+							if (StrEqual(class, "tf_weapon_medigun")) {
+								if (
+									GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
+									GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
+								) {
+									damage1 = (10.0 * (1.0 - damage1));
+									damage1 = float(RoundToCeil(damage1));
+
+									charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
+
+									charge = (charge - (damage1 / 100.0));
+									charge = (charge < 0.0 ? 0.0 : charge);
+
+									if (charge > 0.1) {
+										// fix 0.89999999 values
+										charge = (charge += 0.001);
+									}
+
+									SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
+								}
+							}
+						}
+					}
+
+					if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
+						damage1 = (20.0 * (1.0 - damage1));
+						damage1 = float(RoundToCeil(damage1));
+						
+						charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+						
+						charge = (charge - damage1);
+						charge = (charge < 0.0 ? 0.0 : charge);
+						
+						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
+					}
+				}
+			}
 		}
 	}
 }
