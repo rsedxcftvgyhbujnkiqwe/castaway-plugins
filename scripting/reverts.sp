@@ -168,7 +168,7 @@ enum struct Player {
 	int scout_airdash_count;
 	float backstab_time;
 	int old_health;
-	int ticks_since_feign_ready;
+	int feign_ready_tick;
 	float damage_taken_during_feign;
 	bool is_under_hype;
 	bool crit_flag;
@@ -176,6 +176,7 @@ enum struct Player {
 	int fall_dmg_tick;
 	int ticks_since_switch;
 	bool player_jumped;
+	int pomson_hit_tick;
 }
 
 enum struct Entity {
@@ -1253,6 +1254,7 @@ public void OnGameFrame() {
 						if (players[idx].spy_is_feigning == false) {
 							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
 								players[idx].spy_is_feigning = true;
+								players[idx].damage_taken_during_feign = 0.0;
 							}
 						} else {
 							if (
@@ -1573,7 +1575,7 @@ public void OnEntityDestroyed(int entity) {
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
-	float cloak;
+	//float cloak;
 
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
@@ -1612,14 +1614,21 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			if (condition == TFCond_DeadRingered) {
-				cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
+				//cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
 
 				if (
-					cloak > 49.0 &&
-					cloak < 51.0
+					abs(GetGameTickCount() - players[client].feign_ready_tick) <= 2 &&
+					players[client].feign_ready_tick > 0
 				) {
 					// undo 50% drain on activated
-					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
+					float meter = 100.0;
+					if (
+						abs(GetGameTickCount() - players[client].pomson_hit_tick) <= 2 &&
+						players[client].pomson_hit_tick > 0
+					) {
+						meter = 80.0;
+					}
+					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", meter);
 				}
 			}
 
@@ -1730,7 +1739,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			(GetItemVariant(Wep_DeadRinger) == 0) &&
 			condition == TFCond_SpeedBuffAlly &&
 			TF2_GetPlayerClass(client) == TFClass_Spy &&
-			players[client].ticks_since_feign_ready == GetGameTickCount()
+			players[client].feign_ready_tick == GetGameTickCount()
 		) {
 			return Plugin_Handled;
 		}
@@ -3303,14 +3312,14 @@ Action SDKHookCB_OnTakeDamage(
 
 				// pre-gun mettle dead ringer track when feign begins
 				if (
-					ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 0
+					ItemIsEnabled(Wep_DeadRinger) &&
+					GetItemVariant(Wep_DeadRinger) == 0
 				) {
 					if (
 						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
 						players[victim].spy_is_feigning == false
 					) {
-						players[victim].ticks_since_feign_ready = GetGameTickCount();
-						players[victim].damage_taken_during_feign  = 0.0;
+						players[victim].feign_ready_tick = GetGameTickCount();
 					}
 				}
 			}
@@ -3753,6 +3762,10 @@ Action SDKHookCB_OnTakeDamage(
 					if (StrEqual(class, "tf_projectile_energy_ring")) {
 						GetEntityClassname(weapon, class, sizeof(class));
 
+						if (StrEqual(class, "tf_weapon_drg_pomson")) {
+							players[victim].pomson_hit_tick = GetGameTickCount();
+						}
+
 						if (
 							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
@@ -3999,7 +4012,7 @@ void SDKHookCB_OnTakeDamagePost(
 		TF2_GetPlayerClass(victim) == TFClass_Spy
 	) {
 		// pre-gun mettle dead ringer damage tracking
-		if (TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)) {
+		if (players[victim].spy_is_feigning) {
 			players[victim].damage_taken_during_feign += damage;
 		}
 	}
@@ -4240,7 +4253,7 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 int GetFeignBuffsEnd(int client)
 {
-	return players[client].ticks_since_feign_ready + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
+	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
 }
 
 bool PlayerIsInvulnerable(int client) {
