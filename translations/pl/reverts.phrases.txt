@@ -1,3 +1,6 @@
+// Polish translation done by:
+// Employedcamel	https://steamcommunity.com/id/djhazel/
+
 "Phrases"
 {
 	// class names

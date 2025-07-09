@@ -1,3 +1,6 @@
+// Simplified Chinese translation done by:
+// Eric Zhang	https://steamcommunity.com/id/ericzhang456/
+
 "Phrases"
 {
 	// class names

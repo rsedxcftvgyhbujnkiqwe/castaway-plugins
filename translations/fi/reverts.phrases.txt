@@ -1,3 +1,6 @@
+// Finnish translation done by:
+// huutti	https://steamcommunity.com/id/reactos/
+
 "Phrases"
 {
 	// class names

@@ -1,3 +1,6 @@
+// French translation done by:
+// Brolunite	https://steamcommunity.com/id/brolunite/
+
 "Phrases"
 {
 	// class names
