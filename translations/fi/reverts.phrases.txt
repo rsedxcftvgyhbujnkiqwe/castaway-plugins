@@ -710,15 +710,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
+		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_Release"
 	{
-		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee pelaajat, voi osua monta kertaa, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
+		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee kohteet, voi osua monta kertaa, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin Metsämiehen nuolet"
+		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -770,7 +770,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua samaa pelaajaa monta kertaa, sytyttää tiimin Metsämiehen nuolet"
+		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+	}
+	"Bison_PreMYM_Historical"
+	{
+		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}
 	"RocketJmp_Pre2013"
 	{

@@ -85,7 +85,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"en"	"Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu."
+		"en"	"Disabled loadout change revert info. Enable them again by typing !toggleinfo or opening the reverts menu."
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -813,11 +813,11 @@
 	}
 	"Shortstop_PreGM_Shove"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo, no shove"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo, no shove"
 	}
 	"Sodapop_Pre2013"
 	{
