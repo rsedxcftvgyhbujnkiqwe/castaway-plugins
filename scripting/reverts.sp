@@ -176,7 +176,6 @@ enum struct Player {
 	int fall_dmg_tick;
 	int ticks_since_switch;
 	bool player_jumped;
-	int pomson_hit_tick;
 }
 
 enum struct Entity {
@@ -1575,7 +1574,7 @@ public void OnEntityDestroyed(int entity) {
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
-	//float cloak;
+	float cloak;
 
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
@@ -1614,21 +1613,15 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			if (condition == TFCond_DeadRingered) {
-				//cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
+				cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
 
 				if (
 					abs(GetGameTickCount() - players[client].feign_ready_tick) <= 2 &&
 					players[client].feign_ready_tick > 0
 				) {
 					// undo 50% drain on activated
-					float meter = 100.0;
-					if (
-						abs(GetGameTickCount() - players[client].pomson_hit_tick) <= 2 &&
-						players[client].pomson_hit_tick > 0
-					) {
-						meter = 80.0;
-					}
-					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", meter);
+					// add 50% meter to compensate for pomson drain
+					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak + 50.0);
 				}
 			}
 
@@ -3761,10 +3754,6 @@ Action SDKHookCB_OnTakeDamage(
 
 					if (StrEqual(class, "tf_projectile_energy_ring")) {
 						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (StrEqual(class, "tf_weapon_drg_pomson")) {
-							players[victim].pomson_hit_tick = GetGameTickCount();
-						}
 
 						if (
 							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
