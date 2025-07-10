@@ -176,6 +176,8 @@ enum struct Player {
 	int fall_dmg_tick;
 	int ticks_since_switch;
 	bool player_jumped;
+	int drain_victim;
+	float drain_time;
 }
 
 enum struct Entity {
@@ -1414,6 +1416,8 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
 				players[idx].player_jumped = false;
+				players[idx].drain_victim = 0;
+				players[idx].drain_time = 0.0;
 			}
 		}
 	}
@@ -3814,6 +3818,7 @@ Action SDKHookCB_OnTakeDamage(
 							// Remove bullet damage flags so it's untyped damage
 							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
 							if (damage_type & DMG_BUCKSHOT != 0) damage_type ^= DMG_BUCKSHOT;
+
 							return Plugin_Changed;
 						}
 
@@ -4031,7 +4036,9 @@ void SDKHookCB_OnTakeDamagePost(
 				if (
 					ItemIsEnabled(Wep_Pomson) &&
 					StrEqual(class, "tf_weapon_drg_pomson") &&
-					PlayerIsInvulnerable(victim) == false
+					PlayerIsInvulnerable(victim) == false &&
+					(players[attacker].drain_victim != victim ||
+					GetGameTime() - players[attacker].drain_time > 0.3)
 				) {
 					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
@@ -4079,6 +4086,9 @@ void SDKHookCB_OnTakeDamagePost(
 						
 						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 					}
+
+					players[attacker].drain_victim = victim;
+					players[attacker].drain_time = GetGameTime();
 				}
 			}
 		}
