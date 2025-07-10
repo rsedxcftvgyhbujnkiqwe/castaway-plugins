@@ -709,7 +709,7 @@
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, penetrates targets, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_PreGM_Historical"
 	{
