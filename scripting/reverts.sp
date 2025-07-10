@@ -1624,7 +1624,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 					players[client].feign_ready_tick > 0
 				) {
 					// undo 50% drain on activated
-					// add 50% meter to compensate for pomson drain
 					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak + 50.0);
 				}
 			}
