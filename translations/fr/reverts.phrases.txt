@@ -88,7 +88,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"fr"	"Infos de réversion au changement d'équipement désactivées. Réactivez-les en tapant !revertsinfo ou en ouvrant le menu !reverts"
+		"fr"	"Infos de réversion au changement d'équipement désactivées. Réactivez-les avec !toggleinfo ou avec le menu !reverts"
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -104,7 +104,7 @@
 	}
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
-		"fr"	"Basculer l’affichage des infos de réversion au changement d’équipement"
+		"fr"	"Basculer les infos de réversion au changement d'équipement"
 	}
 
 	// item names
@@ -708,15 +708,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"fr"	"Taille de hitbox augmentée (pareil que le Bison), passe à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+		"fr"	"Taille de hitbox augmentée, passe à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, dégâts non-typés"
 	}
 	"Pomson_Release"
 	{
-		"fr"	"Réversion à la version d'origine, même dégâts que le Bison, plus grande hitbox, passe à travers les joueurs, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+		"fr"	"Réversion à la version d'origine, même dégâts que le Bison, plus grande hitbox, passe à travers les joueurs, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, dégâts non-typés"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, taille de hitbox augmentée (pareil que le Bison), ne passe pas à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+		"fr"	"Réversion à pré-Gun Mettle, taille de hitbox augmentée, ne passe pas à travers les coéquipiers, pas de perte de drain d'Über & d'invisibilité à distance, enflamme les flèches de Huntsman alliés, dégâts non-typés"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -768,11 +768,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"fr"	"Réversion à pré-Matchmaking, taille de hitbox augmentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts"
+		"fr"	"Réversion à pré-Matchmaking, taille de hitbox augmentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés"
 	}
 	"Bison_PreMYM_Historical"
 	{
-		"en"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, ignore les résistances de dégâts, ancienne diminution des dégâts par distance"
+		"en"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés, ancienne diminution des dégâts par distance"
 	}
 	"RocketJmp_Pre2013"
 	{
