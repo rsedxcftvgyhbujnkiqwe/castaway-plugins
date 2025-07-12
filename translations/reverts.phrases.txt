@@ -85,7 +85,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"en"	"Disabled loadout change revert info. Enable them again by typing !revertsinfo or opening the reverts menu."
+		"en"	"Disabled loadout change revert info. Enable them again by typing !toggleinfo or opening the reverts menu."
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -268,7 +268,7 @@
 	"jag"
 	{
 		"en"	"Jag"
-	}	
+	}
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -633,7 +633,7 @@
 	}
 	"FistSteel_Release"
 	{
-		"en"	"Reverted to release, no healing or switching penalties -60%% ranged damage while active (from -40%%)"
+		"en"	"Reverted to release, no healing or switching penalties, -60%% ranged damage while active (from -40%%)"
 	}
 	"Guillotine_PreJI"
 	{
@@ -705,15 +705,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size (same as Bison), passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
+		"en"	"Increased hitbox size, passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, passes thru players, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
+		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, penetrates targets, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size (same as Bison), does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, ignores dmg resists"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size, does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -765,11 +765,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, ignores dmg resists"
+		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Bison_PreMYM_Historical"
 	{
-		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, ignores dmg resists, old dmg falloff"
+		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg falloff"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -813,11 +813,11 @@
 	}
 	"Shortstop_PreGM_Shove"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, 40%% knockback vuln at all times, shares pistol ammo, no shove"
+		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo, no shove"
 	}
 	"Sodapop_Pre2013"
 	{

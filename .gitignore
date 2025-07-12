@@ -50,6 +50,9 @@ translations/fi/*
 !translations/pl/
 translations/pl/*
 !translations/pl/reverts.phrases.txt
+!translations/fr/
+translations/fr/*
+!translations/fr/reverts.phrases.txt
 
 !cfg/
 !cfg/*
@@ -61,3 +64,4 @@ translations/pl/*
 !.github/workflows/build.yml
 
 !reverts-git-commit.sh
+!check-translations.py
