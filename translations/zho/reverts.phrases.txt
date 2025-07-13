@@ -139,58 +139,58 @@
 	"atomizer"
 	{
 		// https://wiki.teamfortress.com/wiki/Atomizer/zh-hant
-		"zho"	"原子能球棒"
+		"zho"	"原子棒"
 	}
 	"axtinguish"
 	{
 		// https://wiki.teamfortress.com/wiki/Axtinguisher/zh-hant
-		"zho"	"火焰战斧"
+		"zho"	"火斧"
 	}
 	"backburner"
 	{
 		// https://wiki.teamfortress.com/wiki/Backburner/zh-hant
-		"zho"	"偷袭烈焰喷射器"
+		"zho"	"背後火焰發射器"
 	}
 	"basejump"
 	{
 		// https://wiki.teamfortress.com/wiki/B.A.S.E._Jumper/zh-hant
-		"zho"	"极限降落伞"
+		"zho"	"低空跳傘員"
 	}
 	"babyface"
 	{
 		// https://wiki.teamfortress.com/wiki/Baby_Face%27s_Blaster/zh-hant
-		"zho"	"娃娃脸的冲击波"
+		"zho"	"型男霰彈槍"
 	}
 	"beggars"
 	{
 		// https://wiki.teamfortress.com/wiki/Beggar%27s_Bazooka/zh-hant
-		"zho"	"乞丐的火箭筒"
+		"zho"	"街友火箭砲"
 	}
 	"blackbox"
 	{
-		// https://wiki.teamfortress.com/wiki/Black_box/zh-hant
-		"zho"	"黑匣子"
+		// https://wiki.teamfortress.com/wiki/Black_Box/zh-hant
+		"zho"	"黑盒子"
 	}
 	"bonk"
 	{
 		// https://wiki.teamfortress.com/wiki/Bonk!_Atomic_Punch/zh-hant
-		"zho"	"原子能饮料"
+		"zho"	"Bonk! 原子能量飲料"
 	}
 	"booties"
 	{
 		// https://wiki.teamfortress.com/wiki/Ali_Baba%27s_Wee_Booties/zh-hant
 		// https://wiki.teamfortress.com/wiki/Bootlegger/zh-hant
-		"zho"	"阿里巴巴的尖头靴和海盗头子的假腿"
+		"zho"	"阿里巴巴尖頭靴和私藏海盜靴"
 	}
 	"brassbeast"
 	{
 		// https://wiki.teamfortress.com/wiki/Brass_Beast/zh-hant
-		"zho"	"黄铜猛兽"
+		"zho"	"黃銅野獸"
 	}
 	"bushwacka"
 	{
 		// https://wiki.teamfortress.com/wiki/Bushwacka/zh-hant
-		"zho"	"灌木丛"
+		"zho"	"布伊刀"
 	}
 	"buffalosteak"
 	{
@@ -200,213 +200,213 @@
 	"targe"
 	{
 		// https://wiki.teamfortress.com/wiki/Chargin%27_Targe/zh-hant
-		"zho"	"冲锋盾"
+		"zho"	"衝擊刺盾"
 	}
 	"claidheamh"
 	{
 		// https://wiki.teamfortress.com/wiki/Claidheamh_M%C3%B2r/zh-hant
-		"zho"	"摩尔巨剑"
+		"zho"	"蓋爾巨劍"
 	}
 	"carbine"
 	{
 		// https://wiki.teamfortress.com/wiki/Cleaner%27s_Carbine/zh-hant
-		"zho"	"扫荡者卡宾"
+		"zho"	"湮滅者卡賓槍"
 	}
 	"cozycamper"
 	{
 		// https://wiki.teamfortress.com/wiki/Cozy_Camper/zh-hant
-		"zho"	"惬意蹲坑汉"
+		"zho"	"舒適的露營家"
 	}
 	"critcola"
 	{
 		// https://wiki.teamfortress.com/wiki/Crit-a-Cola/zh-hant
-		"zho"	"爆击可乐"
+		"zho"	"爆擊可樂"
 	}
 	"crocostyle"
 	{
 		// https://wiki.teamfortress.com/wiki/Croc-o-Style_Kit/zh-hant
-		"zho"	"鳄鱼猎手"
+		"zho"	"鱷魚風格套裝"
 	}
 	"dalokohsbar"
 	{
 		// https://wiki.teamfortress.com/wiki/Dalokohs_Bar/zh-hant
-		"zho"	"达勒克斯巧克力块"
+		"zho"	"美味巧克力"
 	}
 	"darwin"
 	{
 		// https://wiki.teamfortress.com/wiki/Darwin%27s_Danger_Shield/zh-hant
-		"zho"	"达尔文的危险之盾"
+		"zho"	"達爾文鱷魚盾"
 	}
 	"ringer"
 	{
 		// https://wiki.teamfortress.com/wiki/Dead_Ringer/zh-hant
-		"zho"	"死亡之铃"
+		"zho"	"死亡送終者"
 	}
 	"degreaser"
 	{
 		// https://wiki.teamfortress.com/wiki/Degreaser/zh-hant
-		"zho"	"脱油剂"
+		"zho"	"除油者"
 	}
 	"disciplinary"
 	{
 		// https://wiki.teamfortress.com/wiki/Disciplinary_Action/zh-hant
-		"zho"	"指挥官的军鞭"
+		"zho"	"紀律行動"
 	}
 	"dragonfury"
 	{
 		// https://wiki.teamfortress.com/wiki/Dragon%27s_Fury/zh-hant
-		"zho"	"龙之怒焰"
+		"zho"	"龍之怒"
 	}
 	"enforcer"
 	{
 		// https://wiki.teamfortress.com/wiki/Enforcer/zh-hant
-		"zho"	"执法者"
+		"zho"	"脅威使"
 	}
 	"equalizer"
 	{
 		// https://wiki.teamfortress.com/wiki/Equalizer/zh-hant
 		// https://wiki.teamfortress.com/wiki/Escape_Plan/zh-hant
-		"zho"	"十字镐和逃生计划镐"
+		"zho"	"傷害均衡十字鎬和速度均衡十字鎬"
 	}
 	"eviction"
 	{
 		// https://wiki.teamfortress.com/wiki/Eviction_Notice/zh-hant
-		"zho"	"驱逐警告"
+		"zho"	"驅逐警告"
 	}
 	"expert"
 	{
 		// https://wiki.teamfortress.com/wiki/Expert's_Ordnance/zh-hant
-		"zho"	"爆破专家"
+		"zho"	"專家的火炮軍械"
 	}
 	"fiststeel"
 	{
 		// https://wiki.teamfortress.com/wiki/Fists_of_Steel/zh-hant
-		"zho"	"钢铁手套"
+		"zho"	"鐵拳"
 	}
 	"guillotine"
 	{
 		// https://wiki.teamfortress.com/wiki/Flying_Guillotine/zh-hant
-		"zho"	"混混的菜刀"
+		"zho"	"斷頭血刃"
 	}
 	"gasjockey"
 	{
 		// https://wiki.teamfortress.com/wiki/Gas_Jockey's_Gear/zh-hant
-		"zho"	"瓦斯操控者"
+		"zho"	"加油站員工裝備"
 	}
 	"glovesru"
 	{
 		// https://wiki.teamfortress.com/wiki/Gloves_of_Running_Urgently/zh-hant
-		"zho"	"紧急逃跑手套"
+		"zho"	"狂奔手套"
 	}
 	"gunboats"
 	{
 		// https://wiki.teamfortress.com/wiki/Gunboats/zh-hant
-		"zho"	"炮艇"
+		"zho"	"鐵砲護靴"
 	}
 	"zatoichi"
 	{
 		// https://wiki.teamfortress.com/wiki/Half-Zatoichi/zh-hant
-		"zho"	"座头市之刀"
+		"zho"	"半盲劍俠"
 	}
 	"hibernate"
 	{
 		// https://wiki.teamfortress.com/wiki/Hibernating_Bear/zh-hant
-		"zho"	"冬眠的熊"
+		"zho"	"冬眠蟄伏之熊"
 	}
 	"jag"
 	{
 		// http://wiki.teamfortress.com/wiki/Jag/zh-hant
-		"zho"	"尖齿扳手"
+		"zho"	"鉤爪扳手"
 	}
 	"liberty"
 	{
 		// https://wiki.teamfortress.com/wiki/Liberty_Launcher/zh-hant
-		"zho"	"自由推进炮"
+		"zho"	"自由推進者"
 	}
 	"lochload"
 	{
 		// https://wiki.teamfortress.com/wiki/Loch-n-Load/zh-hant
-		"zho"	"双管榴弹发射器"
+		"zho"	"直擊榴彈"
 	}
 	"cannon"
 	{
 		// https://wiki.teamfortress.com/wiki/Loose_Cannon/zh-hant
-		"zho"	"脱缰巨炮"
+		"zho"	"脫韁火炮"
 	}
 	"gardener"
 	{
 		// https://wiki.teamfortress.com/wiki/Market_Gardener/zh-hant
-		"zho"	"市场花园铁锹"
+		"zho"	"市場花園園丁"
 	}
 	"natascha"
 	{
 		// https://wiki.teamfortress.com/wiki/Natascha/zh-hant
-		"zho"	"娜塔莎转轮机枪"
+		"zho"	"娜塔莎"
 	}
 	"panic"
 	{
 		// https://wiki.teamfortress.com/wiki/Panic_Attack/zh-hant
-		"zho"	"恐慌打击"
+		"zho"	"背水散彈槍"
 	}
 	"persuader"
 	{
 		// https://wiki.teamfortress.com/wiki/Persian_Persuader/zh-hant
-		"zho"	"波斯弯刀"
+		"zho"	"波斯使者"
 	}
 	"pomson"
 	{
 		// https://wiki.teamfortress.com/wiki/Pomson_6000/zh-hant
-		"zho"	"歼灭者 6000"
+		"zho"	"潘森6000"
 	}
 	"powerjack"
 	{
 		// https://wiki.teamfortress.com/wiki/Powerjack/zh-hant
-		"zho"	"强力千斤顶"
+		"zho"	"強力千斤頂"
 	}
 	"pocket"
 	{
 		// https://wiki.teamfortress.com/wiki/Pretty_Boy%27s_Pocket_Pistol/zh-hant
-		"zho"	"帅气男孩的袖珍手枪"
+		"zho"	"俊男掌心雷"
 	}
 	"quickfix"
 	{
-		// https://wiki.teamfortress.com/wiki/Quick-fix/zh-hant
-		"zho"	"快速医疗枪"
+		// https://wiki.teamfortress.com/wiki/Quick-Fix/zh-hant
+		"zho"	"快速治療者"
 	}
 	"quickiebomb"
 	{
 		// https://wiki.teamfortress.com/wiki/Quickiebomb_Launcher/zh-hant
-		"zho"	"快速黏弹发射器"
+		"zho"	"速成黏彈發射器"
 	}
 	"razorback"
 	{
 		// https://wiki.teamfortress.com/wiki/Razorback/zh-hant
-		"zho"	"电击背脊盾"
+		"zho"	"劍脊野豬盾"
 	}
 	"rescueranger"
 	{
 		// https://wiki.teamfortress.com/wiki/Rescue_Ranger/zh-hant
-		"zho"	"火线救兵"
+		"zho"	"遊騎兵援隊"
 	}
 	"reserve"
 	{
 		// https://wiki.teamfortress.com/wiki/Reserve_Shooter/zh-hant
-		"zho"	"预备役射手"
+		"zho"	"後勤防空員"
 	}
 	"bison"
 	{
 		// https://wiki.teamfortress.com/wiki/Righteous_Bison/zh-hant
-		"zho"	"正义野牛"
+		"zho"	"正義狂牛"
 	}
 	"rocketjmp"
 	{
 		// https://wiki.teamfortress.com/wiki/Rocket_Jumper/zh-hant
-		"zho"	"火箭伞兵"
+		"zho"	"火箭跳躍者"
 	}
 	"saharan"
 	{
 		// https://wiki.teamfortress.com/wiki/Saharan_Spy/zh-hant
-		"zho"	"撒哈拉间谍"
+		"zho"	"撒哈拉間諜"
 	}
 	"sandman"
 	{
@@ -416,92 +416,92 @@
 	"scottish"
 	{
 		// https://wiki.teamfortress.com/wiki/Scottish_Resistance/zh-hant
-		"zho"	"苏格兰防御者"
+		"zho"	"蘇格蘭式防禦黏彈"
 	}
 	"circuit"
 	{
 		// https://wiki.teamfortress.com/wiki/Short_Circuit/zh-hant
-		"zho"	"短路发生器"
+		"zho"	"脈衝電場放射儀"
 	}
 	"shortstop"
 	{
 		// https://wiki.teamfortress.com/wiki/Shortstop/zh-hant
-		"zho"	"游击手"
+		"zho"	"游擊手"
 	}
 	"sodapop"
 	{
 		// https://wiki.teamfortress.com/wiki/Soda_Popper/zh-hant
-		"zho"	"苏打炮手"
+		"zho"	"汽水槍手"
 	}
 	"solemn"
 	{
 		// https://wiki.teamfortress.com/wiki/Solemn_Vow/zh-hant
-		"zho"	"希波克拉底的塑像"
+		"zho"	"神聖誓言"
 	}
 	"spdelivery"
 	{
 		// https://wiki.teamfortress.com/wiki/Special_Delivery_(item_set)/zh-hant
-		"zho"	"特快专递邮递员（套装）"
+		"zho"	"特殊送貨員"
 	}
 	"splendid"
 	{
 		// https://wiki.teamfortress.com/wiki/Splendid_Screen/zh-hant
-		"zho"	"辉煌护盾"
+		"zho"	"輝煌戰盾"
 	}
 	"spycicle"
 	{
 		// https://wiki.teamfortress.com/wiki/Spy-cicle/zh-hant
-		"zho"	"神奇的冰柱"
+		"zho"	"寒冽冰錐"
 	}
 	"stkjumper"
 	{
 		// https://wiki.teamfortress.com/wiki/Sticky_Jumper/zh-hant
-		"zho"	"黏弹跳跃者"
+		"zho"	"黏彈跳躍者"
 	}
 	"sleeper"
 	{
 		// https://wiki.teamfortress.com/wiki/Sydney_Sleeper/zh-hant
-		"zho"	"悉尼沉睡者"
+		"zho"	"雪梨沉睡者"
 	}
 	"turner"
 	{
 		// https://wiki.teamfortress.com/wiki/Tide_Turner/zh-hant
-		"zho"	"力挽狂澜"
+		"zho"	"潮汐戰舵"
 	}
 	"tomislav"
 	{
 		// https://wiki.teamfortress.com/wiki/Tomislav/zh-hant
-		"zho"	"汤姆斯拉夫"
+		"zho"	"托米斯拉夫"
 	}
 	"tribalshiv"
 	{
 		// https://wiki.teamfortress.com/wiki/Tribalman%27s_Shiv/zh-hant
-		"zho"	"部落者刮刀"
+		"zho"	"部落戰刀"
 	}
 	"caber"
 	{
 		// https://wiki.teamfortress.com/wiki/Ullapool_Caber/zh-hant
-		"zho"	"木柄手榴弹"
+		"zho"	"阿勒浦木製手榴彈"
 	}
 	"vitasaw"
 	{
 		// https://wiki.teamfortress.com/wiki/Vita-Saw/zh-hant
-		"zho"	"维塔锯"
+		"zho"	"還魂鋸"
 	}
 	"warrior"
 	{
 		// https://wiki.teamfortress.com/wiki/Warrior%27s_Spirit/zh-hant
-		"zho"	"勇士之魂"
+		"zho"	"戰士之魂"
 	}
 	"wrangler"
 	{
 		// https://wiki.teamfortress.com/wiki/Wrangler/zh-hant
-		"zho"	"遥控手柄"
+		"zho"	"牧馬者遙控器"
 	}
 	"eternal"
 	{
 		// https://wiki.teamfortress.com/wiki/Your_Eternal_Reward/zh-hant
-		"zho"	"永生的回报"
+		"zho"	"您的永恆獎賞"
 	}
 
 	// item descriptions
