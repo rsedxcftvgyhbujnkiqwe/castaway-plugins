@@ -159,64 +159,21 @@
 				//  Dragons Fury bonus requires center of fireball hitbox
 				//  to hit enemy, removal
 
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JA"
+				"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement"
 				{
 					"signature" "CTFProjectile_BallOfFire::Burn"
 					"linux"
 					{
 						"offset"    "2357"
-						"verify"    "\x77\x2A" // Verify that it is a Short JMP JA, wildcard the offset.
-						"patch"     "\x77\x22" // Short jump to the nearest LEAVE
+						"verify"    "\x77\x2A\x80\xBD\x5E\xFF\xFF\xFF\x00" // JA rel8 (wildcarded offset); CMP BYTE PTR [EBP - 0xA2], 0
+						"patch"     "\xE9\x24\x0A\x00\x00\x90\x90\x90\x90" // JMP +0xA24 (2596 bytes forward); 4× NOP
+
 					}
-				}
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ"
-				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
-					"linux"
-					{
-						"offset"    "2366"
-						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"     "\x75\x19" // Short jump to the nearest LEAVE
-					}
-				}
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JZ"
-				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
-					"linux"
-					{
-						"offset"    "2375"
-						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
-						"patch"     "\x74\x10" // Short jump to the nearest LEAVE
-					}
-				}
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_NOP_JZ"
-				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
 					"windows"
 					{
 						"offset"    "1676"
-						"verify"    "\x74\x2A" // Verify that it is a Short JMP JZ, wildcard the offset.
-						"patch"     "\x90\x90" // Yes really, for windows all we need to do is to nop 2 bytes and we are done. Just Lmfao.
-					}
-				}
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_JNZ_Second"
-				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
-					"linux"
-					{
-						"offset"    "2389"
-						"verify"    "\x75\x2A" // Verify that it is a Short JMP JNZ, wildcard the offset.
-						"patch"     "\x75\x02" // Short jump to the nearest LEAVE
-					}
-				}
-				"CTFProjectile_BallOfFire::Burn_CenterTraceReqForBonus_FinalJNZ"
-				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
-					"linux"
-					{
-						"offset"    "2393"
-						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // Verify that JNE (Jmp if not equal) instruction is there. Opcode is 2 bytes.
-						"patch"     "\xE9\x00\x0A\x00\x00\x90" // Near Jump instruction + a nop as we don't need the last byte as opcode for unconditional near jmp is only 1 byte.
+						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
+						"patch"     "\x90\x90" // 2x NOP
 					}
 				}
 

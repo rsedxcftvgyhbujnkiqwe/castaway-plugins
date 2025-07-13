@@ -203,7 +203,7 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 
 	if (g_bVoted[client])
 	{
-		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVoters, g_iVotesNeeded);
+		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
 	}
 
 	if (!StrEqual(errorMsg, ""))
