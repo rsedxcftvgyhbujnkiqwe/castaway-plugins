@@ -88,7 +88,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"jp"	"ロードアウト変更時の復原武器情報表示を無効化。!revertsinfoと入力するか、復元武器メニューを開いて情報を再度表示する。."
+		"jp"	"ロードアウト変更時の復原武器情報表示を無効化。!toggleinfoと入力するか、復元武器メニューを開いて情報を再度表示する。."
 	}
 	"REVERT_MENU_TITLE"
 	{
