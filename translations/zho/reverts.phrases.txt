@@ -48,67 +48,67 @@
 	// ui
 	"REVERT_LOADOUT_CHANGE_INIT"
 	{
-		"zho"	"目前配置开启的武器回调:"
+		"zho"	"目前配置開啓的武器回調:"
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
 	{
-		"zho"	"用 !revert 菜单或 !toggleinfo 关闭这些信息"
+		"zho"	"用 !revert 菜單或 !toggleinfo 關閉這些信息"
 	}
 	"REVERT_REVERTS_DISABLED"
 	{
-		"zho"	"武器回调已关闭"
+		"zho"	"武器回調已關閉"
 	}
 	"REVERT_PRINT_TO_CONSOLE_HINT"
 	{
-		"zho"	"武器回调信息已打印到控制台"
+		"zho"	"武器回調信息已打印到控制檯"
 	}
 	"REVERT_ENABLED_REVERTS_HINT"
 	{
-		"zho"	"这个服务器上开启的武器回调:"
+		"zho"	"這個服務器上開啓的武器回調:"
 	}
 	"REVERT_EMPTY_REVERTS"
 	{
-		"zho"	"没有开启武器回调的武器"
+		"zho"	"沒有開啓武器回調的武器"
 	}
 	"REVERT_INVALID_TEAM"
 	{
-		"zho"	"你必须加入一个团队才能使用这个命令"
+		"zho"	"你必須加入一個團隊才能使用這個命令"
 	}
 	"REVERT_INVALID_CLASS"
 	{
-		"zho"	"你必须选择一个兵种才能使用这个命令"
+		"zho"	"你必須選擇一個兵種才能使用這個命令"
 	}
 	"REVERT_ENABLED_CLASS_REVERTS_HINT"
 	{
-		"zho"	"为%t开启的武器回调:"
+		"zho"	"爲%t開啓的武器回調:"
 	}
 	"REVERT_EMPTY_CLASS_REVERTS"
 	{
-		"zho"	"没有为%t开启的武器回调"
+		"zho"	"沒有爲%t開啓的武器回調"
 	}
 	"REVERT_LOADOUT_CHANGE_ENABLED"
 	{
-		"zho"	"已打开配置更改时武器回调的显示，下一次配置更改时会显示目前配置所开启的武器回调"
+		"zho"	"已打開配置更改時武器回調的顯示，下一次配置更改時會顯示目前配置所開啓的武器回調"
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"zho"	"已关闭配置更改时武器回调的显示，用 !revertsinfo 或 !reverts 菜单开启"
+		"zho"	"已關閉配置更改時武器回調的顯示，用 !revertsinfo 或 !reverts 菜單開啓"
 	}
 	"REVERT_MENU_TITLE"
 	{
-		"zho"	"武器回调"
+		"zho"	"武器回調"
 	}
 	"REVERT_MENU_SHOW_CLASSINFO"
 	{
-		"zho"	"显示目前兵种的武器回调"
+		"zho"	"顯示目前兵種的武器回調"
 	}
 	"REVERT_MENU_SHOW_ALL"
 	{
-		"zho"	"显示服务器上所有开启的武器回调"
+		"zho"	"顯示服務器上所有開啓的武器回調"
 	}
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
-		"zho"	"打开/关闭配置更改时武器回调显示"
+		"zho"	"打開/關閉配置更改時武器回調顯示"
 	}
 
 	// item names
