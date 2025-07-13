@@ -1,48 +1,48 @@
 // Traditional Chinese transliterated by: MindfulProtons
 // NOTE: There may be errors. I only used a tool to convert Simplified Chinese to Traditional Chinese characters.
-// If there are anyone here who knows Traditional Chinese, please contact us.
+// Tool used was online OpenCC (https://opencc.byvoid.com/). Github: https://github.com/BYVoid/OpenCC
+// If there are anyone here who knows Traditional Chinese and wants to volunteer, please contact us.
 // Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
 
 "Phrases"
 {
 	// class names
-	// tf/resource/tf_tchinese.txt:27-35
-	// There is no proper Traditional Chinese Translation from that file for the classes!!! I'm just copying them as-is!
+	// reference used: https://wiki.teamfortress.com/wiki/Classes/zh-hant
 	"SCOUT"
 	{
-		"zho"	"SCOUT"
+		"zho"	"偵察兵"
 	}
 	"SNIPER"
 	{
-		"zho"	"SNIPER"
+		"zho"	"狙擊手"
 	}
 	"SOLDIER"
 	{
-		"zho"	"SOLDIER"
+		"zho"	"火箭兵"
 	}
 	"DEMOMAN"
 	{
-		"zho"	"DEMOMAN"
+		"zho"	"爆破兵"
 	}
 	"MEDIC"
 	{
-		"zho"	"MEDIC"
+		"zho"	"醫護兵"
 	}
 	"HEAVY"
 	{
-		"zho"	"HEAVY"
+		"zho"	"重裝兵"
 	}
 	"PYRO"
 	{
-		"zho"	"PYRO"
+		"zho"	"火焰兵"
 	}
 	"SPY"
 	{
-		"zho"	"SPY"
+		"zho"	"間諜"
 	}
 	"ENGINEER"
 	{
-		"zho"	"ENGINEER"
+		"zho"	"工程師"
 	}
 
 	// ui
