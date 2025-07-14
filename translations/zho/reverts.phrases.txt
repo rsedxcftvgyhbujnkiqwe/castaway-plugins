@@ -3,6 +3,8 @@
 // Tool used was online OpenCC (https://opencc.byvoid.com/). Github: https://github.com/BYVoid/OpenCC
 // If there are anyone here who knows Traditional Chinese and wants to volunteer, please contact us.
 // Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
+// Refinemnt & Grammar correction made by Villy	@VillyVilly on YouTube/Steam
+// NOTE from Villy: I refer the plugin as "武器返璞" instead of "武器回調", and I log my progress of checking by adding the original En. ver.
 
 "Phrases"
 {
@@ -47,40 +49,49 @@
 
 	// ui
 	"REVERT_LOADOUT_CHANGE_INIT"
+	// "Weapon reverts enabled for your loadout:"
 	{
-		"zho"	"目前配置開啓的武器回調:"
+		"zho"	"武器返璞現已套用於你的裝備:"
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	// "Disable these messages in the !revert menu or with !toggleinfo"
 	{
-		"zho"	"用 !revert 菜單或 !toggleinfo 關閉這些信息"
+		"zho"	"開啟 !revert 菜單或使用 !toggleinfo 以隱藏提示"
 	}
 	"REVERT_REVERTS_DISABLED"
+	// "Weapon reverts are not enabled right now"
 	{
-		"zho"	"武器回調已關閉"
+		"zho"	"武器返璞現已停用"
 	}
 	"REVERT_PRINT_TO_CONSOLE_HINT"
+	// "Weapon revert details printed to console"
 	{
-		"zho"	"武器回調信息已打印到控制檯"
+		"zho"	"武器返璞詳情請參閱主控台"
 	}
 	"REVERT_ENABLED_REVERTS_HINT"
+	// "Weapon reverts currently enabled on this server:"
 	{
-		"zho"	"這個服務器上開啓的武器回調:"
+		"zho"	"現時伺服器上啟用的武器返璞:"
 	}
 	"REVERT_EMPTY_REVERTS"
+	// "There's nothing here... for some reason, all item cvars are off"
 	{
-		"zho"	"沒有開啓武器回調的武器"
+		"zho"	"沒有啟用武器返璞的武器"
 	}
 	"REVERT_INVALID_TEAM"
+	// "You need to be in a team to use this command"
 	{
 		"zho"	"你必須加入一個團隊才能使用這個命令"
 	}
 	"REVERT_INVALID_CLASS"
+	// "Your class needs to be valid to use this command"
 	{
-		"zho"	"你必須選擇一個兵種才能使用這個命令"
+		"zho"	"你必須選擇適當兵種才能使用這個命令"
 	}
 	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	// "Weapon reverts currently enabled for %t:"
 	{
-		"zho"	"爲%t開啓的武器回調:"
+		"zho"	"爲%t開啓的武器返璞:"
 	}
 	"REVERT_EMPTY_CLASS_REVERTS"
 	{
