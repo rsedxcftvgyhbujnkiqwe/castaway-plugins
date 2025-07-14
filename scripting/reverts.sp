@@ -3169,12 +3169,14 @@ Action SDKHookCB_Touch(int entity, int other) {
 		// pomson pass thru team
 
 		if (StrEqual(class, "tf_projectile_energy_ring")) {
+			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+
 			if (
 				other >= 1 &&
 				other <= MaxClients
 			) {
-				owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-				weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+				
 
 				if (
 					owner > 0 &&
@@ -3186,7 +3188,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 					if (
 						(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
 						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")) &&
-						TF2_GetClientTeam(other) == TF2_GetClientTeam(GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity"))
+						TF2_GetClientTeam(other) == TF2_GetClientTeam(owner)
 					) {
 						weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
@@ -3195,14 +3197,35 @@ Action SDKHookCB_Touch(int entity, int other) {
 								SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 						}
 						
-						// Pomson pass through teammates
-						// If Pomson variant is pre-Gun Mettle, block its projectiles passing through teammates.
+						// Pomson pass through teammates, unless pre-Gun Mettle variant is used
 						if (
-							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 &&
-							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
+							ItemIsEnabled(Wep_Pomson) &&
+							GetItemVariant(Wep_Pomson) != 2
 						) {
 							return Plugin_Handled;
 						}
+					}
+				}
+			} else if (
+				other > MaxClients &&
+				owner > 0 &&
+				weapon > 0
+			) {
+				GetEntityClassname(weapon, class, sizeof(class));
+				
+				// Pomson pass through teammate buildings
+				if (
+					ItemIsEnabled(Wep_Pomson) &&
+					StrEqual(class, "tf_weapon_drg_pomson")
+				) {
+					GetEntityClassname(other, class, sizeof(class));
+					if (
+						(StrEqual(class, "obj_sentrygun") ||
+						StrEqual(class, "obj_dispenser") ||
+						StrEqual(class, "obj_teleporter")) &&
+						AreEntitiesOnSameTeam(entity, other)
+					) {
+						return Plugin_Handled;
 					}
 				}
 			}
@@ -4581,6 +4604,7 @@ int GetEntityOwner(int entityIndex)
 
 	return -1; // Owner not found
 }
+#endif
 
 bool AreEntitiesOnSameTeam(int entity1, int entity2)
 {
@@ -4593,6 +4617,7 @@ bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
+#if defined MEMORY_PATCHES
 bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 {
 	if (!IsValidEntity(buildingIndex))
