@@ -4744,6 +4744,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			GetItemVariant(Wep_ShortCircuit) == 1 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
+			// prevent alt-fire for pre-gunmettle short circuit
 			return MRES_Supercede;
 		}
 	}
