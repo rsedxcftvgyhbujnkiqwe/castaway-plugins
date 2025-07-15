@@ -564,9 +564,6 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
-#if defined MEMORY_PATCHES
-	HookEvent("server_cvar", OnServerCvarChanged, EventHookMode_Pre);
-#endif
 
 	AddNormalSoundHook(OnSoundNormal);
 
@@ -755,10 +752,10 @@ bool ValidateAndNullCheck(MemoryPatch patch) {
 	return (patch.Validate() && patch != null);
 }
 
-Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
+void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	char cvarName[128];
-	event.GetString("cvarname", cvarName, sizeof(cvarName));
+	convar.GetName(cvarName, sizeof(cvarName));	
 	if (StrContains(cvarName, "sm_reverts__item_") != -1)
 	{
 		char item[64];
@@ -766,11 +763,10 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 		for (int i; i < NUM_ITEMS; i++) {
 			if (StrEqual(items[i].key,item)) {
 				ToggleMemoryPatchReverts(ItemIsEnabled(i),i);
-				return Plugin_Handled;
+				return;
 			}
 		}
 	}
-	return Plugin_Continue;
 }
 
 void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
@@ -4394,6 +4390,9 @@ void ItemFinalize() {
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
 
 		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+#if defined MEMORY_PATCHES
+		items[idx].cvar.AddChangeHook(OnServerCvarChanged);
+#endif
 	}
 }
 
