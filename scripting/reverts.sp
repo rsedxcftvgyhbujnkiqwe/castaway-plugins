@@ -1153,24 +1153,6 @@ public void OnGameFrame() {
 					}
 				}
 
-				if (TF2_GetPlayerClass(idx) == TFClass_Engineer) {
-					{
-						// short circuit alt-fire prevention
-						if (GetItemVariant(Wep_ShortCircuit) == 1)
-						{
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + 1.0));
-								}
-							}
-						}
-					}
-				}
-
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
 					{
 						// vitasaw charge store
@@ -3169,12 +3151,14 @@ Action SDKHookCB_Touch(int entity, int other) {
 		// pomson pass thru team
 
 		if (StrEqual(class, "tf_projectile_energy_ring")) {
+			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+
 			if (
 				other >= 1 &&
 				other <= MaxClients
 			) {
-				owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-				weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+				
 
 				if (
 					owner > 0 &&
@@ -3186,7 +3170,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 					if (
 						(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
 						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")) &&
-						TF2_GetClientTeam(other) == TF2_GetClientTeam(GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity"))
+						TF2_GetClientTeam(other) == TF2_GetClientTeam(owner)
 					) {
 						weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
@@ -3195,14 +3179,35 @@ Action SDKHookCB_Touch(int entity, int other) {
 								SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 						}
 						
-						// Pomson pass through teammates
-						// If Pomson variant is pre-Gun Mettle, block its projectiles passing through teammates.
+						// Pomson pass through teammates, unless pre-Gun Mettle variant is used
 						if (
-							ItemIsEnabled(Wep_Pomson) && GetItemVariant(Wep_Pomson) != 2 &&
-							TF2_GetClientTeam(owner) == TF2_GetClientTeam(other)
+							ItemIsEnabled(Wep_Pomson) &&
+							GetItemVariant(Wep_Pomson) != 2
 						) {
 							return Plugin_Handled;
 						}
+					}
+				}
+			} else if (
+				other > MaxClients &&
+				owner > 0 &&
+				weapon > 0
+			) {
+				GetEntityClassname(weapon, class, sizeof(class));
+				
+				// Pomson pass through teammate buildings
+				if (
+					ItemIsEnabled(Wep_Pomson) &&
+					StrEqual(class, "tf_weapon_drg_pomson")
+				) {
+					GetEntityClassname(other, class, sizeof(class));
+					if (
+						(StrEqual(class, "obj_sentrygun") ||
+						StrEqual(class, "obj_dispenser") ||
+						StrEqual(class, "obj_teleporter")) &&
+						AreEntitiesOnSameTeam(entity, other)
+					) {
+						return Plugin_Handled;
 					}
 				}
 			}
@@ -4107,53 +4112,57 @@ public Action OnPlayerRunCmd(
 	int weapon1;
 	char class[64];
 
-	if (TF2_GetPlayerClass(client) == TFClass_Scout) {
-		if (
-			GetItemVariant(Wep_BabyFace) == 1 &&
-			player_weapons[client][Wep_BabyFace]
-		) {
-			// Release Baby Face's Blaster boost reset on jump
-			if (buttons & IN_JUMP != 0)
-			{
-				if (!players[client].player_jumped)
+	switch (TF2_GetPlayerClass(client))
+	{
+		case TFClass_Scout:
+		{
+			if (
+				GetItemVariant(Wep_BabyFace) == 1 &&
+				player_weapons[client][Wep_BabyFace]
+			) {
+				// Release Baby Face's Blaster boost reset on jump
+				if (buttons & IN_JUMP != 0)
 				{
-					if (
-						GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
-						GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && // don't reset if swimming 
-						buttons & IN_DUCK == 0 && // don't reset if crouching
-						(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne, the attribute will handle air jumps
-					) {
-						SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
-						// apply the following so movement gets reset immediately, maybe there's a better way
-						TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+					if (!players[client].player_jumped)
+					{
+						if (
+							GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
+							GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && // don't reset if swimming 
+							buttons & IN_DUCK == 0 && // don't reset if crouching
+							(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne, the attribute will handle air jumps
+						) {
+							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
+							// apply the following so movement gets reset immediately, maybe there's a better way
+							TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+						}
+						players[client].player_jumped = true;
 					}
-					players[client].player_jumped = true;
+				}
+				else
+				{
+					players[client].player_jumped = false;
 				}
 			}
-			else
-			{
-				players[client].player_jumped = false;
-			}
-		}
-		
-		if (
-			(GetItemVariant(Wep_Shortstop) == 1 ||
-			GetItemVariant(Wep_Shortstop) == 3) &&
-			player_weapons[client][Wep_Shortstop]
-		) {
-			// shortstop shove removal
-			weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+			
+			if (
+				(GetItemVariant(Wep_Shortstop) == 1 ||
+				GetItemVariant(Wep_Shortstop) == 3) &&
+				player_weapons[client][Wep_Shortstop]
+			) {
+				// shortstop shove removal
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 
-			if (weapon1 > 0) {
-				GetEntityClassname(weapon1, class, sizeof(class));
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
 
-				if (
-					StrEqual(class, "tf_weapon_handgun_scout_primary") &&
-					buttons & IN_ATTACK2 != 0
-				) {
-					// disable secondary attack
-					buttons ^= IN_ATTACK2;
-					returnValue = Plugin_Changed;
+					if (
+						StrEqual(class, "tf_weapon_handgun_scout_primary") &&
+						buttons & IN_ATTACK2 != 0
+					) {
+						// disable secondary attack
+						buttons ^= IN_ATTACK2;
+						returnValue = Plugin_Changed;
+					}
 				}
 			}
 		}
@@ -4581,6 +4590,7 @@ int GetEntityOwner(int entityIndex)
 
 	return -1; // Owner not found
 }
+#endif
 
 bool AreEntitiesOnSameTeam(int entity1, int entity2)
 {
@@ -4593,6 +4603,7 @@ bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
+#if defined MEMORY_PATCHES
 bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 {
 	if (!IsValidEntity(buildingIndex))
@@ -4751,6 +4762,14 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 				DoShortCircuitProjectileRemoval(owner, entity, false);
 			}
 
+			return MRES_Supercede;
+		}
+
+		if (
+			GetItemVariant(Wep_ShortCircuit) == 1 &&
+			StrEqual(class, "tf_weapon_mechanical_arm")
+		) {
+			// prevent alt-fire for pre-gunmettle short circuit
 			return MRES_Supercede;
 		}
 	}
