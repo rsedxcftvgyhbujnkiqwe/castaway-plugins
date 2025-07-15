@@ -190,7 +190,9 @@ ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
+#if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
+#endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
@@ -389,11 +391,15 @@ public void OnPluginStart() {
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+#endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
+#endif
 
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -551,6 +557,10 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+
+#if !defined MEMORY_PATCHES
+	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
+#endif
 
 	RegConsoleCmd("sm_revert", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
 	RegConsoleCmd("sm_reverts", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
@@ -727,6 +737,8 @@ public void OnPluginStart() {
 	}
 }
 
+
+#if defined MEMORY_PATCHES
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
@@ -736,6 +748,11 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		Patch_DroppedWeapon.Disable();
 	}
 }
+#else
+public void OnDroppedWeaponLifetimeCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
+}
+#endif
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
@@ -746,13 +763,15 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
-#endif
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+#else
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
+#endif
 }
 
 #if defined MEMORY_PATCHES
 bool ValidateAndNullCheck(MemoryPatch patch) {
-	return (patch.Validate() && patch != null);
+	return patch.Validate() && patch != null;
 }
 
 Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
@@ -4220,7 +4239,7 @@ Action Command_ToggleInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
-void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
+void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
