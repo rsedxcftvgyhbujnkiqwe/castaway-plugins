@@ -330,6 +330,11 @@
 		// https://wiki.teamfortress.com/wiki/Loose_Cannon/zh-hans
 		"chi"	"脱缰巨炮"
 	}
+	"madmilk"
+	{
+		// https://wiki.teamfortress.com/wiki/Mad_Milk/zh-hans
+		"chi"	"疯狂的牛奶"
+	}
 	"gardener"
 	{
 		// https://wiki.teamfortress.com/wiki/Market_Gardener/zh-hans
@@ -778,6 +783,10 @@
 	"Cannon_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，炮弹速度 +50%%，击中时能保持 60 伤害输出"
+	}
+	"MadMilk_Release"
+	{
+		"chi"	"回调到发布，攻击浑身是牛奶的敌人时可以恢复本次攻击伤害 75%% 的生命值，为队友灭火不会减少冷却时间"
 	}
 	"Gardener_PreTB"
 	{

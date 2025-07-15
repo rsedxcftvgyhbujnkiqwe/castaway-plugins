@@ -281,6 +281,10 @@
 	{
 		"en"	"Loose Cannon"
 	}
+	"madmilk"
+	{
+		"en"	"Mad Milk"
+	}
 	"gardener"
 	{
 		"en"	"Market Gardener"
@@ -686,6 +690,10 @@
 	"Cannon_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 dmg impacts"
+	}
+	"MadMilk_Release"
+	{
+		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
 	}
 	"Gardener_PreTB"
 	{
