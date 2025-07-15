@@ -3825,13 +3825,38 @@ Action SDKHookCB_OnTakeDamage(
 								// Do not use internal rampup/falloff.
 								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
-								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
+								// Deal 16 base damage with 125% rampup, 75% falloff.
+								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
 							// Remove bullet damage flags so it's untyped damage
 							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
 							if (damage_type & DMG_BUCKSHOT != 0) damage_type ^= DMG_BUCKSHOT;
 
+							return Plugin_Changed;
+						}
+
+						return Plugin_Continue;
+					}
+				}
+
+				{
+					// Release Cow Mangler 5000 old damage rampup
+
+					if (StrEqual(class, "tf_projectile_energy_ball")) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled(Wep_CowMangler) &&
+							GetItemVariant(Wep_CowMangler) == 0 &&
+							StrEqual(class, "tf_weapon_particle_cannon")
+						) {
+							// Do not use internal rampup/falloff.
+							if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
+
+							// Deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
+							damage = 81.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.50, 0.528); 
+						
 							return Plugin_Changed;
 						}
 
@@ -3922,6 +3947,20 @@ Action SDKHookCB_OnTakeDamage_Building(
 				}
 
 				damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
+
+				return Plugin_Changed;
+			}
+		}
+		{
+			// Release Cow Mangler 5000 building damage
+
+			if (
+				ItemIsEnabled(Wep_CowMangler) &&
+				GetItemVariant(Wep_CowMangler) == 0 &&
+				StrEqual(class, "tf_weapon_particle_cannon")
+			) {
+				// Building base damage should be 16 dmg
+				damage = 16.0;
 
 				return Plugin_Changed;
 			}
