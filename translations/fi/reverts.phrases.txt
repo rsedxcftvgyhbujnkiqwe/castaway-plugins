@@ -802,11 +802,11 @@
 	}
 	"Circuit_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: vaihtoehtotulitus tuhoaa projektiilejä edessä, maksaa 15 metallia"
+		"fi"	"Ennen Meet your Matchiä: vaihtoehtotulitus tuhoaa projektiilejä edessä, kuluttaa 15 metallia"
 	}
 	"Circuit_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä, ei metallia apulaitteista kun käytössä, ei vaihtoehtotulitusta"
+		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä (kuluttaa 5 metallia + 15 per tuhottu projektiili), ei metallia apulaitteista kun käytössä"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{

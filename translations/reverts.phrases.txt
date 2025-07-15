@@ -801,7 +801,7 @@
 	}
 	"Circuit_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles, no metal from dispensers when active, no alt-fire"
+		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed), no metal from dispensers when active"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
