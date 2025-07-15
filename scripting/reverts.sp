@@ -4899,6 +4899,7 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 									}
 
 									// show particle effect
+									// not sure if these are the right ones, but it looks fine enough
 									ParticleShow("arm_muzzleflash_zap", player_pos, target_pos);
 									ParticleShowSimple(arm_detonate[GetRandomInt(0, 2)], target_pos);
 									RemoveEntity(idx);
