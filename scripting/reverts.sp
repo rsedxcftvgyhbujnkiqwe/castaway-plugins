@@ -296,6 +296,7 @@ enum
 	Wep_BuffaloSteak,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
+	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
@@ -423,6 +424,7 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #endif
@@ -1917,6 +1919,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
+			TF2Items_SetNumAttributes(itemNew, 3);
+			TF2Items_SetAttribute(itemNew, 0, 179, 0.0); // minicrits_become_crits
+			TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost
+			TF2Items_SetAttribute(itemNew, 2, 4, 1.25); // mult_clipsize; increase clip to 5 shots
+		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
 				case 1: {
@@ -2659,6 +2667,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
+						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;

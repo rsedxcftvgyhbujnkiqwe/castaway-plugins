@@ -185,6 +185,10 @@
 	{
 		"en"	"Cleaner's Carbine"
 	}
+	"cowmangler"
+	{
+		"en"	"Cow Mangler 5000"
+	}
 	"cozycamper"
 	{
 		"en"	"Cozy Camper"
@@ -522,6 +526,10 @@
 	"Carbine_Release"
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
+	}
+	"CowMangler_Release"
+	{
+		"en"	"Reverted to release, 5 shots, cannot be crit-boosted, charged shot lights up friendly Huntsman arrows"
 	}
 	"CozyCamper_PreMYM"
 	{
