@@ -1922,8 +1922,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			TF2Items_SetNumAttributes(itemNew, 3);
 			TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
-			TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; addcond 11 gives you crits without the glow??? what
-			TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize; increase clip to 5 shots, attrib 4 doesn't work
+			TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
+			TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
+			// no crit boost attribute fix handled elsewhere
 		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
@@ -3763,6 +3764,22 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 
+			{
+				// Cow Mangler Revert No Crit Boost Attribute Fix
+				// Somehow even with the "cannot be crit boosted" attribute, 
+				// the reverted Cow Mangler still does crits while crit boosted even when the crit boost glow doesn't show up.
+
+				if (
+					ItemIsEnabled(Wep_CowMangler) &&
+					StrEqual(class, "tf_weapon_particle_cannon") &&
+					PlayerIsCritboosted(attacker)
+				) {
+					damage_type ^= DMG_CRIT;
+
+					return Plugin_Changed;
+				}
+			}
+
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
@@ -4328,7 +4345,6 @@ bool PlayerIsInvulnerable(int client) {
 	);
 }
 
-/*
 TFCond critboosts[] =
 {
 	TFCond_Kritzkrieged,
@@ -4352,7 +4368,6 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
-*/
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
