@@ -141,6 +141,12 @@
 						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
 						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
 					}
+					"windows"
+					{
+						"offset"    "935"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // mulss xmm0, ds:flt_1077A508 (0.6 in flt_1077A508)
+						"patch"     "\xF3\x0F\x59\x05\x00\x00\x00\x00" // mulss xmm0, 0 (retrieve from plugin)
+					}
 				}
 
 				// ╔══════════════════════════════════════════════╗
