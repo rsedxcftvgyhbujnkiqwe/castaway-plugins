@@ -1,0 +1,1000 @@
+// Traditional Chinese transliterated by: MindfulProtons
+// NOTE: There may be errors. I only used a tool to convert Simplified Chinese to Traditional Chinese characters.
+// Tool used was online OpenCC (https://opencc.byvoid.com/). Github: https://github.com/BYVoid/OpenCC
+// If there are anyone here who knows Traditional Chinese and wants to volunteer, please contact us.
+// Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
+// Refinemnt & Grammar correction made by Villy	@VillyVilly on YouTube/Steam
+// NOTE from Villy: I refer the plugin as "武器返璞" instead of "武器回調", and I log my progress of checking by adding the original En. ver.
+
+"Phrases"
+{
+	// class names
+	// reference used: https://wiki.teamfortress.com/wiki/Classes/zh-hant
+	"SCOUT"
+	{
+		"zho"	"偵察兵"
+	}
+	"SNIPER"
+	{
+		"zho"	"狙擊手"
+	}
+	"SOLDIER"
+	{
+		"zho"	"火箭兵"
+	}
+	"DEMOMAN"
+	{
+		"zho"	"爆破兵"
+	}
+	"MEDIC"
+	{
+		"zho"	"醫護兵"
+	}
+	"HEAVY"
+	{
+		"zho"	"重裝兵"
+	}
+	"PYRO"
+	{
+		"zho"	"火焰兵"
+	}
+	"SPY"
+	{
+		"zho"	"間諜"
+	}
+	"ENGINEER"
+	{
+		"zho"	"工程師"
+	}
+
+	// ui
+	"REVERT_LOADOUT_CHANGE_INIT"
+	// "Weapon reverts enabled for your loadout:"
+	{
+		"zho"	"武器返璞現已套用於你的裝備:"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLE_HINT"
+	// "Disable these messages in the !revert menu or with !toggleinfo"
+	{
+		"zho"	"開啟 !revert 菜單或使用 !toggleinfo 以隱藏提示"
+	}
+	"REVERT_REVERTS_DISABLED"
+	// "Weapon reverts are not enabled right now"
+	{
+		"zho"	"武器返璞現已停用"
+	}
+	"REVERT_PRINT_TO_CONSOLE_HINT"
+	// "Weapon revert details printed to console"
+	{
+		"zho"	"武器返璞詳情請參閱主控台"
+	}
+	"REVERT_ENABLED_REVERTS_HINT"
+	// "Weapon reverts currently enabled on this server:"
+	{
+		"zho"	"現時伺服器上啟用的武器返璞:"
+	}
+	"REVERT_EMPTY_REVERTS"
+	// "There's nothing here... for some reason, all item cvars are off"
+	{
+		"zho"	"沒有啟用武器返璞的武器"
+	}
+	"REVERT_INVALID_TEAM"
+	// "You need to be in a team to use this command"
+	{
+		"zho"	"你必須加入一個團隊才能使用這個命令"
+	}
+	"REVERT_INVALID_CLASS"
+	// "Your class needs to be valid to use this command"
+	{
+		"zho"	"你必須選擇適當兵種才能使用這個命令"
+	}
+	"REVERT_ENABLED_CLASS_REVERTS_HINT"
+	// "Weapon reverts currently enabled for %t:"
+	{
+		"zho"	"爲%t開啓的武器返璞:"
+	}
+	"REVERT_EMPTY_CLASS_REVERTS"
+	{
+		"zho"	"沒有爲%t開啓的武器回調"
+	}
+	"REVERT_LOADOUT_CHANGE_ENABLED"
+	{
+		"zho"	"已打開配置更改時武器回調的顯示，下一次配置更改時會顯示目前配置所開啓的武器回調"
+	}
+	"REVERT_LOADOUT_CHANGE_DISABLED"
+	{
+		"zho"	"已關閉配置更改時武器回調的顯示，用 !revertsinfo 或 !reverts 菜單開啓"
+	}
+	"REVERT_MENU_TITLE"
+	{
+		"zho"	"武器回調"
+	}
+	"REVERT_MENU_SHOW_CLASSINFO"
+	{
+		"zho"	"顯示目前兵種的武器回調"
+	}
+	"REVERT_MENU_SHOW_ALL"
+	{
+		"zho"	"顯示服務器上所有開啓的武器回調"
+	}
+	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
+	{
+		"zho"	"打開/關閉配置更改時武器回調顯示"
+	}
+
+	// item names
+	"airblast"
+	{
+		// https://wiki.teamfortress.com/wiki/Compression_blast/zh-hant
+		"zho"	"壓縮氣爆"
+	}
+	"airstrike"
+	{
+		// https://wiki.teamfortress.com/wiki/Air_Strike/zh-hant
+		"zho"	"空襲火箭"
+	}
+	"miniramp"
+	{
+		// https://wiki.teamfortress.com/wiki/Minigun/zh-hant
+		"zho"	"所有格林機槍"
+	}
+	"swords"
+	{
+		"zho"	"所有劍"
+	}
+	"ambassador"
+	{
+		// https://wiki.teamfortress.com/wiki/Ambassador/zh-hant
+		"zho"	"全能大使"
+	}
+	"atomizer"
+	{
+		// https://wiki.teamfortress.com/wiki/Atomizer/zh-hant
+		"zho"	"原子棒"
+	}
+	"axtinguish"
+	{
+		// https://wiki.teamfortress.com/wiki/Axtinguisher/zh-hant
+		"zho"	"火斧"
+	}
+	"backburner"
+	{
+		// https://wiki.teamfortress.com/wiki/Backburner/zh-hant
+		"zho"	"背後火焰發射器"
+	}
+	"basejump"
+	{
+		// https://wiki.teamfortress.com/wiki/B.A.S.E._Jumper/zh-hant
+		"zho"	"低空跳傘員"
+	}
+	"babyface"
+	{
+		// https://wiki.teamfortress.com/wiki/Baby_Face%27s_Blaster/zh-hant
+		"zho"	"型男霰彈槍"
+	}
+	"beggars"
+	{
+		// https://wiki.teamfortress.com/wiki/Beggar%27s_Bazooka/zh-hant
+		"zho"	"街友火箭砲"
+	}
+	"blackbox"
+	{
+		// https://wiki.teamfortress.com/wiki/Black_Box/zh-hant
+		"zho"	"黑盒子"
+	}
+	"bonk"
+	{
+		// https://wiki.teamfortress.com/wiki/Bonk!_Atomic_Punch/zh-hant
+		"zho"	"Bonk! 原子能量飲料"
+	}
+	"booties"
+	{
+		// https://wiki.teamfortress.com/wiki/Ali_Baba%27s_Wee_Booties/zh-hant
+		// https://wiki.teamfortress.com/wiki/Bootlegger/zh-hant
+		"zho"	"阿里巴巴尖頭靴和私藏海盜靴"
+	}
+	"brassbeast"
+	{
+		// https://wiki.teamfortress.com/wiki/Brass_Beast/zh-hant
+		"zho"	"黃銅野獸"
+	}
+	"bushwacka"
+	{
+		// https://wiki.teamfortress.com/wiki/Bushwacka/zh-hant
+		"zho"	"布伊刀"
+	}
+	"buffalosteak"
+	{
+		// https://wiki.teamfortress.com/wiki/Buffalo_Steak_Sandvich/zh-hant
+		"zho"	"水牛排三明治"
+	}
+	"targe"
+	{
+		// https://wiki.teamfortress.com/wiki/Chargin%27_Targe/zh-hant
+		"zho"	"衝擊刺盾"
+	}
+	"claidheamh"
+	{
+		// https://wiki.teamfortress.com/wiki/Claidheamh_M%C3%B2r/zh-hant
+		"zho"	"蓋爾巨劍"
+	}
+	"carbine"
+	{
+		// https://wiki.teamfortress.com/wiki/Cleaner%27s_Carbine/zh-hant
+		"zho"	"湮滅者卡賓槍"
+	}
+	"cozycamper"
+	{
+		// https://wiki.teamfortress.com/wiki/Cozy_Camper/zh-hant
+		"zho"	"舒適的露營家"
+	}
+	"critcola"
+	{
+		// https://wiki.teamfortress.com/wiki/Crit-a-Cola/zh-hant
+		"zho"	"爆擊可樂"
+	}
+	"crocostyle"
+	{
+		// https://wiki.teamfortress.com/wiki/Croc-o-Style_Kit/zh-hant
+		"zho"	"鱷魚風格套裝"
+	}
+	"dalokohsbar"
+	{
+		// https://wiki.teamfortress.com/wiki/Dalokohs_Bar/zh-hant
+		"zho"	"美味巧克力"
+	}
+	"darwin"
+	{
+		// https://wiki.teamfortress.com/wiki/Darwin%27s_Danger_Shield/zh-hant
+		"zho"	"達爾文鱷魚盾"
+	}
+	"ringer"
+	{
+		// https://wiki.teamfortress.com/wiki/Dead_Ringer/zh-hant
+		"zho"	"死亡送終者"
+	}
+	"degreaser"
+	{
+		// https://wiki.teamfortress.com/wiki/Degreaser/zh-hant
+		"zho"	"除油者"
+	}
+	"disciplinary"
+	{
+		// https://wiki.teamfortress.com/wiki/Disciplinary_Action/zh-hant
+		"zho"	"紀律行動"
+	}
+	"dragonfury"
+	{
+		// https://wiki.teamfortress.com/wiki/Dragon%27s_Fury/zh-hant
+		"zho"	"龍之怒"
+	}
+	"enforcer"
+	{
+		// https://wiki.teamfortress.com/wiki/Enforcer/zh-hant
+		"zho"	"脅威使"
+	}
+	"equalizer"
+	{
+		// https://wiki.teamfortress.com/wiki/Equalizer/zh-hant
+		// https://wiki.teamfortress.com/wiki/Escape_Plan/zh-hant
+		"zho"	"傷害均衡十字鎬和速度均衡十字鎬"
+	}
+	"eviction"
+	{
+		// https://wiki.teamfortress.com/wiki/Eviction_Notice/zh-hant
+		"zho"	"驅逐警告"
+	}
+	"expert"
+	{
+		// https://wiki.teamfortress.com/wiki/Expert's_Ordnance/zh-hant
+		"zho"	"專家的火炮軍械"
+	}
+	"fiststeel"
+	{
+		// https://wiki.teamfortress.com/wiki/Fists_of_Steel/zh-hant
+		"zho"	"鐵拳"
+	}
+	"guillotine"
+	{
+		// https://wiki.teamfortress.com/wiki/Flying_Guillotine/zh-hant
+		"zho"	"斷頭血刃"
+	}
+	"gasjockey"
+	{
+		// https://wiki.teamfortress.com/wiki/Gas_Jockey's_Gear/zh-hant
+		"zho"	"加油站員工裝備"
+	}
+	"glovesru"
+	{
+		// https://wiki.teamfortress.com/wiki/Gloves_of_Running_Urgently/zh-hant
+		"zho"	"狂奔手套"
+	}
+	"gunboats"
+	{
+		// https://wiki.teamfortress.com/wiki/Gunboats/zh-hant
+		"zho"	"鐵砲護靴"
+	}
+	"zatoichi"
+	{
+		// https://wiki.teamfortress.com/wiki/Half-Zatoichi/zh-hant
+		"zho"	"半盲劍俠"
+	}
+	"hibernate"
+	{
+		// https://wiki.teamfortress.com/wiki/Hibernating_Bear/zh-hant
+		"zho"	"冬眠蟄伏之熊"
+	}
+	"jag"
+	{
+		// http://wiki.teamfortress.com/wiki/Jag/zh-hant
+		"zho"	"鉤爪扳手"
+	}
+	"liberty"
+	{
+		// https://wiki.teamfortress.com/wiki/Liberty_Launcher/zh-hant
+		"zho"	"自由推進者"
+	}
+	"lochload"
+	{
+		// https://wiki.teamfortress.com/wiki/Loch-n-Load/zh-hant
+		"zho"	"直擊榴彈"
+	}
+	"cannon"
+	{
+		// https://wiki.teamfortress.com/wiki/Loose_Cannon/zh-hant
+		"zho"	"脫韁火炮"
+	}
+	"gardener"
+	{
+		// https://wiki.teamfortress.com/wiki/Market_Gardener/zh-hant
+		"zho"	"市場花園園丁"
+	}
+	"natascha"
+	{
+		// https://wiki.teamfortress.com/wiki/Natascha/zh-hant
+		"zho"	"娜塔莎"
+	}
+	"panic"
+	{
+		// https://wiki.teamfortress.com/wiki/Panic_Attack/zh-hant
+		"zho"	"背水散彈槍"
+	}
+	"persuader"
+	{
+		// https://wiki.teamfortress.com/wiki/Persian_Persuader/zh-hant
+		"zho"	"波斯使者"
+	}
+	"pomson"
+	{
+		// https://wiki.teamfortress.com/wiki/Pomson_6000/zh-hant
+		"zho"	"潘森6000"
+	}
+	"powerjack"
+	{
+		// https://wiki.teamfortress.com/wiki/Powerjack/zh-hant
+		"zho"	"強力千斤頂"
+	}
+	"pocket"
+	{
+		// https://wiki.teamfortress.com/wiki/Pretty_Boy%27s_Pocket_Pistol/zh-hant
+		"zho"	"俊男掌心雷"
+	}
+	"quickfix"
+	{
+		// https://wiki.teamfortress.com/wiki/Quick-Fix/zh-hant
+		"zho"	"快速治療者"
+	}
+	"quickiebomb"
+	{
+		// https://wiki.teamfortress.com/wiki/Quickiebomb_Launcher/zh-hant
+		"zho"	"速成黏彈發射器"
+	}
+	"razorback"
+	{
+		// https://wiki.teamfortress.com/wiki/Razorback/zh-hant
+		"zho"	"劍脊野豬盾"
+	}
+	"rescueranger"
+	{
+		// https://wiki.teamfortress.com/wiki/Rescue_Ranger/zh-hant
+		"zho"	"遊騎兵援隊"
+	}
+	"reserve"
+	{
+		// https://wiki.teamfortress.com/wiki/Reserve_Shooter/zh-hant
+		"zho"	"後勤防空員"
+	}
+	"bison"
+	{
+		// https://wiki.teamfortress.com/wiki/Righteous_Bison/zh-hant
+		"zho"	"正義狂牛"
+	}
+	"rocketjmp"
+	{
+		// https://wiki.teamfortress.com/wiki/Rocket_Jumper/zh-hant
+		"zho"	"火箭跳躍者"
+	}
+	"saharan"
+	{
+		// https://wiki.teamfortress.com/wiki/Saharan_Spy/zh-hant
+		"zho"	"撒哈拉間諜"
+	}
+	"sandman"
+	{
+		// https://wiki.teamfortress.com/wiki/Sandman/zh-hant
+		"zho"	"睡魔"
+	}
+	"scottish"
+	{
+		// https://wiki.teamfortress.com/wiki/Scottish_Resistance/zh-hant
+		"zho"	"蘇格蘭式防禦黏彈"
+	}
+	"circuit"
+	{
+		// https://wiki.teamfortress.com/wiki/Short_Circuit/zh-hant
+		"zho"	"脈衝電場放射儀"
+	}
+	"shortstop"
+	{
+		// https://wiki.teamfortress.com/wiki/Shortstop/zh-hant
+		"zho"	"游擊手"
+	}
+	"sodapop"
+	{
+		// https://wiki.teamfortress.com/wiki/Soda_Popper/zh-hant
+		"zho"	"汽水槍手"
+	}
+	"solemn"
+	{
+		// https://wiki.teamfortress.com/wiki/Solemn_Vow/zh-hant
+		"zho"	"神聖誓言"
+	}
+	"spdelivery"
+	{
+		// https://wiki.teamfortress.com/wiki/Special_Delivery_(item_set)/zh-hant
+		"zho"	"特殊送貨員"
+	}
+	"splendid"
+	{
+		// https://wiki.teamfortress.com/wiki/Splendid_Screen/zh-hant
+		"zho"	"輝煌戰盾"
+	}
+	"spycicle"
+	{
+		// https://wiki.teamfortress.com/wiki/Spy-cicle/zh-hant
+		"zho"	"寒冽冰錐"
+	}
+	"stkjumper"
+	{
+		// https://wiki.teamfortress.com/wiki/Sticky_Jumper/zh-hant
+		"zho"	"黏彈跳躍者"
+	}
+	"sleeper"
+	{
+		// https://wiki.teamfortress.com/wiki/Sydney_Sleeper/zh-hant
+		"zho"	"雪梨沉睡者"
+	}
+	"turner"
+	{
+		// https://wiki.teamfortress.com/wiki/Tide_Turner/zh-hant
+		"zho"	"潮汐戰舵"
+	}
+	"tomislav"
+	{
+		// https://wiki.teamfortress.com/wiki/Tomislav/zh-hant
+		"zho"	"托米斯拉夫"
+	}
+	"tribalshiv"
+	{
+		// https://wiki.teamfortress.com/wiki/Tribalman%27s_Shiv/zh-hant
+		"zho"	"部落戰刀"
+	}
+	"caber"
+	{
+		// https://wiki.teamfortress.com/wiki/Ullapool_Caber/zh-hant
+		"zho"	"阿勒浦木製手榴彈"
+	}
+	"vitasaw"
+	{
+		// https://wiki.teamfortress.com/wiki/Vita-Saw/zh-hant
+		"zho"	"還魂鋸"
+	}
+	"warrior"
+	{
+		// https://wiki.teamfortress.com/wiki/Warrior%27s_Spirit/zh-hant
+		"zho"	"戰士之魂"
+	}
+	"wrangler"
+	{
+		// https://wiki.teamfortress.com/wiki/Wrangler/zh-hant
+		"zho"	"牧馬者遙控器"
+	}
+	"eternal"
+	{
+		// https://wiki.teamfortress.com/wiki/Your_Eternal_Reward/zh-hant
+		"zho"	"您的永恆獎賞"
+	}
+
+	// item descriptions
+
+	// ji update: https://wiki.teamfortress.com/wiki/Jungle_Inferno_Update/zh-hant
+	// love & war update: https://wiki.teamfortress.com/wiki/Love_%26_War_Update/zh-hant
+	// gun mettle update: https://wiki.teamfortress.com/wiki/Gun_Mettle_Update/zh-hant
+	// tough break update: https://wiki.teamfortress.com/wiki/Tough_Break_Update/zh-hant
+	// hatless update: https://wiki.teamfortress.com/wiki/Hatless_Update/zh-hant
+	// mym update: https://wiki.teamfortress.com/wiki/Meet_Your_Match_Update/zh-hant
+	// pyromania update: https://wiki.teamfortress.com/wiki/Pyromania_Update/zh-hant
+	// manniversary: https://wiki.teamfortress.com/wiki/Manniversary_Update_%26_Sale/zh-hant
+	"Airblast_PreJI"
+	{
+		"zho"	"所有火焰噴射器壓縮空氣機制回調到叢林煉獄更新前"
+	}
+	"Airstrike_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，爆炸起跳過程中不會有爆炸範圍減少"
+	}
+	"Minigun_ramp_PreLW"
+	{
+		"zho"	"回調到愛情與戰爭更新前，轉輪機槍不再有剛開火時的傷害和精確度縮水"
+	}
+	"Swords_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，不會有取出和收回速度減慢"
+	}
+	"Ambassador_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，在所有距離都能做完整的爆頭傷害（102）"
+	}
+	"Atomizer_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，任何時候都能進行三連跳，每次三連跳會受到 10 點傷害"
+	}
+	"Axtinguisher_PreLW"
+	{
+		"zho"	"回調到到愛情與戰爭更新前，任何時候都能對着火敵人做 195 點全暴擊傷害，擊殺着火敵人後不會提高移動速度"
+	}
+	"Axtinguisher_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，從背後攻擊時會產生爆擊，從身前攻擊時會產生迷你爆擊，擊殺着火敵人不會提高移動速度"
+	}
+	"Backburner_PreHat"
+	{
+		"zho"	"回調到無帽更新，傷害 +10%%"
+	}
+	"Backburner_119"
+	{
+		"zho"	"回調到第 119 次更新，傷害 +20%%，沒有壓縮空氣"
+	}
+	"Backburner_Release"
+	{
+		"zho"	"回調到發佈，最高生命值 +50，沒有壓縮空氣"
+	}
+	"BaseJumper_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，可以重新打開降落傘，更好的空中控制，在空中打開降落傘的狀態下着火會使氣流上升"
+	}
+	"BabyFace_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，沒有被擊中時速度加成蓄能減少，空中跳躍減少的能量 -25%%"
+	}
+	"BabyFace_Release"
+	{
+		"zho"	"回調到發佈，+40%% 準確度，沒有彈匣容量減少或被擊中時速度加成蓄能減少，速度 -35%%，傷害 -30%%，空中跳躍減少的能量 -100%%"
+	}
+	"Beggars_Pre2013"
+	{
+		"zho"	"回調到 2013 年以前，沒有爆炸半徑減少，裝填過多彈藥不會導致炸膛"
+	}
+	"BlackBox_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，在任何距離攻擊都能獲得 15 點生命值"
+	}
+	"Bonk_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，在無敵結束後不會減速"
+	}
+	"Booties_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，穿戴者移動速度增加不需要裝備盾牌"
+	}
+	"BrassBeast_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，在任何生命值下槍管高速旋轉時所受傷害 -20%% (對抗暴擊傷害 -6.7%%）"
+	}
+	"Bushwacka_PreLW"
+	{
+		"zho"	"回調到愛情與戰爭更新前，在任何狀況下受由火造成的傷害 -20%%，有隨機暴擊"
+	}
+	"BuffaloSteak_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，喫掉後馬上獲得移動速度 +35%% 和傷害 -10%%"
+	}
+	"BuffaloSteak_Release"
+	{
+		"zho"	"回調到發佈，喫掉後移動速度 +35%%，穿戴者所受到的傷害轉換爲迷你暴擊，速度加成可以與緊急逃跑手套疊加（比偵察兵快一點）"
+	}
+	"BuffaloSteak_Pre2013"
+	{
+		"zho"	"回調到 2013 年夏季前，喫掉後移動速度 +35%%，穿戴者所受到的傷害轉換爲迷你暴擊，速度加成不可以與緊急逃跑手套疊加"
+	}
+	"Targe_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，爆炸傷害抗性 +40%%，對餘焰免疫，衝鋒後獲得暴擊，沒有負面效果移除"
+	}
+	"Claidheamh_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，生命值 -15，沒有穿戴時受到的傷害增加，長時間衝鋒轉化爲被動"
+	}
+	"Carbine_Release"
+	{
+		"zho"	"回調到發佈，擊殺敵人後獲得持續 3 秒的暴擊，開火速度 -35%%（原 25%%）"
+	}
+	"CozyCamper_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，在任何蓄力等級下視野不會晃動"
+	}
+	"CritCola_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，移動速度 +25%%，所受傷害 +10%%，攻擊後不會打上死亡標記"
+	}
+	"CritCola_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，移動速度 +25%%，所受傷害 +10%%，加成失效後 2 秒內打上死亡標記"
+	}
+	"CritCola_PreDec2013"
+	{
+		"zho"	"回調到聖誕節 2013 更新以前，移動速度 +25%%，所受傷害 +25%%，攻擊時不會打上死亡標記"
+	}
+	"CritCola_PreJuly2013"
+	{
+		"zho"	"回調到夏季 2013 更新以前，移動速度 +25%%，所受傷害轉換爲迷你暴擊"
+	}
+	"CritCola_Release"
+	{
+		"zho"	"回調到發佈，所受傷害轉換爲迷你暴擊，加成持續 6 秒"
+	}
+	"CrocoStyle_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，大於 1 生命值時對爆頭免疫；佩戴悉尼沉睡者、達爾文的危險之盾和灌木叢來獲得套裝加成，不需要帽子"
+	}
+	"DalokohsBar_PreMYM"
+	{
+		"zho"	"回調到槍魂更新，可以超量治療到 400 生命值"
+	}
+	"Darwin_Pre2013"
+	{
+		"zho"	"回調到 2013 年前，最大生命值 +25，沒有傷害與傷害抗性修改並且不對餘焰免疫"
+	}
+	"Darwin_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，最大生命值 +25，受到的子彈傷害抗性 +15%%（對抗暴擊子彈 +5%%），受到的爆炸傷害 -20%%，不對餘焰免疫"
+	}
+	"Ringer_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，能撿起彈藥包補充隱形能量，6.5 秒內受到的獲得 90%% 的傷害抗性（由受到的傷害減少），沒有速度加成"
+	}
+	"Ringer_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新，和目前的數據一樣但是結束隱形狀態後可以使用彈藥箱，彈藥箱內隱形能量 -35%%"
+	}
+	"Ringer_PreTB"
+	{
+		"zho"	"回調到槍魂更新，和目前的數據一樣但是最初受到的傷害 -50%%，結束隱形狀態後可以使用彈藥箱，彈藥箱內隱形能量 -35%%"
+ 	}
+	"Degreaser_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，部署速度 +65%%，傷害 -10%%，餘焰傷害 -25%%"
+	}
+	"Disciplinary_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，擊中隊友後加快雙方的移動速度 3 秒"
+	}
+	"DragonFury_Release"
+	{
+		"zho"	"回調到發佈，增大了火球大小，擊中着火敵人造成額外傷害不需要在火球內部與敵人命中判定碰撞"
+	}
+	"DragonFury_Release_Patchless"
+	{
+		"zho"	"部分回調到發佈，增大了火球大小"
+	}
+	"Enforcer_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，非僞裝狀態下傷害 +20%%，沒有攻擊穿透抗性"
+	}
+	"Enforcer_Release"
+	{
+		"zho"	"回調到發佈，任何狀態下傷害 +20%%，有隨機暴擊，沒有攻擊穿透抗性，隱形時間增加 0.5 秒"
+	}
+	"Equalizer_PrePyro"
+	{
+		"zho"	"合併並回調到縱火狂更新前；手持武器時：無法得到治療，無法呼叫醫生，不會打上死亡標記，1 生命值下造成 107 傷害"
+	}
+	"Equalizer_PreHat"
+	{
+		"zho"	"合併並回調到無帽更新前；手持武器時：無法得到治療，無法呼叫醫生，不會打上死亡標記，1 生命值下造成 113 傷害"
+	}
+	"Equalizer_Release"
+	{
+		"zho"	"合併並回調到發佈；手持武器時：無法得到治療，無法呼叫醫生，不會打上死亡標記；最高 200 生命值時：在 58 生命值下造成 125 傷害，在 20 生命值下造成 150 傷害，在 1 生命值下造成 162 傷害"
+	}
+	"Eviction_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，手持時不會扣除生命值上限，受到傷害 +20%%"
+	}
+	"Eviction_PreMYM"
+	{
+		"zho"	"回調到槍魂更新，開火速度 +50%%，手持時不會扣除生命值上限並且沒有速度加成"
+	}
+	"Expert_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，火焰傷害抗性 +10%；佩戴雙管榴彈發射器和木柄手榴彈來獲得套裝加成，不需要帽子"
+	}
+	"FistSteel_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，沒有治療量減少"
+	}
+	"FistSteel_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，武器切換時間增加 20%%，沒有武器收回速度減少，沒有穿戴時所受治療量的負面作用"
+	}
+	"FistSteel_Release"
+	{
+		"zho"	"回調到發佈，沒有武器收回速度減少或武器切換時間增加，手持時受到的非近戰傷害 -60%%（原 -40%%）"
+	}
+	"Guillotine_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，對眩暈狀態玩家爆擊，遠距離造成迷你爆擊，沒有重新充能"
+	}
+	"GasJockey_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，穿戴時移動速度 +10%，穿戴時受到子彈傷害 +10%；佩戴脫油劑和強力千斤頂來獲得套裝加成，不需要帽子"
+	}
+	"GlovesRU_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，沒有生命值上限和收回速度減少，有死亡標記，傷害 -25%%"
+	}
+	"GlovesRU_PrePyro"
+	{
+		"zho"	"回調到縱火狂更新前，沒有生命值上線減少，沒有死亡標記，傷害 -50%%，手持武器時 -6 生命值/秒（再受傷害那一幀時會跳得高一點），-6 生命值/秒狀況下增加跳躍高度"
+	}
+	"Gunboats_Release"
+	{
+		"zho"	"回調到發佈，火箭跳躍時受到的爆炸傷害 -75%%"
+	}
+	"Zatoichi_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，可以快速切換武器，近戰範圍減少，擊殺敵人前不能切換武器，完整的治療效果，有隨機暴擊"
+	}
+	"Hibernate_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，穿戴時爆擊抗性 +5%%；佩戴黃銅猛獸、水牛排三明治和勇士之魂來獲得套裝加成，不需要帽子"
+	}
+	"Jag_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，沒有對建築傷害減少（2 次擊打可以摧毀電子工兵）"
+	}
+	"Jag_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，沒有對建築傷害減少（2 次擊打可以摧毀電子工兵），沒有修理速度減慢，沒有開火速度加成"
+	}	
+	"Liberty_Release"
+	{
+		"zho"	"回調到發佈，炮彈速度 +40%%，彈匣容量 -25%%"
+	}
+	"LochLoad_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，對任何對象傷害 +20%%"
+	}
+	"LochLoad_2013"
+	{
+		"zho"	"回調到 2014 年以前，傷害 +20%%（15%% 波動），彈匣容量 -50%%，自身傷害 +25%%，沒有爆炸半徑減少，榴彈不會粉碎"
+	}
+	"Cannon_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，炮彈速度 +50%%，擊中時能保持 60 傷害輸出"
+	}
+	"Gardener_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，沒有開火速度減少"
+	}
+	"Natascha_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，在任何生命值下轉動時傷害 -20%%（對抗暴擊傷害 -6.7%%）"
+	}
+	"Panic_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，長按開火鍵裝彈，鬆開來開火，在低生命值下開火速度加快並且彈丸分佈擴大"
+	}
+	"Persuader_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，拾取彈藥箱可以回覆生命值，衝鋒重新充能時間 +100%%，沒有最大彈匣容量減少"
+	}
+	"Pomson_PreGM"
+	{
+		"zho"	"增大了判定箱大小，可以穿越團隊，沒有被擊中者的醫療槍能量或隱身能量損失，可以點燃隊友的獵人短弓弓箭，做無類型傷害"
+	}
+	"Pomson_Release"
+	{
+		"zho"	"回調到發佈，和正義野牛傷害相同，增大了判定箱大小，可以穿越其他玩家，沒有被擊中者的醫療槍能量或隱身能量損失，可以點燃隊友的獵人短弓弓箭，做無類型傷害"
+	}
+	"Pomson_PreGM_Historical"
+	{
+		"zho"	"回調到槍魂更新前，增大了判定箱大小，不可以穿越團隊，沒有被擊中者的醫療槍能量或隱身能量損失，可以點燃隊友的獵人短弓弓箭，做無類型傷害"
+	}	
+	"Powerjack_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，保留了原有的一些屬性，擊殺敵人可以獲得 75 生命值並且可以超量治療"
+	}
+	"Powerjack_Release"
+	{
+		"zho"	"回調到發佈，沒有移動速度加成或穿戴時受到的傷害增加，擊殺敵人可以獲得 75 生命值並且可以超量治療，傷害 +25%%，沒有隨機暴擊"
+	}
+	"Powerjack_Pre2013"
+	{
+		"zho"	"回調到無帽更新，沒有移動速度加成或穿戴時受到的傷害增加，擊殺敵人可以獲得 75 生命值並且可以超量治療，手持武器時受到的近戰傷害 +20%%"
+	}
+	"Pocket_Release"
+	{
+		"zho"	"回調到發佈，最高生命值 +15，不受掉落傷害，開火速度 -25%%，受到的火焰傷害 +50%%"
+	}
+	"Pocket_PreBM"
+	{
+		"zho"	"回調到 2018 年以前，擊中時最高獲得 7 生命值"
+	}
+	"Quickfix_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，超能衝鋒蓄積速度 +25%%，超能衝鋒狀況下可以攜帶情報"
+	}
+	"Quickfix_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，超能衝鋒蓄積速度 +25%%"
+	}
+	"Quickiebomb_PreMYM"
+	{
+		"zho"	"回調到艱難假日更新，最大蓄力時間 50%%，最大傷害加成 +25%%，彈夾容量 -25%%，黏彈會在 4 秒後消失"
+	}
+	"Razorback_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，可以超量治療，不能重新充能"
+	}
+	"RescueRanger_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，一發能量彈有 75 建築治療量，沒有金屬消耗，遠距離搬運建築消耗金屬 130"
+	}
+	"Reserve_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，部署 5 秒後空中目標造成迷你爆擊，部署速度 +15%%"
+	}
+	"Reserve_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，對壓縮氣爆擊退的敵人造成迷你暴擊"
+	}
+	"Bison_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，增大了判定箱大小，可以多次擊中同一玩家，以點燃隊友的獵人短弓弓箭，做無類型傷害"
+	}
+	"Bison_PreMYM_Historical"
+	{
+		"zho"	"回調到棋逢對手更新前，增大了判定箱大小，可以多次擊中同一玩家，以點燃隊友的獵人短弓弓箭，做無類型傷害，舊掉落傷害"
+ 	}
+	"RocketJmp_Pre2013"
+	{
+		"zho"	"回調到 2013 年以前，對手雷自爆嘲諷自殺效果免疫"
+	}
+	"RocketJmp_Pre2013_Intel"
+	{
+		"zho"	"回調到 2013 年以前，對手雷自爆嘲諷自殺效果免疫，穿戴者可以撿起情報"
+	}
+	"Saharan_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，減小解除隱形聲音，增加 0.5 秒額外隱形時間；佩戴陌生人（移除隱身持續時間 +40%%）和永生的回報來獲得套裝的效果加成，不需要帽子"
+	}
+	"Saharan_ExtraCloak"
+	{
+		"zho"	"還原發布時套裝的效果加成，減小解除隱形聲音，增加 0.5 秒額外隱形時間；佩戴陌生人和永生的回報（或巫毒刺釘）來獲得套裝的效果加成，不需要帽子"
+ 	}
+	"Sandman_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，遠距離棒球使玩家失去反擊能力，15 秒重新充能時間"
+	}
+	"Scottish_Release"
+	{
+		"zho"	"回調到發佈，炸彈就緒時間減慢 0.4 秒（原 0.8 秒），無開火速度加成"
+	}
+	"Circuit_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，輔助開火能摧毀前方的飛行物，消耗 15 金屬"
+	}
+	"Circuit_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，開火能摧毀飛行物，手持武器時從補給器無法獲取金屬，無輔助開火功能"
+	}
+	"Shortstop_PreMnvy_Shove"
+	{
+		"zho"	"回調到曼恩週年慶更新以前，可以快速換彈，沒有擊退力度減少，使用副武器彈藥；可以推開敵人"
+	}
+	"Shortstop_PreMnvy"
+	{
+		"zho"	"回調到曼恩週年慶更新以前，可以快速換彈，沒有擊退力度減少，使用副武器彈藥，不能推開敵人"
+	}
+	"Shortstop_PreGM_Shove"
+	{
+		"zho"	"回調到槍魂更新前，手持武器時受治療效果 +20%%，所有情況下受到的擊退力度 +40%%，使用副武器彈藥；可以推開敵人"
+	}
+	"Shortstop_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，手持武器時受治療效果 +20%%，所有情況下受到的擊退力度 +40%%，使用副武器彈藥，不能推開敵人"
+	}
+	"Sodapop_Pre2013"
+	{
+		"zho"	"回調到聖誕節 2013 更新以前，跑步時積聚能量並且自動獲取迷你暴擊"
+	}
+	"Sodapop_PreMYM"
+	{
+		"zho"	"回調到棋逢對手更新前，跑步時積聚能量"
+	}
+	"Solemn_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，沒有開火速度減慢"
+	}
+	"SpDelivery_Release"
+	{
+		"zho"	"還原發布時套裝的效果加成，最大生命值 +25；佩戴游擊手、瘋狂的牛奶和聖靈鯖魚來獲得套裝加成，不需要帽子"
+	}
+	"Splendid_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，爆炸傷害抗性 +15%%，沒有冷卻速率加成，衝鋒後獲得暴擊，沒有負面效果移除，在任何距離獲得衝鋒傷害"
+	}
+	"SpyCicle_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，2 秒火焰免疫時間，無聲殺手，不能從彈藥包恢復計時器"
+	}
+	"StkJumper_Pre2013"
+	{
+		"zho"	"回調到縱火狂更新，最多可以有 8 個黏性炸彈"
+	}
+	"StkJumper_Pre2013_Intel"
+	{
+		"zho"	"回調到縱火狂更新，最多可以有 8 個黏性炸彈，穿戴者可以撿起情報"
+	}
+	"Sleeper_PreBM"
+	{
+		"zho"	"回調到 2018 年以前，開鏡爆頭並且完整蓄能可以射出讓目標周圍的玩家澆灌的瓶手道，沒有瓶手道冷卻時間縮短"
+	}
+	"Turner_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，可以做出全暴擊，爆炸傷害抗性和火焰傷害抗性 +25%%，衝鋒和獲得暴擊，沒有負面效果移除"
+	}
+	"Tomislav_PrePyro"
+	{
+		"zho"	"回調到縱火狂更新前，機槍預熱速度 +40%%，沒有準確度加成"
+	}
+	"Tomislav_Release"
+	{
+		"zho"	"回調到發佈，機槍預熱速度 +75%%，沒有準確度加成"
+	}
+	"TribalShiv_Release"
+	{
+		"zho"	"回調到發佈，擊中後使對方持續失血 8 秒，傷害 -35%%"
+	}
+	"Caber_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，近戰爆炸能做出 175+ 傷害"
+	}
+	"VitaSaw_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，死亡時能保持 20%% 的超能衝鋒能量"
+	}
+	"Warrior_PreTB"
+	{
+		"zho"	"回調到艱難假日更新前，每次攻擊後會獲得 10 點的生命值回覆，沒有穿戴時受到的傷害加成，最大生命值 -20"
+	}
+	"Wrangler_PreGM"
+	{
+		"zho"	"回調到槍魂更新前，護盾保護下可以沒有傷害和維修效果減少，工程師死亡後只會癱瘓 1 秒"
+	}
+	"Eternal_PreJI"
+	{
+		"zho"	"回調到叢林煉獄更新前，不能僞裝，沒有隱身能量消耗速度減少"
+	}
+}
