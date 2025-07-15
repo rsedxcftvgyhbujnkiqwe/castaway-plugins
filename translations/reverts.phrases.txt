@@ -529,7 +529,7 @@
 	}
 	"CowMangler_Release"
 	{
-		"en"	"Reverted to release, 5 shots, cannot be crit-boosted, charged shot lights up friendly Huntsman arrows"
+		"en"	"Reverted to release, 5 shots, cannot be crit-boosted"
 	}
 	"CozyCamper_PreMYM"
 	{

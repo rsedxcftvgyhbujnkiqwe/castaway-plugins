@@ -1921,9 +1921,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			TF2Items_SetNumAttributes(itemNew, 3);
-			TF2Items_SetAttribute(itemNew, 0, 179, 0.0); // minicrits_become_crits
-			TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost
-			TF2Items_SetAttribute(itemNew, 2, 4, 1.25); // mult_clipsize; increase clip to 5 shots
+			TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+			TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; addcond 11 gives you crits without the glow??? what
+			TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize; increase clip to 5 shots, attrib 4 doesn't work
 		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
@@ -3840,8 +3840,10 @@ Action SDKHookCB_OnTakeDamage(
 					}
 				}
 
+				/*
 				{
 					// Release Cow Mangler 5000 old damage rampup
+					// Doesn't work.
 
 					if (StrEqual(class, "tf_projectile_energy_ball")) {
 						GetEntityClassname(weapon, class, sizeof(class));
@@ -3851,18 +3853,19 @@ Action SDKHookCB_OnTakeDamage(
 							GetItemVariant(Wep_CowMangler) == 0 &&
 							StrEqual(class, "tf_weapon_particle_cannon")
 						) {
-							// Do not use internal rampup/falloff.
-							if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
+							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
+							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-							// Deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
-							damage = 81.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.50, 0.528); 
-						
+							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
+							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
+
 							return Plugin_Changed;
 						}
 
 						return Plugin_Continue;
 					}
 				}
+				*/
 			}
 		}
 	}
@@ -3951,8 +3954,10 @@ Action SDKHookCB_OnTakeDamage_Building(
 				return Plugin_Changed;
 			}
 		}
+		/*
 		{
 			// Release Cow Mangler 5000 building damage
+			// Commenting this because I can't figure out how to revert the old damage falloff against players
 
 			if (
 				ItemIsEnabled(Wep_CowMangler) &&
@@ -3960,11 +3965,12 @@ Action SDKHookCB_OnTakeDamage_Building(
 				StrEqual(class, "tf_weapon_particle_cannon")
 			) {
 				// Building base damage should be 16 dmg
-				damage = 16.0;
+				damage = 81.0;
 
 				return Plugin_Changed;
 			}
 		}
+		*/
 	}
 
 	return Plugin_Continue;
