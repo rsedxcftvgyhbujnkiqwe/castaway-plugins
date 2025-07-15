@@ -16,6 +16,12 @@
 				"windows" "\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
 				"linux"   "@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
 			}
+			"CTFWeaponBase::ApplyOnHitAttributes"
+			{
+				"library"   "server"
+				"linux"     "@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
+				"windows"   "\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C\x8B\xF1"
+			}		
 			"CObjectSentrygun::OnWrenchHit"
 			{
 				"library" "server"
@@ -123,6 +129,17 @@
 						"offset"	"7"
 						"verify"  "\x8B\x5D\x08\x6A\x13\x8D\x83\xE0" // Verify the bytes..
 						"patch"   "\xEB\x1F\x90\x90\x90\x90\x90\x90" // Short jump to the nearest LEAVE
+					}
+				}
+
+				"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount"
+				{
+					"signature"     "CTFWeaponBase::ApplyOnHitAttributes"
+					"linux"
+					{
+						"offset"    "4233"
+						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
+						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
 					}
 				}
 
