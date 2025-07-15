@@ -4348,6 +4348,40 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
+void ParticleShow(char[] name, float origin[3], float start[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
+		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
+		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
+		TE_WriteFloat("m_vecStart[0]", start[0]);
+		TE_WriteFloat("m_vecStart[1]", start[1]);
+		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+	}
+}
+
 /**
  * Define an item used for reverts.
  * 
@@ -4772,6 +4806,12 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	return MRES_Ignored;
 }
 
+static char arm_detonate[][] = {
+	"arm_detonate_electro",
+	"arm_detonate_flare",
+	"arm_detonate_sparks"
+};
+
 void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_destroyed) {
 	int idx;
 	char class[64];
@@ -4857,6 +4897,10 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
 										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
 									}
+
+									// show particle effect
+									ParticleShow("arm_muzzleflash_zap", player_pos, target_pos);
+									ParticleShowSimple(arm_detonate[GetRandomInt(0, 2)], target_pos);
 									RemoveEntity(idx);
 								}
 							}
