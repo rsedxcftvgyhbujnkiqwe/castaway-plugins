@@ -4223,7 +4223,7 @@ Action Command_ToggleInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
-void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
+void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
@@ -4875,7 +4875,7 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 	}
 }
 
-MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
+MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnValue) {
 	int owner;
 	int weapon;
 	char class[64];
@@ -4903,9 +4903,8 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 				// for some reason, doing this in one line doesn't work
 				// we have to get the value to a var and then set it
 
-				value = DHookGetReturn(return_);
-				value = (value / 0.80); // undo airstrike attrib
-				DHookSetReturn(return_, value);
+				value = returnValue.Value / 0.80; // undo airstrike attrib
+				returnValue.Value = value;
 
 				return MRES_Override;
 			}
@@ -5003,7 +5002,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
+MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnValue) {
 	if (
 		IsPlayerAlive(entity) &&
 		TF2_GetPlayerClass(entity) == TFClass_Spy &&
@@ -5047,7 +5046,7 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 			value = false;
 		}
 
-		DHookSetReturn(return_, value);
+		returnValue.Value = value;
 
 		return MRES_Override;
 	}
