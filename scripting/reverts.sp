@@ -222,6 +222,8 @@ MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 
+MemoryPatch Patch_DroppedWeapon;
+
 // Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
 MemoryPatch patch_RevertDalokohsBar_ChgFloatAddr; 
 // Changes a MOV to 400. Basically it's for setup of the function that deals with
@@ -232,24 +234,24 @@ float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar rev
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
-DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
-
-Handle dhook_CTFAmmoPack_MakeHolidayPack;
-MemoryPatch Patch_DroppedWeapon;
+DynamicDetour dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
-Handle dhook_CTFWeaponBase_PrimaryAttack;
-Handle dhook_CTFWeaponBase_SecondaryAttack;
-Handle dhook_CTFBaseRocket_GetRadius;
-Handle dhook_CTFPlayer_CanDisguise;
-Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CAmmoPack_MyTouch;
-Handle dhook_CTFAmmoPack_PackTouch;
+
+DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
+DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
+DynamicHook dhook_CTFBaseRocket_GetRadius;
+DynamicHook dhook_CAmmoPack_MyTouch;
+
+DynamicDetour dhook_CTFPlayer_CanDisguise;
+DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
+DynamicDetour dhook_CTFAmmoPack_PackTouch;
 
 // Spycicle ammo pickup fix imported from NotnHeavy's plugin
-DHookSetup dhook_CTFPlayer_AddToSpyKnife;
+DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -373,7 +375,7 @@ TFCond debuffs[] =
 
 public void OnPluginStart() {
 	int idx;
-	Handle conf;
+	GameData conf;
 	// char tmp[64];
 
 	CCheckTrie();
@@ -595,14 +597,15 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
 
-		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
-		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
-		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
-		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
-		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
-		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
-		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
+		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
+		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
+		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
+		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
+
+		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
+		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
+		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 
 		delete conf;
 	}
@@ -654,8 +657,8 @@ public void OnPluginStart() {
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
 		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
-		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
+		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 
 		StartPrepSDKCall(SDKCall_Player);
@@ -664,10 +667,10 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_AwardAchievement = EndPrepSDKCall();
 
-		dHooks_CTFProjectile_Arrow_BuildingHealingArrow = DHookCreateFromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		dHooks_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 
-		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, false, PreHealingBoltImpact);
-		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, true, PostHealingBoltImpact);
+		dHooks_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
+		dHooks_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
@@ -716,10 +719,10 @@ public void OnPluginStart() {
 	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 
-	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
-	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-  	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
-	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
+	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
+	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
+	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1521,23 +1524,23 @@ public void OnEntityCreated(int entity, const char[] class) {
 		rocket_create_entity = entity;
 		rocket_create_frame = GetGameTickCount();
 
-		DHookEntity(dhook_CTFBaseRocket_GetRadius, true, entity, _, DHookCallback_CTFBaseRocket_GetRadius);
+		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
 	}
 
 	if (
 		StrEqual(class, "tf_weapon_flamethrower") ||
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 	) {
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
 	if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 	if (StrContains(class, "item_ammopack") == 0)
 	{
-		DHookEntity(dhook_CAmmoPack_MyTouch, false, entity, _, DHookCallback_CAmmoPack_MyTouch);
+		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
 	}
 }
 
