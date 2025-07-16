@@ -2499,11 +2499,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 								event1 = CreateEvent("player_healonhit", true);
 
-								SetEventInt(event1, "amount", health_max);
-								SetEventInt(event1, "entindex", attacker);
-								SetEventInt(event1, "weapon_def_index", -1);
+								event1.SetInt("amount", health_max);
+								event1.SetInt("entindex", attacker);
+								event1.SetInt("weapon_def_index", -1);
 
-								FireEvent(event1);
+								event1.Fire();
 							}
 						}
 					}
@@ -2526,7 +2526,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled(Wep_Ambassador) &&
 							StrEqual(class, "tf_weapon_revolver")
 						) {
-							SetEventInt(event, "customkill", TF_CUSTOM_HEADSHOT);
+							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
 
 							return Plugin_Changed;
 						}
@@ -2564,9 +2564,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						
 							{
 								event1 = CreateEvent("player_healonhit", true);
-								SetEventInt(event1, "amount", intMin(pyro_overheal_max - health_cur, 75));
-								SetEventInt(event1, "entindex", attacker);
-								SetEventInt(event1, "weapon_def_index", -1);
+								event1.SetInt("amount", intMin(pyro_overheal_max - health_cur, 75));
+								event1.SetInt("entindex", attacker);
+								event1.SetInt("weapon_def_index", -1);
 								FireEvent(event1);
 								// Set health
 								if(health_cur <= pyro_overheal_max) {
@@ -3708,10 +3708,10 @@ Action SDKHookCB_OnTakeDamage(
 					// for some reason adding TF2_IsPlayerInCondition(victim, TFCond_Bonked) makes the healing not work
 				) {
 					// Show that attacker got healed.
-					Handle event = CreateEvent("player_healonhit", true);
-					SetEventInt(event, "amount", 15);
-					SetEventInt(event, "entindex", attacker);
-					FireEvent(event);
+					Event event = CreateEvent("player_healonhit", true);
+					event.SetInt("amount", 15);
+					event.SetInt("entindex", attacker);
+					event.Fire();
 
 					// Set health.
 					health_cur = GetClientHealth(attacker);
@@ -5077,10 +5077,10 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 			int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
 
 			// Show that the player got healed.
-			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", intMin(health_max - health, heal));
-			SetEventInt(event, "entindex", client);
-			FireEvent(event);
+			Event event = CreateEvent("player_healonhit", true);
+			event.SetInt("amount", intMin(health_max - health, heal));
+			event.SetInt("entindex", client);
+			event.Fire();
 
 			// remove afterburn and bleed debuffs on heal
 			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
@@ -5110,10 +5110,10 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		if (health < health_max)
 		{
 			// Show that the player got healed.
-			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", intMin(health_max - health, 20));
-			SetEventInt(event, "entindex", client);
-			FireEvent(event);
+			Event event = CreateEvent("player_healonhit", true);
+			event.SetInt("amount", intMin(health_max - health, 20));
+			event.SetInt("entindex", client);
+			event.Fire();
 
 			// remove afterburn and bleed debuffs on heal
 			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
