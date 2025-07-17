@@ -87,7 +87,6 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define ITEM_MENU_TIME (60*3)
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.5
@@ -4198,7 +4197,7 @@ Action Command_Menu(int client, int args) {
 		menu_main.AddItem("classinfo", localizedClassInfo);
 		menu_main.AddItem("info", localizedInfo);
 		menu_main.AddItem("infotoggle", localizedInfoToggle);
-		menu_main.Display(client, ITEM_MENU_TIME);
+		menu_main.Display(client, MENU_TIME_FOREVER);
 	} else {
 		ReplyToCommand(client, "[SM] %t", "REVERT_REVERTS_DISABLED");
 	}
