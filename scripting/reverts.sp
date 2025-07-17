@@ -538,7 +538,7 @@ public void OnPluginStart() {
 
 	AutoExecConfig(true, "reverts", "sourcemod");
 
-	g_hClientMessageCookie = RegClientCookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
+	g_hClientMessageCookie = new Cookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
 
 	hudsync = CreateHudSynchronizer();
 
