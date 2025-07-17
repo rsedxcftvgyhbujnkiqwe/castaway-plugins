@@ -222,7 +222,7 @@ MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 
-MemoryPatch Patch_DroppedWeapon;
+MemoryPatch patch_DroppedWeapon;
 
 // Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
 MemoryPatch patch_RevertDalokohsBar_ChgFloatAddr; 
@@ -234,7 +234,7 @@ float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar rev
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
-DynamicDetour dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
+DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 Handle sdkcall_JarExplode;
@@ -656,7 +656,7 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 
-		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
@@ -667,10 +667,10 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_AwardAchievement = EndPrepSDKCall();
 
-		dHooks_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 
-		dHooks_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
-		dHooks_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
@@ -686,7 +686,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
-		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
+		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 
 
@@ -734,9 +734,9 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
 	if (convar.BoolValue) {
-		Patch_DroppedWeapon.Enable();
+		patch_DroppedWeapon.Enable();
 	} else {
-		Patch_DroppedWeapon.Disable();
+		patch_DroppedWeapon.Disable();
 	}
 }
 
