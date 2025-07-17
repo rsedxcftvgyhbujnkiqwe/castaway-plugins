@@ -4317,7 +4317,7 @@ float ValveRemapVal(float val, float a, float b, float c, float d) {
 	return (c + ((d - c) * tmp));
 }
 
-void ParticleShowSimple(char[] name, float position[3]) {
+void ParticleShowSimple(const char[] name, float position[3]) {
 	int idx;
 	int table;
 	int strings;
@@ -4357,7 +4357,7 @@ void ParticleShowSimple(char[] name, float position[3]) {
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
  */
-void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
+void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
@@ -4370,7 +4370,7 @@ void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
  * @param wep_enum		Weapon enum.
  * @param desc			Key for description of the item variant in the translation file.
  */
-void ItemVariant(int wep_enum, char[] desc) {
+void ItemVariant(int wep_enum, const char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
 
 	if (items[wep_enum].num_variants > MAX_VARIANTS) {
