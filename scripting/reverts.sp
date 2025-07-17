@@ -573,7 +573,7 @@ public void OnPluginStart() {
 	AddNormalSoundHook(OnSoundNormal);
 
 	{
-		conf = LoadGameConfigFile("reverts");
+		conf = new GameData("reverts");
 
 		if (conf == null) SetFailState("Failed to load reverts conf");
 
