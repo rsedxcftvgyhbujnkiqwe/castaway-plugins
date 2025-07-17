@@ -533,7 +533,7 @@
 	}
 	"CowMangler_Pre2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10% dmg penalty, 5% slower reload time"
+		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
 	}
 	"CozyCamper_PreMYM"
 	{
