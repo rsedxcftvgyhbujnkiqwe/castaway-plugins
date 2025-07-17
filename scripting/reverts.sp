@@ -371,6 +371,16 @@ TFCond debuffs[] =
 	TFCond_Gas
 };
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+	char game[128];
+	GetGameFolderName(game, sizeof(game));
+	if (!(StrEqual(game, "tf") && GetEngineVersion() == Engine_TF2)) {
+		strcopy(error, err_max, "This plugin only works on Team Fortress 2");
+		return APLRes_SilentFailure;
+	}
+	return APLRes_Success;
+}
+
 public void OnPluginStart() {
 	int idx;
 	GameData conf;
