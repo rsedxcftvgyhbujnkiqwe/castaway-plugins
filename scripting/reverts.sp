@@ -4353,7 +4353,7 @@ void ParticleShowSimple(char[] name, float position[3]) {
  * @param desc				Key for description of the item in the translation file.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
- * @param mem_patch			This reverts require a memory patch?
+ * @param mem_patch			This revert requires a memory patch?
  */
 void ItemDefine(char[] key, char[] desc, int flags, int wep_enum, bool mem_patch=false) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
