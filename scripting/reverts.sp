@@ -159,6 +159,7 @@ enum struct Player {
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
 	bool sleeper_piss_explode;
+	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
 	float parachute_cond_time;
@@ -523,6 +524,8 @@ public void OnPluginStart() {
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
+	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -1192,7 +1195,7 @@ public void OnGameFrame() {
 								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
 
 								if (
-									ItemIsEnabled(Wep_SydneySleeper) &&
+									ItemIsEnabled(Wep_SydneySleeper) && (GetItemVariant(Wep_SydneySleeper) == 0) &&
 									ammo == (players[idx].sleeper_ammo - 1)
 								) {
 									GetClientEyePosition(idx, pos1);
@@ -1670,6 +1673,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			player_weapons[client][Wep_CritCola] == true
 		) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
+		}
+	}
+
+	{
+		// Pre-GM and Release Sydney Sleeper time since scoping tracking
+		// Modify checks for the Sydney Sleeper.
+		if (
+			(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+			condition == TFCond_Slowed && 
+			GetPlayerWeaponSlot(client, TFWeaponSlot_Primary) == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
+		) {
+        	players[client].sleeper_time_since_scoping = GetGameTime();
 		}
 	}
 }
@@ -2275,8 +2290,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}	
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+			switch (GetItemVariant(Wep_SydneySleeper)) {
+				// jarate application handled elsewhere for all variants
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+					TF2Items_SetAttribute(itemNew, 2, 28, 1.0); // crit mod disabled; doesn't work
+					TF2Items_SetAttribute(itemNew, 3, 41, 1.0); // no charge rate increase
+					TF2Items_SetAttribute(itemNew, 4, 308, 1.0); // sniper_penetrate_players_when_charged
+					// temporary penetration attribute used for penetration until a way to penetrate targets when above 75% charge is found
+				}
+			}
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			switch (GetItemVariant(Wep_SodaPopper)) {
@@ -3643,10 +3677,13 @@ Action SDKHookCB_OnTakeDamage(
 
 						// this should cause a jarate application
 						players[attacker].sleeper_piss_frame = GetGameTickCount();
-						players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						if (GetItemVariant(Wep_SydneySleeper) == 0) {
+							players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						}
 						players[attacker].sleeper_piss_explode = false;
 
 						if (
+							GetItemVariant(Wep_SydneySleeper) == 0 &&
 							GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") > 149.0 ||
 							players[attacker].headshot_frame == GetGameTickCount()
 						) {
@@ -3654,6 +3691,50 @@ Action SDKHookCB_OnTakeDamage(
 							players[attacker].sleeper_piss_explode = true;
 						}
 					}
+				}
+			}
+
+			{
+				// workaround for enabling random crits on release sydney sleeper
+				// TO DO: Replicate random crit mechanic / Find a way to get the random crit multiplier so as to follow random crit damage ramp-up.
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/39f6dde8fbc238727c020d13b05ecadd31bda4c0/src/game/shared/tf/tf_player_shared.cpp#L9414
+				
+				if (
+					ItemIsEnabled(Wep_SydneySleeper) &&
+					GetItemVariant(Wep_SydneySleeper) == 2 &&
+					StrEqual(class, "tf_weapon_sniperrifle") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							StrEqual(class, "tf_weapon_sniperrifle") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+						) {
+							// Random crit chance
+							// how to get flRemapCritMul from the game?
+							//float crit_threshold = 0.02*(flRemapCritMul);
+
+							// Because I don't know yet how to get the random crit multiplier, instead we just choose a random threshold for the time being.
+							float crit_threshold = GetRandomFloat(0.02, 0.08);
+								//PrintToChatAll("crit_threshold: %f", crit_threshold);
+							float crit_roll = GetRandomFloat(0.0, 1.0);
+								//PrintToChatAll("crit_roll: %f", crit_roll);
+
+							if (crit_roll <= crit_threshold) {
+								damage_type = (damage_type | DMG_CRIT);
+									//PrintToChatAll("Random crit! crit_roll is less than crit_threshold", 0);
+								// critical hit lightning sound doesn't play, so add it back.
+								EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
+								
+								return Plugin_Changed;
+							}
+						}
+					}
+					return Plugin_Continue;
 				}
 			}
 
@@ -4016,10 +4097,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		{
-			// sleeper jarate application
+			// sleeper jarate application (pre-Blue Moon)
 
 			if (
 				ItemIsEnabled(Wep_SydneySleeper) &&
+				GetItemVariant(Wep_SydneySleeper) == 0 &&
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
 				// condition must be added in OnTakeDamageAlive, otherwise initial shot will crit
@@ -4036,6 +4118,26 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// sydney sleeper (pre-Gun Mettle & release) jarate effect
+			if (
+				ItemIsEnabled(Wep_SydneySleeper) &&
+				(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+				player_weapons[attacker][Wep_SydneySleeper] &&
+				GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0 &&
+				TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
+			) {
+				if (
+					(GetItemVariant(Wep_SydneySleeper) == 1 && !PlayerIsInvulnerable(victim)) || 
+					GetItemVariant(Wep_SydneySleeper) == 2)
+				{
+					// prevent jarate effect on invulnerable targets for pre-gun mettle sydney sleeper
+					// only apply jarate effect on invulnerable targets for release sydney sleeper for historical accuracy
+					TF2_AddCondition(victim, TFCond_Jarated, 8.0);
+					ParticleShowSimple("peejar_impact_small", damage_position); // add back small jarate impact effect
+				}
+			}
+		}		
 		{
 			if (
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
