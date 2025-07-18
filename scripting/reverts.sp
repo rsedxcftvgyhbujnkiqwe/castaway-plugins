@@ -4382,7 +4382,7 @@ void ItemVariant(int wep_enum, char[] desc) {
 void ItemFinalize() {
 	int idx;
 	char cvar_name[64];
-	char cvar_desc[256];
+	char cvar_desc[2048];
 
 	for (idx = 0; idx < NUM_ITEMS; idx++) {
 		if (items[idx].cvar != null) {
@@ -4390,7 +4390,15 @@ void ItemFinalize() {
 		}
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
-		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
+		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T\n\n"), items[idx].key, LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), "0: Disable\n");
+		char item_desc[256];
+		Format(item_desc, sizeof(item_desc), "1: %T\n", items_desc[idx][0], LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		for (int i = 1; i <= items[idx].num_variants; i++) {
+			Format(item_desc, sizeof(item_desc), "%d: %T\n", i + 1, items_desc[idx][i], LANG_SERVER);
+			StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		}
 
 		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 #if defined MEMORY_PATCHES
