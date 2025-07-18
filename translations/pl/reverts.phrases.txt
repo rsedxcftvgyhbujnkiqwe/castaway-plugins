@@ -477,6 +477,7 @@
 	"BabyFace_Release"
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
+	}
 	"Beggars_Pre2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, brak redukcji pola rażenia, niewypały nie usuwają rakiet z magazynka"
