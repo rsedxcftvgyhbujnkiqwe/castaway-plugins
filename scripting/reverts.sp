@@ -100,7 +100,6 @@ public Plugin myinfo = {
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
 #define TF_DMG_CUSTOM_NONE 0
 #define TF_DMG_CUSTOM_BACKSTAB 2
-#define TF_DMG_CUSTOM_PUMPKIN_BOMB 19
 #define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
 #define TF_DMG_CUSTOM_BASEBALL 22
 #define TF_DMG_CUSTOM_CHARGE_IMPACT 23
@@ -4039,14 +4038,14 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if(
 				(GetItemVariant(Wep_RocketJumper) >= 1 || GetItemVariant(Wep_StickyJumper) >= 2) &&
 				victim == attacker &&
-				(damage_custom == TF_DMG_CUSTOM_PUMPKIN_BOMB || damage_type == DMG_BLAST) &&
+				damage > 0 &&
 				(player_weapons[victim][Wep_RocketJumper] || player_weapons[victim][Wep_StickyJumper])
 			) {
-				// save old health and set health to 500 to tank the grenade blast
-				// do it this way in order to preserve knockback caused by the explosion
+				// save old health and set health to 500 to tank self blast damage
+				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
-					PrintToChat(victim, "set health to 500, tanking...", 0);
+					//PrintToChat(victim, "set health to 500, tanking...", 0);
 			}
 		}	
 	}
@@ -4095,7 +4094,7 @@ void SDKHookCB_OnTakeDamagePost(
 		if(
 			(GetItemVariant(Wep_RocketJumper) >= 1 || GetItemVariant(Wep_StickyJumper) >= 2) &&
 			victim == attacker &&
-			(damage_custom == TF_DMG_CUSTOM_PUMPKIN_BOMB || damage_type == DMG_BLAST) &&
+			damage > 0 &&
 			(player_weapons[victim][Wep_RocketJumper] || player_weapons[victim][Wep_StickyJumper])
 		) {
 			// set back saved health after self blast damage with jumper weapons
