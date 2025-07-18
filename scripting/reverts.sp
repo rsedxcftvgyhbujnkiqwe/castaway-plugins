@@ -4034,12 +4034,12 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			// no self blast damage including from pumpkin bombs for sticky jumper and rocket jumper revert variants
+			// no self blast damage including from pumpkin bombs for rocket jumper revert variants
 			if(
-				(GetItemVariant(Wep_RocketJumper) >= 1 || GetItemVariant(Wep_StickyJumper) >= 2) &&
+				GetItemVariant(Wep_RocketJumper) >= 1 &&
 				victim == attacker &&
 				damage > 0 &&
-				(player_weapons[victim][Wep_RocketJumper] || player_weapons[victim][Wep_StickyJumper])
+				player_weapons[victim][Wep_RocketJumper]
 			) {
 				// save old health and set health to 500 to tank self blast damage
 				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
@@ -4047,7 +4047,21 @@ Action SDKHookCB_OnTakeDamageAlive(
 				SetEntityHealth(victim, 500);
 					//PrintToChat(victim, "set health to 500, tanking...", 0);
 			}
-		}	
+
+			// no self blast damage including from pumpkin bombs for sticky jumper variants
+			if(
+				GetItemVariant(Wep_StickyJumper) >= 2 &&
+				victim == attacker &&
+				damage > 0 &&
+				player_weapons[victim][Wep_StickyJumper]
+			) {
+				// save old health and set health to 500 to tank self blast damage
+				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
+				players[victim].old_health = GetClientHealth(victim);
+				SetEntityHealth(victim, 500);
+					//PrintToChat(victim, "set health to 500, tanking...", 0);
+			}
+		}
 	}
 
 	return returnValue;
@@ -4091,15 +4105,26 @@ void SDKHookCB_OnTakeDamagePost(
 			SetEntityHealth(victim, players[victim].old_health);
 		}
 
-		if(
-			(GetItemVariant(Wep_RocketJumper) >= 1 || GetItemVariant(Wep_StickyJumper) >= 2) &&
-			victim == attacker &&
-			damage > 0 &&
-			(player_weapons[victim][Wep_RocketJumper] || player_weapons[victim][Wep_StickyJumper])
-		) {
+		{
 			// set back saved health after self blast damage with jumper weapons
-			SetEntityHealth(victim, players[victim].old_health);
-		}		
+			if(
+				GetItemVariant(Wep_RocketJumper) >= 1 &&
+				victim == attacker &&
+				damage > 0 &&
+				player_weapons[victim][Wep_RocketJumper]
+			) {
+				SetEntityHealth(victim, players[victim].old_health);
+			}
+
+			if(
+				GetItemVariant(Wep_StickyJumper) >= 2 &&
+				victim == attacker &&
+				damage > 0 &&
+				player_weapons[victim][Wep_StickyJumper]
+			) {
+				SetEntityHealth(victim, players[victim].old_health);
+			}
+		}
 
 		if (inflictor > MaxClients) {
 			GetEntityClassname(inflictor, class, sizeof(class));
