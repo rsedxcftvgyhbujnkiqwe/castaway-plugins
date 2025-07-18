@@ -500,7 +500,9 @@ public void OnPluginStart() {
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemVariant(Wep_Bison, "Bison_PreMYM_Historical");
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
-	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2013_Intel");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2011");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Oct2010");
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
@@ -519,6 +521,8 @@ public void OnPluginStart() {
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
+	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
+	ItemVariant(Wep_StickyJumper, "StkJumper_ReleaseDay2");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -1835,9 +1839,34 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 237: { if (GetItemVariant(Wep_RocketJumper) == 1) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 400, 0.0);
+		case 237: { if (ItemIsEnabled(Wep_RocketJumper)) {
+			switch (GetItemVariant(Wep_RocketJumper)) {
+				case 0: { // RocketJmp_Pre2013
+					TF2Items_SetNumAttributes(itemNew, 0);
+				}				
+				case 1: { // RocketJmp_Release
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+				}
+				case 2: { // RocketJmp_Pre2011 (December 22, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
+					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
+					TF2Items_SetAttribute(itemNew, 4, 67, 2.00); // 100% dmg taken from bullets increased
+					TF2Items_SetAttribute(itemNew, 5, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}
+				case 3: { // RocketJmp_Oct2010 (October 27, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 2, 125, -100.0); // max health additive penalty
+					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}	
+			}
+					
 		}}
 		case 730: { if (ItemIsEnabled(Wep_Beggars)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -2285,15 +2314,31 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 265: { if (ItemIsEnabled(Wep_StickyJumper)) {
 			switch (GetItemVariant(Wep_StickyJumper)) {
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 1, 400, 0.0);
-				}
-				default: {
+				case 0: { // StkJumper_Pre2013 (Pyromania Update version)
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
 				}
+				case 1: { // StkJumper_Pre2013_Intel (Manniversary Update version)
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+				}
+				case 2: { // StkJumper_Pre2011 (December 22, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
+					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
+					TF2Items_SetAttribute(itemNew, 4, 67, 2.00); // 100% dmg taken from bullets increased
+					TF2Items_SetAttribute(itemNew, 5, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}
+				case 3: { // StkJumper_ReleaseDay2 (October 28, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 2, 125, -75.0); // max health additive penalty
+					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}																
 			}
 		}}
 		case 131, 1144: { if (ItemIsEnabled(Wep_CharginTarge)) {

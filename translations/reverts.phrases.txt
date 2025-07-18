@@ -775,10 +775,18 @@
 	{
 		"en"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"en"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel"
+		"en"	"Reverted to release, no self blast damage including from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
 	}
+	"RocketJmp_Pre2011"
+	{
+		"en"	"Reverted to December 22, 2010: no self blast damage including from Equalizer/Escape Plan taunt, +100%% bullet, explosive, and fire damage vulns, wearer can pick up intel, random crits"
+	}
+	"RocketJmp_Oct2010"
+	{
+		"en"	"Reverted to October 27, 2010: no self blast damage including from Equalizer/Escape Plan taunt, -100 max health, wearer can pick up intel, random crits"
+	}		
 	"Saharan_Release"
 	{
 		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger (removes +40%% cloak) and YER to gain the bonus, the hat is not required."
@@ -849,8 +857,16 @@
 	}
 	"StkJumper_Pre2013_Intel"
 	{
-		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once again, wearer can pick up intel"
+		"en"	"Reverted to Manniversary update, can have 8 stickybombs out at once again, wearer can pick up intel"
 	}
+	"StkJumper_Pre2011"
+	{
+		"en"	"Reverted to December 22, 2010: 8 stickybombs out at once again, wearer can pick up intel, +100%% bullet, explosive, and fire damage vulns, no self blast damage, random crits"
+	}
+	"StkJumper_ReleaseDay2"
+	{
+		"en"	"Reverted to October 28, 2010: 8 stickybombs out at once again, wearer can pick up intel, -75 max health, no self blast damage, random crits"
+	}			
 	"Sleeper_PreBM"
 	{
 		"en"	"Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction"

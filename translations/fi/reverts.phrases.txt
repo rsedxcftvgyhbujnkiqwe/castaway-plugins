@@ -780,9 +780,9 @@
 	{
 		"fi"	"Ennen vuotta 2013: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"fi"	"Ennen vuotta 2013: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta, käyttäjä voi kantaa tiedustelusalkkua"
+		"fi"	"Julkaisuversio: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta, käyttäjä voi kantaa tiedustelusalkkua, satunnaiset kriittiset osumat"
 	}
 	"Saharan_Release"
 	{
