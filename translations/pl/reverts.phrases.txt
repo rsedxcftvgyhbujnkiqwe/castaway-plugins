@@ -88,7 +88,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"pl"	"Wyłączono szczegóły dotyczące przywróconych broni po zmianie wyposażenia. Włącz je z powrotem wpisując !revertsinfo lub otwierając menu !reverts"
+		"pl"	"Wyłączono szczegóły dotyczące przywróconych broni po zmianie wyposażenia. Włącz je z powrotem wpisując !toggleinfo lub otwierając menu !reverts"
 	}
 	"REVERT_MENU_TITLE"
 	{
