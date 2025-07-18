@@ -33,6 +33,7 @@ ConVar cvarVanillaScrambleTimeout;
 int g_iVoters;
 int g_iVotes;
 int g_iVotesNeeded;
+int g_iVoteCooldownExpireTime;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
@@ -196,6 +197,11 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 	char errorMsg[MAX_NAME_LENGTH] = "";
 	if (g_bServerWaitingForPlayers)
 	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Waiting);
+			return;
+		}
 		errorMsg = "Server is still waiting for players.";
 	}
 	if (g_bScrambleTeams)
@@ -204,12 +210,13 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 	}
 	if (g_bVoteCooldown)
 	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Recent, g_iVoteCooldownExpireTime - GetTime());
+			return;
+		}
 		errorMsg = "Sorry, votescramble is currently on cool-down.";
 	}
-
-	char name[MAX_NAME_LENGTH];
-	GetClientName(client, name, sizeof(name));
-
 	if (g_bVoted[client])
 	{
 		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
@@ -227,6 +234,9 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 		}
 		return;
 	}
+
+	char name[MAX_NAME_LENGTH];
+	GetClientName(client, name, sizeof(name));
 
 	g_iVotes++;
 	g_bVoted[client] = true;
@@ -248,6 +258,7 @@ void StartVoteScramble()
 
 	ResetVoteScramble();
 	g_bVoteCooldown = true;
+	g_iVoteCooldownExpireTime = GetTime() + RoundToNearest(cvarVoteTimeDelay.FloatValue);
 	CreateTimer(cvarVoteTimeDelay.FloatValue, Timer_Delay, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
