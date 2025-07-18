@@ -1847,12 +1847,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 1: { // RocketJmp_Release
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
-					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 				}
 				case 2: { // RocketJmp_Pre2011 (December 22, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 6);
 					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
-					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
 					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
 					TF2Items_SetAttribute(itemNew, 4, 67, 2.00); // 100% dmg taken from bullets increased
@@ -1861,7 +1861,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 3: { // RocketJmp_Oct2010 (October 27, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
-					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 2, 125, -100.0); // max health additive penalty
 					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
 				}	
@@ -2324,20 +2324,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
 				}
 				case 2: { // StkJumper_Pre2011 (December 22, 2010 version)
-					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetNumAttributes(itemNew, 7);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
 					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
-					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
-					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
-					TF2Items_SetAttribute(itemNew, 4, 67, 2.00); // 100% dmg taken from bullets increased
-					TF2Items_SetAttribute(itemNew, 5, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 3, 61, 2.00); // 100% dmg taken from fire increased
+					TF2Items_SetAttribute(itemNew, 4, 65, 2.00); // 100% dmg taken from blast increased
+					TF2Items_SetAttribute(itemNew, 5, 67, 2.00); // 100% dmg taken from bullets increased
+					TF2Items_SetAttribute(itemNew, 6, 207, 0.0); // remove self blast dmg; blast dmg to self increased (only works for the weapon itself)
 				}
 				case 3: { // StkJumper_ReleaseDay2 (October 28, 2010 version)
-					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
 					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
-					TF2Items_SetAttribute(itemNew, 2, 125, -75.0); // max health additive penalty
-					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 3, 125, -75.0); // max health additive penalty
+					TF2Items_SetAttribute(itemNew, 4, 207, 0.0); // remove self blast dmg; blast dmg to self increased
 				}																
 			}
 		}}
