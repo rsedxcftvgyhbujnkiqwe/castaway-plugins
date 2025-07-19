@@ -4841,7 +4841,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 				StrEqual(class, "tf_projectile_flare") ||
 				StrEqual(class, "tf_projectile_stun_ball") ||
 				StrEqual(class, "tf_projectile_ball_ornament") ||
-				StrEqual(class, "tf_projectile_cleaver")
+				StrEqual(class, "tf_projectile_cleaver") ||
+				StrEqual(class, "tf_projectile_healing_bolt") ||
+				StrEqual(class, "tf_projectile_balloffire")
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
