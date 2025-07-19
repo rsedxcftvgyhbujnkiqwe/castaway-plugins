@@ -4348,7 +4348,7 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
-void ParticleShow(char[] name, float origin[3], float start[3]) {
+void ParticleShow(char[] name, float origin[3], float start[3], float angles[3]) {
 	int idx;
 	int table;
 	int strings;
@@ -4377,6 +4377,7 @@ void ParticleShow(char[] name, float origin[3], float start[3]) {
 		TE_WriteFloat("m_vecStart[0]", start[0]);
 		TE_WriteFloat("m_vecStart[1]", start[1]);
 		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteVector("m_vecAngles", angles);
 		TE_WriteNum("m_iParticleSystemIndex", particle);
 		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
 	}
@@ -4896,7 +4897,7 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 
 									// show particle effect
 									// not sure if these are the right ones, but it looks fine enough
-									ParticleShow("arm_muzzleflash_zap", player_pos, target_pos);
+									ParticleShow("arm_muzzleflash_zap", player_pos, target_pos, angles1);
 									ParticleShowSimple("arm_detonate_flare", target_pos);
 									RemoveEntity(idx);
 								}
