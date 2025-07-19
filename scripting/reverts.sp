@@ -4031,6 +4031,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// do it this way in order to preserve knockback caused by the explosion
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
+					//PrintToChat(victim, "Kamikaze: set health to 500, tanking...", 0);
 			}
 		}
 		{
@@ -4038,6 +4039,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if(
 				GetItemVariant(Wep_RocketJumper) >= 1 &&
 				victim == attacker &&
+				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE && // bug fix to prevent 500 hp overheal
 				damage > 0 &&
 				player_weapons[victim][Wep_RocketJumper]
 			) {
@@ -4045,7 +4047,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
-					//PrintToChat(victim, "set health to 500, tanking...", 0);
+					//PrintToChat(victim, "RJ: set health to 500, tanking...", 0);
 			}
 
 			// no self blast damage including from pumpkin bombs for sticky jumper variants
@@ -4059,7 +4061,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
-					//PrintToChat(victim, "set health to 500, tanking...", 0);
+					//PrintToChat(victim, "SJ: set health to 500, tanking...", 0);
 			}
 		}
 	}
@@ -4103,6 +4105,7 @@ void SDKHookCB_OnTakeDamagePost(
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
+				//PrintToChat(victim, "Kamikaze: set back to saved health", 0);
 		}
 
 		{
@@ -4110,10 +4113,12 @@ void SDKHookCB_OnTakeDamagePost(
 			if(
 				GetItemVariant(Wep_RocketJumper) >= 1 &&
 				victim == attacker &&
+				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
 				damage > 0 &&
 				player_weapons[victim][Wep_RocketJumper]
 			) {
 				SetEntityHealth(victim, players[victim].old_health);
+					//PrintToChat(victim, "RJ: set back to saved health", 0);
 			}
 
 			if(
@@ -4123,6 +4128,7 @@ void SDKHookCB_OnTakeDamagePost(
 				player_weapons[victim][Wep_StickyJumper]
 			) {
 				SetEntityHealth(victim, players[victim].old_health);
+					//PrintToChat(victim, "SJ: set back to saved health", 0);
 			}
 		}
 
