@@ -93,8 +93,6 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
-#define TF_STUN_MOVEMENT	(1<<0) // used for pre-GM Natascha revert
-
 // game code defs
 #define EF_NODRAW 0x20
 #define FSOLID_USE_TRIGGER_BOUNDS 0x80
