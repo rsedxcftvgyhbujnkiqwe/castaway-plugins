@@ -3776,7 +3776,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// Slow enemy on hit, unless they're being healed by a medic
 					if (!TF2_IsPlayerInCondition(victim, TFCond_Healing))
-						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUN_MOVEMENT, attacker);
+						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
 				}
 			}
 
