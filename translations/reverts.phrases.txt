@@ -697,7 +697,7 @@
 	}
 	"Natascha_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, no damage resistance, 300 max ammo, stun has no distance falloff"
+		"en"	"Reverted to pre-gunmettle, full slowdown at any distance, 300 max ammo, no damage resistance when spun up"
 	}	
 	"Panic_PreJI"
 	{

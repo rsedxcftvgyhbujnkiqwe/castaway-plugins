@@ -2104,7 +2104,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // 0% damage resistance when below 50% health and spun up
 					TF2Items_SetAttribute(itemNew, 1, 32, 0.00); // On Hit: 0% chance to slow target
 					TF2Items_SetAttribute(itemNew, 2, 76, 1.50); // 50% max primary ammo on wearer
-					// no distance falloff for natascha stun handled elsewhere
+					// no distance falloff for natascha slowdown handled elsewhere
 				}
 			}
 		}}
@@ -3983,7 +3983,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 		{
 			if (
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
-				(ItemIsEnabled(Wep_Natascha) && player_weapons[victim][Wep_Natascha])) &&
+				(GetItemVariant(Wep_Natascha) == 0 && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy
 			) {
