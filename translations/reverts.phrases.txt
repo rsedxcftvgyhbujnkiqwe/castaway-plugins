@@ -695,6 +695,10 @@
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
+	"Natascha_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no damage resistance, 300 max ammo, stun has no distance falloff"
+	}	
 	"Panic_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health"

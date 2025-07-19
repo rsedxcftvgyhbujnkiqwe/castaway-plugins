@@ -93,6 +93,8 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
+#define TF_STUN_MOVEMENT	(1<<0) // used for pre-GM Natascha revert
+
 // game code defs
 #define EF_NODRAW 0x20
 #define FSOLID_USE_TRIGGER_BOUNDS 0x80
@@ -475,6 +477,7 @@ public void OnPluginStart() {
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
+	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
@@ -2091,8 +2094,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // spunup damage resistance
+			switch (GetItemVariant(Wep_Natascha)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // spunup damage resistance
+				}
+				case 1: { // imported from NotnHeavy's pre-GM plugin
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // 0% damage resistance when below 50% health and spun up
+					TF2Items_SetAttribute(itemNew, 1, 32, 0.00); // On Hit: 0% chance to slow target
+					TF2Items_SetAttribute(itemNew, 2, 76, 1.50); // 50% max primary ammo on wearer
+					// no distance falloff for natascha stun handled elsewhere
+				}
+			}
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
 			TF2Items_SetNumAttributes(itemNew, 11);
@@ -3692,6 +3706,7 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
+				// pre-GM Black Box heal on hit
 				if (
 					ItemIsEnabled(Wep_BlackBox) &&
 					StrEqual(class,"tf_weapon_rocketlauncher") &&
@@ -3751,6 +3766,19 @@ Action SDKHookCB_OnTakeDamage(
 							return Plugin_Handled;
 						}
 					}
+				}
+			}
+
+			{
+				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
+				if (
+					GetItemVariant(Wep_Natascha) == 1 &&
+					StrEqual(class,"tf_weapon_minigun") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
+				) {
+					// Slow enemy on hit, unless they're being healed by a medic
+					if (!TF2_IsPlayerInCondition(victim, TFCond_Healing))
+						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUN_MOVEMENT, attacker);
 				}
 			}
 
