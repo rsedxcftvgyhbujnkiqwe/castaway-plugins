@@ -356,7 +356,7 @@ public Action Timer_StartScramble(Handle timer, bool vanillaTimeout) {
 		return Plugin_Continue;
 	}
 
-	CreateTimer(1.0, Timer_Countdown, 5);
+	CreateTimer(0.0, Timer_Countdown, 5);
 	return Plugin_Continue;
 }
 
