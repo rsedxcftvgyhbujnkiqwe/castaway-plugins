@@ -4533,12 +4533,8 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
-		if (config_value) {
-			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_ENABLED");
-		} else {
-			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_DISABLED");
-		}
+		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0);
+		ReplyToCommand(client, "%t", config_value ? "REVERT_LOADOUT_CHANGE_ENABLED" : "REVERT_LOADOUT_CHANGE_DISABLED");
 		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
 }
