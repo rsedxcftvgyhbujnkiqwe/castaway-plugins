@@ -283,29 +283,29 @@ void VoteScrambleMenu()
 		return;
 	}
 
-	Handle vote = NativeVotes_Create(NativeVote_Handler, NativeVotesType_Custom_Mult);
+	NativeVote vote = new NativeVote(NativeVote_Handler, NativeVotesType_Custom_Mult);
 
-	NativeVotes_SetTitle(vote, "Scramble teams?");
+	vote.SetTitle("Scramble teams?");
 
-	NativeVotes_AddItem(vote, "yes", "Yes");
-	NativeVotes_AddItem(vote, "no", "No");
-	NativeVotes_DisplayToAll(vote, cvarVoteTime.IntValue);
+	vote.AddItem("yes", "Yes");
+	vote.AddItem("no", "No");
+	vote.DisplayVoteToAll(cvarVoteTime.IntValue);
 }
 
-public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int param2)
+public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
-		case MenuAction_End: NativeVotes_Close(vote);
+		case MenuAction_End: vote.Close();
 		case MenuAction_VoteCancel:
 		{
 			if (param1 == VoteCancel_NoVotes)
 			{
-				NativeVotes_DisplayFail(vote, NativeVotesFail_NotEnoughVotes);
+				vote.DisplayFail(NativeVotesFail_NotEnoughVotes);
 			}
 			else
 			{
-				NativeVotes_DisplayFail(vote, NativeVotesFail_Generic);
+				vote.DisplayFail(NativeVotesFail_Generic);
 			}
 		}
 		case MenuAction_VoteEnd:
@@ -315,7 +315,7 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 			int votes, totalVotes;
 
 			GetMenuVoteInfo(param2, votes, totalVotes);
-			NativeVotes_GetItem(vote, param1, item, sizeof(item));
+			vote.GetItem(param1, item, sizeof(item));
 
 			percent = float(votes) / float(totalVotes);
 			limit = cvarVoteMenuPercent.FloatValue;
@@ -324,16 +324,16 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 			{
 				if (g_bCanScramble)
 				{
-					NativeVotes_DisplayPass(vote, "Scrambling teams...");
+					vote.DisplayPass("Scrambling teams...");
 					ScheduleScramble();
 				}
 				else
 				{
-					NativeVotes_DisplayPass(vote, "Teams will be scrambled next round.");
+					vote.DisplayPass("Teams will be scrambled next round.");
 					g_bScrambleTeams = true;
 				}
 			}
-			else NativeVotes_DisplayFail(vote, NativeVotesFail_Loses);
+			else vote.DisplayFail(NativeVotesFail_Loses);
 		}
 	}
 	return 0;
