@@ -3819,9 +3819,10 @@ Action SDKHookCB_OnTakeDamage(
 								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
 							}
 
-							// Remove bullet damage flags so it's untyped damage
+							// Remove bullet damage flags so it's untyped damage, enable sonic damage flag so the fists of steel ranged resistance works correctly, restore knockback
 							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
-							if (damage_type & DMG_BUCKSHOT != 0) damage_type ^= DMG_BUCKSHOT;
+							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
+							if (damage_type & DMG_SONIC == 0) damage_type |= DMG_SONIC;
 
 							return Plugin_Changed;
 						}
