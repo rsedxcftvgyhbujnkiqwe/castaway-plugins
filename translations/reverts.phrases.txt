@@ -115,6 +115,11 @@
 	{
 		"en"	"Toggle moonshot message"
 	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} just landed a MOONSHOT on {2} !"
+	}
 
 	// item names
 	"airblast"

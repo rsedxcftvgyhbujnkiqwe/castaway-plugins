@@ -3581,9 +3581,13 @@ Action SDKHookCB_OnTakeDamage(
 									if (cvar_show_moonshot.BoolValue) {
 										SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
 
+										char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+										GetClientName(attacker, attackerName, sizeof(attackerName));
+										GetClientName(victim, victimName, sizeof(victimName));
+
 										for (idx = 1; idx <= MaxClients; idx++) {
 											if (IsClientInGame(idx) && g_hClientShowMoonshot.GetInt(idx, 1)) {
-												ShowSyncHudText(idx, hudsync, "%N just landed a MOONSHOT on %N !", attacker, victim);
+												ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
 											}
 										}
 									}
