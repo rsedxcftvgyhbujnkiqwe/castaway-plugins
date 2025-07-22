@@ -3586,7 +3586,7 @@ Action SDKHookCB_OnTakeDamage(
 										GetClientName(victim, victimName, sizeof(victimName));
 
 										for (idx = 1; idx <= MaxClients; idx++) {
-											if (IsClientInGame(idx) && g_hClientShowMoonshot.GetInt(idx, 1)) {
+											if (IsClientInGame(idx) && !IsFakeClient(idx) && g_hClientShowMoonshot.GetInt(idx, 1)) {
 												ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
 											}
 										}
