@@ -974,6 +974,10 @@ public void OnGameFrame() {
 									SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
 								}
 
+								// emit purple smoke (still shows white smoke too but good enough for now)
+								GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
+								ParticleShowSimple("doublejump_puff_alt", pos1);
+
 								if (airdash_limit_new > airdash_limit_old) {
 									// only play sound if the game doesn't play it
 									EmitSoundToAll("misc/banana_slip.wav", idx, SNDCHAN_AUTO, 30, (SND_CHANGEVOL|SND_CHANGEPITCH), 1.0, 100);
