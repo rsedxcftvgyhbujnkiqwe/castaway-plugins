@@ -3195,18 +3195,24 @@ Action SDKHookCB_Touch(int entity, int other) {
 			) {
 				GetEntityClassname(weapon, class, sizeof(class));
 				
-				// Pomson pass through teammate buildings
 				if (
-					ItemIsEnabled(Wep_Pomson) &&
-					StrEqual(class, "tf_weapon_drg_pomson")
+					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) || 
+					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 				) {
 					GetEntityClassname(other, class, sizeof(class));
+
+					// Pomson pass through teammate buildings
 					if (
 						(StrEqual(class, "obj_sentrygun") ||
 						StrEqual(class, "obj_dispenser") ||
 						StrEqual(class, "obj_teleporter")) &&
 						AreEntitiesOnSameTeam(entity, other)
 					) {
+						return Plugin_Handled;
+					}
+					
+					// Don't collide with projectiles
+					if (StrContains(class, "tf_projectile_") == 0) {
 						return Plugin_Handled;
 					}
 				}
