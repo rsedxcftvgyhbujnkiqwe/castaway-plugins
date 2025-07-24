@@ -136,6 +136,7 @@ enum struct Item {
 	int flags;
 	int num_variants;
 	ConVar cvar;
+	bool mem_patch;
 }
 
 enum struct Player {
@@ -159,6 +160,7 @@ enum struct Player {
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
 	bool sleeper_piss_explode;
+	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
 	float parachute_cond_time;
@@ -190,7 +192,9 @@ ConVar cvar_enable;
 ConVar cvar_extras;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
+#if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
+#endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
@@ -221,6 +225,10 @@ MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Shells;
 MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
+
+MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
+float g_flMadMilkHealTarget = 0.75;
+Address AddressOf_g_flMadMilkHealTarget;
 
 // Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
 MemoryPatch patch_RevertDalokohsBar_ChgFloatAddr; 
@@ -296,6 +304,7 @@ enum
 	Wep_BuffaloSteak,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
+	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
@@ -311,6 +320,7 @@ enum
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
+	Wep_MadMilk,
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
@@ -389,16 +399,20 @@ public void OnPluginStart() {
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+#endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 
+#if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
+#endif
 
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
-	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
+	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 #endif
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
@@ -423,8 +437,10 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
+	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
-	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
+	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
@@ -433,7 +449,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh, true);
 #endif
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
@@ -442,10 +458,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PreTB");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined MEMORY_PATCHES
-	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
+	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury, true);
 #else
 	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
@@ -473,6 +489,7 @@ public void OnPluginStart() {
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk);
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
@@ -487,7 +504,7 @@ public void OnPluginStart() {
 	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 #if defined MEMORY_PATCHES
-	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix, true);
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
@@ -521,6 +538,8 @@ public void OnPluginStart() {
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
+	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -529,7 +548,7 @@ public void OnPluginStart() {
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined MEMORY_PATCHES
-	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler, true);
 #endif
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
@@ -553,6 +572,10 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 
+#if !defined MEMORY_PATCHES
+	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
+#endif
+
 	RegConsoleCmd("sm_revert", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
 	RegConsoleCmd("sm_reverts", Command_Menu, (PLUGIN_NAME ... " - Open reverts menu"), 0);
 	RegConsoleCmd("sm_revertinfo", Command_Info, (PLUGIN_NAME ... " - Show reverts info in console"), 0);
@@ -565,9 +588,6 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
-#if defined MEMORY_PATCHES
-	HookEvent("server_cvar", OnServerCvarChanged, EventHookMode_Pre);
-#endif
 
 	AddNormalSoundHook(OnSoundNormal);
 
@@ -650,6 +670,9 @@ public void OnPluginStart() {
 		patch_RevertDalokohsBar_ChgFloatAddr =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
+		patch_RevertMadMilk_ChgFloatAddr =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
 		patch_RevertDalokohsBar_ChgTo400 =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
@@ -682,10 +705,12 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRefillNerf_Rockets)) SetFailState("Failed to create patch_RevertWrangler_WrenchRefillNerf_Rockets");
 		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) SetFailState("Failed to create patch_RevertCozyCamper_FlinchNerf");
 		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
+		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) SetFailState("Failed to create patch_RevertMadMilk_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
+		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
 
 		delete conf;
@@ -728,6 +753,8 @@ public void OnPluginStart() {
 	}
 }
 
+
+#if defined MEMORY_PATCHES
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
@@ -737,6 +764,11 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		Patch_DroppedWeapon.Disable();
 	}
 }
+#else
+public void OnDroppedWeaponLifetimeCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
+}
+#endif
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
@@ -747,19 +779,22 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
-#endif
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+#else
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
+#endif
 }
 
 #if defined MEMORY_PATCHES
 bool ValidateAndNullCheck(MemoryPatch patch) {
-	return (patch.Validate() && patch != null);
+	return patch.Validate() && patch != null;
 }
 
-Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
+void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	char cvarName[128];
-	event.GetString("cvarname", cvarName, sizeof(cvarName));
+	convar.GetName(cvarName, sizeof(cvarName));	
 	if (StrContains(cvarName, "sm_reverts__item_") != -1)
 	{
 		char item[64];
@@ -767,11 +802,10 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 		for (int i; i < NUM_ITEMS; i++) {
 			if (StrEqual(items[i].key,item)) {
 				ToggleMemoryPatchReverts(ItemIsEnabled(i),i);
-				return Plugin_Handled;
+				return;
 			}
 		}
 	}
-	return Plugin_Continue;
 }
 
 void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
@@ -841,6 +875,14 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertDalokohsBar_ChgFloatAddr.Disable();
 				patch_RevertDalokohsBar_ChgTo400.Disable();
+			}
+		}
+		case Wep_MadMilk: {
+			if (enable) {
+				patch_RevertMadMilk_ChgFloatAddr.Enable();
+				StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flMadMilkHealTarget), NumberType_Int32);
+			} else {
+				patch_RevertMadMilk_ChgFloatAddr.Disable();
 			}
 		}
 	}
@@ -1190,7 +1232,7 @@ public void OnGameFrame() {
 								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
 
 								if (
-									ItemIsEnabled(Wep_SydneySleeper) &&
+									ItemIsEnabled(Wep_SydneySleeper) && (GetItemVariant(Wep_SydneySleeper) == 0) &&
 									ammo == (players[idx].sleeper_ammo - 1)
 								) {
 									GetClientEyePosition(idx, pos1);
@@ -1670,6 +1712,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
 		}
 	}
+
+	{
+		// Pre-GM and Release Sydney Sleeper time since scoping tracking
+		// Modify checks for the Sydney Sleeper.
+		if (
+			(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+			condition == TFCond_Slowed && 
+			GetPlayerWeaponSlot(client, TFWeaponSlot_Primary) == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
+		) {
+        	players[client].sleeper_time_since_scoping = GetGameTime();
+		}
+	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1918,6 +1972,25 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
+			switch (GetItemVariant(Wep_CowMangler)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
+					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost
+					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade
+					TF2Items_SetAttribute(itemNew, 3, 96, 1.05); // mult_reload_time; 5% slower reload time
+					TF2Items_SetAttribute(itemNew, 4, 1, 0.90); // mult_dmg; 10% damage penalty
+				}
+				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
+			}
+		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
 				case 1: {
@@ -2091,6 +2164,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 222: { if (ItemIsEnabled(Wep_MadMilk)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
+		}}		
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
 			switch (GetItemVariant(Wep_Natascha)) {
 				case 0: {
@@ -2265,8 +2342,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}	
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+			switch (GetItemVariant(Wep_SydneySleeper)) {
+				// jarate application handled elsewhere for all variants
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+					TF2Items_SetAttribute(itemNew, 2, 28, 1.0); // crit mod disabled; doesn't work
+					TF2Items_SetAttribute(itemNew, 3, 41, 1.0); // no charge rate increase
+					TF2Items_SetAttribute(itemNew, 4, 308, 1.0); // sniper_penetrate_players_when_charged
+					// temporary penetration attribute used for penetration until a way to penetrate targets when above 75% charge is found
+				}
+			}
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			switch (GetItemVariant(Wep_SodaPopper)) {
@@ -2671,6 +2767,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
+						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
@@ -3632,10 +3729,13 @@ Action SDKHookCB_OnTakeDamage(
 
 						// this should cause a jarate application
 						players[attacker].sleeper_piss_frame = GetGameTickCount();
-						players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						if (GetItemVariant(Wep_SydneySleeper) == 0) {
+							players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						}
 						players[attacker].sleeper_piss_explode = false;
 
 						if (
+							GetItemVariant(Wep_SydneySleeper) == 0 &&
 							GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") > 149.0 ||
 							players[attacker].headshot_frame == GetGameTickCount()
 						) {
@@ -3643,6 +3743,50 @@ Action SDKHookCB_OnTakeDamage(
 							players[attacker].sleeper_piss_explode = true;
 						}
 					}
+				}
+			}
+
+			{
+				// workaround for enabling random crits on release sydney sleeper
+				// TO DO: Replicate random crit mechanic / Find a way to get the random crit multiplier so as to follow random crit damage ramp-up.
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/39f6dde8fbc238727c020d13b05ecadd31bda4c0/src/game/shared/tf/tf_player_shared.cpp#L9414
+				
+				if (
+					ItemIsEnabled(Wep_SydneySleeper) &&
+					GetItemVariant(Wep_SydneySleeper) == 2 &&
+					StrEqual(class, "tf_weapon_sniperrifle") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							StrEqual(class, "tf_weapon_sniperrifle") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+						) {
+							// Random crit chance
+							// how to get flRemapCritMul from the game?
+							//float crit_threshold = 0.02*(flRemapCritMul);
+
+							// Because I don't know yet how to get the random crit multiplier, instead we just choose a random threshold for the time being.
+							float crit_threshold = GetRandomFloat(0.02, 0.08);
+								//PrintToChatAll("crit_threshold: %f", crit_threshold);
+							float crit_roll = GetRandomFloat(0.0, 1.0);
+								//PrintToChatAll("crit_roll: %f", crit_roll);
+
+							if (crit_roll <= crit_threshold) {
+								damage_type = (damage_type | DMG_CRIT);
+									//PrintToChatAll("Random crit! crit_roll is less than crit_threshold", 0);
+								// critical hit lightning sound doesn't play, so add it back.
+								EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
+								
+								return Plugin_Changed;
+							}
+						}
+					}
+					return Plugin_Continue;
 				}
 			}
 
@@ -3777,6 +3921,21 @@ Action SDKHookCB_OnTakeDamage(
 					// Slow enemy on hit, unless they're being healed by a medic
 					if (!TF2_IsPlayerInCondition(victim, TFCond_Healing))
 						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+			}
+        
+			{
+				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
+				// Somehow even with the "cannot be crit boosted" attribute, 
+				// the reverted Cow Mangler still does crits while crit boosted even when the crit boost glow doesn't show up.
+
+				if (
+					ItemIsEnabled(Wep_CowMangler) &&
+					StrEqual(class, "tf_weapon_particle_cannon") &&
+					PlayerIsCritboosted(attacker)
+				) {
+					damage_type ^= DMG_CRIT;
+
+					return Plugin_Changed;
 				}
 			}
 
@@ -3842,7 +4001,8 @@ Action SDKHookCB_OnTakeDamage(
 								// Do not use internal rampup/falloff.
 								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
-								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
+								// Deal 16 base damage with 125% rampup, 75% falloff.
+								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
 							// Remove bullet damage flags so it's untyped damage
@@ -3855,6 +4015,33 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Continue;
 					}
 				}
+
+				/*
+				{
+					// Release Cow Mangler 5000 old damage rampup
+					// Doesn't work.
+
+					if (StrEqual(class, "tf_projectile_energy_ball")) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled(Wep_CowMangler) &&
+							GetItemVariant(Wep_CowMangler) == 0 &&
+							StrEqual(class, "tf_weapon_particle_cannon")
+						) {
+							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
+							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
+							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
+
+							return Plugin_Changed;
+						}
+
+						return Plugin_Continue;
+					}
+				}
+				*/
 			}
 		}
 	}
@@ -3943,6 +4130,23 @@ Action SDKHookCB_OnTakeDamage_Building(
 				return Plugin_Changed;
 			}
 		}
+		/*
+		{
+			// Release Cow Mangler 5000 building damage
+			// Commenting this because I can't figure out how to revert the old damage falloff against players
+
+			if (
+				ItemIsEnabled(Wep_CowMangler) &&
+				GetItemVariant(Wep_CowMangler) == 0 &&
+				StrEqual(class, "tf_weapon_particle_cannon")
+			) {
+				// Building base damage should be 16 dmg
+				damage = 81.0;
+
+				return Plugin_Changed;
+			}
+		}
+		*/
 	}
 
 	return Plugin_Continue;
@@ -3958,10 +4162,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		{
-			// sleeper jarate application
+			// sleeper jarate application (pre-Blue Moon)
 
 			if (
 				ItemIsEnabled(Wep_SydneySleeper) &&
+				GetItemVariant(Wep_SydneySleeper) == 0 &&
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
 				// condition must be added in OnTakeDamageAlive, otherwise initial shot will crit
@@ -3978,6 +4183,26 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// sydney sleeper (pre-Gun Mettle & release) jarate effect
+			if (
+				ItemIsEnabled(Wep_SydneySleeper) &&
+				(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+				player_weapons[attacker][Wep_SydneySleeper] &&
+				GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0 &&
+				TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
+			) {
+				if (
+					(GetItemVariant(Wep_SydneySleeper) == 1 && !PlayerIsInvulnerable(victim)) || 
+					GetItemVariant(Wep_SydneySleeper) == 2)
+				{
+					// prevent jarate effect on invulnerable targets for pre-gun mettle sydney sleeper
+					// only apply jarate effect on invulnerable targets for release sydney sleeper for historical accuracy
+					TF2_AddCondition(victim, TFCond_Jarated, 8.0);
+					ParticleShowSimple("peejar_impact_small", damage_position); // add back small jarate impact effect
+				}
+			}
+		}		
 		{
 			if (
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
@@ -4246,7 +4471,7 @@ Action Command_ToggleInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
-void SetConVarMaybe(Handle cvar, const char[] value, bool maybe) {
+void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
@@ -4300,7 +4525,6 @@ bool PlayerIsInvulnerable(int client) {
 	);
 }
 
-/*
 TFCond critboosts[] =
 {
 	TFCond_Kritzkrieged,
@@ -4324,7 +4548,6 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
-*/
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
@@ -4374,6 +4597,41 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
+void ParticleShow(char[] name, float origin[3], float start[3], float angles[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
+		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
+		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
+		TE_WriteFloat("m_vecStart[0]", start[0]);
+		TE_WriteFloat("m_vecStart[1]", start[1]);
+		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteVector("m_vecAngles", angles);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+	}
+}
+
 /**
  * Define an item used for reverts.
  * 
@@ -4382,12 +4640,14 @@ void ParticleShowSimple(char[] name, float position[3]) {
  * @param desc				Key for description of the item in the translation file.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
+ * @param mem_patch			This revert requires a memory patch?
  */
-void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
+void ItemDefine(char[] key, char[] desc, int flags, int wep_enum, bool mem_patch=false) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	items[wep_enum].num_variants = 0;
+	items[wep_enum].mem_patch = mem_patch;
 }
 
 /**
@@ -4409,7 +4669,7 @@ void ItemVariant(int wep_enum, char[] desc) {
 void ItemFinalize() {
 	int idx;
 	char cvar_name[64];
-	char cvar_desc[256];
+	char cvar_desc[2048];
 
 	for (idx = 0; idx < NUM_ITEMS; idx++) {
 		if (items[idx].cvar != null) {
@@ -4417,9 +4677,22 @@ void ItemFinalize() {
 		}
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
-		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
+		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T\n\n"), items[idx].key, LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), "0: Disable\n");
+		char item_desc[256];
+		Format(item_desc, sizeof(item_desc), "1: %T\n", items_desc[idx][0], LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		for (int i = 1; i <= items[idx].num_variants; i++) {
+			Format(item_desc, sizeof(item_desc), "%d: %T\n", i + 1, items_desc[idx][i], LANG_SERVER);
+			StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		}
 
 		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+#if defined MEMORY_PATCHES
+		if (items[idx].mem_patch) {
+			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
+		}
+#endif
 	}
 }
 
@@ -4559,12 +4832,8 @@ void ShowClassReverts(int client) {
 void ToggleLoadoutInfo(int client) {
 	if (AreClientCookiesCached(client))
 	{
-		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default ? 1 : 0);
-		if (config_value) {
-			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_ENABLED");
-		} else {
-			ReplyToCommand(client, "%t", "REVERT_LOADOUT_CHANGE_DISABLED");
-		}
+		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0);
+		ReplyToCommand(client, "%t", config_value ? "REVERT_LOADOUT_CHANGE_ENABLED" : "REVERT_LOADOUT_CHANGE_DISABLED");
 		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
 	}
 }
@@ -4837,7 +5106,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 				StrEqual(class, "tf_projectile_flare") ||
 				StrEqual(class, "tf_projectile_stun_ball") ||
 				StrEqual(class, "tf_projectile_ball_ornament") ||
-				StrEqual(class, "tf_projectile_cleaver")
+				StrEqual(class, "tf_projectile_cleaver") ||
+				StrEqual(class, "tf_projectile_healing_bolt") ||
+				StrEqual(class, "tf_projectile_balloffire")
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
@@ -4887,6 +5158,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
 										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
 									}
+
+									// show particle effect
+									ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
 									RemoveEntity(idx);
 								}
 							}

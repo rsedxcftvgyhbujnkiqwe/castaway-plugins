@@ -477,6 +477,7 @@
 	"BabyFace_Release"
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
+	}
 	"Beggars_Pre2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, brak redukcji pola rażenia, niewypały nie usuwają rakiet z magazynka"
@@ -576,6 +577,7 @@
 	"Ringer_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), atak aktywujący zegarek zredukowany o 50%%, możliwość podnoszenia paczek, gdy nie jest się niewidzialnym, -35%% energii z paczek"
+	}
 	"Degreaser_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% zadawanych obrażeń, -25%% zadawanych obrażeń po podpaleniu"
