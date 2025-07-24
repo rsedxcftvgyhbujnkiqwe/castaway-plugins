@@ -136,6 +136,7 @@ enum struct Item {
 	int flags;
 	int num_variants;
 	ConVar cvar;
+	bool mem_patch;
 }
 
 enum struct Player {
@@ -398,7 +399,7 @@ public void OnPluginStart() {
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
-	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
+	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 #endif
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
@@ -424,7 +425,7 @@ public void OnPluginStart() {
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 #if defined MEMORY_PATCHES
-	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
+	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
@@ -433,7 +434,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh, true);
 #endif
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
@@ -442,10 +443,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PreTB");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined MEMORY_PATCHES
-	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
+	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury, true);
 #else
 	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
@@ -486,7 +487,7 @@ public void OnPluginStart() {
 	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 #if defined MEMORY_PATCHES
-	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix, true);
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
@@ -528,7 +529,7 @@ public void OnPluginStart() {
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 #if defined MEMORY_PATCHES
-	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler, true);
 #endif
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
@@ -564,9 +565,6 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
-#if defined MEMORY_PATCHES
-	HookEvent("server_cvar", OnServerCvarChanged, EventHookMode_Pre);
-#endif
 
 	AddNormalSoundHook(OnSoundNormal);
 
@@ -755,10 +753,10 @@ bool ValidateAndNullCheck(MemoryPatch patch) {
 	return (patch.Validate() && patch != null);
 }
 
-Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
+void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	char cvarName[128];
-	event.GetString("cvarname", cvarName, sizeof(cvarName));
+	convar.GetName(cvarName, sizeof(cvarName));	
 	if (StrContains(cvarName, "sm_reverts__item_") != -1)
 	{
 		char item[64];
@@ -766,11 +764,10 @@ Action OnServerCvarChanged(Event event, const char[] name, bool dontBroadcast)
 		for (int i; i < NUM_ITEMS; i++) {
 			if (StrEqual(items[i].key,item)) {
 				ToggleMemoryPatchReverts(ItemIsEnabled(i),i);
-				return Plugin_Handled;
+				return;
 			}
 		}
 	}
-	return Plugin_Continue;
 }
 
 void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
@@ -4391,12 +4388,14 @@ void ParticleShow(char[] name, float origin[3], float start[3], float angles[3])
  * @param desc				Key for description of the item in the translation file.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
+ * @param mem_patch			This revert requires a memory patch?
  */
-void ItemDefine(char[] key, char[] desc, int flags, int wep_enum) {
+void ItemDefine(char[] key, char[] desc, int flags, int wep_enum, bool mem_patch=false) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	items[wep_enum].num_variants = 0;
+	items[wep_enum].mem_patch = mem_patch;
 }
 
 /**
@@ -4418,7 +4417,7 @@ void ItemVariant(int wep_enum, char[] desc) {
 void ItemFinalize() {
 	int idx;
 	char cvar_name[64];
-	char cvar_desc[256];
+	char cvar_desc[2048];
 
 	for (idx = 0; idx < NUM_ITEMS; idx++) {
 		if (items[idx].cvar != null) {
@@ -4426,9 +4425,22 @@ void ItemFinalize() {
 		}
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
-		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T"), items[idx].key, LANG_SERVER);
+		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T\n\n"), items[idx].key, LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), "0: Disable\n");
+		char item_desc[256];
+		Format(item_desc, sizeof(item_desc), "1: %T\n", items_desc[idx][0], LANG_SERVER);
+		StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		for (int i = 1; i <= items[idx].num_variants; i++) {
+			Format(item_desc, sizeof(item_desc), "%d: %T\n", i + 1, items_desc[idx][i], LANG_SERVER);
+			StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
+		}
 
 		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+#if defined MEMORY_PATCHES
+		if (items[idx].mem_patch) {
+			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
+		}
+#endif
 	}
 }
 
