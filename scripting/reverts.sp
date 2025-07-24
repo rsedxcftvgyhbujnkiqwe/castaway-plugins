@@ -4348,6 +4348,41 @@ void ParticleShowSimple(char[] name, float position[3]) {
 	}
 }
 
+void ParticleShow(char[] name, float origin[3], float start[3], float angles[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
+		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
+		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
+		TE_WriteFloat("m_vecStart[0]", start[0]);
+		TE_WriteFloat("m_vecStart[1]", start[1]);
+		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteVector("m_vecAngles", angles);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+	}
+}
+
 /**
  * Define an item used for reverts.
  * 
@@ -4807,7 +4842,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 				StrEqual(class, "tf_projectile_flare") ||
 				StrEqual(class, "tf_projectile_stun_ball") ||
 				StrEqual(class, "tf_projectile_ball_ornament") ||
-				StrEqual(class, "tf_projectile_cleaver")
+				StrEqual(class, "tf_projectile_cleaver") ||
+				StrEqual(class, "tf_projectile_healing_bolt") ||
+				StrEqual(class, "tf_projectile_balloffire")
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
@@ -4857,6 +4894,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
 										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
 									}
+
+									// show particle effect
+									ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
 									RemoveEntity(idx);
 								}
 							}
