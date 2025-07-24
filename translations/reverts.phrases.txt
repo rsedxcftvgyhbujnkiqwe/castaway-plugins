@@ -87,6 +87,14 @@
 	{
 		"en"	"Disabled loadout change revert info. Enable them again by typing !toggleinfo or opening the reverts menu."
 	}
+	"REVERT_MOONSHOT_ENABLED"
+	{
+		"en"	"Moonshot message enabled. Use the reverts menu to disable it."
+	}
+	"REVERT_MOONSHOT_DISABLED"
+	{
+		"en"	"Moonshot message disabled. Use the reverts menu to enable it."
+	}
 	"REVERT_MENU_TITLE"
 	{
 		"en"	"Weapon Reverts"
@@ -102,6 +110,15 @@
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
 		"en"	"Toggle loadout change revert info"
+	}
+	"REVERT_MENU_TOGGLE_MOONSHOT"
+	{
+		"en"	"Toggle moonshot message"
+	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} just landed a MOONSHOT on {2} !"
 	}
 
 	// item names

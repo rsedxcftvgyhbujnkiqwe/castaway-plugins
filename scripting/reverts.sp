@@ -189,7 +189,7 @@ enum struct Entity {
 }
 
 ConVar cvar_enable;
-ConVar cvar_extras;
+ConVar cvar_show_moonshot;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
@@ -269,6 +269,7 @@ int rocket_create_frame;
 
 //cookies
 Cookie g_hClientMessageCookie;
+Cookie g_hClientShowMoonshot;
 
 //weapon caching
 //this would break if you ever enabled picking up weapons from the ground!
@@ -397,7 +398,7 @@ public void OnPluginStart() {
 #endif
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
-	cvar_extras = CreateConVar("sm_reverts__extras", "0", (PLUGIN_NAME ... " - Enable some fun extra features"), _, true, 0.0, true, 1.0);
+	cvar_show_moonshot = CreateConVar("sm_reverts__show_moonshot", "0", (PLUGIN_NAME ... " - Show a HUD message when someone lands a moonshot"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "1", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
@@ -557,6 +558,7 @@ public void OnPluginStart() {
 	AutoExecConfig(true, "reverts", "sourcemod");
 
 	g_hClientMessageCookie = RegClientCookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
+	g_hClientShowMoonshot = new Cookie("reverts_show_moonshot", "Weapon Reverts Show Moonshot Message", CookieAccess_Protected);
 
 	hudsync = CreateHudSynchronizer();
 
@@ -3685,12 +3687,16 @@ Action SDKHookCB_OnTakeDamage(
 									stun_dur = (stun_dur + 1.0);
 									stun_fls = TF_STUNFLAGS_BIGBONK;
 
-									if (cvar_extras.BoolValue) {
+									if (cvar_show_moonshot.BoolValue) {
 										SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
 
+										char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+										GetClientName(attacker, attackerName, sizeof(attackerName));
+										GetClientName(victim, victimName, sizeof(victimName));
+
 										for (idx = 1; idx <= MaxClients; idx++) {
-											if (IsClientInGame(idx)) {
-												ShowSyncHudText(idx, hudsync, "%N just landed a MOONSHOT on %N !", attacker, victim);
+											if (IsClientInGame(idx) && !IsFakeClient(idx) && !IsClientSourceTV(idx) && !IsClientReplay(idx) && g_hClientShowMoonshot.GetInt(idx, 1)) {
+												ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
 											}
 										}
 									}
@@ -4433,13 +4439,22 @@ Action Command_Menu(int client, int args) {
 		menu_main.Pagination = MENU_NO_PAGINATION;
 		menu_main.ExitButton = true;
 		menu_main.SetTitle("%T", "REVERT_MENU_TITLE", client);
+
 		char localizedClassInfo[64], localizedInfo[64], localizedInfoToggle[64];
 		Format(localizedClassInfo, sizeof(localizedClassInfo), "%T", "REVERT_MENU_SHOW_CLASSINFO", client);
 		Format(localizedInfo, sizeof(localizedInfo), "%T", "REVERT_MENU_SHOW_ALL", client);
 		Format(localizedInfoToggle, sizeof(localizedInfoToggle), "%T", "REVERT_MENU_TOGGLE_LOADOUT_CHANGE", client);
+
 		menu_main.AddItem("classinfo", localizedClassInfo);
 		menu_main.AddItem("info", localizedInfo);
 		menu_main.AddItem("infotoggle", localizedInfoToggle);
+
+		if (cvar_show_moonshot.BoolValue) {
+			char localizedMoonshotToggle[64];
+			Format(localizedMoonshotToggle, sizeof(localizedMoonshotToggle), "%T", "REVERT_MENU_TOGGLE_MOONSHOT", client);
+			menu_main.AddItem("moonshottoggle", localizedMoonshotToggle);
+		}
+
 		menu_main.Display(client, ITEM_MENU_TIME);
 	} else {
 		ReplyToCommand(client, "[SM] %t", "REVERT_REVERTS_DISABLED");
@@ -4732,6 +4747,9 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 			else if (StrEqual(info, "infotoggle")) {
 				ToggleLoadoutInfo(param1);
 			}
+			else if (StrEqual(info, "moonshottoggle")) {
+				ToggleMoonshotMessage(param1);
+			}
 		}
 		case MenuAction_End: {
 			delete menu;
@@ -4836,6 +4854,14 @@ void ToggleLoadoutInfo(int client) {
 		int config_value = g_hClientMessageCookie.GetInt(client, cvar_no_reverts_info_by_default.BoolValue ? 1 : 0);
 		ReplyToCommand(client, "%t", config_value ? "REVERT_LOADOUT_CHANGE_ENABLED" : "REVERT_LOADOUT_CHANGE_DISABLED");
 		g_hClientMessageCookie.SetInt(client, config_value ? 0 : 1);
+	}
+}
+
+void ToggleMoonshotMessage(int client) {
+	if (AreClientCookiesCached(client)) {
+		int configValue = g_hClientShowMoonshot.GetInt(client, 1);
+		ReplyToCommand(client, "%t", configValue ? "REVERT_MOONSHOT_DISABLED" : "REVERT_MOONSHOT_ENABLED");
+		g_hClientShowMoonshot.SetInt(client, configValue ? 0 : 1);
 	}
 }
 
