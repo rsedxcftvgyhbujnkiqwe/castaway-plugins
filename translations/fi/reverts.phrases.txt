@@ -448,6 +448,10 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: kolmoishyppy on passiivinen, kolmoishyppy aiheuttaa 10 vahinkoa"
 	}
+	"Atomizer_PreBM"
+	{
+		"fi"	"Ennen Blue Moonia: mailan ei tarvi olla täysin vedettynä esiin, jotta voi kolmoishypätä"
+	}
 	"Axtinguisher_PreLW"
 	{
 		"fi"	"Ennen Love&Waria: aina tekee kriittisiä osumia (195) palaviin pelaajiin, ei nopeuslisää taposta"
@@ -738,7 +742,7 @@
 	}
 	"Pocket_PreBM"
 	{
-		"fi"	"Ennen vuotta 2018: osumasta saa jopa +7 terveyttä"
+		"fi"	"Ennen Blue Moonia: osumasta saa jopa +7 terveyttä"
 	}
 	"Quickfix_PreTB"
 	{
@@ -858,7 +862,7 @@
 	}
 	"Sleeper_PreBM"
 	{
-		"fi"	"Ennen vuotta 2018: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"
+		"fi"	"Ennen Blue Moonia: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"
 	}
 	"Turner_PreTB"
 	{

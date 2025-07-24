@@ -468,6 +468,10 @@
 	{
 		"en"	"Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
 	}
+	"Atomizer_PreBM"
+	{
+		"en"	"Reverted to pre-bluemoon, can triple jump when not fully deployed"
+	}
 	"Axtinguisher_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill"

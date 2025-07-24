@@ -418,6 +418,7 @@ public void OnPluginStart() {
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
+	ItemVariant(Wep_Atomizer, "Atomizer_PreBM");
 	ItemDefine("axtinguish", "Axtinguisher_PreLW", CLASSFLAG_PYRO, Wep_Axtinguisher);
 	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreTB");
 	ItemDefine("backburner", "Backburner_PreHat", CLASSFLAG_PYRO, Wep_Backburner);
@@ -971,13 +972,19 @@ public void OnGameFrame() {
 								StrEqual(class, "tf_weapon_bat") &&
 								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450
 							) {
-								if (ItemIsEnabled(Wep_Atomizer)) {
-									airdash_limit_new = 2;
-								} else {
-									if (weapon == GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")) {
-										airdash_limit_old = 2;
-										airdash_limit_new = 2;
+								switch (GetItemVariant(Wep_Atomizer)) {
+									case -1: {
+										if (weapon == GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")) {
+											airdash_limit_old = 2;
+											airdash_limit_new = 2;
+										}
 									}
+									case 0: airdash_limit_new = 2;
+									case 1: {
+										if (weapon == GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")) {
+											airdash_limit_new = 2;
+										}
+									}	
 								}
 							}
 						}
@@ -1008,7 +1015,13 @@ public void OnGameFrame() {
 								ItemIsEnabled(Wep_Atomizer)
 							) {
 								// atomizer global jump
-								SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
+								if (GetItemVariant(Wep_Atomizer) == 0) {
+									SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
+								}
+
+								// emit purple smoke (still shows white smoke too but good enough for now)
+								GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
+								ParticleShowSimple("doublejump_puff_alt", pos1);
 
 								if (airdash_limit_new > airdash_limit_old) {
 									// only play sound if the game doesn't play it
@@ -1842,11 +1855,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
 		}}
 		case 450: { if (ItemIsEnabled(Wep_Atomizer)) {
-			TF2Items_SetNumAttributes(itemNew, 4);
-			TF2Items_SetAttribute(itemNew, 0, 5, 1.30); // fire rate penalty
-			TF2Items_SetAttribute(itemNew, 1, 138, 0.80); // dmg penalty vs players
-			TF2Items_SetAttribute(itemNew, 2, 250, 0.0); // air dash count
-			TF2Items_SetAttribute(itemNew, 3, 773, 1.0); // single wep deploy time increased
+			switch (GetItemVariant(Wep_Atomizer)) {
+				case 1: { // Pre-Blue Moon
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 250, 0.0); // air dash count
+				}
+				default: { // Pre-Jungle Inferno
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 5, 1.30); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 1, 138, 0.80); // dmg penalty vs players
+					TF2Items_SetAttribute(itemNew, 2, 250, 0.0); // air dash count
+					TF2Items_SetAttribute(itemNew, 3, 773, 1.0); // single wep deploy time increased
+				}
+			}
+				
 		}}
 		case 38, 457, 1000: { if (ItemIsEnabled(Wep_Axtinguisher)) {
 			TF2Items_SetNumAttributes(itemNew, 5);
@@ -3646,6 +3668,21 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_SodaPopper) == 0 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true &&
+					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+				) {
+					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+				}
+			}
+
+			{
+				// pre-bluemoon atomizer airborne minicrits
+
+				if (
+					GetItemVariant(Wep_Atomizer) == 1 &&
+					StrEqual(class, "tf_weapon_bat") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450 &&
+					(GetEntityFlags(attacker) & FL_ONGROUND) == 0 &&
+					GetEntProp(attacker, Prop_Data, "m_nWaterLevel") == 0 &&
 					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
