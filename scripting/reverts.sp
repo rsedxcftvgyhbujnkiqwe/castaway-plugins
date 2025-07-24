@@ -160,6 +160,7 @@ enum struct Player {
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
 	bool sleeper_piss_explode;
+	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
 	float parachute_cond_time;
@@ -303,6 +304,7 @@ enum
 	Wep_BuffaloSteak,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
+	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
@@ -435,6 +437,8 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
+	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 #endif
@@ -533,6 +537,8 @@ public void OnPluginStart() {
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
+	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
+	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -1225,7 +1231,7 @@ public void OnGameFrame() {
 								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
 
 								if (
-									ItemIsEnabled(Wep_SydneySleeper) &&
+									ItemIsEnabled(Wep_SydneySleeper) && (GetItemVariant(Wep_SydneySleeper) == 0) &&
 									ammo == (players[idx].sleeper_ammo - 1)
 								) {
 									GetClientEyePosition(idx, pos1);
@@ -1705,6 +1711,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
 		}
 	}
+
+	{
+		// Pre-GM and Release Sydney Sleeper time since scoping tracking
+		// Modify checks for the Sydney Sleeper.
+		if (
+			(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+			condition == TFCond_Slowed && 
+			GetPlayerWeaponSlot(client, TFWeaponSlot_Primary) == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
+		) {
+        	players[client].sleeper_time_since_scoping = GetGameTime();
+		}
+	}
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1953,6 +1971,25 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
+			switch (GetItemVariant(Wep_CowMangler)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
+					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost
+					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade
+					TF2Items_SetAttribute(itemNew, 3, 96, 1.05); // mult_reload_time; 5% slower reload time
+					TF2Items_SetAttribute(itemNew, 4, 1, 0.90); // mult_dmg; 10% damage penalty
+				}
+				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
+			}
+		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
 				case 1: {
@@ -2293,8 +2330,27 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}	
 		}}
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+			switch (GetItemVariant(Wep_SydneySleeper)) {
+				// jarate application handled elsewhere for all variants
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
+					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
+					TF2Items_SetAttribute(itemNew, 2, 28, 1.0); // crit mod disabled; doesn't work
+					TF2Items_SetAttribute(itemNew, 3, 41, 1.0); // no charge rate increase
+					TF2Items_SetAttribute(itemNew, 4, 308, 1.0); // sniper_penetrate_players_when_charged
+					// temporary penetration attribute used for penetration until a way to penetrate targets when above 75% charge is found
+				}
+			}
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			switch (GetItemVariant(Wep_SodaPopper)) {
@@ -2699,6 +2755,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
+						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
@@ -3660,10 +3717,13 @@ Action SDKHookCB_OnTakeDamage(
 
 						// this should cause a jarate application
 						players[attacker].sleeper_piss_frame = GetGameTickCount();
-						players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						if (GetItemVariant(Wep_SydneySleeper) == 0) {
+							players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+						}
 						players[attacker].sleeper_piss_explode = false;
 
 						if (
+							GetItemVariant(Wep_SydneySleeper) == 0 &&
 							GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") > 149.0 ||
 							players[attacker].headshot_frame == GetGameTickCount()
 						) {
@@ -3671,6 +3731,50 @@ Action SDKHookCB_OnTakeDamage(
 							players[attacker].sleeper_piss_explode = true;
 						}
 					}
+				}
+			}
+
+			{
+				// workaround for enabling random crits on release sydney sleeper
+				// TO DO: Replicate random crit mechanic / Find a way to get the random crit multiplier so as to follow random crit damage ramp-up.
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/39f6dde8fbc238727c020d13b05ecadd31bda4c0/src/game/shared/tf/tf_player_shared.cpp#L9414
+				
+				if (
+					ItemIsEnabled(Wep_SydneySleeper) &&
+					GetItemVariant(Wep_SydneySleeper) == 2 &&
+					StrEqual(class, "tf_weapon_sniperrifle") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							StrEqual(class, "tf_weapon_sniperrifle") &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+						) {
+							// Random crit chance
+							// how to get flRemapCritMul from the game?
+							//float crit_threshold = 0.02*(flRemapCritMul);
+
+							// Because I don't know yet how to get the random crit multiplier, instead we just choose a random threshold for the time being.
+							float crit_threshold = GetRandomFloat(0.02, 0.08);
+								//PrintToChatAll("crit_threshold: %f", crit_threshold);
+							float crit_roll = GetRandomFloat(0.0, 1.0);
+								//PrintToChatAll("crit_roll: %f", crit_roll);
+
+							if (crit_roll <= crit_threshold) {
+								damage_type = (damage_type | DMG_CRIT);
+									//PrintToChatAll("Random crit! crit_roll is less than crit_threshold", 0);
+								// critical hit lightning sound doesn't play, so add it back.
+								EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
+								
+								return Plugin_Changed;
+							}
+						}
+					}
+					return Plugin_Continue;
 				}
 			}
 
@@ -3794,6 +3898,22 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 
+			{
+				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
+				// Somehow even with the "cannot be crit boosted" attribute, 
+				// the reverted Cow Mangler still does crits while crit boosted even when the crit boost glow doesn't show up.
+
+				if (
+					ItemIsEnabled(Wep_CowMangler) &&
+					StrEqual(class, "tf_weapon_particle_cannon") &&
+					PlayerIsCritboosted(attacker)
+				) {
+					damage_type ^= DMG_CRIT;
+
+					return Plugin_Changed;
+				}
+			}
+
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
@@ -3856,7 +3976,8 @@ Action SDKHookCB_OnTakeDamage(
 								// Do not use internal rampup/falloff.
 								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
-								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75); // Deal 16 base damage with 125% rampup, 75% falloff.
+								// Deal 16 base damage with 125% rampup, 75% falloff.
+								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
 							// Remove bullet damage flags so it's untyped damage
@@ -3869,6 +3990,33 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Continue;
 					}
 				}
+
+				/*
+				{
+					// Release Cow Mangler 5000 old damage rampup
+					// Doesn't work.
+
+					if (StrEqual(class, "tf_projectile_energy_ball")) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							ItemIsEnabled(Wep_CowMangler) &&
+							GetItemVariant(Wep_CowMangler) == 0 &&
+							StrEqual(class, "tf_weapon_particle_cannon")
+						) {
+							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
+							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
+							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
+
+							return Plugin_Changed;
+						}
+
+						return Plugin_Continue;
+					}
+				}
+				*/
 			}
 		}
 	}
@@ -3957,6 +4105,23 @@ Action SDKHookCB_OnTakeDamage_Building(
 				return Plugin_Changed;
 			}
 		}
+		/*
+		{
+			// Release Cow Mangler 5000 building damage
+			// Commenting this because I can't figure out how to revert the old damage falloff against players
+
+			if (
+				ItemIsEnabled(Wep_CowMangler) &&
+				GetItemVariant(Wep_CowMangler) == 0 &&
+				StrEqual(class, "tf_weapon_particle_cannon")
+			) {
+				// Building base damage should be 16 dmg
+				damage = 81.0;
+
+				return Plugin_Changed;
+			}
+		}
+		*/
 	}
 
 	return Plugin_Continue;
@@ -3972,10 +4137,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		{
-			// sleeper jarate application
+			// sleeper jarate application (pre-Blue Moon)
 
 			if (
 				ItemIsEnabled(Wep_SydneySleeper) &&
+				GetItemVariant(Wep_SydneySleeper) == 0 &&
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
 				// condition must be added in OnTakeDamageAlive, otherwise initial shot will crit
@@ -3992,6 +4158,26 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// sydney sleeper (pre-Gun Mettle & release) jarate effect
+			if (
+				ItemIsEnabled(Wep_SydneySleeper) &&
+				(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+				player_weapons[attacker][Wep_SydneySleeper] &&
+				GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0 &&
+				TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
+			) {
+				if (
+					(GetItemVariant(Wep_SydneySleeper) == 1 && !PlayerIsInvulnerable(victim)) || 
+					GetItemVariant(Wep_SydneySleeper) == 2)
+				{
+					// prevent jarate effect on invulnerable targets for pre-gun mettle sydney sleeper
+					// only apply jarate effect on invulnerable targets for release sydney sleeper for historical accuracy
+					TF2_AddCondition(victim, TFCond_Jarated, 8.0);
+					ParticleShowSimple("peejar_impact_small", damage_position); // add back small jarate impact effect
+				}
+			}
+		}		
 		{
 			if (
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
@@ -4314,7 +4500,6 @@ bool PlayerIsInvulnerable(int client) {
 	);
 }
 
-/*
 TFCond critboosts[] =
 {
 	TFCond_Kritzkrieged,
@@ -4338,7 +4523,6 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
-*/
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
