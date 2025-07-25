@@ -557,11 +557,11 @@
 	}
 	"CowMangler_Release"
 	{
-		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs , ne peut pas être crit-boosté"
+		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs, ne peut pas être crit-boosté"
 	}
 	"CowMangler_Pre2013"
 	{
-		"fr"	"Réversion à pré-Été 2013, chargeur de 5 tirs , ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
+		"fr"	"Réversion à pré-Été 2013, chargeur de 5 tirs, ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
 	}
 	"CozyCamper_PreMYM"
 	{
