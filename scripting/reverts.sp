@@ -4542,7 +4542,6 @@ Action Command_ToggleInfo(int client, int args) {
 }
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
-void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
 }
 
