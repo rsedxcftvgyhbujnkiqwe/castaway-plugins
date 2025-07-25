@@ -90,6 +90,14 @@
 	{
 		"fr"	"Infos de réversion au changement d'équipement désactivées. Réactivez-les avec !toggleinfo ou avec le menu !reverts"
 	}
+	"REVERT_MOONSHOT_ENABLED"
+	{
+		"fr"	"Message de Moonshot activé. Utilisez le menu reverts pour le désactiver."
+	}
+	"REVERT_MOONSHOT_DISABLED"
+	{
+		"fr"	"Message de Moonshot désactivé. Utilisez le menu reverts pour le résactiver."
+	}
 	"REVERT_MENU_TITLE"
 	{
 		"fr"	"Réversions d'armes"
@@ -105,6 +113,15 @@
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
 		"fr"	"Basculer les infos de réversion au changement d'équipement"
+	}
+	"REVERT_MENU_TOGGLE_MOONSHOT"
+	{
+		"fr"	"Basculer le message de Moonshot"
+	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"#format"	"{1:s},{2:s}"
+		"fr"		"{1} vient de réaliser un MOONSHOT sur {2} !"
 	}
 
 	// item names
@@ -187,6 +204,10 @@
 	"carbine"
 	{
 		"fr"	"Carabine du Nettoyeur"
+	}
+	"cowmangler"
+	{
+		"en"	"Broyeur Bovin 5000"
 	}
 	"cozycamper"
 	{
@@ -283,6 +304,10 @@
 	"cannon"
 	{
 		"fr"	"Danger public"
+	}
+	"madmilk"
+	{
+		"fr"	"Lait frelaté"
 	}
 	"gardener"
 	{
@@ -446,6 +471,10 @@
 	{
 		"fr"	"Réversion à pré-Inferno, triple saut à tout moment, infligant 10 dégâts au porteur à chaque fois"
 	}
+	"Atomizer_PreBM"
+	{
+		"en"	"Réversion à pré-Blue Moon, peut réaliser un triple saut sans être déployé"
+	}
 	"Axtinguisher_PreLW"
 	{
 		"fr"	"Réversion à pré-Love & War, inflige toujours 195 dégâts aux cibles en feu, pas de bonus de vitesse en tuant"
@@ -525,6 +554,14 @@
 	"Carbine_Release"
 	{
 		"fr"	"Réversion à la version d'origine, crits pendant 3s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
+	}
+	"CowMangler_Release"
+	{
+		"en"	"Réversion à la version d'origine, chargeur de 5 tirs , ne peut pas être crit-boosté"
+	}
+	"CowMangler_Pre2013"
+	{
+		"en"	"Réversion à pré-Été 2013, chargeur de 5 tirs , ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -690,6 +727,10 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, +50%% de vitesse de projectile, 60 dégâts consistant d'impact"
 	}
+	"MadMilk_Release"
+	{
+		"en"	"Réversion à la version d'origine, soigne 75%% des dégâts infligés à un ennemi couvert de lait, éteindre un allié ne réduit pas la durée de rechargement"
+	}
 	"Gardener_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, pas de pénalité de cadence"
@@ -698,6 +739,10 @@
 	{
 		"fr"	"Réversion à pré-Matchmaking, résistance aux dégâts de 20%% (6.7%% pour les crits) quand mis en route à n'importe quelle santé"
 	}
+	"Natascha_PreGM"
+	{
+		"en"	"Réversion à pré-Gun Mettle, ralentissement max à n'importe quelle distance, 300 munitions max, pas de résistance aux dégâts quand mis en route"
+	}	
 	"Panic_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, maintenir tir pour charger, relâcher pour tirer, tire plus vite avec une dispersion plus grande à santé basse"
@@ -736,7 +781,7 @@
 	}
 	"Pocket_PreBM"
 	{
-		"fr"	"Réversion à pré-2018, récupère jusqu'à +7 santé par coup porté"
+		"fr"	"Réversion à pré-Blue Moon, récupère jusqu'à +7 santé par coup porté"
 	}
 	"Quickfix_PreTB"
 	{
@@ -856,8 +901,16 @@
 	}
 	"Sleeper_PreBM"
 	{
-		"fr"	"Réversion à pré-2018, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"
+		"fr"	"Réversion à pré-Blue Moon, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"
 	}
+	"Sleeper_PreGM"
+	{
+		"en"	"Réversion à pré-Gun Mettle, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%%, pas de bonus pour les tirs en pleine tête"
+	}
+	"Sleeper_Release"
+	{
+		"en"	"Réversion à la version d'origine, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%% (même si la cible est invuln.), pas de bonus pour les tirs en pleine tête, pénétre les cibles à charge max, crits aléatoires, pas d'augmentation de taux de chargement"
+	}	
 	"Turner_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff"
