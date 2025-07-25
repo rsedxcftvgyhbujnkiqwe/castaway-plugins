@@ -207,7 +207,7 @@
 	}
 	"cowmangler"
 	{
-		"en"	"Broyeur Bovin 5000"
+		"fr"	"Broyeur Bovin 5000"
 	}
 	"cozycamper"
 	{
@@ -473,7 +473,7 @@
 	}
 	"Atomizer_PreBM"
 	{
-		"en"	"Réversion à pré-Blue Moon, peut réaliser un triple saut sans être déployé"
+		"fr"	"Réversion à pré-Blue Moon, peut réaliser un triple saut sans être déployé"
 	}
 	"Axtinguisher_PreLW"
 	{
@@ -557,11 +557,11 @@
 	}
 	"CowMangler_Release"
 	{
-		"en"	"Réversion à la version d'origine, chargeur de 5 tirs , ne peut pas être crit-boosté"
+		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs , ne peut pas être crit-boosté"
 	}
 	"CowMangler_Pre2013"
 	{
-		"en"	"Réversion à pré-Été 2013, chargeur de 5 tirs , ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
+		"fr"	"Réversion à pré-Été 2013, chargeur de 5 tirs , ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -729,7 +729,7 @@
 	}
 	"MadMilk_Release"
 	{
-		"en"	"Réversion à la version d'origine, soigne 75%% des dégâts infligés à un ennemi couvert de lait, éteindre un allié ne réduit pas la durée de rechargement"
+		"fr"	"Réversion à la version d'origine, soigne 75%% des dégâts infligés à un ennemi couvert de lait, éteindre un allié ne réduit pas la durée de rechargement"
 	}
 	"Gardener_PreTB"
 	{
@@ -741,7 +741,7 @@
 	}
 	"Natascha_PreGM"
 	{
-		"en"	"Réversion à pré-Gun Mettle, ralentissement max à n'importe quelle distance, 300 munitions max, pas de résistance aux dégâts quand mis en route"
+		"fr"	"Réversion à pré-Gun Mettle, ralentissement max à n'importe quelle distance, 300 munitions max, pas de résistance aux dégâts quand mis en route"
 	}	
 	"Panic_PreJI"
 	{
@@ -817,7 +817,7 @@
 	}
 	"Bison_PreMYM_Historical"
 	{
-		"en"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés, ancienne diminution des dégâts par distance"
+		"fr"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés, ancienne diminution des dégâts par distance"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -905,11 +905,11 @@
 	}
 	"Sleeper_PreGM"
 	{
-		"en"	"Réversion à pré-Gun Mettle, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%%, pas de bonus pour les tirs en pleine tête"
+		"fr"	"Réversion à pré-Gun Mettle, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%%, pas de bonus pour les tirs en pleine tête"
 	}
 	"Sleeper_Release"
 	{
-		"en"	"Réversion à la version d'origine, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%% (même si la cible est invuln.), pas de bonus pour les tirs en pleine tête, pénétre les cibles à charge max, crits aléatoires, pas d'augmentation de taux de chargement"
+		"fr"	"Réversion à la version d'origine, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%% (même si la cible est invuln.), pas de bonus pour les tirs en pleine tête, pénétre les cibles à charge max, crits aléatoires, pas d'augmentation de taux de chargement"
 	}	
 	"Turner_PreTB"
 	{
