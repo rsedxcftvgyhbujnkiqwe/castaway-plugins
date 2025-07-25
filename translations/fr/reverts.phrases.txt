@@ -804,7 +804,7 @@
 	}
 	"Circuit_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, tir principal détruit les projectiles, pas de métal par distributeur quand actif, pas de tir alternatif"
+		"fr"	"Réversion à pré-Gun Mettle, tir principal détruit les projectiles (coûte 5 métal + 15 par projectile détruit), pas de métal par distributeur quand actif"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
