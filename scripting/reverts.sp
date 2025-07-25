@@ -4712,7 +4712,7 @@ void ParticleShow(char[] name, float origin[3], float start[3], float angles[3])
  * @param wep_enum			Weapon enum, this identifies a weapon.
  * @param mem_patch			This revert requires a memory patch?
  */
-void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum) {
+void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum, bool mem_patch=false) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
