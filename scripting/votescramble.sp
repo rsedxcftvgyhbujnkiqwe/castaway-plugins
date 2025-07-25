@@ -28,10 +28,12 @@ ConVar cvarVoteChatPercent;
 ConVar cvarVoteMenuPercent;
 ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
+ConVar cvarVanillaScrambleTimeout;
 
 int g_iVoters;
 int g_iVotes;
 int g_iVotesNeeded;
+int g_iVoteCooldownExpireTime;
 bool g_bVoted[MAXPLAYERS + 1];
 bool g_bVoteCooldown;
 bool g_bScrambleTeams;
@@ -43,21 +45,21 @@ Handle g_tRoundResetTimer;
 
 public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast)
 {
-	if (IsValidHandle(g_tRoundResetTimer)) KillTimer(g_tRoundResetTimer);
+	delete g_tRoundResetTimer;
 	g_bCanScramble = false;
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	//this runs both here and on round end just in case. no harm no foul
-	if (IsValidHandle(g_tRoundResetTimer)) KillTimer(g_tRoundResetTimer);
+	delete g_tRoundResetTimer;
 	g_bCanScramble = true;
 	//arena is special, prevention timer should be lower
 	float reset_delay = g_bIsArena ? 3.0 : cvarRoundResetDelay.FloatValue;
-	g_tRoundResetTimer = CreateTimer(reset_delay,Timer_PreventScramble, _, TIMER_FLAG_NO_MAPCHANGE);
+	g_tRoundResetTimer = CreateTimer(reset_delay,Timer_PreventScramble);
 	if (g_bScrambleTeams) {
 		g_bScrambleTeams = false;
-		ScheduleScramble();
+		ScheduleScramble(true);
 	}
 }
 
@@ -72,17 +74,22 @@ public void OnPluginStart()
 	cvarVoteMenuPercent = CreateConVar("nano_votescramble_menu_percentage", "0.60", "How many players are required for the menu vote to pass? 0.60 = 60%.", 0, true, 0.05, true, 1.0);
 	cvarMinimumVotesNeeded = CreateConVar("nano_votescramble_minimum", "3", "What are the minimum number of votes needed to initiate a chat vote?", 0);
 	cvarSkipSecondVote = CreateConVar("nano_votescramble_skip_second_vote", "0", "Should the second vote be skipped?", 0, true, 0.0, true, 1.0);
+	cvarVanillaScrambleTimeout = CreateConVar("nano_votescramble_vanilla_scramble_timeout", "1", "Should scramble follow timeout sequence", 0, true, 0.0, true, 1.0);
 
 	RegConsoleCmd("sm_votescramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_vscramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_scramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegAdminCmd("sm_forcescramble", Cmd_ForceScramble, ADMFLAG_VOTE, "Force a team scramble vote.");
 
-	HookEvent("teamplay_win_panel", Event_RoundWin);
-	HookEvent("teamplay_round_start", Event_RoundStart);
+	HookEvent("teamplay_win_panel", Event_RoundWin, EventHookMode_PostNoCopy);
+	HookEvent("teamplay_round_start", Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
 	AutoExecConfig(true);
+}
+
+public void OnMapEnd() {
+	delete g_tRoundResetTimer;
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -172,7 +179,10 @@ public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, c
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
 {
-	if (strcmp(sArgs, "votescramble", false) == 0 || strcmp(sArgs, "vscramble", false) == 0 || strcmp(sArgs, "scramble", false) == 0 || strcmp(sArgs, "scrimblo", false) == 0 )
+	if (StrEqual(sArgs, "votescramble", false)
+		|| StrEqual(sArgs, "vscramble", false)
+		|| StrEqual(sArgs, "scramble", false)
+		|| StrEqual(sArgs, "scrimblo", false))
 	{
 		ReplySource old = SetCmdReplySource(SM_REPLY_TO_CHAT);
 
@@ -187,6 +197,11 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 	char errorMsg[MAX_NAME_LENGTH] = "";
 	if (g_bServerWaitingForPlayers)
 	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Waiting);
+			return;
+		}
 		errorMsg = "Server is still waiting for players.";
 	}
 	if (g_bScrambleTeams)
@@ -195,12 +210,13 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 	}
 	if (g_bVoteCooldown)
 	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Recent, g_iVoteCooldownExpireTime - GetTime());
+			return;
+		}
 		errorMsg = "Sorry, votescramble is currently on cool-down.";
 	}
-
-	char name[MAX_NAME_LENGTH];
-	GetClientName(client, name, sizeof(name));
-
 	if (g_bVoted[client])
 	{
 		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
@@ -218,6 +234,9 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 		}
 		return;
 	}
+
+	char name[MAX_NAME_LENGTH];
+	GetClientName(client, name, sizeof(name));
 
 	g_iVotes++;
 	g_bVoted[client] = true;
@@ -239,6 +258,7 @@ void StartVoteScramble()
 
 	ResetVoteScramble();
 	g_bVoteCooldown = true;
+	g_iVoteCooldownExpireTime = GetTime() + RoundToNearest(cvarVoteTimeDelay.FloatValue);
 	CreateTimer(cvarVoteTimeDelay.FloatValue, Timer_Delay, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -263,29 +283,29 @@ void VoteScrambleMenu()
 		return;
 	}
 
-	Handle vote = NativeVotes_Create(NativeVote_Handler, NativeVotesType_Custom_Mult);
+	NativeVote vote = new NativeVote(NativeVote_Handler, NativeVotesType_Custom_Mult);
 
-	NativeVotes_SetTitle(vote, "Scramble teams?");
+	vote.SetTitle("Scramble teams?");
 
-	NativeVotes_AddItem(vote, "yes", "Yes");
-	NativeVotes_AddItem(vote, "no", "No");
-	NativeVotes_DisplayToAll(vote, cvarVoteTime.IntValue);
+	vote.AddItem("yes", "Yes");
+	vote.AddItem("no", "No");
+	vote.DisplayVoteToAll(cvarVoteTime.IntValue);
 }
 
-public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int param2)
+public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, int param2)
 {
 	switch (action)
 	{
-		case MenuAction_End: NativeVotes_Close(vote);
+		case MenuAction_End: vote.Close();
 		case MenuAction_VoteCancel:
 		{
 			if (param1 == VoteCancel_NoVotes)
 			{
-				NativeVotes_DisplayFail(vote, NativeVotesFail_NotEnoughVotes);
+				vote.DisplayFail(NativeVotesFail_NotEnoughVotes);
 			}
 			else
 			{
-				NativeVotes_DisplayFail(vote, NativeVotesFail_Generic);
+				vote.DisplayFail(NativeVotesFail_Generic);
 			}
 		}
 		case MenuAction_VoteEnd:
@@ -295,7 +315,7 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 			int votes, totalVotes;
 
 			GetMenuVoteInfo(param2, votes, totalVotes);
-			NativeVotes_GetItem(vote, param1, item, sizeof(item));
+			vote.GetItem(param1, item, sizeof(item));
 
 			percent = float(votes) / float(totalVotes);
 			limit = cvarVoteMenuPercent.FloatValue;
@@ -304,31 +324,51 @@ public int NativeVote_Handler(Handle vote, MenuAction action, int param1, int pa
 			{
 				if (g_bCanScramble)
 				{
-					NativeVotes_DisplayPass(vote, "Scrambling teams...");
+					vote.DisplayPass("Scrambling teams...");
 					ScheduleScramble();
 				}
 				else
 				{
-					NativeVotes_DisplayPass(vote, "Teams will be scrambled next round.");
+					vote.DisplayPass("Teams will be scrambled next round.");
 					g_bScrambleTeams = true;
 				}
 			}
-			else NativeVotes_DisplayFail(vote, NativeVotesFail_Loses);
+			else vote.DisplayFail(NativeVotesFail_Loses);
 		}
 	}
 	return 0;
 }
 
-public Action Timer_Scramble(Handle timer) {
+public Action Timer_Scramble(Handle timer, bool roundStart) {
 	PrintToChatAll("Scrambling the teams due to vote.");
+	bool vanillaTimeout = cvarVanillaScrambleTimeout.BoolValue;
+	CreateTimer(!roundStart && vanillaTimeout ? 2.0 : 0.0, Timer_StartScramble, vanillaTimeout);	
+	return Plugin_Continue;
+}
 
+public Action Timer_StartScramble(Handle timer, bool vanillaTimeout) {
 	Event scramble_team_alert = CreateEvent("teamplay_alert");
 	scramble_team_alert.SetInt("alert_type", 0);
 	scramble_team_alert.Fire();
-	
-	g_bScrambleTeamsInProgress = true;
-	ScrambleTeams();
-	g_bScrambleTeamsInProgress = false;
+
+	if (!vanillaTimeout) {
+		ImmediateScramble();
+		return Plugin_Continue;
+	}
+
+	CreateTimer(0.0, Timer_Countdown, 5);
+	return Plugin_Continue;
+}
+
+public Action Timer_Countdown(Handle timer, int sec) {
+	if (sec != 0) {
+		char soundScript[30];
+		Format(soundScript, sizeof(soundScript), "Announcer.RoundBegins%dSeconds", sec);
+		EmitGameSoundToAll(soundScript);
+		CreateTimer(1.0, Timer_Countdown, sec - 1);
+	} else {
+		ImmediateScramble();	
+	}
 	return Plugin_Continue;
 }
 
@@ -338,15 +378,22 @@ public Action Timer_Retry(Handle timer)
 	return Plugin_Continue;
 }
 
-void ScheduleScramble()
+void ScheduleScramble(bool roundStart=false)
 {
-	CreateTimer(0.1, Timer_Scramble);
+	CreateTimer(0.1, Timer_Scramble, roundStart);
+}
+
+void ImmediateScramble() {
+	g_bScrambleTeamsInProgress = true;
+	ScrambleTeams();
+	g_bScrambleTeamsInProgress = false;
 }
 
 public Action Timer_PreventScramble(Handle timer)
 {
 	g_bCanScramble = false;
-	return Plugin_Stop;
+	g_tRoundResetTimer = null;
+	return Plugin_Continue;
 }
 
 //hides the team swap message
