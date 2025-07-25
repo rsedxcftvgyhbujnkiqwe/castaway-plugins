@@ -87,6 +87,14 @@
 	{
 		"en"	"Disabled loadout change revert info. Enable them again by typing !toggleinfo or opening the reverts menu."
 	}
+	"REVERT_MOONSHOT_ENABLED"
+	{
+		"en"	"Moonshot message enabled. Use the reverts menu to disable it."
+	}
+	"REVERT_MOONSHOT_DISABLED"
+	{
+		"en"	"Moonshot message disabled. Use the reverts menu to enable it."
+	}
 	"REVERT_MENU_TITLE"
 	{
 		"en"	"Weapon Reverts"
@@ -102,6 +110,15 @@
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
 		"en"	"Toggle loadout change revert info"
+	}
+	"REVERT_MENU_TOGGLE_MOONSHOT"
+	{
+		"en"	"Toggle moonshot message"
+	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} just landed a MOONSHOT on {2} !"
 	}
 
 	// item names
@@ -184,6 +201,10 @@
 	"carbine"
 	{
 		"en"	"Cleaner's Carbine"
+	}
+	"cowmangler"
+	{
+		"en"	"Cow Mangler 5000"
 	}
 	"cozycamper"
 	{
@@ -280,6 +301,10 @@
 	"cannon"
 	{
 		"en"	"Loose Cannon"
+	}
+	"madmilk"
+	{
+		"en"	"Mad Milk"
 	}
 	"gardener"
 	{
@@ -443,6 +468,10 @@
 	{
 		"en"	"Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
 	}
+	"Atomizer_PreBM"
+	{
+		"en"	"Reverted to pre-bluemoon, can triple jump when not fully deployed"
+	}
 	"Axtinguisher_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill"
@@ -522,6 +551,14 @@
 	"Carbine_Release"
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
+	}
+	"CowMangler_Release"
+	{
+		"en"	"Reverted to release, 5 shots, cannot be crit-boosted"
+	}
+	"CowMangler_Pre2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -687,6 +724,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 dmg impacts"
 	}
+	"MadMilk_Release"
+	{
+		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
+	}
 	"Gardener_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no attack speed penalty"
@@ -695,6 +736,10 @@
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
 	}
+	"Natascha_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, full slowdown at any distance, 300 max ammo, no damage resistance when spun up"
+	}	
 	"Panic_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health"
@@ -855,6 +900,14 @@
 	{
 		"en"	"Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction"
 	}
+	"Sleeper_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, apply jarate for 8 secs when above 50%% charge to target, no headshot bonuses"
+	}
+	"Sleeper_Release"
+	{
+		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
+	}	
 	"Turner_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal"
