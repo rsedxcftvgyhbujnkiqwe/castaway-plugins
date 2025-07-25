@@ -92,6 +92,14 @@
 	{
 		"fi"	"Poistettiin käytöstä varustelastin historiallisten aseiden tiedot. Ota ne uudelleen käyttöön kirjoittamalla !toggleinfo tai avaamalla !reverts -valikko."
 	}
+	"REVERT_MOONSHOT_ENABLED"
+	{
+		"fi"	"Kunnarilyönti-ilmoitukset käytössä. Käytä !reverts -valikkoa poistaaksesi ne käytöstä."
+	}
+	"REVERT_MOONSHOT_DISABLED"
+	{
+		"fi"	"Kunnarilyönti-ilmoitukset pois käytöstä. Käytä !reverts -valikkoa ottaaksesi ne käyttöön."
+	}
 	"REVERT_MENU_TITLE"
 	{
 		"fi"	"Historialliset aseet"
@@ -107,6 +115,15 @@
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
 		"fi"	"Ota käyttöön/pois käytöstä varustelastin tiedot"
+	}
+	"REVERT_MENU_TOGGLE_MOONSHOT"
+	{
+		"fi"	"Ota käyttöön/pois käytöstä kunnarilyönti-ilmoitukset"
+	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"#format"	"{1:s},{2:s}"
+		"fi"		"{1} teki KUNNARILYÖNNIN pelaajaan {2} !"
 	}
 
 	// item names
@@ -189,6 +206,10 @@
 	"carbine"
 	{
 		"fi"	"Sarjatulisiivoaja"
+	}
+	"cowmangler"
+	{
+		"fi"	"Karjankäristin 5000"
 	}
 	"cozycamper"
 	{
@@ -285,6 +306,10 @@
 	"cannon"
 	{
 		"fi"	"Hallitsematon höyhentäjä"
+	}
+	"madmilk"
+	{
+		"fi"	"Hullu maito"
 	}
 	"gardener"
 	{
@@ -532,6 +557,14 @@
 	{
 		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen, 35%% hitaampi tulitusnopeus (25%%:sta)"
 	}
+	"CowMangler_Release"
+	{
+		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
+	}
+	"CowMangler_Pre2013"
+	{
+		"fi"	"Ennen 2013 kesää: 5 ammusta, ei voi kriittisyystehostaa, -10%% vahinkovähennys, 5%% hitaampi latausaika"
+	}
 	"CozyCamper_PreMYM"
 	{
 		"fi"	"Ennen Meet your Matchiä: ei heilu tähdätessä lataustasosta riippumatta"
@@ -696,6 +729,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: +50%% ammuksen nopeus, vakiot 60 vahingon osumat"
 	}
+	"MadMilk_Release"
+	{
+		"fi"	"Julkaisuversio: 75%% tehdystä vahingosta maidon peitossa oleville vihollisille palautetaan terveytenä, sammuttaminen ei laske latausaikaa"
+	}
 	"Gardener_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: ei tulitusnopeusheikkoutta"
@@ -703,6 +740,10 @@
 	"Natascha_PreMYM"
 	{
 		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
+	}
+	"Natascha_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: täysi hidastus etäisyydestä riippumatta, 300 ammusta, ei vahingonsietoa pyörittäessä"
 	}
 	"Panic_PreJI"
 	{
@@ -863,6 +904,14 @@
 	"Sleeper_PreBM"
 	{
 		"fi"	"Ennen Blue Moonia: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"
+	}
+	"Sleeper_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%%, ei pääosumabonuksia"
+	}
+	"Sleeper_Release"
+	{
+		"fi"	"Julkaisuversio: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%% (kohde voi olla haavoittumaton), ei pääosumabonuksia, läpäise kohteet täyslatauksella, sat. kritit, ei nopeampaa latausaikaa"
 	}
 	"Turner_PreTB"
 	{
