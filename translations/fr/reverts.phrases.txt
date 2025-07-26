@@ -96,7 +96,7 @@
 	}
 	"REVERT_MOONSHOT_DISABLED"
 	{
-		"fr"	"Message de Moonshot désactivé. Utilisez le menu reverts pour le résactiver."
+		"fr"	"Message de Moonshot désactivé. Utilisez le menu reverts pour le réactiver."
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -827,6 +827,14 @@
 	{
 		"fr"	"Réversion à la version d'origine, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel, crits aléatoires"
 	}
+	"RocketJmp_Pre2011"
+	{
+		"fr"	"Réversion au 22 Décembre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
+	}
+	"RocketJmp_Oct2010"
+	{
+		"fr"	"Réversion au 27 Octobre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, santé max -100, porteur peut récupérer l'intel, crits aléatoires"
+	}		
 	"Saharan_Release"
 	{
 		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, moins de son de fin d'invisibilité, silhouette semi-invisible apparaît 0.5s plus longtemps. Equipe L'Étranger (enlève le +40%% de durée d'invisibilité) et Ton Éternelle Récompense pour obtenir le bonus, chapeau non-requis"
@@ -850,6 +858,10 @@
 	"Circuit_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, tir principal détruit les projectiles (coûte 5 métal + 15 par projectile détruit), pas de métal par distributeur quand actif"
+	}
+	"Circuit_Dec2013"
+	{
+		"fr"	"Réversion à Smissmas 2013, tir principal détruit les projectiles (cadence rapide, coûte 5 métal)"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
@@ -897,8 +909,16 @@
 	}
 	"StkJumper_Pre2013_Intel"
 	{
-		"fr"	"Réversion à la mise à jour Pyromania, peut déployer jusqu'à 8 bombes collantes en même temps, porteur peut récupérer l'intel"
+		"fr"	"Réversion à la mise à jour Manniversaire, peut déployer jusqu'à 8 bombes collantes en même temps, porteur peut récupérer l'intel"
 	}
+	"StkJumper_Pre2011"
+	{
+		"fr"	"Réversion au 22 Décembre 2010, peut déployer jusqu'à 8 bombes collantes en même temps, pas de dégâts personnels par explosifs, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
+	}
+	"StkJumper_ReleaseDay2"
+	{
+		"fr"	"Réversion au 28 Octobre 2010, pas de dégâts personnels par explosifs, santé max -75, porteur peut récupérer l'intel, crits aléatoires"
+	}			
 	"Sleeper_PreBM"
 	{
 		"fr"	"Réversion à pré-Blue Moon, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"
