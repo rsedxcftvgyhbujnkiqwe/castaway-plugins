@@ -812,6 +812,10 @@
 	{
 		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä (kuluttaa 5 metallia + 15 per tuhottu projektiili), ei metallia apulaitteista kun käytössä"
 	}
+	"Circuit_Dec2013"
+	{
+		"fi"	"2013 joulun versio: ensisijatulitus tuhoaa projektiilejä (nopea tulitus, kuluttaa 5 metallia)"
+	}
 	"Shortstop_PreMnvy_Shove"
 	{
 		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
