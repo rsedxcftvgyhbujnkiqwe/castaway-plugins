@@ -87,7 +87,6 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define ITEM_MENU_TIME (60*3)
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.5
@@ -217,7 +216,6 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 #endif
 
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
-
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertWrangler_WrenchRepairNerf;
@@ -225,6 +223,7 @@ MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Shells;
 MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
+MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -240,24 +239,24 @@ float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar rev
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 Handle sdkcall_AwardAchievement;
-DHookSetup dHooks_CTFProjectile_Arrow_BuildingHealingArrow;
-
-Handle dhook_CTFAmmoPack_MakeHolidayPack;
-MemoryPatch Patch_DroppedWeapon;
+DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
+DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
-Handle dhook_CTFWeaponBase_PrimaryAttack;
-Handle dhook_CTFWeaponBase_SecondaryAttack;
-Handle dhook_CTFBaseRocket_GetRadius;
-Handle dhook_CTFPlayer_CanDisguise;
-Handle dhook_CTFPlayer_CalculateMaxSpeed;
-Handle dhook_CAmmoPack_MyTouch;
-Handle dhook_CTFAmmoPack_PackTouch;
+
+DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
+DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
+DynamicHook dhook_CTFBaseRocket_GetRadius;
+DynamicHook dhook_CAmmoPack_MyTouch;
+
+DynamicDetour dhook_CTFPlayer_CanDisguise;
+DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
+DynamicDetour dhook_CTFAmmoPack_PackTouch;
 
 // Spycicle ammo pickup fix imported from NotnHeavy's plugin
-DHookSetup dhook_CTFPlayer_AddToSpyKnife;
+DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -382,9 +381,19 @@ TFCond debuffs[] =
 	TFCond_Gas
 };
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+	char game[128];
+	GetGameFolderName(game, sizeof(game));
+	if (!(StrEqual(game, "tf") && GetEngineVersion() == Engine_TF2)) {
+		strcopy(error, err_max, "This plugin only works on Team Fortress 2");
+		return APLRes_SilentFailure;
+	}
+	return APLRes_Success;
+}
+
 public void OnPluginStart() {
 	int idx;
-	Handle conf;
+	GameData conf;
 	// char tmp[64];
 
 	CCheckTrie();
@@ -558,7 +567,7 @@ public void OnPluginStart() {
 
 	AutoExecConfig(true, "reverts", "sourcemod");
 
-	g_hClientMessageCookie = RegClientCookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
+	g_hClientMessageCookie = new Cookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
 	g_hClientShowMoonshot = new Cookie("reverts_show_moonshot", "Weapon Reverts Show Moonshot Message", CookieAccess_Protected);
 
 	hudsync = CreateHudSynchronizer();
@@ -595,7 +604,7 @@ public void OnPluginStart() {
 	AddNormalSoundHook(OnSoundNormal);
 
 	{
-		conf = LoadGameConfigFile("reverts");
+		conf = new GameData("reverts");
 
 		if (conf == null) SetFailState("Failed to load reverts conf");
 
@@ -619,14 +628,15 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
 
-		dhook_CTFWeaponBase_PrimaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::PrimaryAttack");
-		dhook_CTFWeaponBase_SecondaryAttack = DHookCreateFromConf(conf, "CTFWeaponBase::SecondaryAttack");
-		dhook_CTFBaseRocket_GetRadius = DHookCreateFromConf(conf, "CTFBaseRocket::GetRadius");
-		dhook_CTFPlayer_CanDisguise = DHookCreateFromConf(conf, "CTFPlayer::CanDisguise");
-		dhook_CTFPlayer_CalculateMaxSpeed = DHookCreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
-		dhook_CTFPlayer_AddToSpyKnife = DHookCreateFromConf(conf, "CTFPlayer::AddToSpyKnife");
-		dhook_CAmmoPack_MyTouch = DHookCreateFromConf(conf, "CAmmoPack::MyTouch");
-		dhook_CTFAmmoPack_PackTouch =  DHookCreateFromConf(conf, "CTFAmmoPack::PackTouch");
+		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
+		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
+		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
+		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
+
+		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
+		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
+		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
+		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 
 		delete conf;
 	}
@@ -679,11 +689,9 @@ public void OnPluginStart() {
 		patch_RevertDalokohsBar_ChgTo400 =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
-
-		Patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
-		dhook_CTFAmmoPack_MakeHolidayPack = DHookCreateFromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-		DHookEnableDetour(dhook_CTFAmmoPack_MakeHolidayPack, false, DHookCallback_CTFAmmoPack_MakeHolidayPack);
-		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+		patch_DroppedWeapon =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFPlayer::DropAmmoPack");
 
 		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -691,16 +699,18 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_AwardAchievement = EndPrepSDKCall();
 
-		dHooks_CTFProjectile_Arrow_BuildingHealingArrow = DHookCreateFromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
-		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, false, PreHealingBoltImpact);
-		DHookEnableDetour(dHooks_CTFProjectile_Arrow_BuildingHealingArrow, true, PostHealingBoltImpact);
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
+		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 
 		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
-
 		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
-
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
 		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRepairNerf)) SetFailState("Failed to create patch_RevertWrangler_WrenchRepairNerf");
@@ -711,7 +721,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) SetFailState("Failed to create patch_RevertMadMilk_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
-		if (!ValidateAndNullCheck(Patch_DroppedWeapon)) SetFailState("Failed to create Patch_DroppedWeapon");
+		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
@@ -745,10 +755,10 @@ public void OnPluginStart() {
 	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 
-	DHookEnableDetour(dhook_CTFPlayer_CanDisguise, true, DHookCallback_CTFPlayer_CanDisguise);
-	DHookEnableDetour(dhook_CTFPlayer_CalculateMaxSpeed, true, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-  	DHookEnableDetour(dhook_CTFPlayer_AddToSpyKnife, false, DHookCallback_CTFPlayer_AddToSpyKnife);
-	DHookEnableDetour(dhook_CTFAmmoPack_PackTouch, false, DHookCallback_CTFAmmoPack_PackTouch);
+	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
+	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
+	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
+	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -762,9 +772,9 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
 	if (convar.BoolValue) {
-		Patch_DroppedWeapon.Enable();
+		patch_DroppedWeapon.Enable();
 	} else {
-		Patch_DroppedWeapon.Disable();
+		patch_DroppedWeapon.Disable();
 	}
 }
 #else
@@ -1579,23 +1589,23 @@ public void OnEntityCreated(int entity, const char[] class) {
 		rocket_create_entity = entity;
 		rocket_create_frame = GetGameTickCount();
 
-		DHookEntity(dhook_CTFBaseRocket_GetRadius, true, entity, _, DHookCallback_CTFBaseRocket_GetRadius);
+		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
 	}
 
 	if (
 		StrEqual(class, "tf_weapon_flamethrower") ||
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 	) {
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
 	if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		DHookEntity(dhook_CTFWeaponBase_PrimaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		DHookEntity(dhook_CTFWeaponBase_SecondaryAttack, false, entity, _, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 	if (StrContains(class, "item_ammopack") == 0)
 	{
-		DHookEntity(dhook_CAmmoPack_MyTouch, false, entity, _, DHookCallback_CAmmoPack_MyTouch);
+		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
 	}
 }
 
@@ -2628,11 +2638,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 								event1 = CreateEvent("player_healonhit", true);
 
-								SetEventInt(event1, "amount", health_max);
-								SetEventInt(event1, "entindex", attacker);
-								SetEventInt(event1, "weapon_def_index", -1);
+								event1.SetInt("amount", health_max);
+								event1.SetInt("entindex", attacker);
+								event1.SetInt("weapon_def_index", -1);
 
-								FireEvent(event1);
+								event1.Fire();
 							}
 						}
 					}
@@ -2655,7 +2665,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled(Wep_Ambassador) &&
 							StrEqual(class, "tf_weapon_revolver")
 						) {
-							SetEventInt(event, "customkill", TF_CUSTOM_HEADSHOT);
+							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
 
 							return Plugin_Changed;
 						}
@@ -2693,9 +2703,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						
 							{
 								event1 = CreateEvent("player_healonhit", true);
-								SetEventInt(event1, "amount", intMin(pyro_overheal_max - health_cur, 75));
-								SetEventInt(event1, "entindex", attacker);
-								SetEventInt(event1, "weapon_def_index", -1);
+								event1.SetInt("amount", intMin(pyro_overheal_max - health_cur, 75));
+								event1.SetInt("entindex", attacker);
+								event1.SetInt("weapon_def_index", -1);
 								FireEvent(event1);
 								// Set health
 								if(health_cur <= pyro_overheal_max) {
@@ -3911,10 +3921,10 @@ Action SDKHookCB_OnTakeDamage(
 					// for some reason adding TF2_IsPlayerInCondition(victim, TFCond_Bonked) makes the healing not work
 				) {
 					// Show that attacker got healed.
-					Handle event = CreateEvent("player_healonhit", true);
-					SetEventInt(event, "amount", 15);
-					SetEventInt(event, "entindex", attacker);
-					FireEvent(event);
+					Event event = CreateEvent("player_healonhit", true);
+					event.SetInt("amount", 15);
+					event.SetInt("entindex", attacker);
+					event.Fire();
 
 					// Set health.
 					health_cur = GetClientHealth(attacker);
@@ -4499,7 +4509,7 @@ Action Command_Menu(int client, int args) {
 			menu_main.AddItem("moonshottoggle", localizedMoonshotToggle);
 		}
 
-		menu_main.Display(client, ITEM_MENU_TIME);
+		menu_main.Display(client, MENU_TIME_FOREVER);
 	} else {
 		ReplyToCommand(client, "[SM] %t", "REVERT_REVERTS_DISABLED");
 	}
@@ -4626,7 +4636,7 @@ float ValveRemapVal(float val, float a, float b, float c, float d) {
 	return (c + ((d - c) * tmp));
 }
 
-void ParticleShowSimple(char[] name, float position[3]) {
+void ParticleShowSimple(const char[] name, float position[3]) {
 	int idx;
 	int table;
 	int strings;
@@ -4702,7 +4712,7 @@ void ParticleShow(char[] name, float origin[3], float start[3], float angles[3])
  * @param wep_enum			Weapon enum, this identifies a weapon.
  * @param mem_patch			This revert requires a memory patch?
  */
-void ItemDefine(char[] key, char[] desc, int flags, int wep_enum, bool mem_patch=false) {
+void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum, bool mem_patch=false) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
@@ -4716,7 +4726,7 @@ void ItemDefine(char[] key, char[] desc, int flags, int wep_enum, bool mem_patch
  * @param wep_enum		Weapon enum.
  * @param desc			Key for description of the item variant in the translation file.
  */
-void ItemVariant(int wep_enum, char[] desc) {
+void ItemVariant(int wep_enum, const char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
 
 	if (items[wep_enum].num_variants > MAX_VARIANTS) {
@@ -5243,7 +5253,7 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 	}
 }
 
-MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
+MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnValue) {
 	int owner;
 	int weapon;
 	char class[64];
@@ -5271,9 +5281,8 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, Handle return_) {
 				// for some reason, doing this in one line doesn't work
 				// we have to get the value to a var and then set it
 
-				value = DHookGetReturn(return_);
-				value = (value / 0.80); // undo airstrike attrib
-				DHookSetReturn(return_, value);
+				value = returnValue.Value / 0.80; // undo airstrike attrib
+				returnValue.Value = value;
 
 				return MRES_Override;
 			}
@@ -5371,7 +5380,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
+MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnValue) {
 	if (
 		IsPlayerAlive(entity) &&
 		TF2_GetPlayerClass(entity) == TFClass_Spy &&
@@ -5415,7 +5424,7 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, Handle return_) {
 			value = false;
 		}
 
-		DHookSetReturn(return_, value);
+		returnValue.Value = value;
 
 		return MRES_Override;
 	}
@@ -5445,10 +5454,10 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 			int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
 
 			// Show that the player got healed.
-			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", intMin(health_max - health, heal));
-			SetEventInt(event, "entindex", client);
-			FireEvent(event);
+			Event event = CreateEvent("player_healonhit", true);
+			event.SetInt("amount", intMin(health_max - health, heal));
+			event.SetInt("entindex", client);
+			event.Fire();
 
 			// remove afterburn and bleed debuffs on heal
 			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
@@ -5478,10 +5487,10 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		if (health < health_max)
 		{
 			// Show that the player got healed.
-			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", intMin(health_max - health, 20));
-			SetEventInt(event, "entindex", client);
-			FireEvent(event);
+			Event event = CreateEvent("player_healonhit", true);
+			event.SetInt("amount", intMin(health_max - health, 20));
+			event.SetInt("entindex", client);
+			event.Fire();
 
 			// remove afterburn and bleed debuffs on heal
 			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
