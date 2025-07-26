@@ -778,7 +778,7 @@
 	}
 	"Pocket_PreBM"
 	{
-		"en"	"Reverted to pre-2018, gain up to +7 health on hit"
+		"en"	"Reverted to pre-bluemoon, gain up to +7 health on hit"
 	}
 	"Quickfix_PreTB"
 	{
@@ -914,7 +914,7 @@
 	}			
 	"Sleeper_PreBM"
 	{
-		"en"	"Reverted to pre-2018, headshots and fully charged shots splash jarate, no cooldown reduction"
+		"en"	"Reverted to pre-bluemoon, headshots and fully charged shots splash jarate, no cooldown reduction"
 	}
 	"Sleeper_PreGM"
 	{
