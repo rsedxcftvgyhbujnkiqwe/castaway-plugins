@@ -1,0 +1,45 @@
+"Phrases"
+{
+	"VOTESCRAMBLE_VOTE_TITLE"
+	{
+		"en"	"Scramble teams?"
+	}
+	"VOTESCRAMBLE_VOTE_IN_PROGRESS"
+	{
+		"en"	"Can't vote scramble because there is already a vote in progress. Retrying in 10 seconds..."
+	}
+	"VOTESCRAMBLE_SCRAMBLING_TEAMS"
+	{
+		"en"	"Scrambling teams..."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_NEXT_ROUND"
+	{
+		"en"	"Teams will be scrambled next round."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_IN_PROGRESS"
+	{
+		"en"	"Scrambling the teams due to vote."
+	}
+	"VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND"
+	{
+		"en"	"A previous vote scramble has succeeded. Teams will be scrambled next round."
+	}
+	"VOTESCRAMBLE_COOLDOWN"
+	{
+		"en"	"Sorry, votescramble is currently on cool-down."
+	}
+	"VOTESCRAMBLE_WAITING_FOR_PLAYERS"
+	{
+		"en"	"Server is still waiting for players."
+	}
+	"VOTESCRAMBLE_VOTED"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"You have already voted for a team scramble. [{1}/{2} votes required]"
+	}
+	"VOTESCRAMBLE_VOTE_ANNOUNCE"
+	{
+		"#format"	"{1:s},{2:d},{3:d}"
+		"en"		"{1} wants to scramble teams. [{2}/{3} votes required]"
+	}
+}

@@ -65,6 +65,9 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 
 public void OnPluginStart()
 {
+	LoadTranslations("common.phrases");
+	LoadTranslations("votescramble.phrases");
+
 	CreateConVar("nano_votescramble_version", PLUGIN_VERSION, "Vote Scramble Version", FCVAR_DONTRECORD);
 
 	cvarVoteTime = CreateConVar("nano_votescramble_time", "20.0", "Time in seconds the vote menu should last.", 0);
@@ -192,7 +195,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	}
 }
 
-void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
+void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 {
 	char errorMsg[MAX_NAME_LENGTH] = "";
 	if (g_bServerWaitingForPlayers)
@@ -202,11 +205,11 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Waiting);
 			return;
 		}
-		errorMsg = "Server is still waiting for players.";
+		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_WAITING_FOR_PLAYERS", client);
 	}
 	if (g_bScrambleTeams)
 	{
-		errorMsg = "A previous vote scramble has succeeded. Teams will be scrambled next round.";
+		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND", client);
 	}
 	if (g_bVoteCooldown)
 	{
@@ -215,11 +218,11 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Recent, g_iVoteCooldownExpireTime - GetTime());
 			return;
 		}
-		errorMsg = "Sorry, votescramble is currently on cool-down.";
+		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_COOLDOWN", client);
 	}
 	if (g_bVoted[client])
 	{
-		Format(errorMsg, sizeof(errorMsg), "You have already voted for a team scramble. [%d/%d votes required]", g_iVotes, g_iVotesNeeded);
+		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_VOTED", client, g_iVotes, g_iVotesNeeded);
 	}
 
 	if (!StrEqual(errorMsg, ""))
@@ -240,7 +243,7 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu)
 
 	g_iVotes++;
 	g_bVoted[client] = true;
-	PrintToChatAll("%s wants to scramble teams. [%d/%d votes required]", name, g_iVotes, g_iVotesNeeded);
+	PrintToChatAll("%t", "VOTESCRAMBLE_VOTE_ANNOUNCE", name, g_iVotes, g_iVotesNeeded);
 
 	if (g_iVotes >= g_iVotesNeeded)
 	{
@@ -279,13 +282,13 @@ void VoteScrambleMenu()
 	if (NativeVotes_IsVoteInProgress())
 	{
 		CreateTimer(10.0, Timer_Retry, _, TIMER_FLAG_NO_MAPCHANGE);
-		PrintToConsoleAll("[SM] Can't vote scramble because there is already a vote in progress. Retrying in 10 seconds...");
+		PrintToConsoleAll("[SM] %t", "VOTESCRAMBLE_VOTE_IN_PROGRESS");
 		return;
 	}
 
-	NativeVote vote = new NativeVote(NativeVote_Handler, NativeVotesType_Custom_Mult);
+	NativeVote vote = new NativeVote(NativeVote_Handler, NativeVotesType_Custom_Mult, NATIVEVOTES_ACTIONS_DEFAULT | MenuAction_Display | MenuAction_DisplayItem);
 
-	vote.SetTitle("Scramble teams?");
+	vote.SetTitle("VOTESCRAMBLE_VOTE_TITLE");
 
 	vote.AddItem("yes", "Yes");
 	vote.AddItem("no", "No");
@@ -296,7 +299,26 @@ public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, in
 {
 	switch (action)
 	{
-		case MenuAction_End: vote.Close();
+		case MenuAction_End: 
+		{
+			vote.Close();
+		}
+		case MenuAction_Display:
+		{
+			char title[64], targetStr[64];
+			vote.GetTitle(title, sizeof(title));
+			Format(targetStr, sizeof(targetStr), "%T", title, param1);
+			return view_as<int>(NativeVotes_RedrawVoteTitle(targetStr));
+		}
+		case MenuAction_DisplayItem:
+		{
+			char sourceInfoStr[64], sourceDispStr[64], targetStr[64];
+			vote.GetItem(param2, sourceInfoStr, sizeof(sourceInfoStr), sourceDispStr, sizeof(sourceDispStr));
+			if (StrEqual(sourceInfoStr, "yes") || StrEqual(sourceInfoStr, "no")) {
+				Format(targetStr, sizeof(targetStr), "%T", sourceDispStr, param1);
+				return view_as<int>(NativeVotes_RedrawVoteItem(targetStr));
+			}
+		}
 		case MenuAction_VoteCancel:
 		{
 			if (param1 == VoteCancel_NoVotes)
@@ -324,12 +346,12 @@ public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, in
 			{
 				if (g_bCanScramble)
 				{
-					vote.DisplayPass("Scrambling teams...");
+					vote.DisplayPass("%t", "VOTESCRAMBLE_SCRAMBLING_TEAMS");
 					ScheduleScramble();
 				}
 				else
 				{
-					vote.DisplayPass("Teams will be scrambled next round.");
+					vote.DisplayPass("%t", "VOTESCRAMBLE_SCRAMBLE_NEXT_ROUND");
 					g_bScrambleTeams = true;
 				}
 			}
@@ -340,7 +362,7 @@ public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, in
 }
 
 public Action Timer_Scramble(Handle timer, bool roundStart) {
-	PrintToChatAll("Scrambling the teams due to vote.");
+	PrintToChatAll("%t", "VOTESCRAMBLE_SCRAMBLE_IN_PROGRESS");
 	bool vanillaTimeout = cvarVanillaScrambleTimeout.BoolValue;
 	CreateTimer(!roundStart && vanillaTimeout ? 2.0 : 0.0, Timer_StartScramble, vanillaTimeout);	
 	return Plugin_Continue;
