@@ -856,6 +856,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed), no metal from dispensers when active"
 	}
+	"Circuit_Dec2013"
+	{
+		"en"	"Reverted to Smissmas 2013, primary fire destroys projectiles (fires rapidly, costs 5 metal)"
+	}
 	"Shortstop_PreMnvy_Shove"
 	{
 		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"

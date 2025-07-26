@@ -538,6 +538,7 @@ public void OnPluginStart() {
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
+	ItemVariant(Wep_ShortCircuit, "Circuit_Dec2013");
 	ItemDefine("shortstop", "Shortstop_PreMnvy_Shove", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_PreMnvy");
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM_Shove");
@@ -5172,9 +5173,11 @@ int FindSentryGunOwnedByClient(int client)
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
-	int metal;
 
-	if (GetItemVariant(Wep_ShortCircuit) == 1) {
+	if (
+		GetItemVariant(Wep_ShortCircuit) == 1 ||
+		GetItemVariant(Wep_ShortCircuit) == 2
+	) {
 		GetEntityClassname(entity, class, sizeof(class));
 		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 		if (
@@ -5183,10 +5186,13 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		) {
 			// short circuit primary fire
 
-			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
-
-			if (metal >= (5 + BALANCE_CIRCUIT_METAL)) {
-				DoShortCircuitProjectileRemoval(owner, entity, true);
+			switch (GetItemVariant(Wep_ShortCircuit)) {
+				case 1: {
+					DoShortCircuitProjectileRemoval(owner, entity, 0, 15);
+				}
+				case 2: {
+					DoShortCircuitProjectileRemoval(owner, entity, 0, 0);
+				}
 			}
 		}
 	}
@@ -5238,14 +5244,15 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 						EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
 					}
 				}
-				DoShortCircuitProjectileRemoval(owner, entity, false);
+				DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
 			}
 
 			return MRES_Supercede;
 		}
 
 		if (
-			GetItemVariant(Wep_ShortCircuit) == 1 &&
+			(GetItemVariant(Wep_ShortCircuit) == 1 ||
+			GetItemVariant(Wep_ShortCircuit) == 2) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// prevent alt-fire for pre-gunmettle short circuit
@@ -5255,7 +5262,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	return MRES_Ignored;
 }
 
-void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_destroyed) {
+void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
 	int idx;
 	char class[64];
 	float player_pos[3];
@@ -5269,7 +5276,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 
 	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
 
-	if (!consume_per_destroyed) SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
+	if (base_amount) {
+		SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - base_amount), 4, 3);
+	}
 
 	GetClientEyePosition(owner, player_pos);
 	GetClientEyeAngles(owner, angles1);
@@ -5332,19 +5341,21 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, bool consume_per_des
 							if (TR_DidHit() == false) {
 								if (idx <= MaxClients) {
 									// damage players
-									if (!consume_per_destroyed)
-										SDKHooks_TakeDamage(idx, entity, owner, BALANCE_CIRCUIT_DAMAGE, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
+									if (damage != 0.0) {
+										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
+									}
 								} else {
 									// delete projectiles
-									if (consume_per_destroyed)
+									if (amount_per_destroyed)
 									{
 										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
-										if (metal < (5 + BALANCE_CIRCUIT_METAL)) break;
-										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - BALANCE_CIRCUIT_METAL), 4, 3);
+										if (metal < (base_amount + amount_per_destroyed)) break;
+										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - amount_per_destroyed), 4, 3);
 									}
 
 									// show particle effect
 									ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
+
 									RemoveEntity(idx);
 								}
 							}
