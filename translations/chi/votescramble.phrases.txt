@@ -27,7 +27,7 @@
 	}
 	"VOTESCRAMBLE_COOLDOWN"
 	{
-		"en"	"对不起，随机重组团队投票正在冷却时间中。"
+		"chi"	"对不起，随机重组团队投票正在冷却时间中。"
 	}
 	"VOTESCRAMBLE_WAITING_FOR_PLAYERS"
 	{
