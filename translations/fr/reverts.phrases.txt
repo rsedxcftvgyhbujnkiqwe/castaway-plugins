@@ -778,9 +778,9 @@
 	{
 		"fr"	"Réversion à pré-2013, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"fr"	"Réversion à pré-2013, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel"
+		"fr"	"Réversion à la version d'origine, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel, crits aléatoires"
 	}
 	"Saharan_Release"
 	{

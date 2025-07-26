@@ -778,9 +778,9 @@
 	{
 		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść walizkę z tajnymi materiałami"
+		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść walizkę z tajnymi materiałami, losowe trafienia krytyczne"
 	}
 	"Saharan_Release"
 	{

@@ -758,9 +758,9 @@
 	{
 		"jp"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"jp"	"Reverted to pre-2013, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel"
+		"jp"	"Reverted to release, grants immunity to self-damage from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
 	}
 	"Saharan_Release"
 	{

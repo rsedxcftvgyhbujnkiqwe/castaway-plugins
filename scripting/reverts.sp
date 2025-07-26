@@ -529,7 +529,9 @@ public void OnPluginStart() {
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
 	ItemVariant(Wep_Bison, "Bison_PreMYM_Historical");
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
-	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2013_Intel");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2011");
+	ItemVariant(Wep_RocketJumper, "RocketJmp_Oct2010");
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
@@ -548,6 +550,8 @@ public void OnPluginStart() {
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
+	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
+	ItemVariant(Wep_StickyJumper, "StkJumper_ReleaseDay2");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
@@ -1924,9 +1928,34 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 237: { if (GetItemVariant(Wep_RocketJumper) == 1) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 400, 0.0);
+		case 237: { if (ItemIsEnabled(Wep_RocketJumper)) {
+			switch (GetItemVariant(Wep_RocketJumper)) {
+				case 0: { // RocketJmp_Pre2013
+					TF2Items_SetNumAttributes(itemNew, 0);
+				}				
+				case 1: { // RocketJmp_Release
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
+				}
+				case 2: { // RocketJmp_Pre2011 (December 22, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
+					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
+					TF2Items_SetAttribute(itemNew, 4, 67, 2.00); // 100% dmg taken from bullets increased
+					TF2Items_SetAttribute(itemNew, 5, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}
+				case 3: { // RocketJmp_Oct2010 (October 27, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 2, 125, -100.0); // max health additive penalty
+					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}	
+			}
+					
 		}}
 		case 730: { if (ItemIsEnabled(Wep_Beggars)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -2427,15 +2456,33 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 265: { if (ItemIsEnabled(Wep_StickyJumper)) {
 			switch (GetItemVariant(Wep_StickyJumper)) {
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 1, 400, 0.0);
-				}
-				default: {
+				case 0: { // StkJumper_Pre2013 (Pyromania Update version)
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
 				}
+				case 1: { // StkJumper_Pre2013_Intel (Manniversary Update version)
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+				}
+				case 2: { // StkJumper_Pre2011 (December 22, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 7);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 3, 61, 2.00); // 100% dmg taken from fire increased
+					TF2Items_SetAttribute(itemNew, 4, 65, 2.00); // 100% dmg taken from blast increased
+					TF2Items_SetAttribute(itemNew, 5, 67, 2.00); // 100% dmg taken from bullets increased
+					TF2Items_SetAttribute(itemNew, 6, 207, 0.0); // remove self blast dmg; blast dmg to self increased (only works for the weapon itself)
+				}
+				case 3: { // StkJumper_ReleaseDay2 (October 28, 2010 version)
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
+					TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 3, 125, -75.0); // max health additive penalty
+					TF2Items_SetAttribute(itemNew, 4, 207, 0.0); // remove self blast dmg; blast dmg to self increased
+				}																
 			}
 		}}
 		case 131, 1144: { if (ItemIsEnabled(Wep_CharginTarge)) {
@@ -4296,6 +4343,37 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// do it this way in order to preserve knockback caused by the explosion
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
+					//PrintToChat(victim, "Kamikaze: set health to 500, tanking...", 0);
+			}
+		}
+		{
+			// no self blast damage including from pumpkin bombs for rocket jumper revert variants
+			if(
+				GetItemVariant(Wep_RocketJumper) >= 1 &&
+				victim == attacker &&
+				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE && // bug fix to prevent 500 hp overheal
+				damage > 0 &&
+				player_weapons[victim][Wep_RocketJumper]
+			) {
+				// save old health and set health to 500 to tank self blast damage
+				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
+				players[victim].old_health = GetClientHealth(victim);
+				SetEntityHealth(victim, 500);
+					//PrintToChat(victim, "RJ: set health to 500, tanking...", 0);
+			}
+
+			// no self blast damage including from pumpkin bombs for sticky jumper variants
+			if(
+				GetItemVariant(Wep_StickyJumper) >= 2 &&
+				victim == attacker &&
+				damage > 0 &&
+				player_weapons[victim][Wep_StickyJumper]
+			) {
+				// save old health and set health to 500 to tank self blast damage
+				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
+				players[victim].old_health = GetClientHealth(victim);
+				SetEntityHealth(victim, 500);
+					//PrintToChat(victim, "SJ: set health to 500, tanking...", 0);
 			}
 		}
 	}
@@ -4339,6 +4417,31 @@ void SDKHookCB_OnTakeDamagePost(
 		) {
 			// set back saved health after tauntkill
 			SetEntityHealth(victim, players[victim].old_health);
+				//PrintToChat(victim, "Kamikaze: set back to saved health", 0);
+		}
+
+		{
+			// set back saved health after self blast damage with jumper weapons
+			if(
+				GetItemVariant(Wep_RocketJumper) >= 1 &&
+				victim == attacker &&
+				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
+				damage > 0 &&
+				player_weapons[victim][Wep_RocketJumper]
+			) {
+				SetEntityHealth(victim, players[victim].old_health);
+					//PrintToChat(victim, "RJ: set back to saved health", 0);
+			}
+
+			if(
+				GetItemVariant(Wep_StickyJumper) >= 2 &&
+				victim == attacker &&
+				damage > 0 &&
+				player_weapons[victim][Wep_StickyJumper]
+			) {
+				SetEntityHealth(victim, players[victim].old_health);
+					//PrintToChat(victim, "SJ: set back to saved health", 0);
+			}
 		}
 
 		if (inflictor > MaxClients) {
