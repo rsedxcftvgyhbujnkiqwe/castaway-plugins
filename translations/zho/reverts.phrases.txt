@@ -1,10 +1,13 @@
-// Traditional Chinese transliterated by: MindfulProtons
-// NOTE: There may be errors. I only used a tool to convert Simplified Chinese to Traditional Chinese characters.
-// Tool used was online OpenCC (https://opencc.byvoid.com/). Github: https://github.com/BYVoid/OpenCC
-// If there are anyone here who knows Traditional Chinese and wants to volunteer, please contact us.
-// Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
-// Refinemnt & Grammar correction made by Villy	@VillyVilly on YouTube/Steam
+// Traditional Chinese translation, refinement & grammar correction by:
+// Villy	Steam: https://steamcommunity.com/id/villyvilly/
+// 			YouTube: https://www.youtube.com/@VillyVilly
 // NOTE from Villy: I refer the plugin as "武器返璞" instead of "武器回調", and I log my progress of checking by adding the original En. ver.
+// 
+// Original translation is from Simplified Chinese by Eric Zhang	https://steamcommunity.com/id/ericzhang456/
+// Traditional Chinese transliterated by: MindfulProtons
+// NOTE from MindfulProtons: There may be errors. I only used a tool to convert Simplified Chinese to Traditional Chinese characters.
+// Villy will eventually go over everything so the phrases are mostly correct.
+// Tool used was online OpenCC (https://opencc.byvoid.com/). Github: https://github.com/BYVoid/OpenCC
 
 "Phrases"
 {
@@ -881,9 +884,9 @@
 	{
 		"zho"	"回調到 2013 年以前，對手雷自爆嘲諷自殺效果免疫"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"zho"	"回調到 2013 年以前，對手雷自爆嘲諷自殺效果免疫，穿戴者可以撿起情報"
+		"zho"	"回調到發佈，對手雷自爆嘲諷自殺效果免疫，穿戴者可以撿起情報，有隨機暴擊"
 	}
 	"Saharan_Release"
 	{

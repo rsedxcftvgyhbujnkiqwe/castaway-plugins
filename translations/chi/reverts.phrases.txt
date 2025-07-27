@@ -89,7 +89,7 @@
 	}
 	"REVERT_LOADOUT_CHANGE_DISABLED"
 	{
-		"chi"	"已关闭配置更改时武器回调的显示，用 !revertsinfo 或 !reverts 菜单开启"
+		"chi"	"已关闭配置更改时武器回调的显示，用 !toggleinfo 或 !reverts 菜单开启"
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -329,6 +329,11 @@
 	{
 		// https://wiki.teamfortress.com/wiki/Loose_Cannon/zh-hans
 		"chi"	"脱缰巨炮"
+	}
+	"madmilk"
+	{
+		// https://wiki.teamfortress.com/wiki/Mad_Milk/zh-hans
+		"chi"	"疯狂的牛奶"
 	}
 	"gardener"
 	{
@@ -779,6 +784,10 @@
 	{
 		"chi"	"回调到艰难假日更新前，炮弹速度 +50%%，击中时能保持 60 伤害输出"
 	}
+	"MadMilk_Release"
+	{
+		"chi"	"回调到发布，攻击浑身是牛奶的敌人时可以恢复本次攻击伤害 75%% 的生命值，为队友灭火不会减少冷却时间"
+	}
 	"Gardener_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，没有开火速度减少"
@@ -801,7 +810,7 @@
 	}
 	"Pomson_Release"
 	{
-		"chi"	"回调到发布，和正义野牛伤害相同，增大了判定箱大小，可以穿越其他玩家，没有被击中者的医疗枪能量或隐身能量损失，可以点燃队友的猎人短弓弓箭，做无类型伤害"
+		"chi"	"回调到发布，和正义野牛伤害相同，增大了判定箱大小，可以穿越对象，没有被击中者的医疗枪能量或隐身能量损失，可以点燃队友的猎人短弓弓箭，做无类型伤害"
 	}
 	"Pomson_PreGM_Historical"
 	{
@@ -867,9 +876,9 @@
 	{
 		"chi"	"回调到 2013 年以前，对手雷自爆嘲讽自杀效果免疫"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"chi"	"回调到 2013 年以前，对手雷自爆嘲讽自杀效果免疫，穿戴者可以捡起情报"
+		"chi"	"回调到发布，对手雷自爆嘲讽自杀效果免疫，穿戴者可以捡起情报，有随机暴击"
 	}
 	"Saharan_Release"
 	{
@@ -893,7 +902,7 @@
 	}
 	"Circuit_PreGM"
 	{
-		"chi"	"回调到枪魂更新前，开火能摧毁飞行物，手持武器时从补给器无法获取金属，无辅助开火功能"
+		"chi"	"回调到枪魂更新前，开火能摧毁飞行物（花费 5 金属 + 15 每摧毁的发射物），手持武器时从补给器无法获取金属"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{

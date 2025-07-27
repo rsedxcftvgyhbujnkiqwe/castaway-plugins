@@ -577,6 +577,7 @@
 	"Ringer_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), atak aktywujący zegarek zredukowany o 50%%, możliwość podnoszenia paczek, gdy nie jest się niewidzialnym, -35%% energii z paczek"
+	}
 	"Degreaser_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% zadawanych obrażeń, -25%% zadawanych obrażeń po podpaleniu"
@@ -777,9 +778,9 @@
 	{
 		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza"
 	}
-	"RocketJmp_Pre2013_Intel"
+	"RocketJmp_Release"
 	{
-		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść walizkę z tajnymi materiałami"
+		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść walizkę z tajnymi materiałami, losowe trafienia krytyczne"
 	}
 	"Saharan_Release"
 	{
