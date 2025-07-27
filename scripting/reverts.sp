@@ -207,7 +207,11 @@ ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
 
-bool g_bIsPasstime;	// Check for passtime gamemode used for the Rocket Jumper and Sticky Jumper reverts
+// PASS Time JACK pickup prevention by Rocket Jumper and Sticky Jumper weapons
+ConVar cvar_passtime_disable_pickup_rocketjmp;
+ConVar cvar_passtime_disable_pickup_stkjumper;
+bool g_bIsPasstime_RocketJumper;	// Check if map has PASS Time gamemode logic, used for the Rocket Jumper reverts
+bool g_bIsPasstime_StickyJumper;	// Check if map has PASS Time gamemode logic, used for the Sticky Jumper reverts
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -417,6 +421,8 @@ public void OnPluginStart() {
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
+	cvar_passtime_disable_pickup_rocketjmp = CreateConVar("sm_reverts__passtime_disable_pickup_rocketjmp", "1", (PLUGIN_NAME ... " - If next map is PASS Time, disable picking up the PASS Time JACK for all Rocket Jumper variants"), _, true, 0.0, true, 1.0);
+	cvar_passtime_disable_pickup_stkjumper = CreateConVar("sm_reverts__passtime_disable_pickup_stkjumper", "1", (PLUGIN_NAME ... " - If next map is PASS Time, disable picking up the PASS Time JACK for all Sticky Jumper variants"), _, true, 0.0, true, 1.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -917,17 +923,31 @@ public void OnMapStart() {
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
 
-	g_bIsPasstime = false;
+	if (cvar_passtime_disable_pickup_rocketjmp.BoolValue) {
+		g_bIsPasstime_RocketJumper = false;
+		int ent = -1;
+		while ((ent = FindEntityByClassname(ent, "passtime_logic")) != -1)
+		{
+			g_bIsPasstime_RocketJumper = true;
+			break;
+		}
 
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "passtime_logic")) != -1)
-	{
-		g_bIsPasstime = true;
-		break;
+		//if(g_bIsPasstime_RocketJumper) PrintToServer("Passtime map detected for Rocket Jumper (g_bIsPasstime_RocketJumper = %b)", g_bIsPasstime_RocketJumper);
+		//else if(!g_bIsPasstime_RocketJumper) PrintToServer("Passtime map NOT detected for Rocket Jumper (g_bIsPasstime_RocketJumper = %b)", g_bIsPasstime_RocketJumper);
 	}
-	
-	if(g_bIsPasstime) PrintToServer("Passtime map detected (g_bIsPasstime = %b)", g_bIsPasstime);
-	else if(!g_bIsPasstime) PrintToServer("Passtime map NOT detected (g_bIsPasstime = %b)", g_bIsPasstime);
+
+	if (cvar_passtime_disable_pickup_stkjumper.BoolValue) {
+		g_bIsPasstime_StickyJumper = false;
+		int ent = -1;
+		while ((ent = FindEntityByClassname(ent, "passtime_logic")) != -1)
+		{
+			g_bIsPasstime_StickyJumper = true;
+			break;
+		}
+
+		//if(g_bIsPasstime_StickyJumper) PrintToServer("Passtime map detected for Sticky Jumper (g_bIsPasstime_StickyJumper = %b)", g_bIsPasstime_StickyJumper);
+		//else if(!g_bIsPasstime_StickyJumper) PrintToServer("Passtime map NOT detected for Sticky Jumper (g_bIsPasstime_StickyJumper = %b)", g_bIsPasstime_StickyJumper);
+	}	
 }
 
 public void OnGameFrame() {
@@ -1951,12 +1971,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}				
 				case 1: { // RocketJmp_Release
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime_RocketJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 				}
 				case 2: { // RocketJmp_Pre2011 (December 22, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 6);
-					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime_RocketJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 2, 61, 2.00); // 100% dmg taken from fire increased
 					TF2Items_SetAttribute(itemNew, 3, 65, 2.00); // 100% dmg taken from blast increased
@@ -1965,7 +1985,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 				case 3: { // RocketJmp_Oct2010 (October 27, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 0, 400, g_bIsPasstime_RocketJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 2, 125, -100.0); // max health additive penalty
 					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
@@ -2478,12 +2498,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 1: { // StkJumper_Pre2013_Intel (Manniversary Update version)
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime_StickyJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 				}
 				case 2: { // StkJumper_Pre2011 (December 22, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 7);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime_StickyJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 3, 61, 2.00); // 100% dmg taken from fire increased
 					TF2Items_SetAttribute(itemNew, 4, 65, 2.00); // 100% dmg taken from blast increased
@@ -2493,7 +2513,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 3: { // StkJumper_ReleaseDay2 (October 28, 2010 version)
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime ? 1.0 : 0.0); // cannot_pick_up_intelligence
+					TF2Items_SetAttribute(itemNew, 1, 400, g_bIsPasstime_StickyJumper ? 1.0 : 0.0); // cannot_pick_up_intelligence
 					TF2Items_SetAttribute(itemNew, 2, 15, 1.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 3, 125, -75.0); // max health additive penalty
 					TF2Items_SetAttribute(itemNew, 4, 207, 0.0); // remove self blast dmg; blast dmg to self increased
