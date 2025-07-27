@@ -457,8 +457,8 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
-	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER, Wep_CowMangler);
-	ItemVariant(Wep_CowMangler, "CowMangler_Release");
+	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
+	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper","CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 #endif
@@ -2073,18 +2073,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			switch (GetItemVariant(Wep_CowMangler)) {
 				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
+					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
+				}
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
 					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost
 					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade
 					TF2Items_SetAttribute(itemNew, 3, 96, 1.05); // mult_reload_time; 5% slower reload time
 					TF2Items_SetAttribute(itemNew, 4, 1, 0.90); // mult_dmg; 10% damage penalty
-				}
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 869, 0.0); // crits_become_minicrits
-					TF2Items_SetAttribute(itemNew, 1, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
-					TF2Items_SetAttribute(itemNew, 2, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
 				}
 				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
 			}
@@ -4169,7 +4169,7 @@ Action SDKHookCB_OnTakeDamage(
 
 						if (
 							ItemIsEnabled(Wep_CowMangler) &&
-							GetItemVariant(Wep_CowMangler) == 1 &&
+							GetItemVariant(Wep_CowMangler) == 0 &&
 							StrEqual(class, "tf_weapon_particle_cannon")
 						) {
 							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
