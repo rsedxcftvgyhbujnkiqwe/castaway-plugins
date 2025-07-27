@@ -277,7 +277,9 @@ enum
 {
 	//Generic class features
 	Feat_Airblast,
+#if defined MEMORY_PATCHES
 	Feat_Minigun, // All Miniguns
+#endif
 	Feat_Sword, // All Swords	
 
 	//Item sets
@@ -305,22 +307,30 @@ enum
 	Wep_Bushwacka,
 	Wep_CharginTarge,
 	Wep_CowMangler,
+#if defined MEMORY_PATCHES
 	Wep_CozyCamper,
+#endif
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
 	Wep_CritCola,
-	Wep_Dalokoh,
+#if defined MEMORY_PATCHES
+	Wep_Dalokohs,
+#endif
 	Wep_Darwin,
 	Wep_DeadRinger,	
 	Wep_Degreaser,
+#if defined MEMORY_PATCHES
 	Wep_Disciplinary,
+#endif
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
+#if defined MEMORY_PATCHES
 	Wep_MadMilk,
+#endif
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
@@ -338,7 +348,9 @@ enum
 	Wep_QuickFix,
 	Wep_Quickiebomb,
 	Wep_Razorback,
+#if defined MEMORY_PATCHES
 	Wep_RescueRanger,
+#endif
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
@@ -358,7 +370,9 @@ enum
 	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
+#if defined MEMORY_PATCHES
 	Wep_Wrangler,
+#endif
 	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
 	NUM_ITEMS,
@@ -460,7 +474,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh, true);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
 #endif
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
@@ -500,7 +514,9 @@ public void OnPluginStart() {
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+#if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk);
+#endif
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
@@ -796,7 +812,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
@@ -882,7 +898,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertQuickFix_Uber_CannotCapturePoint.Disable();
 			}
 		}
-		case Wep_Dalokoh: {
+		case Wep_Dalokohs: {
 			if (enable) {
 				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
 				patch_RevertDalokohsBar_ChgTo400.Enable();
@@ -2228,10 +2244,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 222: { if (ItemIsEnabled(Wep_MadMilk)) {
+#if defined MEMORY_PATCHES
+		case 222, 1121: { if (ItemIsEnabled(Wep_MadMilk)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
-		}}		
+		}}
+#endif
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
 			switch (GetItemVariant(Wep_Natascha)) {
 				case 0: {
@@ -2811,15 +2829,15 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_Airblast] = true;
 					}
 
-					else if (
-						StrEqual(class, "tf_weapon_minigun")
-					) {
+#if defined MEMORY_PATCHES
+					else if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
 					}
+#endif
 
 					else if (
-						( StrEqual(class, "tf_weapon_sword") ||
-						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")) )
+						StrEqual(class, "tf_weapon_sword") ||
+						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana"))
 					) {
 						player_weapons[client][Feat_Sword] = true;
 					}
@@ -2842,8 +2860,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
 						case 232: player_weapons[client][Wep_Bushwacka] = true;
 						case 307: player_weapons[client][Wep_Caber] = true;
-						case 159, 433: player_weapons[client][Wep_Dalokoh] = true;
+#if defined MEMORY_PATCHES
+						case 159, 433: player_weapons[client][Wep_Dalokohs] = true;
 						case 447: player_weapons[client][Wep_Disciplinary] = true;
+#endif
 						case 1178: player_weapons[client][Wep_DragonFury] = true;
 						case 996: player_weapons[client][Wep_LooseCannon] = true;
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
@@ -2862,6 +2882,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 329: player_weapons[client][Wep_Jag] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
+#if defined MEMORY_PATCHES
+						case 222, 1121: player_weapons[client][Wep_MadMilk] = true;
+#endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
@@ -2870,7 +2893,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
 						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
+#if defined MEMORY_PATCHES
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
+#endif
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
 						case 44: player_weapons[client][Wep_Sandman] = true;
@@ -2885,7 +2910,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
+#if defined MEMORY_PATCHES
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
+#endif
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
 						case 220: {
 							player_weapons[client][Wep_Shortstop] = true;
@@ -2906,7 +2933,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 				switch (index) {
 					case 405, 608: player_weapons[client][Wep_Booties] = true;
+#if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
+#endif
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
