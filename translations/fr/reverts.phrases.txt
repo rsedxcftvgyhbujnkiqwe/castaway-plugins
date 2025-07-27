@@ -555,13 +555,13 @@
 	{
 		"fr"	"Réversion à la version d'origine, crits pendant 3s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
 	}
-	"CowMangler_Release"
-	{
-		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs, ne peut pas être crit-boosté"
-	}
 	"CowMangler_Pre2013"
 	{
 		"fr"	"Réversion à pré-Été 2013, chargeur de 5 tirs, ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
+	}	
+	"CowMangler_Release"
+	{
+		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs, ne peut pas être crit-boosté"
 	}
 	"CozyCamper_PreMYM"
 	{

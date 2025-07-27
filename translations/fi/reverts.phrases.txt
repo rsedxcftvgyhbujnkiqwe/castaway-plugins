@@ -557,13 +557,13 @@
 	{
 		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen, 35%% hitaampi tulitusnopeus (25%%:sta)"
 	}
-	"CowMangler_Release"
-	{
-		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
-	}
 	"CowMangler_Pre2013"
 	{
 		"fi"	"Ennen 2013 kesää: 5 ammusta, ei voi kriittisyystehostaa, -10%% vahinkovähennys, 5%% hitaampi latausaika"
+	}	
+	"CowMangler_Release"
+	{
+		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
 	}
 	"CozyCamper_PreMYM"
 	{

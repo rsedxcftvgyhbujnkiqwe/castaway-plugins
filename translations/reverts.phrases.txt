@@ -552,13 +552,13 @@
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
 	}
-	"CowMangler_Release"
-	{
-		"en"	"Reverted to release, 5 shots, cannot be crit-boosted"
-	}
 	"CowMangler_Pre2013"
 	{
 		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
+	}	
+	"CowMangler_Release"
+	{
+		"en"	"Reverted to release, 5 shots, cannot be crit-boosted"
 	}
 	"CozyCamper_PreMYM"
 	{
