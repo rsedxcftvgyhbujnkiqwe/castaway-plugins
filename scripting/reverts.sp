@@ -5214,7 +5214,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
-
+			// Base amount is 0 because we rely on the default primary fire metal consumption (5)
 			switch (GetItemVariant(Wep_ShortCircuit)) {
 				case 1: {
 					DoShortCircuitProjectileRemoval(owner, entity, 0, 15);
@@ -5291,6 +5291,16 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	return MRES_Ignored;
 }
 
+/**
+ * Removes projectiles and optionally damages players in front of the Short Circuit user.
+ *
+ * @param owner                Client index of the player using the Short Circuit.
+ * @param entity               Entity index of the Short Circuit weapon.
+ * @param base_amount          Amount of metal to consume on use (0 for none).
+ * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
+ * @param damage               Damage to apply to players hit (default 0.0 for none).
+ *
+ */
 void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
 	int idx;
 	char class[64];
@@ -5320,17 +5330,11 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			// only hit players and some projectiles
 			if (
 				(idx <= MaxClients) ||
-				StrEqual(class, "tf_projectile_rocket") ||
-				StrEqual(class, "tf_projectile_sentryrocket") ||
-				StrEqual(class, "tf_projectile_pipe") ||
-				StrEqual(class, "tf_projectile_pipe_remote") ||
-				StrEqual(class, "tf_projectile_arrow") ||
-				StrEqual(class, "tf_projectile_flare") ||
-				StrEqual(class, "tf_projectile_stun_ball") ||
-				StrEqual(class, "tf_projectile_ball_ornament") ||
-				StrEqual(class, "tf_projectile_cleaver") ||
-				StrEqual(class, "tf_projectile_healing_bolt") ||
-				StrEqual(class, "tf_projectile_balloffire")
+				(StrContains(class, "tf_projectile_") == 0 &&
+				StrContains(class, "tf_projectile_spell") == -1 &&
+				!StrEqual(class, "tf_projectile_energy_ring") &&
+				!StrEqual(class, "tf_projectile_grapplinghook") &&
+				!StrEqual(class, "tf_projectile_syringe"))
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
