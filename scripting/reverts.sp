@@ -5302,7 +5302,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			if (
 				(idx <= MaxClients) ||
 				(StrContains(class, "tf_projectile_") == 0 &&
+				StrContains(class, "tf_projectile_spell") == -1 &&
 				!StrEqual(class, "tf_projectile_energy_ring") &&
+				!StrEqual(class, "tf_projectile_grapplinghook") &&
 				!StrEqual(class, "tf_projectile_syringe"))
 			) {
 				// don't hit stuff on the same team
