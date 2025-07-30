@@ -34,12 +34,10 @@
 	}
 	"VOTESCRAMBLE_VOTED"
 	{
-		"#format"	"{1:d},{2:d}"
-		"pl"		"Już zagłosowałes na przemieszanie drużyn. [{1}/{2} potrzebnych głosów]"
+		"pl"	"Już zagłosowałes na przemieszanie drużyn. [{1}/{2} potrzebnych głosów]"
 	}
 	"VOTESCRAMBLE_VOTE_ANNOUNCE"
 	{
-		"#format"	"{1:s},{2:d},{3:d}"
-		"pl"		"{1} chce przemieszać drużyny. [{2}/{3} potrzebnych głosów]"
+		"pl"	"{1} chce przemieszać drużyny. [{2}/{3} potrzebnych głosów]"
 	}
 }
