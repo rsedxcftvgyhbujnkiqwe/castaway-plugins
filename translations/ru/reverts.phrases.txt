@@ -117,8 +117,7 @@
 	}
 	"REVERT_MOONSHOT_MESSAGE"
 	{
-		"#format"	"{1:s},{2:s}"
-		"ru"		"{1} just landed a MOONSHOT on {2} !"
+		"ru"	"{1} just landed a MOONSHOT on {2} !"
 	}
 
 	// item names
