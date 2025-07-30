@@ -8,6 +8,9 @@
             {
                 "library" "server"
                 "linux" "@_ZN24CTeamplayRoundBasedRules23State_Think_RND_RUNNINGEv"
+                // for some reason msvc unwrapped the CTeamplayRoundBasedRules::SetOvertime method
+                // look for "World triggered \"Round_Overtime\"\n"
+                "windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\xF1\x57\x89\x75\xF4"
             }
         }
 
@@ -21,6 +24,12 @@
                     "offset" "381"
                     "verify" "\x84\xDB\x74\x44" // TEST BL, BL  |  JZ +0x44 (skip stalemate logic if false)
                     "patch"  "\x90\x90\x90\x90" // NOP NOP NOP NOP (force branch to always execute stalemate logic)
+                }
+                "windows"
+                {
+                    "offset" "393"
+                    "verify" "\x0F\x84\x2A\x2A\x2A\x2A" // JZ loc_1034F9D0
+                    "patch"  "\x90\x90\x90\x90\x90\x90" // don't call SetWinningTeam
                 }
             }
         }
