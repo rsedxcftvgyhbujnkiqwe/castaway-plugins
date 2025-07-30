@@ -206,6 +206,7 @@ ConVar cvar_ref_tf_fireball_radius;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
+ConVar cvar_ref_tf_gamemode_mvm;
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -604,6 +605,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -5182,6 +5184,9 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 
 int FindSentryGunOwnedByClient(int client)
 {
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return -1;
+
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
 		return -1;
 
