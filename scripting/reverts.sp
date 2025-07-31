@@ -206,6 +206,7 @@ ConVar cvar_ref_tf_fireball_radius;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
+ConVar cvar_ref_tf_gamemode_mvm;
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -604,6 +605,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -664,7 +666,7 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	{
-		conf = LoadGameConfigFile("memorypatch_reverts");
+		conf = new GameData("memorypatch_reverts");
 
 		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
 
@@ -1534,11 +1536,11 @@ public void OnGameFrame() {
 			// set all the convars needed
 
 			// these cvars are changed just-in-time, reset them
-			ResetConVar(cvar_ref_tf_airblast_cray);
-			ResetConVar(cvar_ref_tf_feign_death_duration);
-			ResetConVar(cvar_ref_tf_feign_death_speed_duration);
-			ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
-			ResetConVar(cvar_ref_tf_feign_death_damage_scale);
+			cvar_ref_tf_airblast_cray.RestoreDefault();
+			cvar_ref_tf_feign_death_duration.RestoreDefault();
+			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
@@ -3521,18 +3523,18 @@ Action SDKHookCB_OnTakeDamage(
 							ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 2
 						) {
 							// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-							ResetConVar(cvar_ref_tf_feign_death_duration);
-							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
+							cvar_ref_tf_feign_death_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-							ResetConVar(cvar_ref_tf_feign_death_damage_scale);							
+							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();							
 						} else if (
 							(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1) // just making sure
 						) {
 							// Pre-Inferno and Vanilla Dead Ringer Stat reset
-							ResetConVar(cvar_ref_tf_feign_death_duration);
-							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
-							ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
-							ResetConVar(cvar_ref_tf_feign_death_damage_scale);
+							cvar_ref_tf_feign_death_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 						}
 					}
 				}
@@ -4675,7 +4677,7 @@ Action Command_ToggleInfo(int client, int args) {
 }
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
-	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
+	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
 }
 
 bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
@@ -5160,11 +5162,11 @@ void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attach
 	TE_SendToAll();
 }
 
-public float fmin(float a, float b) {
+float fmin(float a, float b) {
 	return a < b ? a : b;
 }
 
-public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
+bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
 	}
@@ -5182,6 +5184,9 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 
 int FindSentryGunOwnedByClient(int client)
 {
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return -1;
+
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
 		return -1;
 

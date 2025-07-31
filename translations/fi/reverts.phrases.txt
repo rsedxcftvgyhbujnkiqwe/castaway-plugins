@@ -122,8 +122,7 @@
 	}
 	"REVERT_MOONSHOT_MESSAGE"
 	{
-		"#format"	"{1:s},{2:s}"
-		"fi"		"{1} teki KUNNARILYÖNNIN pelaajaan {2} !"
+		"fi"	"{1} teki KUNNARILYÖNNIN pelaajaan {2} !"
 	}
 
 	// item names
