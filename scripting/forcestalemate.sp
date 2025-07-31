@@ -1,6 +1,3 @@
-//This plugin only has gamedata for linux for the time being
-//it will NOT work on windows!!!!!!!!
-
 #include <sourcemod>
 #include <sourcescramble>
 
