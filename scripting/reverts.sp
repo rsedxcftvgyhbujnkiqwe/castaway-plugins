@@ -213,6 +213,8 @@ ConVar cvar_passtime_disable_pickup_stkjumper;
 bool g_bIsPasstime_RocketJumper;	// Check if map has PASS Time gamemode logic, used for the Rocket Jumper reverts
 bool g_bIsPasstime_StickyJumper;	// Check if map has PASS Time gamemode logic, used for the Sticky Jumper reverts
 
+ConVar cvar_ref_tf_gamemode_mvm;
+
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -284,7 +286,9 @@ enum
 {
 	//Generic class features
 	Feat_Airblast,
+#if defined MEMORY_PATCHES
 	Feat_Minigun, // All Miniguns
+#endif
 	Feat_Sword, // All Swords	
 
 	//Item sets
@@ -312,22 +316,30 @@ enum
 	Wep_Bushwacka,
 	Wep_CharginTarge,
 	Wep_CowMangler,
+#if defined MEMORY_PATCHES
 	Wep_CozyCamper,
+#endif
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
 	Wep_CritCola,
-	Wep_Dalokoh,
+#if defined MEMORY_PATCHES
+	Wep_Dalokohs,
+#endif
 	Wep_Darwin,
 	Wep_DeadRinger,	
 	Wep_Degreaser,
+#if defined MEMORY_PATCHES
 	Wep_Disciplinary,
+#endif
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
+#if defined MEMORY_PATCHES
 	Wep_MadMilk,
+#endif
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
@@ -345,7 +357,9 @@ enum
 	Wep_QuickFix,
 	Wep_Quickiebomb,
 	Wep_Razorback,
+#if defined MEMORY_PATCHES
 	Wep_RescueRanger,
+#endif
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
@@ -365,7 +379,9 @@ enum
 	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
+#if defined MEMORY_PATCHES
 	Wep_Wrangler,
+#endif
 	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
 	NUM_ITEMS,
@@ -469,7 +485,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokoh, true);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
 #endif
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
@@ -509,7 +525,9 @@ public void OnPluginStart() {
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+#if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk);
+#endif
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
@@ -597,6 +615,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -657,7 +676,7 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	{
-		conf = LoadGameConfigFile("memorypatch_reverts");
+		conf = new GameData("memorypatch_reverts");
 
 		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
 
@@ -805,7 +824,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokoh),Wep_Dalokoh);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
@@ -891,7 +910,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertQuickFix_Uber_CannotCapturePoint.Disable();
 			}
 		}
-		case Wep_Dalokoh: {
+		case Wep_Dalokohs: {
 			if (enable) {
 				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
 				patch_RevertDalokohsBar_ChgTo400.Enable();
@@ -1553,11 +1572,11 @@ public void OnGameFrame() {
 			// set all the convars needed
 
 			// these cvars are changed just-in-time, reset them
-			ResetConVar(cvar_ref_tf_airblast_cray);
-			ResetConVar(cvar_ref_tf_feign_death_duration);
-			ResetConVar(cvar_ref_tf_feign_death_speed_duration);
-			ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
-			ResetConVar(cvar_ref_tf_feign_death_damage_scale);
+			cvar_ref_tf_airblast_cray.RestoreDefault();
+			cvar_ref_tf_feign_death_duration.RestoreDefault();
+			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
@@ -2262,10 +2281,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 222: { if (ItemIsEnabled(Wep_MadMilk)) {
+#if defined MEMORY_PATCHES
+		case 222, 1121: { if (ItemIsEnabled(Wep_MadMilk)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
-		}}		
+		}}
+#endif
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
 			switch (GetItemVariant(Wep_Natascha)) {
 				case 0: {
@@ -2845,15 +2866,15 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_Airblast] = true;
 					}
 
-					else if (
-						StrEqual(class, "tf_weapon_minigun")
-					) {
+#if defined MEMORY_PATCHES
+					else if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
 					}
+#endif
 
 					else if (
-						( StrEqual(class, "tf_weapon_sword") ||
-						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")) )
+						StrEqual(class, "tf_weapon_sword") ||
+						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana"))
 					) {
 						player_weapons[client][Feat_Sword] = true;
 					}
@@ -2876,8 +2897,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
 						case 232: player_weapons[client][Wep_Bushwacka] = true;
 						case 307: player_weapons[client][Wep_Caber] = true;
-						case 159, 433: player_weapons[client][Wep_Dalokoh] = true;
+#if defined MEMORY_PATCHES
+						case 159, 433: player_weapons[client][Wep_Dalokohs] = true;
 						case 447: player_weapons[client][Wep_Disciplinary] = true;
+#endif
 						case 1178: player_weapons[client][Wep_DragonFury] = true;
 						case 996: player_weapons[client][Wep_LooseCannon] = true;
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
@@ -2896,6 +2919,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 329: player_weapons[client][Wep_Jag] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
+#if defined MEMORY_PATCHES
+						case 222, 1121: player_weapons[client][Wep_MadMilk] = true;
+#endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
@@ -2904,7 +2930,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
 						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
+#if defined MEMORY_PATCHES
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
+#endif
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
 						case 44: player_weapons[client][Wep_Sandman] = true;
@@ -2919,7 +2947,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
+#if defined MEMORY_PATCHES
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
+#endif
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
 						case 220: {
 							player_weapons[client][Wep_Shortstop] = true;
@@ -2940,7 +2970,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 				switch (index) {
 					case 405, 608: player_weapons[client][Wep_Booties] = true;
+#if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
+#endif
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
@@ -3008,7 +3040,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					switch(item_index) {
 						// Special Delivery
-						case 220, 221, 222, 1121: {
+						case 220, 221, 222, 572, 999, 1121: {
 							if(ItemIsEnabled(Set_SpDelivery)) {
 								wep_count++;
 								if(wep_count == 3) active_set = Set_SpDelivery;
@@ -3526,18 +3558,18 @@ Action SDKHookCB_OnTakeDamage(
 							ItemIsEnabled(Wep_DeadRinger) && GetItemVariant(Wep_DeadRinger) == 2
 						) {
 							// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-							ResetConVar(cvar_ref_tf_feign_death_duration);
-							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
+							cvar_ref_tf_feign_death_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-							ResetConVar(cvar_ref_tf_feign_death_damage_scale);							
+							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();							
 						} else if (
 							(GetItemVariant(Wep_DeadRinger) == -1 || GetItemVariant(Wep_DeadRinger) == 1) // just making sure
 						) {
 							// Pre-Inferno and Vanilla Dead Ringer Stat reset
-							ResetConVar(cvar_ref_tf_feign_death_duration);
-							ResetConVar(cvar_ref_tf_feign_death_speed_duration);
-							ResetConVar(cvar_ref_tf_feign_death_activate_damage_scale);
-							ResetConVar(cvar_ref_tf_feign_death_damage_scale);
+							cvar_ref_tf_feign_death_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 						}
 					}
 				}
@@ -4680,7 +4712,7 @@ Action Command_ToggleInfo(int client, int args) {
 }
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
-	maybe ? SetConVarString(cvar, value) : ResetConVar(cvar);
+	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
 }
 
 bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
@@ -5165,11 +5197,11 @@ void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attach
 	TE_SendToAll();
 }
 
-public float fmin(float a, float b) {
+float fmin(float a, float b) {
 	return a < b ? a : b;
 }
 
-public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
+bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
 	}
@@ -5187,6 +5219,9 @@ public bool AddProgressOnAchievement(int playerID, int achievementID, int Amount
 
 int FindSentryGunOwnedByClient(int client)
 {
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return -1;
+
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
 		return -1;
 
@@ -5219,7 +5254,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
-
+			// Base amount is 0 because we rely on the default primary fire metal consumption (5)
 			switch (GetItemVariant(Wep_ShortCircuit)) {
 				case 1: {
 					DoShortCircuitProjectileRemoval(owner, entity, 0, 15);
@@ -5296,6 +5331,16 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	return MRES_Ignored;
 }
 
+/**
+ * Removes projectiles and optionally damages players in front of the Short Circuit user.
+ *
+ * @param owner                Client index of the player using the Short Circuit.
+ * @param entity               Entity index of the Short Circuit weapon.
+ * @param base_amount          Amount of metal to consume on use (0 for none).
+ * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
+ * @param damage               Damage to apply to players hit (default 0.0 for none).
+ *
+ */
 void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
 	int idx;
 	char class[64];
@@ -5325,17 +5370,11 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			// only hit players and some projectiles
 			if (
 				(idx <= MaxClients) ||
-				StrEqual(class, "tf_projectile_rocket") ||
-				StrEqual(class, "tf_projectile_sentryrocket") ||
-				StrEqual(class, "tf_projectile_pipe") ||
-				StrEqual(class, "tf_projectile_pipe_remote") ||
-				StrEqual(class, "tf_projectile_arrow") ||
-				StrEqual(class, "tf_projectile_flare") ||
-				StrEqual(class, "tf_projectile_stun_ball") ||
-				StrEqual(class, "tf_projectile_ball_ornament") ||
-				StrEqual(class, "tf_projectile_cleaver") ||
-				StrEqual(class, "tf_projectile_healing_bolt") ||
-				StrEqual(class, "tf_projectile_balloffire")
+				(StrContains(class, "tf_projectile_") == 0 &&
+				StrContains(class, "tf_projectile_spell") == -1 &&
+				!StrEqual(class, "tf_projectile_energy_ring") &&
+				!StrEqual(class, "tf_projectile_grapplinghook") &&
+				!StrEqual(class, "tf_projectile_syringe"))
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {

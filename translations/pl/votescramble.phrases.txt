@@ -1,0 +1,43 @@
+"Phrases"
+{
+	"VOTESCRAMBLE_VOTE_TITLE"
+	{
+		"pl"	"Przemieszać drużyny?"
+	}
+	"VOTESCRAMBLE_VOTE_IN_PROGRESS"
+	{
+		"pl"	"Nie można zainicjować przemieszania drużyn, ponieważ głosowanie jest w trakcie. Ponowna próba za 10 sekund..."
+	}
+	"VOTESCRAMBLE_SCRAMBLING_TEAMS"
+	{
+		"pl"	"Mieszanie drużyn..."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_NEXT_ROUND"
+	{
+		"pl"	"Drużyny będą przemieszanie w następnej rundzie."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_IN_PROGRESS"
+	{
+		"pl"	"Mieszanie drużyn wskutek głosowania."
+	}
+	"VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND"
+	{
+		"pl"	"Poprzednie głosowanie powiodło się. Drużyny będą przemieszanie w następnej rundzie."
+	}
+	"VOTESCRAMBLE_COOLDOWN"
+	{
+		"pl"	"Głosowanie na przemieszanie drużyn jest na cooldownie."
+	}
+	"VOTESCRAMBLE_WAITING_FOR_PLAYERS"
+	{
+		"pl"	"Serwer aktualnie czeka na graczy."
+	}
+	"VOTESCRAMBLE_VOTED"
+	{
+		"pl"	"Już zagłosowałes na przemieszanie drużyn. [{1}/{2} potrzebnych głosów]"
+	}
+	"VOTESCRAMBLE_VOTE_ANNOUNCE"
+	{
+		"pl"	"{1} chce przemieszać drużyny. [{2}/{3} potrzebnych głosów]"
+	}
+}

@@ -90,6 +90,14 @@
 	{
 		"pl"	"Wyłączono szczegóły dotyczące przywróconych broni po zmianie wyposażenia. Włącz je z powrotem wpisując !toggleinfo lub otwierając menu !reverts"
 	}
+	"REVERT_MOONSHOT_ENABLED"
+	{
+		"pl"	"Powiadomienia dotyczące Moonshot'ów włączone. Wyłącz je w menu !reverts"
+	}
+	"REVERT_MOONSHOT_DISABLED"
+	{
+		"pl"	"Powiadomienia dotyczące Moonshot'ów wyłączone. Włącz je w menu !reverts"
+	}
 	"REVERT_MENU_TITLE"
 	{
 		"pl"	"Przywrócone bronie"
@@ -105,6 +113,14 @@
 	"REVERT_MENU_TOGGLE_LOADOUT_CHANGE"
 	{
 		"pl"	"Włącz/wyłącz szczegóły broni po zmianie wyposażenia"
+	}
+	"REVERT_MENU_TOGGLE_MOONSHOT"
+	{
+		"pl"	"Włącz/wyłącz powiadomienia Moonshot'ów"
+	}
+	"REVERT_MOONSHOT_MESSAGE"
+	{
+		"pl"	"{1} właśnie trafił Moonshot'a na {2} !"
 	}
 
 	// item names
@@ -187,6 +203,10 @@
 	"carbine"
 	{
 		"pl"	"Spluwa Sprzątacza"
+	}
+	"cowmangler"
+	{
+		"pl"	"Wyżymaczka Krów 5000"
 	}
 	"cozycamper"
 	{
@@ -283,6 +303,10 @@
 	"cannon"
 	{
 		"pl"	"Działo Nawalone"
+	}
+	"madmilk"
+	{
+		"pl"	"Wściekłe Mleko"
 	}
 	"gardener"
 	{
@@ -446,6 +470,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), trzeci skok jest zawsze dostępny oraz zadaje 10 punktów obrażeń użytkownikowi"
 	}
+	"Atomizer_PreBM"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue Moon), trzeci skok nie wymaga całkowitego wyciągnięcia Atomizera"
+	}
 	"Axtinguisher_PreLW"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), zawsze zadaje 195 punktów obrażeń podpalonym przeciwnikom, brak premii do szybkości"
@@ -460,11 +488,11 @@
 	}
 	"Backburner_119"
 	{
-		"pl"	"Przywrócono do stanu z 119 Aktualizacji (kwiecień, 2010), +20%% zadawanych obrażeń, brak strumienia sprężonego powietrza"
+		"pl"	"Przywrócono do stanu z 119 Aktualizacji (kwiecień 2010), +20%% zadawanych obrażeń, brak strumienia sprężonego powietrza"
 	}
 	"Backburner_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyro (2008), +50 maks. HP, brak sprężonego powietrza"
+		"pl"	"Przywrócono do momentu wydania (2008), +50 maks. HP, brak sprężonego powietrza"
 	}
 	"BaseJumper_PreTB"
 	{
@@ -476,7 +504,7 @@
 	}
 	"BabyFace_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
+		"pl"	"Przywrócono do momentu wydania (2012), +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
 	}
 	"Beggars_Pre2013"
 	{
@@ -508,7 +536,7 @@
 	}
 	"BuffaloSteak_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Australijskie Święta (2010), +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się kumuluje się z GRU (Gruby biegnie trochę szybciej od skauta)"
+		"pl"	"Przywrócono do momentu wydania (2010), +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się kumuluje się z GRU (Gruby biegnie trochę szybciej od skauta)"
 	}
 	"BuffaloSteak_Pre2013"
 	{
@@ -524,7 +552,15 @@
 	}
 	"Carbine_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, 3 sekundy trafień krytycznych po zabójstwie, -35%% częstotliwości ataku"
+		"pl"	"Przywrócono do momentu wydania (2012), 3 sekundy trafień krytycznych po zabójstwie, -35%% częstotliwości ataku"
+	}
+	"CowMangler_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2011), 5 rakiet w magazynku, nie może uzyskać trafień krytycznych"
+	}
+	"CowMangler_Pre2013"
+	{
+		"pl"	"Przywrócono do stanu sprzed Letniej Aktualizacji 2013, 5 rakiet w magazynku, nie może uzyskać trafień krytycznych, -10%% zadawanych obrażeń, +5%% dłuższy czas przeładowania"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -548,7 +584,7 @@
 	}
 	"CritCola_Release"
 	{
-		"pl"	"Przywrócono do stanu z 119 Aktualizacji (kwiecień 2010), piętno śmierci podczas efektu, który trwa 6 sekund"
+		"pl"	"Przywrócono do momentu wydania (2010), piętno śmierci podczas efektu, który trwa 6 sekund"
 	}
 	"CrocoStyle_Release"
 	{
@@ -588,11 +624,11 @@
 	}
 	"DragonFury_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli oraz brak wymagania trafienia w środek hitboxu przeciwnika aby uzyskać dodatkowe obrażenia"
+		"pl"	"Przywrócono do momentu wydania (2017), zwiększony rozmiar kuli oraz brak wymagania trafienia w środek hitboxu przeciwnika aby uzyskać dodatkowe obrażenia"
 	}
 	"DragonFury_Release_Patchless"
 	{
-		"pl"	"Częściowo przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), zwiększony rozmiar kuli"
+		"pl"	"Częściowo przywrócono do momentu wydania (2017), zwiększony rozmiar kuli"
 	}
 	"Enforcer_PreGM"
 	{
@@ -600,7 +636,7 @@
 	}
 	"Enforcer_Release"
 	{
-		"pl"	"Przywrócono do stanu z Uberowej Aktualizacji, +20%% zadawanych obrażeń, losowe trafienia krytyczne, brak penetracji odporności, +0.5s do czasu aktywacji niewidzialności"
+		"pl"	"Przywrócono do momentu wydania (2011), +20%% zadawanych obrażeń, losowe trafienia krytyczne, brak penetracji odporności, +0.5s do czasu aktywacji niewidzialności"
 	}
 	"Equalizer_PrePyro"
 	{
@@ -636,7 +672,7 @@
 	}
 	"FistSteel_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed Bezczapkowej Aktualizacji, brak zwiększonego czasu zmiany broni oraz redukcji leczenia i nadleczenia, -60%% odporności na obrażenia (zamiast 40%%)"
+		"pl"	"Przywrócono do momentu wydania (2010), brak zwiększonego czasu zmiany broni oraz redukcji leczenia i nadleczenia, -60%% odporności na obrażenia (zamiast 40%%)"
 	}
 	"Guillotine_PreJI"
 	{
@@ -656,7 +692,7 @@
 	}
 	"Gunboats_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Inżyniera, -75%% otrzymywanych obrażeń od skoków rakietowych"
+		"pl"	"Przywrócono do momentu wydania (2009), -75%% otrzymywanych obrażeń od skoków rakietowych"
 	}
 	"Zatoichi_PreTB"
 	{
@@ -676,7 +712,7 @@
 	}	
 	"Liberty_Release"
 	{
-		"pl"	"Przywrócono do stanu z Uberowej Aktualizacji, +40%% prędkości pocisku, -25%% pojemności magazynka"
+		"pl"	"Przywrócono do momentu wydania (2011), +40%% prędkości pocisku, -25%% pojemności magazynka"
 	}
 	"LochLoad_PreGM"
 	{
@@ -690,6 +726,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +50%% prędkości pocisku, kule armatnie zawsze zadają 60 punktów obrażeń przy trafieniu"
 	}
+	"MadMilk_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), 75%% obrażeń zadanych przeciwnikowi oblanemu mlekiem wraca do atakujących w postaci zdrowia, brak skróconego czasu odnawiania po ugaszeniu"
+	}
 	"Gardener_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak redukcji częstotliwości ataku"
@@ -697,6 +737,10 @@
 	"Natascha_PreMYM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), +20%% odporności na obrażenia podczas rozkręcenia niezależnie od aktualnych HP" 
+	}
+	"Natascha_PreGM"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła Charakteru (Gun Mettle), pełne spowolnienie na jakimkolwiek dystansie, 300 amunicji w rezerwie, brak odporności na obrażenmia"
 	}
 	"Panic_PreJI"
 	{
@@ -732,7 +776,7 @@
 	}
 	"Pocket_Release"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, +15 maks. HP, odporność na obrażenia od upadku, -25%% częstotliwości ataku, +50%% podatności na obrażenia od ognia"
+		"pl"	"Przywrócono do momentu wydania (2012), +15 maks. HP, odporność na obrażenia od upadku, -25%% częstotliwości ataku, +50%% podatności na obrażenia od ognia"
 	}
 	"Pocket_PreBM"
 	{
@@ -780,8 +824,16 @@
 	}
 	"RocketJmp_Release"
 	{
-		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść walizkę z tajnymi materiałami, losowe trafienia krytyczne"
+		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść flagę, losowe trafienia krytyczne"
 	}
+	"RocketJmp_Pre2011"
+	{
+		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, +100%% podatności na wszystkie obraż. z wyjątkiem broni białej"
+	}
+	"RocketJmp_Oct2010"
+	{
+		"pl"	"Przywrócono do stanu z dnia 27.10.2010: Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, -100 maks. HP"
+	}	
 	"Saharan_Release"
 	{
 		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"
@@ -796,7 +848,7 @@
 	}
 	"Scottish_Release"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mann-konomii, +0.4s czasu uzbrajania bomb, brak premii do częstotliwości ataku"
+		"pl"	"Przywrócono do momentu wydania (2009), +0.4s czasu uzbrajania bomb, brak premii do częstotliwości ataku"
 	}
 	"Circuit_PreMYM"
 	{
@@ -805,6 +857,10 @@
 	"Circuit_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), atak niszczy pociski przed użytkownikiem, brak metalu z dispenserów, gdy broń jest aktywna oraz brak ataku alternatywnego"
+	}
+	"Circuit_Dec2013"
+	{
+		"pl"	"Przywrócono do stanu z aktualizacji Śnięta 2013, atak podstawowy niszczy pociski, używając przy tym 5 metalu"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
@@ -854,10 +910,26 @@
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Pyromanii, maks. 8 aktywnych bomb, użytkownik może podnieść walizkę z tajnymi materiałami"
 	}
+	"StkJumper_Pre2011"
+	{
+		"pl"	"Przywrócono do stanu z dnia 22.12.2010: limit maks. bomb zwiększony do 8, możliwość podniesienia flagi, +100%% podatności na wszystkie obraż., z wyjątkiem borni białej"
+	}
+	"StkJumper_ReleaseDay2"
+	{
+		"pl"	"Przywrócono do stanu z dnia 28.10.2010: limit maks. bomb zwiększony do 8, możliwość podniesienia flagi, -75 maks. HP"
+	}	
 	"Sleeper_PreBM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue Moon), trafienia w głowę oraz w pełni naładowane strzały powodują eksplozję Sikwonda, brak redukcji do czasu regeneracji Sikwonda"
 	}
+	"Sleeper_PreGM"
+	{
+		"pl"	"Przywrócono do stanu z Aktualizacji Siła Charakteru (Gun Mettle), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę"
+	}
+	"Sleeper_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę, penetracja pocisków, losowe trafienia krytyczne, brak szybszego ładowania"
+	}	
 	"Turner_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odporności na wybuchy i ogień, nie usuwa negatywnych efektów"
@@ -868,11 +940,11 @@
 	}
 	"Tomislav_Release"
 	{
-		"pl"	"Przywrócono do stanu z Uberowej Aktualizacji, -75%% czasu rozkręcenia, brak premii do celności"
+		"pl"	"Przywrócono do momentu wydania (2011), -75%% czasu rozkręcenia, brak premii do celności"
 	}
 	"TribalShiv_Release"
 	{
-		"pl"	"Przywrócono do stanu z Drugiej Aktualizacji Kontrybucji (2010), 8 sekund krwawienia, -35%% do zadawanych obrażeń"
+		"pl"	"Przywrócono do momentu wydania (2010), 8 sekund krwawienia, -35%% do zadawanych obrażeń"
 	}
 	"Caber_PreGM"
 	{

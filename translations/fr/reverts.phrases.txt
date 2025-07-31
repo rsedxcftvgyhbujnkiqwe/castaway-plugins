@@ -120,8 +120,7 @@
 	}
 	"REVERT_MOONSHOT_MESSAGE"
 	{
-		"#format"	"{1:s},{2:s}"
-		"fr"		"{1} vient de réaliser un MOONSHOT sur {2} !"
+		"fr"	"{1} vient de réaliser un MOONSHOT sur {2} !"
 	}
 
 	// item names
