@@ -962,7 +962,7 @@
 	}
 	"Wrangler_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range"
+		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range, damage falloff based on user's position"
 	}
 	"Eternal_PreJI"
 	{
