@@ -948,6 +948,10 @@
 	{
 		"fi"	"Ennen Gun Mettleä: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen"
 	}
+	"Wrangler_PreLW"
+	{
+		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella"
+	}
 	"Eternal_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: ei voi naamioitua, ei nopeuta verhoutumisen katoamista"
