@@ -48,7 +48,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME "TF2 Weapon Reverts"
+#define PLUGIN_NAME "TF2 Weapon Reverts Extended"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
