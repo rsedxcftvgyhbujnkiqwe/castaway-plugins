@@ -19,6 +19,7 @@ scripting/*
 !scripting/disablesoul.sp
 !scripting/teamcatch.sp
 !scripting/forcestalemate.sp
+!scripting/arena-autoscramble.sp
 
 #includes
 !scripting/include/
