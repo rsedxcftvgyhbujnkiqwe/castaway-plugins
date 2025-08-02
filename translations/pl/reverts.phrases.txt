@@ -640,15 +640,15 @@
 	}
 	"Equalizer_PrePyro"
 	{
-		"pl"	"Przywrócono do stanu sprzed ak. Pyromanii, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 107 pkt obrażeń przy 1 HP"
+		"pl"	"Przywrócono do stanu sprzed ak. Pyromanii, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 107 obr. przy 1 HP"
 	}
 	"Equalizer_PreHat"
 	{
-		"pl"	"Przywrócono do stanu sprzed ak. Bezczapkowej, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 113 pkt obrażeń przy 1 HP"
+		"pl"	"Przywrócono do stanu sprzed ak. Bezczapkowej, Plan Ucieczki i Wyrównywacz połączone; blokuje leczenie Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 113 obr. przy 1 HP"
 	}
 	"Equalizer_Release"
 	{
-		"pl"	"Przywrócono do stanu z ak. WOJNA!, Plan Ucieczki i Wyrównywacz połączone w jedno; blokuje lecznie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 162 obrażeń przy 1 HP"
+		"pl"	"Przywrócono do stanu z ak. WOJNA!, Plan Ucieczki i Wyrównywacz połączone w jedno; blokuje lecznie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 162 obr. przy 1 HP"
 	}
 	"Eviction_PreJI"
 	{
@@ -864,11 +864,11 @@
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mannorocznicy, szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, atak alternatywny popycha wroga"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mannorocznicy, szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, atak alt. popycha wroga"
 	}
 	"Shortstop_PreMnvy"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mannorocznicy, szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, brak ataku alternatywnego"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mannorocznicy, szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, brak ataku alt."
 	}
 	"Shortstop_PreGM_Shove"
 	{
