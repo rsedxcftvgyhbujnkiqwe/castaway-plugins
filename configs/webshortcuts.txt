@@ -15,4 +15,3 @@
 "!revertschangelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
 "!revertchangelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
 "!changelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
-"!changelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
