@@ -3617,7 +3617,6 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// melee damage is always 35
 						damage = 35.0;
-						LogMessage("Caber melee damage for %N attacking %N - %d, %f", attacker, victim, damage_custom, damage);
 						return Plugin_Changed;
 					}
 
@@ -3640,10 +3639,8 @@ Action SDKHookCB_OnTakeDamage(
 							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
 						}
 
-						LogMessage("Caber explosion damage for %N attacking %N", attacker, victim);
 						return Plugin_Changed;
 					}
-					LogMessage("Caber damage passed through for %N attacking %N - %d, %f", attacker, victim, damage_custom, damage);
 				}
 			}
 
@@ -5409,7 +5406,6 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 	int owner;
 	int weapon;
 	char class[64];
-	float value;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
@@ -5430,12 +5426,7 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 				IsPlayerAlive(owner) &&
 				TF2_IsPlayerInCondition(owner, TFCond_BlastJumping)
 			) {
-				// for some reason, doing this in one line doesn't work
-				// we have to get the value to a var and then set it
-
-				value = returnValue.Value / 0.80; // undo airstrike attrib
-				returnValue.Value = value;
-
+				returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
 				return MRES_Override;
 			}
 		}
