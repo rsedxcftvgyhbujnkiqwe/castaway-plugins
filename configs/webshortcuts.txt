@@ -10,6 +10,7 @@
 "!revertslist" "HTML Reverts List" https://castaway.tf/reverts.html
 "!revertlist" "HTML Reverts List" https://castaway.tf/reverts.html
 "!weapons" "HTML Reverts List" https://castaway.tf/reverts.html
+"!help" "Type cl_disablehtmlmotd 0 in console" https://castaway.tf/reverts.html
 
 "!revertschangelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
 "!revertchangelog" "Reverts Changelog" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Reverts-Changelog
