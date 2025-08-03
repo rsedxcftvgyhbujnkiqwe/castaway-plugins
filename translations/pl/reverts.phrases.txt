@@ -960,7 +960,11 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), brak redukcji leczenia, gdy tarcza jest aktywna, dodatkowo tarcza deaktywuje się 1s po śmierci użytkownika"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), brak redukcji naprawy, gdy osłona jest aktywna, osłona deaktywuje się 1s po schowaniu poskramiacza"
+	}
+	"Wrangler_PreLW"
+	{
+		"pl"	"Przywrócono do stanu sprzed ak. L&W, brak redukcji naprawy, osłona deaktywuje się 1s po schowaniu poskramiacza, brak spadku obr. poza zasięgiem, pociski naliczają obr. na podstawie położenia działka"
 	}
 	"Eternal_PreJI"
 	{
