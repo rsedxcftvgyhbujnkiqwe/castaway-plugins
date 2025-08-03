@@ -545,7 +545,7 @@ public void OnPluginStart() {
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemVariant(Wep_Bison, "Bison_PreMYM_Historical");
+	ItemVariant(Wep_Bison, "Bison_PreTB");
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2011");
@@ -4093,14 +4093,12 @@ Action SDKHookCB_OnTakeDamage(
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
 				// Somehow even with the "cannot be crit boosted" attribute, 
 				// the reverted Cow Mangler still does crits while crit boosted even when the crit boost glow doesn't show up.
-
 				if (
 					ItemIsEnabled(Wep_CowMangler) &&
 					StrEqual(class, "tf_weapon_particle_cannon") &&
-					PlayerIsCritboosted(attacker)
+					damage_type & DMG_CRIT != 0
 				) {
 					damage_type ^= DMG_CRIT;
-
 					return Plugin_Changed;
 				}
 			}
@@ -4114,9 +4112,12 @@ Action SDKHookCB_OnTakeDamage(
 					if (StrEqual(class, "tf_projectile_energy_ring")) {
 						GetEntityClassname(weapon, class, sizeof(class));
 
+						bool is_bison = StrEqual(class, "tf_weapon_raygun");
+						bool is_pomson = StrEqual(class, "tf_weapon_drg_pomson");
+
 						if (
-							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
-							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
+							(ItemIsEnabled(Wep_Bison) && is_bison) ||
+							(ItemIsEnabled(Wep_Pomson) && is_pomson)
 						) {
 							if (
 								(players[victim].bison_hit_frame + 0) == GetGameTickCount() ||
@@ -4140,8 +4141,7 @@ Action SDKHookCB_OnTakeDamage(
 							
 							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
 							if (
-								StrEqual(class, "tf_weapon_raygun") || 
-								(StrEqual(class, "tf_weapon_drg_pomson") && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
+								is_bison || (is_pomson && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
 							) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
@@ -4156,24 +4156,24 @@ Action SDKHookCB_OnTakeDamage(
 
 							// cloak/uber drain is done in OnTakeDamagePost
 
-							// Damage type modification
-
-							// Historically accurate Pre-MyM Bison damage numbers against players ported from NotnHeavy's pre-GM plugin
-							// Using this code does not work with the Pomson for some reason. I do not know why.
+							// Historically accurate Pre-MyM Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
 							if (
-								StrEqual(class, "tf_weapon_raygun") &&
-								GetItemVariant(Wep_Bison) == 1
+								(GetItemVariant(Wep_Bison) == 1 && (is_bison || (is_pomson && GetItemVariant(Wep_Pomson) == 1))) ||
+								(GetItemVariant(Wep_Pomson) == 2 && is_pomson)
 							) {
 								// Do not use internal rampup/falloff.
 								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
-								// Deal 16 base damage with 125% rampup, 75% falloff.
-								damage = 16.00 * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
+								// Deal damage with 125% rampup, 75% falloff.
+								float base_dmg = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) ? 16.00 : 48.00;
+								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
-							// Remove bullet damage flags so it's untyped damage, enable sonic damage flag so the fists of steel ranged resistance works correctly, restore knockback
+							// Remove bullet damage flags so it's untyped damage
 							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
+							// Enable sonic damage flag so the Fists of Steel ranged resistance works correctly
 							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
+							// Restore knockback
 							if (damage_type & DMG_SONIC == 0) damage_type |= DMG_SONIC;
 
 							return Plugin_Changed;
@@ -4757,6 +4757,7 @@ bool PlayerIsInvulnerable(int client) {
 	);
 }
 
+/*
 TFCond critboosts[] =
 {
 	TFCond_Kritzkrieged,
@@ -4780,6 +4781,7 @@ bool PlayerIsCritboosted(int client) {
 
 	return false;
 }
+*/
 
 float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648

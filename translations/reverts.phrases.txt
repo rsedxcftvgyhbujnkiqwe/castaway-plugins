@@ -758,7 +758,7 @@
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size, does not pass through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -812,9 +812,9 @@
 	{
 		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
-	"Bison_PreMYM_Historical"
+	"Bison_PreTB"
 	{
-		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg falloff"
+		"en"	"Reverted to pre-toughbreak, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -962,7 +962,7 @@
 	}
 	"Wrangler_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range, damage falloff based on user's position"
+		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range, damage rampup based on user's position"
 	}
 	"Eternal_PreJI"
 	{
