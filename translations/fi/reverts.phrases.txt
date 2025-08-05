@@ -686,7 +686,7 @@
 	}
 	"GlovesRU_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25% vahinkoa"
+		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -802,7 +802,7 @@
 	}
 	"RescueRanger_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: parantaa tasan +75, ei kuluta metallia, kaukonostot maksavat 130 metallia"
+		"fi"	"Ennen Gun Mettleä: parantaa tasan +75, ei kuluta metallia, kaukonostot kuluttavat 130 metallia"
 	}
 	"Reserve_PreTB"
 	{
@@ -826,7 +826,15 @@
 	}
 	"RocketJmp_Release"
 	{
-		"fi"	"Julkaisuversio: antaa itsevahinkoimmuniteetin Tasoittajan/Pakosuunnitelman pilkasta, käyttäjä voi kantaa tiedustelusalkkua, satunnaiset kriittiset osumat"
+		"fi"	"Julkaisuversio: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; voi kantaa tiedustelusalkkua, sat. kritit"
+	}
+	"RocketJmp_Pre2011"
+	{
+		"fi"	"22. joulukuuta 2010: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; +100%% luoti-, räjähdys- ja tulivahinkoalttius, voi kantaa tiedustelusalkkua, sat. kritit"
+	}
+	"RocketJmp_Oct2010"
+	{
+		"fi"	"27. lokakuuta 2010: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; -100 maksimiterveys, voi kantaa tiedustelusalkkua, sat. kritit"
 	}
 	"Saharan_Release"
 	{
@@ -902,7 +910,15 @@
 	}
 	"StkJumper_Pre2013_Intel"
 	{
-		"fi"	"Pyromania-päivitys versio: voi olla taas enintään 8 tahmapommia, käyttäjä voi kantaa tiedustelusalkkua"
+		"fi"	"Manniversary-päivitys versio: voi olla taas enintään 8 tahmapommia, voi kantaa tiedustelusalkkua"
+	}
+	"StkJumper_Pre2011"
+	{
+		"fi"	"22. joulukuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, +100%% luoti-, räjähdys-, ja tulivahinkoalttius, ei räjähdysitsevahinkoa, sat. kritit"
+	}
+	"StkJumper_ReleaseDay2"
+	{
+		"fi"	"28. lokakuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, -75 maksimiterveys, ei räjähdysitsevahinkoa, sat. kritit"
 	}
 	"Sleeper_PreBM"
 	{
@@ -950,7 +966,7 @@
 	}
 	"Wrangler_PreLW"
 	{
-		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella"
+		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella ja riippuu käyttäjän paikasta"
 	}
 	"Eternal_PreJI"
 	{
