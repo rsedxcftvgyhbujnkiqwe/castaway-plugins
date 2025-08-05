@@ -56,6 +56,7 @@ translations/jp/*
 !translations/fi/
 translations/fi/*
 !translations/fi/reverts.phrases.txt
+!translations/fi/votescramble.phrases.txt
 !translations/pl/
 translations/pl/*
 !translations/pl/reverts.phrases.txt

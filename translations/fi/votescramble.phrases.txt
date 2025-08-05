@@ -1,0 +1,43 @@
+"Phrases"
+{
+	"VOTESCRAMBLE_VOTE_TITLE"
+	{
+		"fi"	"Sekoita tiimit?"
+	}
+	"VOTESCRAMBLE_VOTE_IN_PROGRESS"
+	{
+		"fi"	"Ei voi aloittaa sekoitusäänestystä, koska eräs äänestys on kesken. Yritetään uudelleen 10 sekunnin kuluttua..."
+	}
+	"VOTESCRAMBLE_SCRAMBLING_TEAMS"
+	{
+		"fi"	"Sekoitetaan tiimit..."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_NEXT_ROUND"
+	{
+		"fi"	"Tiimit sekoitetaan seuraavalla kierroksella."
+	}
+	"VOTESCRAMBLE_SCRAMBLE_IN_PROGRESS"
+	{
+		"fi"	"Sekoitetaan tiimit äänien perusteella."
+	}
+	"VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND"
+	{
+		"fi"	"Edeltävä sekoitusäänestys on onnistunut. Tiimit sekoitetaan seuraavalla kierroksella."
+	}
+	"VOTESCRAMBLE_COOLDOWN"
+	{
+		"fi"	"Pahoittelut, sekoitusäänestys on jäähyllä."
+	}
+	"VOTESCRAMBLE_WAITING_FOR_PLAYERS"
+	{
+		"fi"	"Palvelin vielä odottaa pelaajia."
+	}
+	"VOTESCRAMBLE_VOTED"
+	{
+		"fi"	"Olet jo äänestänyt tiimien sekoitusta. [{1}/{2} ääntä vaaditaan]"
+	}
+	"VOTESCRAMBLE_VOTE_ANNOUNCE"
+	{
+		"fi"	"{1} haluaa sekoittaa tiimit. [{2}/{3} ääntä vaaditaan]"
+	}
+}
