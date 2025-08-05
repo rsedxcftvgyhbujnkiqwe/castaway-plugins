@@ -750,9 +750,9 @@
 	{
 		"jp"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg"
 	}
-	"Bison_PreMYM_Historical"
+	"Bison_PreTB"
 	{
-		"jp"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg falloff"
+		"jp"	"Reverted to pre-toughbreak, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
 	}
 	"RocketJmp_Pre2013"
 	{

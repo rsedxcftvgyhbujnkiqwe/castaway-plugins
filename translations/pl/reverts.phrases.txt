@@ -814,7 +814,7 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Poznaj Wroga Swego (Meet your Match), zwiększony rozmiar pocisku, możliwość trafienia tego samego celu kilka razy, pocisk podpala strzały, ignoruje odporności"
 	}
-	"Bison_PreMYM_Historical"
+	"Bison_PreTB"
 	{
 		"pl"	"Zwiększony rozmiar pocisku, możliwość trafienia tego samego celu kilka razy, pocisk podpala strzały i ignoruje odporności. Obrażenia pocisku maleją wraz z zwiększającym się dystansem"
 	}

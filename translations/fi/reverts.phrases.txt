@@ -762,7 +762,7 @@
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, läpäisee tiimin rakennukset, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -816,9 +816,9 @@
 	{
 		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
-	"Bison_PreMYM_Historical"
+	"Bison_PreTB"
 	{
-		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}
 	"RocketJmp_Pre2013"
 	{

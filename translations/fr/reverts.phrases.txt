@@ -814,9 +814,9 @@
 	{
 		"fr"	"Réversion à pré-Matchmaking, taille de hitbox augmentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés"
 	}
-	"Bison_PreMYM_Historical"
+	"Bison_PreTB"
 	{
-		"fr"	"Réversion à pré-Matchmaking, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés, ancienne diminution des dégâts par distance"
+		"fr"	"Réversion à pré-Tough Break, taille de hitbox aumentée, peut toucher le même joueur encore plus de fois, enflamme les flèches de Huntsman alliés, dégâts non-typés, ancienne diminution des dégâts par distance"
 	}
 	"RocketJmp_Pre2013"
 	{
