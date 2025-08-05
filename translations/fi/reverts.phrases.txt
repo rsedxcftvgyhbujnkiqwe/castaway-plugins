@@ -950,7 +950,7 @@
 	}
 	"Wrangler_PreLW"
 	{
-		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella ja riippuu käyttäjän paikasta"
+		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella"
 	}
 	"Eternal_PreJI"
 	{
