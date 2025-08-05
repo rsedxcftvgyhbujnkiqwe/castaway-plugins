@@ -4955,7 +4955,7 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 			GetMenuItem(menu, param2, info, sizeof(info));
 
 			if (StrEqual(info, "info")) {
-				ShowItemsDetails(param1);
+				RevertInfoMenu(param1);
 			}
 			else if (StrEqual(info, "classinfo")) {
 				ShowClassReverts(param1);
@@ -4973,6 +4973,55 @@ int MenuHandler_Main(Menu menu, MenuAction action, int param1, int param2) {
 	}
 
 	return 0;
+}
+
+int MenuHandler_Info(Menu menu, MenuAction action, int param1, int param2) {
+	switch (action) {
+		case MenuAction_Select: {
+			char info[64];
+			GetMenuItem(menu, param2, info, sizeof(info));
+			char msg[256];
+			int variant_idx;
+
+			for (int idx = 0; idx < NUM_ITEMS; idx++) {
+				if (ItemIsEnabled(idx)) {
+					if (StrEqual(info,items[idx].key)) {
+						variant_idx = GetItemVariant(idx);
+						if (variant_idx > -1) {
+							Format(msg, sizeof(msg), "{gold}%T {lightgreen}- %T", items[idx].key, param1, items_desc[idx][variant_idx], param1);
+							CPrintToChat(param1, "%s", msg);
+							break;
+						}
+					}
+				}
+			}
+			RevertInfoMenu(param1,menu.Selection);
+		}
+		case MenuAction_End: {
+			delete menu;
+		}
+	}
+
+	return 0;
+}
+
+void RevertInfoMenu(int client, int selection = 0){
+	if (!cvar_enable.BoolValue) return;
+
+	Menu menu_info = new Menu(MenuHandler_Info, MenuAction_Select);
+	menu_info.SetTitle("%T", "REVERT_MENU_TITLE", client);
+
+	int count;
+	char item_name[64];
+	for (int idx = 0; idx < NUM_ITEMS; idx++) {
+		if (ItemIsEnabled(idx)) {
+			Format(item_name,sizeof(item_name),"%T",items[idx].key,client);
+			menu_info.AddItem(items[idx].key,item_name);
+			count++;
+		}
+	}
+
+	if (count) menu_info.DisplayAt(client, selection, MENU_TIME_FOREVER);
 }
 
 void ShowItemsDetails(int client) {
