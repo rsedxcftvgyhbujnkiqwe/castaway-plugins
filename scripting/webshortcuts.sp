@@ -79,7 +79,7 @@ public Action:OnSay( client, args )
 			GetArrayString( g_Titles, i, title, sizeof(title) );
 			GetArrayString( g_Links, i, text, sizeof(text) );
 			
-			GetClientAuthString( client, steamId, sizeof(steamId) );
+			GetClientAuthId( client, AuthId_Steam2, steamId, sizeof(steamId) );
 			FormatEx( userId, sizeof(userId), "%u", GetClientUserId( client ) );
 			GetClientName( client, name, sizeof(name) );
 			GetClientIP( client, clientIp, sizeof(clientIp) );
