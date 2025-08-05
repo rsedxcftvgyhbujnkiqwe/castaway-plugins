@@ -4112,12 +4112,9 @@ Action SDKHookCB_OnTakeDamage(
 					if (StrEqual(class, "tf_projectile_energy_ring")) {
 						GetEntityClassname(weapon, class, sizeof(class));
 
-						bool is_bison = StrEqual(class, "tf_weapon_raygun");
-						bool is_pomson = StrEqual(class, "tf_weapon_drg_pomson");
-
 						if (
-							(ItemIsEnabled(Wep_Bison) && is_bison) ||
-							(ItemIsEnabled(Wep_Pomson) && is_pomson)
+							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
+							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 						) {
 							if (
 								(players[victim].bison_hit_frame + 0) == GetGameTickCount() ||
@@ -4138,11 +4135,11 @@ Action SDKHookCB_OnTakeDamage(
 								// there's a wall between the projectile and the target, cancel the hit
 								return Plugin_Stop;
 							}
+
+							bool should_penetrate = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0;
 							
 							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
-							if (
-								is_bison || (is_pomson && GetItemVariant(Wep_Pomson) == 1) // check for release pomson variant
-							) {
+							if (should_penetrate) {
 								pos1[2] = 0.0;
 								pos2[2] = 0.0;
 
@@ -4158,23 +4155,23 @@ Action SDKHookCB_OnTakeDamage(
 
 							// Historically accurate Pre-MyM Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
 							if (
-								(GetItemVariant(Wep_Bison) == 1 && (is_bison || (is_pomson && GetItemVariant(Wep_Pomson) == 1))) ||
-								(GetItemVariant(Wep_Pomson) == 2 && is_pomson)
+								(GetItemVariant(Wep_Bison) == 1 && should_penetrate) ||
+								(GetItemVariant(Wep_Pomson) == 2 && !should_penetrate)
 							) {
 								// Do not use internal rampup/falloff.
 								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
 								
 								// Deal damage with 125% rampup, 75% falloff.
-								float base_dmg = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) ? 16.00 : 48.00;
+								float base_dmg = should_penetrate ? 16.00 : 48.00;
 								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
-							// Remove bullet damage flags so it's untyped damage
+							// Remove bullet damage flag so it's untyped damage
 							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
 							// Enable sonic damage flag so the Fists of Steel ranged resistance works correctly
-							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
-							// Restore knockback
 							if (damage_type & DMG_SONIC == 0) damage_type |= DMG_SONIC;
+							// Restore knockback
+							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
 
 							return Plugin_Changed;
 						}
