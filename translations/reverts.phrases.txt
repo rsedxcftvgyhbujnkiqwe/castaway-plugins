@@ -876,6 +876,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo, no shove"
 	}
+	"Shortstop_Release"
+	{
+		"en"	"Reverted to release, slow target by 40%% for 0.5s, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
+	}
 	"Sodapop_Pre2013"
 	{
 		"en"	"Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits"

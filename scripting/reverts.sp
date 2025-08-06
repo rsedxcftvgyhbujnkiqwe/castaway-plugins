@@ -561,6 +561,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Shortstop, "Shortstop_PreMnvy");
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM_Shove");
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM");
+	ItemVariant(Wep_Shortstop, "Shortstop_Release");
 	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
 	ItemVariant(Wep_SodaPopper, "Sodapop_PreMYM");
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
@@ -2424,6 +2425,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 534, 1.40); // airblast vulnerability multiplier hidden
 					TF2Items_SetAttribute(itemNew, 2, 535, 1.40); // damage force increase hidden
 					TF2Items_SetAttribute(itemNew, 3, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
+				}
+				case 4: {
+					// Release Shortstop
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 182, 0.5); // On Hit: Slow target movement by 40% for 0.5s
+					TF2Items_SetAttribute(itemNew, 1, 241, 1.0); // reload time increased hidden
+					TF2Items_SetAttribute(itemNew, 2, 534, 1.00); // airblast vulnerability multiplier hidden
+					TF2Items_SetAttribute(itemNew, 3, 535, 1.00); // damage force increase hidden
 				}
 			}	
 		}}
