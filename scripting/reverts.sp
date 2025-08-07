@@ -558,6 +558,7 @@ public void OnPluginStart() {
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
+	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -2464,8 +2465,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
+			switch (GetItemVariant(Wep_Sandman)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 125, -30.0); // -30 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 278, 1.50); // increase ball recharge time to 15s
+				}
+				default: {
 			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 278, 1.50); //effect bar recharge rate increased attribute; this number increases ball recharge time from 10s to 15s
+					TF2Items_SetAttribute(itemNew, 0, 278, 1.50); // increase ball recharge time to 15s
+				}
+			}
 		}}
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
@@ -3924,7 +3934,7 @@ Action SDKHookCB_OnTakeDamage(
 									stun_dur = (stun_dur + 2.0);
 								}
 
-								stun_fls = TF_STUNFLAGS_SMALLBONK;
+								stun_fls = GetItemVariant(Wep_Sandman) == 0 ? TF_STUNFLAGS_SMALLBONK : TF_STUNFLAGS_NORMALBONK;
 
 								if (stun_amt >= 1.0) {
 									// moonshot!
@@ -3948,6 +3958,12 @@ Action SDKHookCB_OnTakeDamage(
 								}
 
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
+
+								if (GetItemVariant(Wep_Sandman) == 1) {
+									// Pre-WAR Sandman stun victims receive 75% of damage dealt
+									// "dmg taken increased" is the only attribute of class "mult_dmgtaken"
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", 0.75, stun_dur);
+								}
 
 								players[victim].stunball_fix_time_bonk = GetGameTime();
 								players[victim].stunball_fix_time_wear = 0.0;
