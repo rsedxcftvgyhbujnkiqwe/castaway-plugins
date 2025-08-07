@@ -1349,12 +1349,12 @@ public void OnGameFrame() {
 
 								switch (GetItemVariant(Wep_DeadRinger)) {
 									case 0: { // pre-GM
-									// when uncloaking, cloak is drained to 40%
+										// when uncloaking, cloak is drained to 40%
 
-									if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 40.0) {
-										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 40.0);
+										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 40.0) {
+											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 40.0);
+										}
 									}
-								}
 									case 3: { // post-release
 										// fully drain meter when uncloaking
 
@@ -1363,7 +1363,6 @@ public void OnGameFrame() {
 										}
 									}
 								}
-
 							}
 						}
 
@@ -1939,9 +1938,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
 				}
 				case 1: {
-			TF2Items_SetNumAttributes(itemNew, 5);
-			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
-			TF2Items_SetAttribute(itemNew, 1, 21, 0.50); // dmg penalty vs nonburning
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 21, 0.50); // dmg penalty vs nonburning
 					TF2Items_SetAttribute(itemNew, 2, 638, 1.0); // axtinguisher properties
 					TF2Items_SetAttribute(itemNew, 3, 772, 1.00); // single wep holster time increased
 					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
@@ -1950,7 +1949,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 5, 1.2); // fire rate penalty
 					TF2Items_SetAttribute(itemNew, 1, 20, 1.0); // crit vs burning players
-			TF2Items_SetAttribute(itemNew, 2, 772, 1.00); // single wep holster time increased
+					TF2Items_SetAttribute(itemNew, 2, 772, 1.00); // single wep holster time increased
 					TF2Items_SetAttribute(itemNew, 3, 773, 1.75); // single wep deploy time increased
 					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
 				}
@@ -2067,7 +2066,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 751: { if (ItemIsEnabled(Wep_CleanerCarbine)) {
 			switch (GetItemVariant(Wep_CleanerCarbine)) {
 				case 0: {
-			TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 5, 1.35); // 35% slower firing speed
 					TF2Items_SetAttribute(itemNew, 1, 31, 3.0); // 3 sec crits on kill
 					TF2Items_SetAttribute(itemNew, 2, 779, 0.0); // minicrit on charge
@@ -2472,7 +2471,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 278, 1.50); // increase ball recharge time to 15s
 				}
 				default: {
-			TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 278, 1.50); // increase ball recharge time to 15s
 				}
 			}
@@ -2562,10 +2561,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 2, 247, 1.0); // can deal charge impact damage at any range
 				}
 				default: {
-			TF2Items_SetNumAttributes(itemNew, 3);
-			TF2Items_SetAttribute(itemNew, 0, 64, 0.85); // dmg taken from blast reduced
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 64, 0.85); // dmg taken from blast reduced
 					TF2Items_SetAttribute(itemNew, 1, 249, 1.0); // remove +50% increase in charge recharge rate
-			TF2Items_SetAttribute(itemNew, 2, 247, 1.0); // can deal charge impact damage at any range
+					TF2Items_SetAttribute(itemNew, 2, 247, 1.0); // can deal charge impact damage at any range
 				}
 			}
 		}}
