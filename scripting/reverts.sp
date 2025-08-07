@@ -446,6 +446,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Atomizer, "Atomizer_PreBM");
 	ItemDefine("axtinguish", "Axtinguisher_PreLW", CLASSFLAG_PYRO, Wep_Axtinguisher);
 	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreTB");
+	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreBM");
 	ItemDefine("backburner", "Backburner_PreHat", CLASSFLAG_PYRO, Wep_Backburner);
 	ItemVariant(Wep_Backburner, "Backburner_119");
 	ItemVariant(Wep_Backburner, "Backburner_Release");
@@ -453,6 +454,7 @@ public void OnPluginStart() {
 	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
+	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
@@ -464,6 +466,7 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
+	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
@@ -506,6 +509,7 @@ public void OnPluginStart() {
 	ItemDefine("guillotine", "Guillotine_PreJI", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO, Set_GasJockey);
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
+	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
@@ -567,6 +571,7 @@ public void OnPluginStart() {
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT, Set_SpDelivery);
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
+	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
@@ -1229,8 +1234,8 @@ public void OnGameFrame() {
 								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
 
 								if (
-									ItemIsEnabled(Wep_Beggars) &&
-									players[idx].beggars_ammo == 3 &&
+									GetItemVariant(Wep_Beggars) == 0 &&
+									players[idx].beggars_ammo >= 3 &&
 									clip == (players[idx].beggars_ammo - 1) &&
 									rocket_create_entity == -1 &&
 									(rocket_create_frame + 1) == GetGameTickCount() &&
@@ -1912,12 +1917,33 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				
 		}}
 		case 38, 457, 1000: { if (ItemIsEnabled(Wep_Axtinguisher)) {
+			switch (GetItemVariant(Wep_Axtinguisher)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 20, 1.0); // crit vs burning players
+					TF2Items_SetAttribute(itemNew, 2, 21, 0.50); // dmg penalty vs nonburning
+					TF2Items_SetAttribute(itemNew, 3, 772, 1.00); // single wep holster time increased
+					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
+				}
+				case 1: {
 			TF2Items_SetNumAttributes(itemNew, 5);
 			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
 			TF2Items_SetAttribute(itemNew, 1, 21, 0.50); // dmg penalty vs nonburning
+					TF2Items_SetAttribute(itemNew, 2, 638, 1.0); // axtinguisher properties
+					TF2Items_SetAttribute(itemNew, 3, 772, 1.00); // single wep holster time increased
+					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 5, 1.2); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 1, 20, 1.0); // crit vs burning players
 			TF2Items_SetAttribute(itemNew, 2, 772, 1.00); // single wep holster time increased
-			TF2Items_SetAttribute(itemNew, 3, 2067, 0.0); // attack minicrits and consumes burning
-			TF2Items_SetAttribute(itemNew, 4, GetItemVariant(Wep_Axtinguisher) == 1 ? 638 : 20, 1.0); // axtinguisher properties, crit on burning players
+					TF2Items_SetAttribute(itemNew, 3, 773, 1.75); // single wep deploy time increased
+					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
+				}
+			}
+			
 		}}
 		case 772: { if (ItemIsEnabled(Wep_BabyFace)) {
 			switch (GetItemVariant(Wep_BabyFace)) {
@@ -2027,11 +2053,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 103, 1.50); // projectile speed increased
 		}}
 		case 751: { if (ItemIsEnabled(Wep_CleanerCarbine)) {
+			switch (GetItemVariant(Wep_CleanerCarbine)) {
+				case 0: {
 			TF2Items_SetNumAttributes(itemNew, 4);
-			TF2Items_SetAttribute(itemNew, 0, 31, 3.0); // crit on kill
-			TF2Items_SetAttribute(itemNew, 1, 779, 0.0); // minicrit on charge
-			TF2Items_SetAttribute(itemNew, 2, 780, 0.0); // gain charge on hit
-			TF2Items_SetAttribute(itemNew, 3, 5, 1.35); // 35% firing speed penalty
+					TF2Items_SetAttribute(itemNew, 0, 5, 1.35); // 35% slower firing speed
+					TF2Items_SetAttribute(itemNew, 1, 31, 3.0); // 3 sec crits on kill
+					TF2Items_SetAttribute(itemNew, 2, 779, 0.0); // minicrit on charge
+					TF2Items_SetAttribute(itemNew, 3, 780, 0.0); // gain charge on hit
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 5, 1.35); // 35% slower firing speed
+					TF2Items_SetAttribute(itemNew, 1, 613, 8.0); // 8 sec minicrits on kill
+					TF2Items_SetAttribute(itemNew, 2, 779, 0.0); // minicrit on charge
+					TF2Items_SetAttribute(itemNew, 3, 780, 0.0); // gain charge on hit
+				}
+			}
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
@@ -2190,7 +2227,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 239, 1084, 1100: { if (ItemIsEnabled(Wep_GRU)) {
 			switch (GetItemVariant(Wep_GRU)) {
 				case 0: {
-					// Pre-Tough Break version of the GRU
+					// Pre-Tough Break
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.75); // damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 414, 3.0); // self mark for death
@@ -2198,7 +2235,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 855, 0.0); // mod maxhealth drain rate
 				}
 				case 1: {
-					// Pre-Pyromania version of the GRU
+					// Pre-Jungle Inferno
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.75); // damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 414, 3.0); // self mark for death
+					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
+				}
+				case 2: {
+					// Pre-Pyromania
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.50); // 50% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 191, -6.0); // drain 6HP/s while actve; small knockback while active is supposed to happen (called GRU jumping)
@@ -2482,10 +2526,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
 		}}
 		case 406: { if (ItemIsEnabled(Wep_SplendidScreen)) {
+			switch (GetItemVariant(Wep_SplendidScreen)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 60, 0.75); // dmg taken from fire reduced
+					TF2Items_SetAttribute(itemNew, 1, 249, 1.0); // remove +50% increase in charge recharge rate
+					TF2Items_SetAttribute(itemNew, 2, 247, 1.0); // can deal charge impact damage at any range
+				}
+				default: {
 			TF2Items_SetNumAttributes(itemNew, 3);
 			TF2Items_SetAttribute(itemNew, 0, 64, 0.85); // dmg taken from blast reduced
-			TF2Items_SetAttribute(itemNew, 1, 249, 1.00); // remove +50% increase in charge recharge rate
+					TF2Items_SetAttribute(itemNew, 1, 249, 1.0); // remove +50% increase in charge recharge rate
 			TF2Items_SetAttribute(itemNew, 2, 247, 1.0); // can deal charge impact damage at any range
+				}
+			}
 		}}
 		case 649: { if (ItemIsEnabled(Wep_Spycicle)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -4081,8 +4135,7 @@ Action SDKHookCB_OnTakeDamage(
 					// other shields can only bash at the end of a charge
 					if (player_weapons[attacker][Wep_SplendidScreen] == false)
 					{
-						charge = GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter");
-						if (charge > 40.0)
+						if (GetEntPropFloat(attacker, Prop_Send, "m_flChargeMeter") > 40.0)
 						{
 							return Plugin_Handled;
 						}
