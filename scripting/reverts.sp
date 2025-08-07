@@ -517,7 +517,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 #if defined MEMORY_PATCHES
-	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk);
+	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
 #endif
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -1629,6 +1629,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
+
+	if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+
 	if (StrContains(class, "item_ammopack") == 0)
 	{
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
@@ -4589,8 +4594,6 @@ public Action OnPlayerRunCmd(
 	int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2]
 ) {
 	Action returnValue = Plugin_Continue;
-	int weapon1;
-	char class[64];
 
 	switch (TF2_GetPlayerClass(client))
 	{
@@ -4621,28 +4624,6 @@ public Action OnPlayerRunCmd(
 				else
 				{
 					players[client].player_jumped = false;
-				}
-			}
-			
-			if (
-				(GetItemVariant(Wep_Shortstop) == 1 ||
-				GetItemVariant(Wep_Shortstop) == 3) &&
-				player_weapons[client][Wep_Shortstop]
-			) {
-				// shortstop shove removal
-				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
-
-					if (
-						StrEqual(class, "tf_weapon_handgun_scout_primary") &&
-						buttons & IN_ATTACK2 != 0
-					) {
-						// disable secondary attack
-						buttons ^= IN_ATTACK2;
-						returnValue = Plugin_Changed;
-					}
 				}
 			}
 		}
@@ -5374,6 +5355,15 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// prevent alt-fire for pre-gunmettle short circuit
+			return MRES_Supercede;
+		}
+
+		if (
+			(GetItemVariant(Wep_Shortstop) == 1 ||
+			GetItemVariant(Wep_Shortstop) == 3) &&
+			StrEqual(class, "tf_weapon_handgun_scout_primary")
+		) {
+			// shortstop shove removal
 			return MRES_Supercede;
 		}
 	}
