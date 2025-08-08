@@ -484,6 +484,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: kriittisiä osumia takaa, minikriittisiä osumia edestä, ei nopeuslisää taposta"
 	}
+	"Axtinguisher_PreBM"
+	{
+		"fi"	"Ennen Blue Moonia: kriittisiä osumia palaviin pelaajiin, 75%% pidempi esiinvetoaika, 20%% hitaampi lyöntinopeus, ei nopeuslisää taposta"
+	}
 	"Backburner_PreHat"
 	{
 		"fi"	"Hatless-päivitys versio: 10%% vahinkobonus"
@@ -511,6 +515,10 @@
 	"Beggars_Pre2013"
 	{
 		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta"
+	}
+	"Beggars_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: ei räjähdysalueheikkoutta"
 	}
 	"BlackBox_PreGM"
 	{
@@ -546,7 +554,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
+		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -554,7 +562,11 @@
 	}
 	"Carbine_Release"
 	{
-		"fi"	"Julkaisuversio: tapot antavat 3 sekunnin kriittisyystehosteen, 35%% hitaampi tulitusnopeus (25%%:sta)"
+		"fi"	"Julkaisuversio: tapot antavat kriittisiä 3 sekunniksi, 35%% hitaampi tulitusnopeus (25%%:sta)"
+	}
+	"Carbine_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: tapot antavat minikriittisiä 8 sekunniksi, 35%% hitaampi tulitusnopeus (25%%:sta)"
 	}
 	"CowMangler_Release"
 	{
@@ -606,7 +618,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahinkosieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää"
 	}
 	"Ringer_PreJI"
 	{
@@ -615,6 +627,10 @@
 	"Ringer_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: samat perusominaisuudet, mutta 50%% ensimmäisen osuman vahinkosieto ja voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
+	}
+	"Ringer_PostRelease"
+	{
+		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
 	}
 	"Degreaser_PreTB"
 	{
@@ -687,6 +703,10 @@
 	"GlovesRU_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
+	}
+	"GlovesRU_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: ei laske terveyttä, merkkaa kuolemaan, -25%% vahinkoa"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -848,6 +868,10 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajia, 15 sekunnin latausaika"
 	}
+	"Sandman_PreWAR"
+	{
+		"fi"	"Ennen WAR!-päivitystä: pallo-osumat tainnuttavat pelaajat täysin, tainnutusuhrit saavat 75%% vahinkoa, -30 maksimiterveys, 15 sekunnin latausaika"
+	}
 	"Scottish_Release"
 	{
 		"fi"	"Julkaisuversio: 0,4s hitaampi viritysaika (0,8:sta), ei tulitusnopeusbonusta"
@@ -870,7 +894,7 @@
 	}
 	"Shortstop_PreMnvy"
 	{
-		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
+		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
 	}
 	"Shortstop_PreGM_Shove"
 	{
@@ -878,7 +902,11 @@
 	}
 	"Shortstop_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa, ei tönäisyä"
+		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa"
+	}
+	"Shortstop_Release"
+	{
+		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
 	}
 	"Sodapop_Pre2013"
 	{
@@ -898,7 +926,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
+	}
+	"Splendid_Release"
+	{
+		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -934,7 +966,7 @@
 	}
 	"Turner_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa"
+		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Tomislav_PrePyro"
 	{
