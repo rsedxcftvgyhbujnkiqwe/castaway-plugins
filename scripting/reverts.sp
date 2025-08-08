@@ -196,6 +196,7 @@ ConVar cvar_no_reverts_info_by_default;
 ConVar cvar_dropped_weapon_enable;
 #endif
 ConVar cvar_pre_toughbreak_switch;
+ConVar cvar_enable_shortstop_shove;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_bison_tick_time;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -430,6 +431,7 @@ public void OnPluginStart() {
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
+	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -563,9 +565,7 @@ public void OnPluginStart() {
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
 	ItemVariant(Wep_ShortCircuit, "Circuit_Dec2013");
-	ItemDefine("shortstop", "Shortstop_PreMnvy_Shove", CLASSFLAG_SCOUT, Wep_Shortstop);
-	ItemVariant(Wep_Shortstop, "Shortstop_PreMnvy");
-	ItemVariant(Wep_Shortstop, "Shortstop_PreGM_Shove");
+	ItemDefine("shortstop", "Shortstop_PreMnvy", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM");
 	ItemVariant(Wep_Shortstop, "Shortstop_Release");
 	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
@@ -2487,14 +2487,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 220: { if (ItemIsEnabled(Wep_Shortstop)) {
 			switch (GetItemVariant(Wep_Shortstop)) {
-				case 0, 1: {
+				case 0: {
 					// Pre-Manniversary Shortstop
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 241, 1.0); // reload time increased hidden
 					TF2Items_SetAttribute(itemNew, 1, 534, 1.00); // airblast vulnerability multiplier hidden
 					TF2Items_SetAttribute(itemNew, 2, 535, 1.00); // damage force increase hidden
 				}
-				case 2, 3: {
+				case 1: {
 					// Pre-Gun Mettle Shortstop
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 526, 1.20); // 20% bonus healing from all sources
@@ -2502,7 +2502,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 2, 535, 1.40); // damage force increase hidden
 					TF2Items_SetAttribute(itemNew, 3, 128, 0.0); // disable provide_on_active so push force penalty is active at all times
 				}
-				case 4: {
+				case 2: {
 					// Release Shortstop
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 182, 0.5); // On Hit: Slow target movement by 40% for 0.5s
@@ -5445,8 +5445,8 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		}
 
 		if (
-			(GetItemVariant(Wep_Shortstop) == 1 ||
-			GetItemVariant(Wep_Shortstop) == 3) &&
+			ItemIsEnabled(Wep_Shortstop) &&
+			cvar_enable_shortstop_shove.BoolValue == false &&
 			StrEqual(class, "tf_weapon_handgun_scout_primary")
 		) {
 			// shortstop shove removal
