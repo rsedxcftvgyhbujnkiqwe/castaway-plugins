@@ -894,7 +894,7 @@
 	}
 	"Shortstop_PreMnvy"
 	{
-		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
+		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
 	}
 	"Shortstop_PreGM_Shove"
 	{
@@ -902,11 +902,15 @@
 	}
 	"Shortstop_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa"
+		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa, ei tönäisyä"
+	}
+	"Shortstop_Release_Shove"
+	{
+		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
 	}
 	"Shortstop_Release"
 	{
-		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
+		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
 	}
 	"Sodapop_Pre2013"
 	{

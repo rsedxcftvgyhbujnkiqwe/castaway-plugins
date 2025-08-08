@@ -436,6 +436,7 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 #endif
+	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
 
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -816,6 +817,25 @@ public void OnDroppedWeaponLifetimeCvarChange(ConVar convar, const char[] oldVal
 }
 #endif
 
+public void OnShortstopShoveCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	UpdateShortstopDescription();
+}
+
+void UpdateShortstopDescription() {
+	int i = Wep_Shortstop;
+	char shove_str[] = "_Shove";
+
+	for (int j = 0; j <= items[i].num_variants; j++) {
+		if (cvar_enable_shortstop_shove.BoolValue) {
+			if (StrContains(items_desc[i][j], shove_str) == -1) {
+				Format(items_desc[i][j], sizeof(items_desc[][]), "%s%s", items_desc[i][j], shove_str);
+			}
+		} else {
+			ReplaceString(items_desc[i][j], sizeof(items_desc[][]), shove_str, "");
+		}
+	}
+}
+
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
@@ -830,6 +850,7 @@ public void OnConfigsExecuted() {
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
 #endif
+	UpdateShortstopDescription();
 }
 
 #if defined MEMORY_PATCHES
