@@ -480,6 +480,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill"
 	}
+	"Axtinguisher_PreBM"
+	{
+		"en"	"Reverted to pre-bluemoon, crit vs burning players, 75%% longer deploy time, 20%% slower swing rate, no speedboost on kill"
+	}
 	"Backburner_PreHat"
 	{
 		"en"	"Reverted to Hatless update, +10%% damage bonus"
@@ -507,6 +511,10 @@
 	"Beggars_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip"
+	}
+	"Beggars_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, no radius penalty"
 	}
 	"BlackBox_PreGM"
 	{
@@ -542,7 +550,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal"
+		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, bash dmg at 60%% depleted"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -551,6 +559,10 @@
 	"Carbine_Release"
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
+	}
+	"Carbine_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, minicrits for 8 seconds on kill, 35%% slower fire rate (from 25%%)"
 	}
 	"CowMangler_Release"
 	{
@@ -611,6 +623,10 @@
 	"Ringer_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, same modern stats but 50%% initial dmg resist, can pick up ammo while uncloaked, 35%% less cloak from ammo boxes"
+	}
+	"Ringer_PostRelease"
+	{
+		"en"	"Reverted to post-release, 90%% dmg resist for 6.5s, no speedboost, full drain on early decloak"
 	}
 	"Degreaser_PreTB"
 	{
@@ -683,6 +699,10 @@
 	"GlovesRU_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25%% damage"
+	}
+	"GlovesRU_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, no health drain, marks for death, -25%% damage"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -844,6 +864,10 @@
 	{
 		"en"	"Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time"
 	}
+	"Sandman_PreWAR"
+	{
+		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"
+	}
 	"Scottish_Release"
 	{
 		"en"	"Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus"
@@ -876,6 +900,14 @@
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo, no shove"
 	}
+	"Shortstop_Release_Shove"
+	{
+		"en"	"Reverted to release, slow target by 40%% for 0.5s, fast reload, no push force penalty, shares pistol ammo; modern shove is kept"
+	}
+	"Shortstop_Release"
+	{
+		"en"	"Reverted to release, slow target by 40%% for 0.5s, fast reload, no push force penalty, shares pistol ammo, no shove"
+	}
 	"Sodapop_Pre2013"
 	{
 		"en"	"Reverted to pre-Smissmas 2013, run to build hype and auto gain minicrits"
@@ -895,6 +927,10 @@
 	"Splendid_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
+	}
+	"Splendid_Release"
+	{
+		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -930,7 +966,7 @@
 	}	
 	"Turner_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal"
+		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at 60%% depleted"
 	}
 	"Tomislav_PrePyro"
 	{
