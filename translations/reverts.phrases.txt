@@ -926,7 +926,7 @@
 	}
 	"Splendid_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal"
+		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
 	}
 	"Splendid_Release"
 	{
