@@ -930,7 +930,7 @@
 	}
 	"Splendid_Release"
 	{
-		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal"
+		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal, bash dmg at any range"
 	}
 	"SpyCicle_PreGM"
 	{
