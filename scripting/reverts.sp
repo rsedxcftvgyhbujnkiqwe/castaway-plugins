@@ -5317,7 +5317,6 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 
 	// Hook attribute class to get repair amount
 	float RepairAmountFloat = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", engineerIndex);
-	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
 
 	// Reduce healing amount if wrangled sentry.
 	// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
@@ -5326,6 +5325,8 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 			RepairAmountFloat *= SHIELD_NORMAL_VALUE;
 		}
 	}
+
+	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
 
 	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
 	int RepairAmount = RoundToNearest(RepairAmountFloat);
