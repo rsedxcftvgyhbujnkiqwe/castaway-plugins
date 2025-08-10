@@ -658,15 +658,15 @@
 	}
 	"Equalizer_PrePyro"
 	{
-		"fi"	"Ennen Pyromaniaa: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 107 vahinkoa, kun terveys on 1"
+		"fi"	"Ennen Pyromaniaa: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 107 vahinkoa, kun terveys on 1"
 	}
 	"Equalizer_PreHat"
 	{
-		"fi"	"Ennen Hatless-päivitystä: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 113 vahinkoa, kun terveys on 1"
+		"fi"	"Ennen Hatless-päivitystä: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 113 vahinkoa, kun terveys on 1"
 	}
 	"Equalizer_Release"
 	{
-		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, estää parannuksen, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
+		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
 	}
 	"Eviction_PreJI"
 	{
@@ -890,7 +890,7 @@
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
-		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
+		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
 	"Shortstop_PreMnvy"
 	{
@@ -898,15 +898,15 @@
 	}
 	"Shortstop_PreGM_Shove"
 	{
-		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa"
+		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
 	"Shortstop_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: +20%% parantumisbonus käytössä, +40%% työntövoima (passiivinen), jakaa ammukset pistoolin kanssa, ei tönäisyä"
+		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa, ei tönäisyä"
 	}
 	"Shortstop_Release_Shove"
 	{
-		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa"
+		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
 	"Shortstop_Release"
 	{
