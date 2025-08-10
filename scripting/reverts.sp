@@ -570,6 +570,7 @@ public void OnPluginStart() {
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
+	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
@@ -2510,7 +2511,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
 			TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
 		}}
-		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
+		case 997: { if (GetItemVariant(Wep_RescueRanger) == 0) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
 			TF2Items_SetAttribute(itemNew, 1, 474, 75.0); // repair bolt healing amount

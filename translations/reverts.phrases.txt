@@ -836,6 +836,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups"
 	}
+	"RescueRanger_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, no metal cost for healing buildings"
+	}
 	"Reserve_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster weapon switch"
