@@ -4502,7 +4502,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
 				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
 			) {
-				// Brass Beast damage resistance when spun up
+				// Brass Beast/Natascha (pre-MyM) damage resistance when spun up
 
 				// play damage resist sound
 				EmitGameSoundToAll("Player.ResistanceLight", victim);
