@@ -120,6 +120,23 @@ public Plugin myinfo = {
 #define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
+#define SHIELD_NORMAL_VALUE 0.33
+
+enum
+{
+	SHIELD_NONE = 0,
+	SHIELD_NORMAL,	// 33% damage taken, no tracking
+	SHIELD_MAX,		// 10% damage taken, tracking
+};
+
+TFCond debuffs[] =
+{
+	TFCond_OnFire,
+	TFCond_Jarated,
+	TFCond_Bleeding,
+	TFCond_Milked,
+	TFCond_Gas
+};
 
 TFCond debuffs[] =
 {
@@ -198,6 +215,7 @@ enum struct Entity {
 	bool exists;
 	float spawn_time;
 	bool is_demo_shield;
+	int old_shield;
 }
 
 ConVar cvar_enable;
@@ -1646,6 +1664,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].exists = true;
 	entities[entity].spawn_time = 0.0;
 	entities[entity].is_demo_shield = false;
+	entities[entity].old_shield = 0;
 
 	if (StrEqual(class, "tf_wearable_demoshield")) {
 		entities[entity].is_demo_shield = true;
@@ -2492,8 +2511,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
 		}}
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); //ranged pickup metal cost
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
+			TF2Items_SetAttribute(itemNew, 1, 474, 75.0); // repair bolt healing amount
 		}}
 		case 415: { if (GetItemVariant(Wep_ReserveShooter) == 0) {
 			TF2Items_SetNumAttributes(itemNew, 3);
@@ -5292,8 +5312,20 @@ void ToggleMoonshotMessage(int client) {
 }
 
 int HealBuilding(int buildingIndex, int engineerIndex) {
-	float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
+	// It's Sigafoo save time BABY!
+
+	// Hook attribute class to get repair amount
+	float RepairAmountFloat = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", engineerIndex);
 	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+
+	// Reduce healing amount if wrangled sentry.
+	// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
+	if (HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")) {
+		if (GetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
+			RepairAmountFloat *= SHIELD_NORMAL_VALUE;
+		}
+	}
+
 	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
 	int RepairAmount = RoundToNearest(RepairAmountFloat);
 	if (RepairAmountFloat > 0.0) {
@@ -5308,7 +5340,7 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 		event.SetInt("priority", 1); // HLTV event priority, not transmitted
 		event.SetInt("building", buildingIndex); // self-explanatory.
 		event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
-		event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
+		event.SetInt("amount", newHealth - currentHealth); // Repairamount to display. Will be something between 1-75.
 
 		event.Fire(); // FIRE IN THE HOLE!!!!!!!
 	}
@@ -5902,9 +5934,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
-{
-	
+MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 		int weapon;
@@ -5919,6 +5949,18 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
 				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
 			{
+#if defined MEMORY_PATCHES	
+				// Fake the sentry being unshielded to allow for maximum healing potential.
+				int sentry = parameters.Get(1);
+				if (
+					ItemIsEnabled(Wep_Wrangler) &&
+					IsValidEntity(sentry) &&
+					HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
+				) {
+					entities[sentry].old_shield = GetEntProp(sentry, Prop_Send, "m_nShieldLevel");
+					SetEntProp(sentry, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+				}
+#endif
 				return MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
 			}
 		}
@@ -5931,44 +5973,53 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int buildingIndex = parameters.Get(1);
 		int engineerIndex = GetEntityOwner(arrowEntity);
-
-
 		int weapon;
 		char class[64];
+
 		// Grab weapon.
 		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
 
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
-				if (
-					StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
-				{
-					// Now we can proceed with healing the building etc.
-					// Sentry and Engineer must be on the same team for heal to happen.
-					if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
-						int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
+			if (
+				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
+			{
+				// Now we can proceed with healing the building etc.
+				// Sentry and Engineer must be on the same team for heal to happen.
+				if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
+					int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
 
-						// Spawn some particles if healing occured.
-						if (RepairAmount > 0) {
+					// Spawn some particles if healing occured.
+					if (RepairAmount > 0) {
 
-							// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
-							int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
-							if (teamNum == 2) {
-								// [1699] repair_claw_heal_red
-								// PATTACH_ABSORIGIN_FOLLOW
-								AttachTEParticleToEntityAndSend(arrowEntity,1699,1); //Red
-							} else {
-								// [1696] repair_claw_heal_blue
-								AttachTEParticleToEntityAndSend(arrowEntity,1696,1); // Blu
-							}
+						// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
+						int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
+						if (teamNum == 2) {
+							// [1699] repair_claw_heal_red
+							// PATTACH_ABSORIGIN_FOLLOW
+							AttachTEParticleToEntityAndSend(arrowEntity, 1699, 1); // Red
+						} else {
+							// [1696] repair_claw_heal_blue
+							AttachTEParticleToEntityAndSend(arrowEntity, 1696, 1); // Blue
 						}
 					}
-					return MRES_Supercede;
 				}
+#if defined MEMORY_PATCHES
+				// Revert the sentry's shield.
+				if (
+					ItemIsEnabled(Wep_Wrangler) &&
+					IsValidEntity(buildingIndex) &&
+					HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")
+				) {
+					SetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel", entities[buildingIndex].old_shield);
+				}
+#endif
+				return MRES_Supercede;
 			}
 		}
+	}
 
 	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
 	return MRES_Ignored;
