@@ -1075,21 +1075,27 @@ public void OnGameFrame() {
 
 							if (
 								airdash_limit_new == 2 &&
-								players[idx].scout_airdash_count == 2 &&
 								ItemIsEnabled(Wep_Atomizer)
 							) {
-								// atomizer global jump
-								if (GetItemVariant(Wep_Atomizer) == 0) {
-									SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
+								if (
+									GetItemVariant(Wep_Atomizer) == 0 ||
+									(GetItemVariant(Wep_Atomizer) == 1 && players[idx].scout_airdash_count == 2)
+								) {
+									// emit purple smoke (still shows white smoke too but good enough for now)
+									GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
+									ParticleShowSimple("doublejump_puff_alt", pos1);
 								}
 
-								// emit purple smoke (still shows white smoke too but good enough for now)
-								GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
-								ParticleShowSimple("doublejump_puff_alt", pos1);
+								if (players[idx].scout_airdash_count == 2) {
+									// atomizer global jump
+									if (GetItemVariant(Wep_Atomizer) == 0) {
+										SDKHooks_TakeDamage(idx, idx, idx, 10.0, (DMG_BULLET|DMG_PREVENT_PHYSICS_FORCE), -1, NULL_VECTOR, NULL_VECTOR);
+									}
 
-								if (airdash_limit_new > airdash_limit_old) {
-									// only play sound if the game doesn't play it
-									EmitSoundToAll("misc/banana_slip.wav", idx, SNDCHAN_AUTO, 30, (SND_CHANGEVOL|SND_CHANGEPITCH), 1.0, 100);
+									if (airdash_limit_new > airdash_limit_old) {
+										// only play sound if the game doesn't play it
+										EmitSoundToAll("misc/banana_slip.wav", idx, SNDCHAN_AUTO, 30, (SND_CHANGEVOL|SND_CHANGEPITCH), 1.0, 100);
+									}	
 								}
 							}
 						} else {
