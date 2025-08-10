@@ -4499,7 +4499,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
 				(GetItemVariant(Wep_Natascha) == 0 && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy
+				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
+				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
 			) {
 				// Brass Beast damage resistance when spun up
 
