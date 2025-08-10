@@ -79,14 +79,14 @@ void LoadCustomColors() {
     if (!kv.ImportFromFile(path))  { LogError("ChatAdverts: failed to read %s", path); delete kv; return; }
     kv.Rewind();
     if (!kv.JumpToKey("CustomColors", false)) { LogError("ChatAdverts: CustomColors block missing in %s", path); delete kv; return; }
-    if (kv.GotoFirstSubKey(true))
+    if (kv.GotoFirstSubKey(false))
     {
         char name[64], hex[7];
         do {
             kv.GetSectionName(name, sizeof(name));
             kv.GetString(NULL_STRING, hex, sizeof(hex));
             SetTrieValue(CTrie, name, StringToInt(hex, 16));
-        } while (kv.GotoNextKey(true));
+        } while (kv.GotoNextKey(false));
     }
     delete kv;
     PrintToServer("[Chat Adverts]: Loaded Custom Colors");
