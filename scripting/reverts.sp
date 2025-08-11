@@ -1888,8 +1888,10 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			// prevent speed boost being applied on feign death
+			// handle feign buffs ourselves
 			if (
-				condition == TFCond_SpeedBuffAlly &&
+				(condition == TFCond_SpeedBuffAlly ||
+				condition == TFCond_DeadRingered) &&
 				players[client].feign_ready_tick == GetGameTickCount()
 			) {
 				return Plugin_Handled;
