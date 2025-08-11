@@ -3662,31 +3662,28 @@ Action SDKHookCB_OnTakeDamage(
 						StrEqual(class, "tf_weapon_invis") &&
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
-						if (
-							GetItemVariant(Wep_DeadRinger) == 0 ||
-							GetItemVariant(Wep_DeadRinger) == 3
-						) {
-							// "Old-Style" Dead Ringer Stats
-							cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
-							cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
-							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-							cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
-						}
-						else if (GetItemVariant(Wep_DeadRinger) == 2) {
-							// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-							cvar_ref_tf_feign_death_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();							
-						} else if (
-							GetItemVariant(Wep_DeadRinger) == -1 ||
-							GetItemVariant(Wep_DeadRinger) == 1
-						) {
-							// Pre-Inferno and Vanilla Dead Ringer Stat reset
-							cvar_ref_tf_feign_death_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+						switch (GetItemVariant(Wep_DeadRinger)) {
+							case 0, 3: {
+								// "Old-Style" Dead Ringer Stats
+								cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+								cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+								cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+							}
+							case 2: {
+								// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+								cvar_ref_tf_feign_death_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
+								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+							}
+							case -1, 1: {
+								// Pre-Inferno and Vanilla Dead Ringer Stat reset
+								cvar_ref_tf_feign_death_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+							}
 						}
 					}
 				}
