@@ -630,7 +630,7 @@
 	}
 	"Degreaser_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties"
+		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
 	}
 	"Disciplinary_PreMYM"
 	{
