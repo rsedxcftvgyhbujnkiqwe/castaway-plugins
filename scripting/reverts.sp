@@ -1429,9 +1429,8 @@ public void OnGameFrame() {
 					}
 
 					{
-						// pre-gun mettle deadringer feign buff canceling
+						// "old-style" deadringer feign buff canceling
 						if (
-							GetItemVariant(Wep_DeadRinger) == 0 &&
 							players[idx].spy_is_feigning &&
 							players[idx].spy_under_feign_buffs
 						) {
@@ -4897,7 +4896,8 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 int GetFeignBuffsEnd(int client)
 {
-	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
+	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
+	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
 }
 
 bool PlayerIsInvulnerable(int client) {
