@@ -87,10 +87,22 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
+#define MAX_VARIANTS 4 // not including base version
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
+
+// flags for item definitions
+#define CLASSFLAG_SCOUT		(1<<0)
+#define CLASSFLAG_SNIPER	(1<<1)
+#define CLASSFLAG_SOLDIER	(1<<2)
+#define CLASSFLAG_DEMOMAN	(1<<3)
+#define CLASSFLAG_MEDIC		(1<<4)
+#define CLASSFLAG_HEAVY		(1<<5)
+#define CLASSFLAG_PYRO		(1<<6)
+#define CLASSFLAG_SPY		(1<<7)
+#define CLASSFLAG_ENGINEER	(1<<8)
 
 // game code defs
 #define EF_NODRAW 0x20
@@ -109,15 +121,14 @@ public Plugin myinfo = {
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 
-#define CLASSFLAG_SCOUT		(1<<0)
-#define CLASSFLAG_SNIPER	(1<<1)
-#define CLASSFLAG_SOLDIER	(1<<2)
-#define CLASSFLAG_DEMOMAN	(1<<3)
-#define CLASSFLAG_MEDIC		(1<<4)
-#define CLASSFLAG_HEAVY		(1<<5)
-#define CLASSFLAG_PYRO		(1<<6)
-#define CLASSFLAG_SPY		(1<<7)
-#define CLASSFLAG_ENGINEER	(1<<8)
+TFCond debuffs[] =
+{
+	TFCond_OnFire,
+	TFCond_Jarated,
+	TFCond_Bleeding,
+	TFCond_Milked,
+	TFCond_Gas
+};
 
 char class_names[][] = {
 	"SCOUT",
@@ -180,6 +191,7 @@ enum struct Player {
 	bool player_jumped;
 	int drain_victim;
 	float drain_time;
+	bool spy_under_feign_buffs;
 }
 
 enum struct Entity {
@@ -257,8 +269,6 @@ DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFAmmoPack_PackTouch;
-
-// Spycicle ammo pickup fix imported from NotnHeavy's plugin
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 
 Player players[MAXPLAYERS+1];
@@ -384,19 +394,7 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 //is there a more elegant way to do this?
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
-
-#define MAX_VARIANTS 4 // not including base version
 char items_desc[NUM_ITEMS][MAX_VARIANTS+1][256];
-
-// debuff conditions
-TFCond debuffs[] =
-{
-	TFCond_OnFire,
-	TFCond_Jarated,
-	TFCond_Bleeding,
-	TFCond_Milked,
-	TFCond_Gas
-};
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	char game[128];
@@ -1369,7 +1367,12 @@ public void OnGameFrame() {
 							) {
 								players[idx].spy_is_feigning = true;
 								players[idx].damage_taken_during_feign = 0.0;
-								TF2_RemoveCondition(idx, TFCond_OnFire);
+								switch (GetItemVariant(Wep_DeadRinger)) {
+									case 0, 3: {
+										players[idx].spy_under_feign_buffs = true;
+										TF2_RemoveCondition(idx, TFCond_OnFire);
+									}
+								}
 							}
 						} else {
 							if (
@@ -1377,6 +1380,7 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = false;
+								players[idx].spy_under_feign_buffs = false;
 
 								switch (GetItemVariant(Wep_DeadRinger)) {
 									case 0: { // pre-GM
@@ -1425,6 +1429,19 @@ public void OnGameFrame() {
 					}
 
 					{
+						// pre-gun mettle deadringer feign buff canceling
+						if (
+							GetItemVariant(Wep_DeadRinger) == 0 &&
+							players[idx].spy_is_feigning &&
+							players[idx].spy_under_feign_buffs
+						) {
+							if (GetFeignBuffsEnd(idx) < GetGameTickCount()) {
+								players[idx].spy_under_feign_buffs = false;
+							}
+						}
+					}
+
+					{
 						// spycicle recharge
 
 						if (ItemIsEnabled(Wep_Spycicle)) {
@@ -1457,6 +1474,7 @@ public void OnGameFrame() {
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
+					players[idx].spy_under_feign_buffs = false;
 				}
 
 				if (
@@ -1528,6 +1546,7 @@ public void OnGameFrame() {
 				players[idx].player_jumped = false;
 				players[idx].drain_victim = 0;
 				players[idx].drain_time = 0.0;
+				players[idx].spy_under_feign_buffs = false;
 			}
 		}
 	}
@@ -1880,7 +1899,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			if (
 				condition == TFCond_CloakFlicker &&
 				players[client].spy_is_feigning &&
-				(GetFeignBuffsEnd(client) >= GetGameTickCount() || GetItemVariant(Wep_DeadRinger) == 3)
+				players[client].spy_under_feign_buffs
 			) {
 				return Plugin_Handled;
 			}
@@ -4365,7 +4384,8 @@ Action SDKHookCB_OnTakeDamage(
 		victim >= 1 &&
 		victim <= MaxClients &&
 		players[victim].spy_is_feigning &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy
+		TF2_GetPlayerClass(victim) == TFClass_Spy &&
+		(GetItemVariant(Wep_DeadRinger) == 0 || GetItemVariant(Wep_DeadRinger) == 3)
 	) {
 		// dead ringer damage tracking and modification
 	
@@ -4374,9 +4394,7 @@ Action SDKHookCB_OnTakeDamage(
 		}
 
 		if (
-			(GetItemVariant(Wep_DeadRinger) == 0 &&
-			GetFeignBuffsEnd(victim) >= GetGameTickCount() ||
-			GetItemVariant(Wep_DeadRinger) == 3) &&
+			players[victim].spy_under_feign_buffs &&
 			TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
 		) {
 			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
