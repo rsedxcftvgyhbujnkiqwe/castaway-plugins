@@ -1370,7 +1370,6 @@ public void OnGameFrame() {
 								switch (GetItemVariant(Wep_DeadRinger)) {
 									case 0, 3: {
 										players[idx].spy_under_feign_buffs = true;
-										TF2_RemoveCondition(idx, TFCond_OnFire);
 									}
 								}
 							}
