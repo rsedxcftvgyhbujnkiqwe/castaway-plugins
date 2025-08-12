@@ -5937,6 +5937,8 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 }
 
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+	MRESReturn returnValue = MRES_Ignored;
+
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 		int weapon;
@@ -5951,27 +5953,30 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
 				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
 			{
-#if defined MEMORY_PATCHES	
-				// Fake the sentry being unshielded to allow for maximum healing potential.
-				int sentry = parameters.Get(1);
-				if (
-					ItemIsEnabled(Wep_Wrangler) &&
-					IsValidEntity(sentry) &&
-					HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
-				) {
-					entities[sentry].old_shield = GetEntProp(sentry, Prop_Send, "m_nShieldLevel");
-					SetEntProp(sentry, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
-				}
-#endif
-				return MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
+				returnValue = MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
 			}
 		}
 	}
-	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
-	return MRES_Ignored;
+
+#if defined MEMORY_PATCHES	
+	// Fake the sentry being unshielded to allow for maximum healing potential.
+	int sentry = parameters.Get(1);
+	if (
+		ItemIsEnabled(Wep_Wrangler) &&
+		IsValidEntity(sentry) &&
+		HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
+	) {
+		entities[sentry].old_shield = GetEntProp(sentry, Prop_Send, "m_nShieldLevel");
+		SetEntProp(sentry, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+	}
+#endif
+
+	return returnValue;
 }
 
 MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+	MRESReturn returnValue = MRES_Ignored;
+
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int buildingIndex = parameters.Get(1);
 		int engineerIndex = GetEntityOwner(arrowEntity);
@@ -6008,23 +6013,23 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 						}
 					}
 				}
-#if defined MEMORY_PATCHES
-				// Revert the sentry's shield.
-				if (
-					ItemIsEnabled(Wep_Wrangler) &&
-					IsValidEntity(buildingIndex) &&
-					HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")
-				) {
-					SetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel", entities[buildingIndex].old_shield);
-				}
-#endif
-				return MRES_Supercede;
+				returnValue = MRES_Supercede;
 			}
 		}
 	}
 
-	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
-	return MRES_Ignored;
+#if defined MEMORY_PATCHES
+	// Revert the sentry's shield.
+	if (
+		ItemIsEnabled(Wep_Wrangler) &&
+		IsValidEntity(buildingIndex) &&
+		HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")
+	) {
+		SetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel", entities[buildingIndex].old_shield);
+	}
+#endif
+
+	return returnValue;
 }
 
 #if defined MEMORY_PATCHES
