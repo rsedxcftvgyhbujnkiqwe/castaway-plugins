@@ -142,6 +142,10 @@
 	{
 		"en"	"Ambassador"
 	}
+	"amputator"
+	{
+		"en"	"Amputator"
+	}
 	"atomizer"
 	{
 		"en"	"Atomizer"
@@ -201,6 +205,10 @@
 	"carbine"
 	{
 		"en"	"Cleaner's Carbine"
+	}
+	"concheror"
+	{
+		"en"	"Concheror"
 	}
 	"cowmangler"
 	{
@@ -464,6 +472,10 @@
 	{
 		"en"	"Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	}
+	"Amputator_PreTB"
+	{
+		"en"	"Reverted healing to pre-toughbreak, always heals +3 HP/s flat when active regardless if recently took damage"
+	}
 	"Atomizer_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
@@ -563,6 +575,10 @@
 	"Carbine_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits for 8 seconds on kill, 35%% slower fire rate (from 25%%)"
+	}
+	"Concheror_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, heals +2 HP/s flat regardless if recently took damage"
 	}
 	"CowMangler_Release"
 	{
