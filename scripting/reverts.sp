@@ -6011,14 +6011,15 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 
 		if (
 			ItemIsEnabled(Wep_Concheror) &&
-			weapon > 0 &&
-			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 354
+			weapon > 0
 		) {
-			// Weapon is a Concheror, so fake MvM game state for full regen
-			prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
-			GameRules_SetProp("m_bPlayingMannVsMachine", 1);
-			players[client].regen_think_override = true;
-			return MRES_Ignored;
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 354) {
+				// Weapon is a Concheror, so fake MvM game state for full regen
+				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
+				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
+				players[client].regen_think_override = true;
+				return MRES_Ignored;
+			}
 		}
 	
 		// Grab active weapon
@@ -6026,14 +6027,15 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 		
 		if (
 			ItemIsEnabled(Wep_Amputator) &&
-			weapon > 0 &&
-			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 304
+			weapon > 0
 		) {
-			// Weapon is an Amputator, so fake MvM game state for full regen
-			prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
-			GameRules_SetProp("m_bPlayingMannVsMachine", 1);
-			players[client].regen_think_override = true;
-			return MRES_Ignored;
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 304) {
+				// Weapon is an Amputator, so fake MvM game state for full regen
+				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
+				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
+				players[client].regen_think_override = true;
+				return MRES_Ignored;
+			}
 		}
 	}
 	
