@@ -474,7 +474,7 @@
 	}
 	"Amputator_PreTB"
 	{
-		"en"	"Reverted healing to pre-toughbreak, always heals +3 HP/s flat when active regardless if recently took damage"
+		"en"	"Reverted health regen to pre-toughbreak, always regenerates +3 HP/s flat when active regardless if recently took damage"
 	}
 	"Atomizer_PreJI"
 	{
@@ -578,7 +578,7 @@
 	}
 	"Concheror_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, heals +2 HP/s flat regardless if recently took damage"
+		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if recently took damage"
 	}
 	"CowMangler_Release"
 	{
