@@ -87,10 +87,22 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
+#define MAX_VARIANTS 4 // not including base version
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.5
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
+
+// flags for item definitions
+#define CLASSFLAG_SCOUT		(1<<0)
+#define CLASSFLAG_SNIPER	(1<<1)
+#define CLASSFLAG_SOLDIER	(1<<2)
+#define CLASSFLAG_DEMOMAN	(1<<3)
+#define CLASSFLAG_MEDIC		(1<<4)
+#define CLASSFLAG_HEAVY		(1<<5)
+#define CLASSFLAG_PYRO		(1<<6)
+#define CLASSFLAG_SPY		(1<<7)
+#define CLASSFLAG_ENGINEER	(1<<8)
 
 // game code defs
 #define EF_NODRAW 0x20
@@ -109,15 +121,14 @@ public Plugin myinfo = {
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 
-#define CLASSFLAG_SCOUT		(1<<0)
-#define CLASSFLAG_SNIPER	(1<<1)
-#define CLASSFLAG_SOLDIER	(1<<2)
-#define CLASSFLAG_DEMOMAN	(1<<3)
-#define CLASSFLAG_MEDIC		(1<<4)
-#define CLASSFLAG_HEAVY		(1<<5)
-#define CLASSFLAG_PYRO		(1<<6)
-#define CLASSFLAG_SPY		(1<<7)
-#define CLASSFLAG_ENGINEER	(1<<8)
+TFCond debuffs[] =
+{
+	TFCond_OnFire,
+	TFCond_Jarated,
+	TFCond_Bleeding,
+	TFCond_Milked,
+	TFCond_Gas
+};
 
 char class_names[][] = {
 	"SCOUT",
@@ -180,6 +191,7 @@ enum struct Player {
 	bool player_jumped;
 	int drain_victim;
 	float drain_time;
+	bool spy_under_feign_buffs;
 }
 
 enum struct Entity {
@@ -257,8 +269,6 @@ DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFAmmoPack_PackTouch;
-
-// Spycicle ammo pickup fix imported from NotnHeavy's plugin
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 
 Player players[MAXPLAYERS+1];
@@ -384,19 +394,7 @@ bool player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 //is there a more elegant way to do this?
 bool prev_player_weapons[MAXPLAYERS+1][NUM_ITEMS];
 Item items[NUM_ITEMS];
-
-#define MAX_VARIANTS 4 // not including base version
 char items_desc[NUM_ITEMS][MAX_VARIANTS+1][256];
-
-// debuff conditions
-TFCond debuffs[] =
-{
-	TFCond_OnFire,
-	TFCond_Jarated,
-	TFCond_Bleeding,
-	TFCond_Milked,
-	TFCond_Gas
-};
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	char game[128];
@@ -1363,16 +1361,25 @@ public void OnGameFrame() {
 						// "old-style" dead ringer cloak meter mechanics
 
 						if (players[idx].spy_is_feigning == false) {
-							if (TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)) {
+							if (
+								TF2_IsPlayerInCondition(idx, TFCond_Cloaked) &&
+								player_weapons[idx][Wep_DeadRinger]
+							) {
 								players[idx].spy_is_feigning = true;
 								players[idx].damage_taken_during_feign = 0.0;
+								switch (GetItemVariant(Wep_DeadRinger)) {
+									case 0, 3: {
+										players[idx].spy_under_feign_buffs = true;
+									}
+								}
 							}
 						} else {
 							if (
 								TF2_IsPlayerInCondition(idx, TFCond_Cloaked) == false &&
-								TF2_IsPlayerInCondition(idx, TFCond_DeadRingered) == false
+								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = false;
+								players[idx].spy_under_feign_buffs = false;
 
 								switch (GetItemVariant(Wep_DeadRinger)) {
 									case 0: { // pre-GM
@@ -1411,7 +1418,7 @@ public void OnGameFrame() {
 									) {
 										// ammo boxes only give 35% cloak max
 										cloak = (players[idx].spy_cloak_meter + 35.0);
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
+										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 									}
 								}
 							}
@@ -1421,14 +1428,14 @@ public void OnGameFrame() {
 					}
 
 					{
-						// pre-gun mettle deadringer cancel condition when feign buff ends
+						// "old-style" deadringer feign buff canceling
 						if (
-							GetItemVariant(Wep_DeadRinger) == 0 &&
 							players[idx].spy_is_feigning &&
-							GetFeignBuffsEnd(idx) < GetGameTickCount() &&
-							TF2_IsPlayerInCondition(idx, TFCond_DeadRingered)
+							players[idx].spy_under_feign_buffs
 						) {
-							TF2_RemoveCondition(idx, TFCond_DeadRingered);
+							if (GetFeignBuffsEnd(idx) < GetGameTickCount()) {
+								players[idx].spy_under_feign_buffs = false;
+							}
 						}
 					}
 
@@ -1465,6 +1472,7 @@ public void OnGameFrame() {
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
+					players[idx].spy_under_feign_buffs = false;
 				}
 
 				if (
@@ -1536,6 +1544,7 @@ public void OnGameFrame() {
 				players[idx].player_jumped = false;
 				players[idx].drain_victim = 0;
 				players[idx].drain_time = 0.0;
+				players[idx].spy_under_feign_buffs = false;
 			}
 		}
 	}
@@ -1740,7 +1749,10 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			GetItemVariant(Wep_DeadRinger) == 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
-			if (condition == TFCond_DeadRingered) {
+			if (
+				condition == TFCond_Cloaked &&
+				player_weapons[client][Wep_DeadRinger]
+			) {
 				cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
 
 				if (
@@ -1752,7 +1764,10 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 				}
 			}
 
-			if (TF2_IsPlayerInCondition(client, TFCond_DeadRingered)) {
+			if (
+				TF2_IsPlayerInCondition(client, TFCond_Cloaked) &&
+				player_weapons[client][Wep_DeadRinger]
+			) {
 
 				if (
 					condition == TFCond_AfterburnImmune &&
@@ -1865,15 +1880,27 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
 	{
-		// "old-style" dead ringer prevent speed boost being applied on feign death
+		// "old-style" dead ringer stuff
 		if (
 			(GetItemVariant(Wep_DeadRinger) == 0 ||
 			GetItemVariant(Wep_DeadRinger) == 3) &&
-			condition == TFCond_SpeedBuffAlly &&
-			TF2_GetPlayerClass(client) == TFClass_Spy &&
-			players[client].feign_ready_tick == GetGameTickCount()
+			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
-			return Plugin_Handled;
+			// prevent speed boost being applied on feign death
+			if (
+				condition == TFCond_SpeedBuffAlly &&
+				players[client].feign_ready_tick == GetGameTickCount()
+			) {
+				return Plugin_Handled;
+			}
+			// prevent cloak flickering while under feign buffs
+			if (
+				condition == TFCond_CloakFlicker &&
+				players[client].spy_is_feigning &&
+				players[client].spy_under_feign_buffs
+			) {
+				return Plugin_Handled;
+			}
 		}
 	}
 	{
@@ -3608,6 +3635,7 @@ Action SDKHookCB_OnTakeDamage(
 	int health_max;
 	int health_new;
 	int weapon1;
+	Action returnValue = Plugin_Continue;
 
 	if (
 		victim >= 1 &&
@@ -3617,8 +3645,7 @@ Action SDKHookCB_OnTakeDamage(
 
 		{
 			// save fall dmg tick for overriding with old fall dmg sound
-			if (damage_type & DMG_FALL)
-				players[victim].fall_dmg_tick = GetGameTickCount();
+			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
 		}
 
 		{
@@ -3634,31 +3661,28 @@ Action SDKHookCB_OnTakeDamage(
 						StrEqual(class, "tf_weapon_invis") &&
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
 					) {
-						if (
-							GetItemVariant(Wep_DeadRinger) == 0 ||
-							GetItemVariant(Wep_DeadRinger) == 3
-						) {
-							// Pre-Gun Mettle Dead Ringer Stats
-							cvar_ref_tf_feign_death_duration.FloatValue = 6.5;
-							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.5;
-							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-							cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
-						}
-						else if (GetItemVariant(Wep_DeadRinger) == 2) {
-							// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-							cvar_ref_tf_feign_death_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();							
-						} else if (
-							GetItemVariant(Wep_DeadRinger) == -1 ||
-							GetItemVariant(Wep_DeadRinger) == 1
-						) {
-							// Pre-Inferno and Vanilla Dead Ringer Stat reset
-							cvar_ref_tf_feign_death_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-							cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+						switch (GetItemVariant(Wep_DeadRinger)) {
+							case 0, 3: {
+								// "Old-Style" Dead Ringer Stats
+								cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+								cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+								cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+							}
+							case 2: {
+								// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+								cvar_ref_tf_feign_death_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
+								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+							}
+							case -1, 1: {
+								// Pre-Inferno and Vanilla Dead Ringer Stat reset
+								cvar_ref_tf_feign_death_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+								cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+							}
 						}
 					}
 				}
@@ -3738,7 +3762,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (damage < damage1) // no falloff
 					damage = damage1;
 
-				return Plugin_Changed;
+				returnValue = Plugin_Changed;
 			}
 		}
 #endif
@@ -3753,7 +3777,12 @@ Action SDKHookCB_OnTakeDamage(
 		// useful for checking minicrits in OnTakeDamageAlive
 		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
 
-		if (weapon > MaxClients) {
+		// i need the ability to break
+		for (
+			bool has_run = false;
+			(weapon > MaxClients) && (has_run == false);
+			has_run = true
+		) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
 			{
@@ -3769,7 +3798,8 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// melee damage is always 35
 						damage = 35.0;
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 
 					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
@@ -3791,7 +3821,8 @@ Action SDKHookCB_OnTakeDamage(
 							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
 						}
 
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -3809,7 +3840,8 @@ Action SDKHookCB_OnTakeDamage(
 						damage < 51.0
 					) {
 						damage = 60.0;
-						return Plugin_Changed;
+						returnValue = Plugin_Changed;
+						break;
 					}
 				}
 			}
@@ -3823,12 +3855,12 @@ Action SDKHookCB_OnTakeDamage(
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 308
 				) {
 					// don't apply spread on crits
-					if (damage_type & DMG_CRIT != 0)
-						return Plugin_Continue;
+					if (damage_type & DMG_CRIT != 0) break;
 					
 					// apply ±15% damage variance
 					damage *= GetRandomFloat(0.85, 1.15);
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -3846,7 +3878,8 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					damage_type = (damage_type | DMG_CRIT);
 					players[victim].crit_flag = true;
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -3876,7 +3909,8 @@ Action SDKHookCB_OnTakeDamage(
 
 					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
 
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -4002,7 +4036,8 @@ Action SDKHookCB_OnTakeDamage(
 						damage = 15.0;
 					}
 
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -4075,11 +4110,12 @@ Action SDKHookCB_OnTakeDamage(
 								// critical hit lightning sound doesn't play, so add it back.
 								EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
 								
-								return Plugin_Changed;
+								returnValue = Plugin_Changed;
+								break;
 							}
 						}
 					}
-					return Plugin_Continue;
+					break;
 				}
 			}
 
@@ -4102,11 +4138,12 @@ Action SDKHookCB_OnTakeDamage(
 
 								damage_type = (damage_type | DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE);
 
-								return Plugin_Changed;
+								returnValue = Plugin_Changed;
+								break;
 							}
 						}
 					}
-					return Plugin_Continue;
+					break;
 				}
 			}
 
@@ -4124,8 +4161,7 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
-
-					return Plugin_Continue;
+					break;
 				}
 			}
 
@@ -4226,7 +4262,8 @@ Action SDKHookCB_OnTakeDamage(
 					damage_type & DMG_CRIT != 0
 				) {
 					damage_type ^= DMG_CRIT;
-					return Plugin_Changed;
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 
@@ -4300,10 +4337,9 @@ Action SDKHookCB_OnTakeDamage(
 							// Restore knockback
 							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
 
-							return Plugin_Changed;
+							returnValue = Plugin_Changed;
+							break;
 						}
-
-						return Plugin_Continue;
 					}
 				}
 
@@ -4326,7 +4362,8 @@ Action SDKHookCB_OnTakeDamage(
 							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
 							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
 
-							return Plugin_Changed;
+							returnValue = Plugin_Changed;
+							break;
 						}
 
 						return Plugin_Continue;
@@ -4334,10 +4371,33 @@ Action SDKHookCB_OnTakeDamage(
 				}
 				*/
 			}
+			break;
 		}
 	}
 
-	return Plugin_Continue;
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		players[victim].spy_is_feigning &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy &&
+		(GetItemVariant(Wep_DeadRinger) == 0 || GetItemVariant(Wep_DeadRinger) == 3)
+	) {
+		// dead ringer damage tracking and modification
+	
+		if (GetItemVariant(Wep_DeadRinger) == 0) {
+			players[victim].damage_taken_during_feign += damage;
+		}
+
+		if (
+			players[victim].spy_under_feign_buffs &&
+			TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
+		) {
+			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
+			returnValue = Plugin_Changed;
+		}
+	}
+
+	return returnValue;
 }
 
 Action SDKHookCB_OnTakeDamage_Building(
@@ -4576,18 +4636,6 @@ void SDKHookCB_OnTakeDamagePost(
 	float charge;
 	float damage1;
 	int weapon1;
-
-	if (
-		GetItemVariant(Wep_DeadRinger) == 0 &&
-		victim >= 1 &&
-		victim <= MaxClients &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy
-	) {
-		// pre-gun mettle dead ringer damage tracking
-		if (players[victim].spy_is_feigning) {
-			players[victim].damage_taken_during_feign += damage;
-		}
-	}
 
 	if (
 		victim >= 1 && victim <= MaxClients &&
@@ -4844,7 +4892,8 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 int GetFeignBuffsEnd(int client)
 {
-	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - RoundFloat(players[client].damage_taken_during_feign * 1.1);
+	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
+	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
 }
 
 bool PlayerIsInvulnerable(int client) {
