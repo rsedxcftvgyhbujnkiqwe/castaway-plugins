@@ -38,6 +38,13 @@
 				"windows" "\x55\x8B\xEC\x6A\x07"
 				"linux"   "@_ZN9CTFPlayer13AddToSpyKnifeEfb"
 			}
+
+			"CTFPlayer::RegenThink" // offset aAddHealthRegen ; "add_health_regen"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
+				"linux"   "@_ZN9CTFPlayer10RegenThinkEv"
+			}
 		}
 
 		"Offsets"
@@ -169,6 +176,14 @@
 						"type" "bool"
 					}
 				}
+			}
+
+			"CTFPlayer::RegenThink"
+			{
+				"signature" "CTFPlayer::RegenThink"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
 			}
 		}
 	}
