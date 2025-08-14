@@ -192,7 +192,6 @@ enum struct Player {
 	int drain_victim;
 	float drain_time;
 	bool spy_under_feign_buffs;
-	bool regen_think_override;
 }
 
 enum struct Entity {
@@ -281,6 +280,7 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int prev_mvm_state;
+bool regen_think_override = false;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -1625,7 +1625,6 @@ public void OnClientConnected(int client) {
 	players[client].medic_medigun_charge = 0.0;
 	players[client].parachute_cond_time = 0.0;
 	players[client].received_help_notice = false;
-	players[client].regen_think_override = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
 		prev_player_weapons[client][i] = false;
@@ -6017,7 +6016,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 				// Weapon is a Concheror, so fake MvM game state for full regen
 				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
 				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
-				players[client].regen_think_override = true;
+				regen_think_override = true;
 				return MRES_Ignored;
 			}
 		}
@@ -6033,7 +6032,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 				// Weapon is an Amputator, so fake MvM game state for full regen
 				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
 				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
-				players[client].regen_think_override = true;
+				regen_think_override = true;
 				return MRES_Ignored;
 			}
 		}
@@ -6052,10 +6051,10 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
 		client > 0 &&
 		client <= MaxClients
 	) {
-		if (players[client].regen_think_override) {
+		if (regen_think_override) {
 			// Restore previous gamerule state
 			GameRules_SetProp("m_bPlayingMannVsMachine", prev_mvm_state);
-			players[client].regen_think_override = false;
+			regen_think_override = false;
 		}
 	}
 
