@@ -270,6 +270,7 @@ DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
+DynamicDetour dhook_CTFPlayer_RegenThink;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -278,6 +279,8 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+int prev_mvm_state;
+bool regen_think_override = false;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -306,6 +309,7 @@ enum
 	//Specific weapons
 	Wep_Airstrike,
 	Wep_Ambassador,
+	Wep_Amputator,
 	Wep_Atomizer,
 	Wep_Axtinguisher,
 	Wep_BabyFace,
@@ -319,6 +323,7 @@ enum
 	Wep_BuffaloSteak,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
+	Wep_Concheror,
 	Wep_CowMangler,
 #if defined MEMORY_PATCHES
 	Wep_CozyCamper,
@@ -443,6 +448,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
+	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
 	ItemVariant(Wep_Atomizer, "Atomizer_PreBM");
 	ItemDefine("axtinguish", "Axtinguisher_PreLW", CLASSFLAG_PYRO, Wep_Axtinguisher);
@@ -468,6 +474,7 @@ public void OnPluginStart() {
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
+	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
 	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
@@ -669,6 +676,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
+		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 
 		delete conf;
 	}
@@ -786,11 +794,14 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
 	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
+	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
 	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
+	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
+	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2148,21 +2159,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 			sword_reverted = true;
 		}}
-		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
-			switch (GetItemVariant(Wep_CritCola)) {
-				case 0, 1, 2: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
-					// +25% or +10% damage vulnerability while under the effect, depending on variant
-					float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
-					TF2Items_SetAttribute(itemNew, 1, 798, vuln);
-				}
-				case 3, 4: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
-					// Mini-crit vulnerability handled elsewhere
-				}
-			}
+		case 354: { if (ItemIsEnabled(Wep_Concheror)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 57, 2.0); // +2 health regenerated per second on wearer
 		}}
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			switch (GetItemVariant(Wep_CowMangler)) {
@@ -2181,6 +2180,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 4, 1, 0.90); // mult_dmg; 10% damage penalty
 				}
 				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
+			}
+		}}
+		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
+			switch (GetItemVariant(Wep_CritCola)) {
+				case 0, 1, 2: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
+					// +25% or +10% damage vulnerability while under the effect, depending on variant
+					float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
+					TF2Items_SetAttribute(itemNew, 1, 798, vuln);
+				}
+				case 3, 4: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
+					// Mini-crit vulnerability handled elsewhere
+				}
 			}
 		}}		
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
@@ -2999,6 +3014,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 1104:player_weapons[client][Wep_Airstrike] = true;
 						case 61: player_weapons[client][Wep_Ambassador] = true;
 						case 1006: player_weapons[client][Wep_Ambassador] = true;
+						case 304: player_weapons[client][Wep_Amputator] = true;
 						case 450: player_weapons[client][Wep_Atomizer] = true;
 						case 38, 47, 1000: player_weapons[client][Wep_Axtinguisher] = true;
 						case 772: player_weapons[client][Wep_BabyFace] = true;
@@ -3021,8 +3037,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 996: player_weapons[client][Wep_LooseCannon] = true;
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
-						case 163: player_weapons[client][Wep_CritCola] = true;
+						case 354: player_weapons[client][Wep_Concheror] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
+						case 163: player_weapons[client][Wep_CritCola] = true;
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
@@ -5975,6 +5992,74 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	return MRES_Ignored;
 }
 #endif
+
+MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
+{
+	int weapon;
+
+	// Don't proceed if in MvM
+    if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return MRES_Ignored;
+
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		// Grab secondary weapon
+		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+
+		if (
+			ItemIsEnabled(Wep_Concheror) &&
+			weapon > 0
+		) {
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 354) {
+				// Weapon is a Concheror, so fake MvM game state for full regen
+				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
+				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
+				regen_think_override = true;
+				return MRES_Ignored;
+			}
+		}
+	
+		// Grab active weapon
+		weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		
+		if (
+			ItemIsEnabled(Wep_Amputator) &&
+			weapon > 0
+		) {
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 304) {
+				// Weapon is an Amputator, so fake MvM game state for full regen
+				prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
+				GameRules_SetProp("m_bPlayingMannVsMachine", 1);
+				regen_think_override = true;
+				return MRES_Ignored;
+			}
+		}
+	}
+	
+    return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
+{
+	// Don't proceed if in MvM
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return MRES_Ignored;
+
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		if (regen_think_override) {
+			// Restore previous gamerule state
+			GameRules_SetProp("m_bPlayingMannVsMachine", prev_mvm_state);
+			regen_think_override = false;
+		}
+	}
+
+    return MRES_Ignored;
+}
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
