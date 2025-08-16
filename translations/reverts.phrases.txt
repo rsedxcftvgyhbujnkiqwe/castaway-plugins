@@ -578,7 +578,7 @@
 	}
 	"Concheror_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if recently took damage"
+		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if user recently took damage"
 	}
 	"CowMangler_Release"
 	{
