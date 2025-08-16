@@ -630,7 +630,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken), no speedboost"
+		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken), no speedboost, no afterburn immunity after feign"
 	}
 	"Ringer_PreJI"
 	{
@@ -642,7 +642,7 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"en"	"Reverted to post-release, 90%% dmg resist for 6.5s, no speedboost, full drain on early decloak"
+		"en"	"Reverted to post-release, 90%% dmg resist for 6.5s, no speedboost, full drain on early decloak, no afterburn immunity after feign"
 	}
 	"Degreaser_PreTB"
 	{
