@@ -474,7 +474,7 @@
 	}
 	"Amputator_PreTB"
 	{
-		"en"	"Reverted health regen to pre-toughbreak, always regenerates +3 HP/s flat when active regardless if recently took damage"
+		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage"
 	}
 	"Atomizer_PreJI"
 	{
