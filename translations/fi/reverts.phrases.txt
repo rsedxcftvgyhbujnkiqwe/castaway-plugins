@@ -146,6 +146,10 @@
 	{
 		"fi"	"Suurlähettiläs"
 	}
+	"amputator"
+	{
+		"fi"	"Amputoija"
+	}
 	"atomizer"
 	{
 		"fi"	"Atomisoija"
@@ -205,6 +209,10 @@
 	"carbine"
 	{
 		"fi"	"Sarjatulisiivoaja"
+	}
+	"concheror"
+	{
+		"fi"	"Näkinkeisari"
 	}
 	"cowmangler"
 	{
@@ -468,6 +476,10 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: täysi pääosumavahinko (102) kaikilla etäisyyksillä"
 	}
+	"Amputator_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: palauttaa tasan +3 HP/s käytössä riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
+	}
 	"Atomizer_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: kolmoishyppy on passiivinen, kolmoishyppy aiheuttaa 10 vahinkoa"
@@ -568,6 +580,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: tapot antavat minikriittisiä 8 sekunniksi, 35%% hitaampi tulitusnopeus (25%%:sta)"
 	}
+	"Concheror_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: palauttaa tasan +2 HP/s riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
+	}
 	"CowMangler_Release"
 	{
 		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
@@ -618,7 +634,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä"
 	}
 	"Ringer_PreJI"
 	{
@@ -630,11 +646,11 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
+		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
 	}
 	"Degreaser_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa"
+		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa, ei lisättyä ilmapuhalluksen kustannusta"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -823,6 +839,10 @@
 	"RescueRanger_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: parantaa tasan +75, ei kuluta metallia, kaukonostot kuluttavat 130 metallia"
+	}
+	"RescueRanger_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: rakennusten parantaminen ei kuluta metallia"
 	}
 	"Reserve_PreTB"
 	{
