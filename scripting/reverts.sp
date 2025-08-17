@@ -120,6 +120,14 @@ public Plugin myinfo = {
 #define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
+#define SHIELD_NORMAL_VALUE 0.33
+
+enum
+{
+	SHIELD_NONE = 0,
+	SHIELD_NORMAL,	// 33% damage taken, no tracking
+	SHIELD_MAX,		// 10% damage taken, tracking
+};
 
 TFCond debuffs[] =
 {
@@ -198,6 +206,7 @@ enum struct Entity {
 	bool exists;
 	float spawn_time;
 	bool is_demo_shield;
+	int old_shield;
 }
 
 ConVar cvar_enable;
@@ -253,13 +262,13 @@ float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar rev
 // Address of our float to use for the MOVSS part of revert:
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
-Handle sdkcall_AwardAchievement;
-DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
+
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
+Handle sdkcall_AwardAchievement;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -270,6 +279,7 @@ DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
+DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 
 Player players[MAXPLAYERS+1];
@@ -366,9 +376,7 @@ enum
 	Wep_QuickFix,
 	Wep_Quickiebomb,
 	Wep_Razorback,
-#if defined MEMORY_PATCHES
 	Wep_RescueRanger,
-#endif
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
@@ -552,9 +560,8 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
-#if defined MEMORY_PATCHES
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
-#endif
+	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
@@ -667,6 +674,12 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Player);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		sdkcall_AwardAchievement = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
@@ -676,6 +689,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
+		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 
 		delete conf;
@@ -732,21 +746,11 @@ public void OnPluginStart() {
 		patch_DroppedWeapon =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DropAmmoPack");
-
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		sdkcall_AwardAchievement = EndPrepSDKCall();
-
-		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
-		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
-		dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 
-		if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
@@ -786,6 +790,7 @@ public void OnPluginStart() {
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
 	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
+	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
@@ -794,12 +799,15 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
 	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
+	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
 	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
+	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
+	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
 
@@ -1648,6 +1656,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].exists = true;
 	entities[entity].spawn_time = 0.0;
 	entities[entity].is_demo_shield = false;
+	entities[entity].old_shield = 0;
 
 	if (StrEqual(class, "tf_wearable_demoshield")) {
 		entities[entity].is_demo_shield = true;
@@ -1990,7 +1999,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 773, 1.0); // single wep deploy time increased
 				}
 			}
-				
 		}}
 		case 38, 457, 1000: { if (ItemIsEnabled(Wep_Axtinguisher)) {
 			switch (GetItemVariant(Wep_Axtinguisher)) {
@@ -2084,7 +2092,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
 				}	
 			}
-					
 		}}
 		case 730: { if (ItemIsEnabled(Wep_Beggars)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -2148,14 +2155,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 5 : 3);
+			TF2Items_SetNumAttributes(itemNew, swords ? 4 : 3);
 			TF2Items_SetAttribute(itemNew, 0, 412, 1.00); // dmg taken
 			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // provide on active
 			TF2Items_SetAttribute(itemNew, 2, 125, -15.0); // max health additive penalty
 			// sword holster code handled here
 			if (swords) {
 				TF2Items_SetAttribute(itemNew, 3, 781, 0.0); // is a sword
-				TF2Items_SetAttribute(itemNew, 4, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
 			sword_reverted = true;
 		}}
@@ -2197,7 +2203,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					// Mini-crit vulnerability handled elsewhere
 				}
 			}
-		}}		
+		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
 				case 1: {
@@ -2257,7 +2263,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 34, 1.00); // mult cloak meter consume rate
 			TF2Items_SetAttribute(itemNew, 1, 155, 1.00); // cannot disguise
-		}}		
+		}}
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			switch (GetItemVariant(Wep_Eviction)) {
 				case 1: {
@@ -2298,7 +2304,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 2, 772, 1.0); // single wep holster time increased; mult_switch_from_wep_deploy_time
 					TF2Items_SetAttribute(itemNew, 3, 205, 0.4); // -60% damage from ranged sources while active; dmg_from_ranged
 				}
-			}	
+			}
 		}}
 		case 416: { if (ItemIsEnabled(Wep_MarketGardener)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -2334,7 +2340,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 135, 0.25); // -75% blast damage from rocket jumps
-		}}			
+		}}
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
@@ -2352,7 +2358,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 775, 1.00); // -0% damage penalty vs buildings
 				}
 			}
-		}}		
+		}}
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
 			TF2Items_SetNumAttributes(itemNew, 4);
 			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
@@ -2436,7 +2442,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 588: { if (GetItemVariant(Wep_Pomson) == 1) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
-		}}		
+		}}
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
 			// health bonus with overheal for all variants handled elsewhere
 			switch (GetItemVariant(Wep_Powerjack)) {
@@ -2466,7 +2472,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 8 : 6);
+			TF2Items_SetNumAttributes(itemNew, swords ? 7 : 6);
 			TF2Items_SetAttribute(itemNew, 0, 77, 1.00); // -0% max primary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 1, 79, 1.00); // -0% max secondary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 2, 778, 0.00); // remove "Melee hits refill 20% of your charge meter" attribute
@@ -2475,7 +2481,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
 			if (swords) {
 				TF2Items_SetAttribute(itemNew, 6, 781, 0.0); // is a sword
-				TF2Items_SetAttribute(itemNew, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
 			sword_reverted = true;
 		}}
@@ -2494,19 +2499,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 3, 0.75); // -25% clip size
 			TF2Items_SetAttribute(itemNew, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
 			TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
-		}}		
-#if defined MEMORY_PATCHES
-		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); //ranged pickup metal cost
 		}}
-#endif
+		case 997: { if (GetItemVariant(Wep_RescueRanger) == 0) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
+			TF2Items_SetAttribute(itemNew, 1, 474, 75.0); // repair bolt healing amount
+		}}
 		case 415: { if (GetItemVariant(Wep_ReserveShooter) == 0) {
 			TF2Items_SetNumAttributes(itemNew, 3);
 			TF2Items_SetAttribute(itemNew, 0, 114, 0.0); // mod mini-crit airborne
 			TF2Items_SetAttribute(itemNew, 1, 178, 0.85); // 15% faster weapon switch
 			TF2Items_SetAttribute(itemNew, 2, 547, 1.0); // This weapon deploys 0% faster
-		}}		
+		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			switch (GetItemVariant(Wep_DeadRinger)) {
 				case 0: {
@@ -2724,12 +2728,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	if (
 		ItemIsEnabled(Feat_Sword) &&
 		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
-		( StrEqual(class, "tf_weapon_sword") ||
+		(StrEqual(class, "tf_weapon_sword") ||
 		(!ItemIsEnabled(Wep_Zatoichi) && (index == 357)) )
 	) {
 		TF2Items_SetNumAttributes(itemNew, 2);
 		TF2Items_SetAttribute(itemNew, 0, 781, 0.0); // is a sword
-		TF2Items_SetAttribute(itemNew, 1, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
+		TF2Items_SetAttribute(itemNew, 1, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 	}
 
 	if (TF2Items_GetNumAttributes(itemNew)) {
@@ -3063,9 +3067,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
 						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
-#if defined MEMORY_PATCHES
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
-#endif
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
 						case 44: player_weapons[client][Wep_Sandman] = true;
@@ -5299,37 +5301,51 @@ void ToggleMoonshotMessage(int client) {
 	}
 }
 
-#if defined MEMORY_PATCHES
 int HealBuilding(int buildingIndex, int engineerIndex) {
-	float RepairAmountFloat = 75.0; //It's Sigafoo save time BABY!
-	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+	// It's Sigafoo save time BABY!
+
+	// Hook attribute class to get repair amount
+	float RepairAmountFloat = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", engineerIndex);
+
+	// Reduce healing amount if wrangled sentry.
+	// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
+	if (HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")) {
+		if (GetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
+			RepairAmountFloat *= SHIELD_NORMAL_VALUE;
+		}
+	}
+
+	RepairAmountFloat = floatMin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+
 	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
 	int RepairAmount = RoundToNearest(RepairAmountFloat);
 	if (RepairAmountFloat > 0.0) {
 
-	SetVariantInt(RepairAmount);
-	AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
-	int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
-	Event event = CreateEvent("building_healed");
+		SetVariantInt(RepairAmount);
+		AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
+		int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
+		Event event = CreateEvent("building_healed");
 
-	if (event != null)
-	{
-		event.SetInt("priority", 1); // HLTV event priority, not transmitted
-		event.SetInt("building", buildingIndex); // self-explanatory.
-		event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
-		event.SetInt("amount", currentHealth - newHealth); // Repairamount to display. Will be something between 1-75.
+		if (event != null)
+		{
+			event.SetInt("priority", 1); // HLTV event priority, not transmitted
+			event.SetInt("building", buildingIndex); // self-explanatory.
+			event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
+			event.SetInt("amount", newHealth - currentHealth); // Repairamount to display. Will be something between 1-75.
 
-		event.Fire(); // FIRE IN THE HOLE!!!!!!!
+			event.Fire(); // FIRE IN THE HOLE!!!!!!!
+		}
+
+		// Check if building owner and the engineer who shot the bolt
+		// are the same person, if not. Give them progress on
+		// the "Circle the Wagons" achivement.
+		int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
+		if (buildingOwner != engineerIndex) {
+			AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
+		}
+	} else {
+		RepairAmount = 0;
 	}
-
-	// Check if building owner and the engineer who shot the bolt
-	// are the same person, if not. Give them progress on
-	// the "Circle the Wagons" achivement.
-	int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
-	if (buildingOwner != engineerIndex) {
-		AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
-	}
-	} else {RepairAmount = 0;}
 
 	return RepairAmount;
 }
@@ -5346,7 +5362,6 @@ int GetEntityOwner(int entityIndex)
 
 	return -1; // Owner not found
 }
-#endif
 
 bool AreEntitiesOnSameTeam(int entity1, int entity2)
 {
@@ -5359,7 +5374,6 @@ bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
-#if defined MEMORY_PATCHES
 bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 {
 	if (!IsValidEntity(buildingIndex))
@@ -5407,10 +5421,6 @@ void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attach
 	TE_SendToAll();
 }
 
-float fmin(float a, float b) {
-	return a < b ? a : b;
-}
-
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -5424,6 +5434,7 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	return true;
 }
 
+#if defined MEMORY_PATCHES
 // Get the sentry of a specific engineer
 // WARNING: Do not use in MVM!
 
@@ -5912,12 +5923,11 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-#if defined MEMORY_PATCHES
-MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
-{
-	
+MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+	MRESReturn returnValue = MRES_Ignored;
+	int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
+
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 		int weapon;
 		char class[64];
 		// Grab weapon.
@@ -5930,61 +5940,86 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters)
 				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
 				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
 			{
-				return MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
+				returnValue = MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
 			}
 		}
 	}
-	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
-	return MRES_Ignored;
+
+#if defined MEMORY_PATCHES	
+	// Fake the sentry being unshielded to allow for maximum healing potential.
+	int sentry = parameters.Get(1);
+	if (
+		ItemIsEnabled(Wep_Wrangler) &&
+		IsValidEntity(sentry) &&
+		HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
+	) {
+		entities[sentry].old_shield = GetEntProp(sentry, Prop_Send, "m_nShieldLevel");
+		SetEntProp(sentry, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+	}
+#endif
+
+	return returnValue;
 }
 
 MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+	MRESReturn returnValue = MRES_Ignored;
+	int buildingIndex = parameters.Get(1);
+	int engineerIndex = GetEntityOwner(arrowEntity);
+
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int buildingIndex = parameters.Get(1);
-		int engineerIndex = GetEntityOwner(arrowEntity);
-
-
 		int weapon;
 		char class[64];
+
 		// Grab weapon.
 		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
 
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
-				if (
-					StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
-				{
-					// Now we can proceed with healing the building etc.
-					// Sentry and Engineer must be on the same team for heal to happen.
-					if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
-						int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
+			if (
+				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
+			{
+				// Now we can proceed with healing the building etc.
+				// Sentry and Engineer must be on the same team for heal to happen.
+				if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
+					int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
 
-						// Spawn some particles if healing occured.
-						if (RepairAmount > 0) {
+					// Spawn some particles if healing occured.
+					if (RepairAmount > 0) {
 
-							// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
-							int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
-							if (teamNum == 2) {
-								// [1699] repair_claw_heal_red
-								// PATTACH_ABSORIGIN_FOLLOW
-								AttachTEParticleToEntityAndSend(arrowEntity,1699,1); //Red
-							} else {
-								// [1696] repair_claw_heal_blue
-								AttachTEParticleToEntityAndSend(arrowEntity,1696,1); // Blu
-							}
+						// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
+						int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
+						if (teamNum == 2) {
+							// [1699] repair_claw_heal_red
+							// PATTACH_ABSORIGIN_FOLLOW
+							AttachTEParticleToEntityAndSend(arrowEntity, 1699, 1); // Red
+						} else {
+							// [1696] repair_claw_heal_blue
+							AttachTEParticleToEntityAndSend(arrowEntity, 1696, 1); // Blue
 						}
 					}
-					return MRES_Supercede;
 				}
+				returnValue = MRES_Supercede;
 			}
 		}
+	}
 
-	// If fix is not enabled or if the "If" statements above failed, let the function proceed as normal.
-	return MRES_Ignored;
+#if defined MEMORY_PATCHES
+	// Revert the sentry's shield.
+	if (
+		ItemIsEnabled(Wep_Wrangler) &&
+		IsValidEntity(buildingIndex) &&
+		HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")
+	) {
+		SetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel", entities[buildingIndex].old_shield);
+	}
+#endif
+
+	return returnValue;
 }
 
+#if defined MEMORY_PATCHES
 MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	if (cvar_dropped_weapon_enable.BoolValue) {
 		return MRES_Supercede;
