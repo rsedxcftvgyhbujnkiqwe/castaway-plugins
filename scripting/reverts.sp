@@ -2155,14 +2155,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 5 : 3);
+			TF2Items_SetNumAttributes(itemNew, swords ? 4 : 3);
 			TF2Items_SetAttribute(itemNew, 0, 412, 1.00); // dmg taken
 			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // provide on active
 			TF2Items_SetAttribute(itemNew, 2, 125, -15.0); // max health additive penalty
 			// sword holster code handled here
 			if (swords) {
 				TF2Items_SetAttribute(itemNew, 3, 781, 0.0); // is a sword
-				TF2Items_SetAttribute(itemNew, 4, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
 			sword_reverted = true;
 		}}
@@ -2473,7 +2472,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 8 : 6);
+			TF2Items_SetNumAttributes(itemNew, swords ? 7 : 6);
 			TF2Items_SetAttribute(itemNew, 0, 77, 1.00); // -0% max primary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 1, 79, 1.00); // -0% max secondary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 2, 778, 0.00); // remove "Melee hits refill 20% of your charge meter" attribute
@@ -2482,7 +2481,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 5, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using two DHooks instead)
 			if (swords) {
 				TF2Items_SetAttribute(itemNew, 6, 781, 0.0); // is a sword
-				TF2Items_SetAttribute(itemNew, 7, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
 			}
 			sword_reverted = true;
 		}}
@@ -2730,12 +2728,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	if (
 		ItemIsEnabled(Feat_Sword) &&
 		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
-		( StrEqual(class, "tf_weapon_sword") ||
+		(StrEqual(class, "tf_weapon_sword") ||
 		(!ItemIsEnabled(Wep_Zatoichi) && (index == 357)) )
 	) {
 		TF2Items_SetNumAttributes(itemNew, 2);
 		TF2Items_SetAttribute(itemNew, 0, 781, 0.0); // is a sword
-		TF2Items_SetAttribute(itemNew, 1, 264, 1.0); // melee range multiplier; 1.0 somehow corresponds to 72 hammer units from testing
+		TF2Items_SetAttribute(itemNew, 1, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 	}
 
 	if (TF2Items_GetNumAttributes(itemNew)) {
