@@ -604,7 +604,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odporności na obrażenia na maks. 6.5s, brak premii do prędkości"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6.5s, brak premii do prędkości oraz odpor. na podpalenie"
 	}
 	"Ringer_PreJI"
 	{
@@ -616,7 +616,7 @@
 	}
 	"Degreaser_PreTB"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% zadawanych obrażeń, -25%% zadawanych obrażeń po podpaleniu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% obrażeń, -25%% obrażeń po podpaleniu, standardowy koszt sprężonego powietrza"
 	}
 	"Disciplinary_PreMYM"
 	{
