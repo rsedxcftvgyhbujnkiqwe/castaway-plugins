@@ -138,15 +138,6 @@ TFCond debuffs[] =
 	TFCond_Gas
 };
 
-TFCond debuffs[] =
-{
-	TFCond_OnFire,
-	TFCond_Jarated,
-	TFCond_Bleeding,
-	TFCond_Milked,
-	TFCond_Gas
-};
-
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -5326,35 +5317,37 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 		}
 	}
 
-	RepairAmountFloat = fmin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
+	RepairAmountFloat = floatMin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
 
 	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
 	int RepairAmount = RoundToNearest(RepairAmountFloat);
 	if (RepairAmountFloat > 0.0) {
 
-	SetVariantInt(RepairAmount);
-	AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
-	int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
-	Event event = CreateEvent("building_healed");
+		SetVariantInt(RepairAmount);
+		AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
+		int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
+		Event event = CreateEvent("building_healed");
 
-	if (event != null)
-	{
-		event.SetInt("priority", 1); // HLTV event priority, not transmitted
-		event.SetInt("building", buildingIndex); // self-explanatory.
-		event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
-		event.SetInt("amount", newHealth - currentHealth); // Repairamount to display. Will be something between 1-75.
+		if (event != null)
+		{
+			event.SetInt("priority", 1); // HLTV event priority, not transmitted
+			event.SetInt("building", buildingIndex); // self-explanatory.
+			event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
+			event.SetInt("amount", newHealth - currentHealth); // Repairamount to display. Will be something between 1-75.
 
-		event.Fire(); // FIRE IN THE HOLE!!!!!!!
+			event.Fire(); // FIRE IN THE HOLE!!!!!!!
+		}
+
+		// Check if building owner and the engineer who shot the bolt
+		// are the same person, if not. Give them progress on
+		// the "Circle the Wagons" achivement.
+		int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
+		if (buildingOwner != engineerIndex) {
+			AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
+		}
+	} else {
+		RepairAmount = 0;
 	}
-
-	// Check if building owner and the engineer who shot the bolt
-	// are the same person, if not. Give them progress on
-	// the "Circle the Wagons" achivement.
-	int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
-	if (buildingOwner != engineerIndex) {
-		AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
-	}
-	} else {RepairAmount = 0;}
 
 	return RepairAmount;
 }
@@ -5428,10 +5421,6 @@ void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attach
 	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
 
 	TE_SendToAll();
-}
-
-float fmin(float a, float b) {
-	return a < b ? a : b;
 }
 
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
@@ -5938,9 +5927,9 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 
 MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	MRESReturn returnValue = MRES_Ignored;
+	int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 		int weapon;
 		char class[64];
 		// Grab weapon.
@@ -5976,10 +5965,10 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 
 MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	MRESReturn returnValue = MRES_Ignored;
+	int buildingIndex = parameters.Get(1);
+	int engineerIndex = GetEntityOwner(arrowEntity);
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int buildingIndex = parameters.Get(1);
-		int engineerIndex = GetEntityOwner(arrowEntity);
 		int weapon;
 		char class[64];
 
