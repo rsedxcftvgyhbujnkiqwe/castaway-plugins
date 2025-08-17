@@ -41,8 +41,8 @@ public void OnPreRoundStart(Event event, const char[] name, bool dontBroadcast) 
 		int ent = -1;
 		while ((ent = FindEntityByClassname(ent, "tf_team")) != -1) {
 			switch(GetEntProp(ent,Prop_Send,"m_iTeamNum")) {
-				case RED: score_red = GetEntProp(ent,Prop_Send,"m_iRoundsWon");
-				case BLU: score_blue = GetEntProp(ent,Prop_Send,"m_iRoundsWon");
+				case RED: score_red = GetEntProp(ent,Prop_Send,"m_iScore");
+				case BLU: score_blue = GetEntProp(ent,Prop_Send,"m_iScore");
 			}
 		}
 
