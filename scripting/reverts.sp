@@ -4237,8 +4237,8 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT &&
 					((ItemIsEnabled(Wep_CharginTarge) && player_weapons[attacker][Wep_CharginTarge]) ||
-					 (ItemIsEnabled(Wep_SplendidScreen) && player_weapons[attacker][Wep_SplendidScreen]) ||
-					 (ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
+					(ItemIsEnabled(Wep_SplendidScreen) && player_weapons[attacker][Wep_SplendidScreen]) ||
+					(ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
 					StrEqual(class, "tf_wearable_demoshield")
 				) {
 					// crit after shield bash if melee is active weapon
@@ -4255,6 +4255,16 @@ Action SDKHookCB_OnTakeDamage(
 							return Plugin_Handled;
 						}
 					}
+
+					// set bash damage with base of 50 and add 10 damage per head, up to 5 heads
+					// bash damage had no rampup over time
+					damage = 50.0 + 10.0 * intMin(GetEntProp(attacker, Prop_Send, "m_iDecapitations"), 5);
+
+					// increase damage from splendid screen attribute
+					damage *= TF2Attrib_HookValueFloat(1.0, "charge_impact_damage", weapon);
+					
+					returnValue = Plugin_Changed;
+					break;
 				}
 			}
 

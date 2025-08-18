@@ -950,11 +950,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
 	}
 	"Splendid_Release"
 	{
-		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
 	}
 	"SpyCicle_PreGM"
 	{
