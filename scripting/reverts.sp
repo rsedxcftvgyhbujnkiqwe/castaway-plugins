@@ -4257,7 +4257,7 @@ Action SDKHookCB_OnTakeDamage(
 					}
 
 					// set bash damage with base of 50 and add 10 damage per head, up to 5 heads
-					// bash damage had no rampup over time
+					// bash damage had no rampup based on charge depleted
 					damage = 50.0 + 10.0 * intMin(GetEntProp(attacker, Prop_Send, "m_iDecapitations"), 5);
 
 					// increase damage from splendid screen attribute
