@@ -4409,6 +4409,7 @@ Action SDKHookCB_OnTakeDamage(
 
 		if (
 			players[victim].spy_under_feign_buffs &&
+			weapon &&
 			TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
 		) {
 			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
