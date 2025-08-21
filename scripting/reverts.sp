@@ -1573,6 +1573,7 @@ public void OnGameFrame() {
 				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
 					// reset if player isn't engineer
 					players[idx].is_eureka_teleporting = false;
+					players[idx].eureka_teleport_target = -1;
 				}
 			} else {
 				// reset if player is dead
@@ -1585,6 +1586,7 @@ public void OnGameFrame() {
 				players[idx].drain_time = 0.0;
 				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
+				players[idx].eureka_teleport_target = -1;
 			}
 		}
 	}
@@ -3446,7 +3448,7 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 		GetCmdArg(1, buf, sizeof(buf));
 		int teleport_target = StringToInt(buf);
 
-		if (teleport_target > EUREKA_TELEPORT_TELEPORTER_EXIT) {
+		if (teleport_target != EUREKA_TELEPORT_TELEPORTER_EXIT) {
 			teleport_target = EUREKA_TELEPORT_HOME;
 		}
 
