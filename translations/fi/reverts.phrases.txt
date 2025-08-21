@@ -262,6 +262,10 @@
 	{
 		"fi"	"Tasoittaja & Pakosuunnitelma"
 	}
+	"eureka"
+	{
+		"fi"	"Ahaa-elämys"
+	}
 	"eviction"
 	{
 		"fi"	"Häätöilmoitus"
@@ -683,6 +687,10 @@
 	"Equalizer_Release"
 	{
 		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"fi"	"Teleporttaaminen aloituspaikkaan täyttää terveyden ja ammukset taas"
 	}
 	"Eviction_PreJI"
 	{

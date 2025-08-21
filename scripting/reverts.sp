@@ -3434,7 +3434,11 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 	if (TF2_GetPlayerClass(client) != TFClass_Engineer)
 		return Plugin_Continue;
 
-	if (ItemIsEnabled(Wep_EurekaEffect)) {
+	if (
+		ItemIsEnabled(Wep_EurekaEffect) &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
 
 		if (argc == 0) {
 			players[client].eureka_teleport_target = EUREKA_TELEPORT_HOME;
