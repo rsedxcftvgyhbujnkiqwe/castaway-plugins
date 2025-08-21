@@ -364,8 +364,8 @@ enum
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
-	Wep_Eviction,
 	Wep_EurekaEffect,
+	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
 #if defined MEMORY_PATCHES
