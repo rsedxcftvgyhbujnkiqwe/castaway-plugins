@@ -39,6 +39,14 @@ jobs:
       - name: Preprocess reverts.sp
         run: ./reverts-git-commit.sh
 
+      - name: Make Windows and Patchless reverts variants
+        run: |
+          cd scripting
+          cp reverts.sp reverts-patchless.sp
+          cp reverts.sp reverts-win32.sp
+          sed -i "1i#define NO_MEMPATCHES" reverts-patchless.sp
+          sed -i "1i#define WIN32" reverts-win32.sp
+
       - name: Build plugins
         run: |
           cd scripting
