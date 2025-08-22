@@ -354,6 +354,10 @@
 	{
 		"en"	"Razorback"
 	}
+	"redtape"
+	{
+		"en"	"Red-Tape Recorder"
+	}
 	"rescueranger"
 	{
 		"en"	"Rescue Ranger"
@@ -831,6 +835,10 @@
 	"Razorback_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can be overhealed, shield does not regenerate"
+	}
+	"RedTapeRecorder_Release"
+	{
+		"en"	"Reverted to release, faster downgrade speed on upgraded enemy buildings (1.6 s)"
 	}
 	"RescueRanger_PreGM"
 	{

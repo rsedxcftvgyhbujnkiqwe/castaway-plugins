@@ -376,6 +376,7 @@ enum
 	Wep_QuickFix,
 	Wep_Quickiebomb,
 	Wep_Razorback,
+	Wep_RedTapeRecorder,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison
@@ -560,6 +561,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
 	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
+	ItemDefine("redtape","RedTapeRecorder_Release", CLASSFLAG_SPY, Wep_RedTapeRecorder);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
@@ -2500,6 +2502,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
 			TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
 		}}
+		case 810, 831: { if (ItemIsEnabled(Wep_RedTapeRecorder)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 433, 0.9); // Downgrade speed; sapper_degenerates_buildings; default is 0.5 (3 seconds). release was 1.6 seconds (0.9 according to https://wiki.teamfortress.com/wiki/August_2,_2012_Patch)
+		}}
 		case 997: { if (GetItemVariant(Wep_RescueRanger) == 0) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
@@ -3067,6 +3073,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 404: player_weapons[client][Wep_Persian] = true;
 						case 411: player_weapons[client][Wep_QuickFix] = true;
 						case 1150: player_weapons[client][Wep_Quickiebomb] = true;
+						case 810, 831: player_weapons[client][Wep_RedTapeRecorder] = true;
 						case 997: player_weapons[client][Wep_RescueRanger] = true;
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
