@@ -94,15 +94,17 @@ public Plugin myinfo = {
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
 // flags for item definitions
-#define CLASSFLAG_SCOUT		(1<<0)
-#define CLASSFLAG_SNIPER	(1<<1)
-#define CLASSFLAG_SOLDIER	(1<<2)
-#define CLASSFLAG_DEMOMAN	(1<<3)
-#define CLASSFLAG_MEDIC		(1<<4)
-#define CLASSFLAG_HEAVY		(1<<5)
-#define CLASSFLAG_PYRO		(1<<6)
-#define CLASSFLAG_SPY		(1<<7)
-#define CLASSFLAG_ENGINEER	(1<<8)
+#define CLASSFLAG_SCOUT		(1 << 0)
+#define CLASSFLAG_SNIPER	(1 << 1)
+#define CLASSFLAG_SOLDIER	(1 << 2)
+#define CLASSFLAG_DEMOMAN	(1 << 3)
+#define CLASSFLAG_MEDIC		(1 << 4)
+#define CLASSFLAG_HEAVY		(1 << 5)
+#define CLASSFLAG_PYRO		(1 << 6)
+#define CLASSFLAG_SPY		(1 << 7)
+#define CLASSFLAG_ENGINEER	(1 << 8)
+
+#define ITEMFLAG_DISABLED	(1 << 9) // Disabled by default
 
 // game code defs
 #define EF_NODRAW 0x20
@@ -572,9 +574,9 @@ public void OnPluginStart() {
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
-	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
+	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
-	ItemDefine("redtape","RedTapeRecorder_Release", CLASSFLAG_SPY, Wep_RedTapeRecorder);
+	ItemDefine("redtape","RedTapeRecorder_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTapeRecorder);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
@@ -589,7 +591,7 @@ public void OnPluginStart() {
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
-	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
+	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
 	ItemVariant(Wep_ShortCircuit, "Circuit_Dec2013");
@@ -5203,7 +5205,7 @@ void ItemFinalize() {
 			StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
 		}
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+		items[idx].cvar = CreateConVar(cvar_name, items[idx].flags & ITEMFLAG_DISABLED == 0 ? "1" : "0", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 #if defined MEMORY_PATCHES
 		if (items[idx].mem_patch) {
 			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
