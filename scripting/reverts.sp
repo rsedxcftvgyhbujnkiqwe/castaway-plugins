@@ -138,6 +138,15 @@ TFCond debuffs[] =
 	TFCond_Gas
 };
 
+enum
+{
+	EUREKA_FIRST_TARGET = 0,
+	EUREKA_TELEPORT_HOME = 0,
+	EUREKA_TELEPORT_TELEPORTER_EXIT,
+	EUREKA_LAST_TARGET = EUREKA_TELEPORT_TELEPORTER_EXIT,	
+	EUREKA_NUM_TARGETS
+};
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -200,6 +209,8 @@ enum struct Player {
 	int drain_victim;
 	float drain_time;
 	bool spy_under_feign_buffs;
+	bool is_eureka_teleporting;
+	int eureka_teleport_target;
 }
 
 enum struct Entity {
@@ -353,6 +364,7 @@ enum
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
+	Wep_EurekaEffect,
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
@@ -518,6 +530,7 @@ public void OnPluginStart() {
 	ItemDefine("equalizer", "Equalizer_PrePyro", CLASSFLAG_SOLDIER, Wep_Pickaxe);
 	ItemVariant(Wep_Pickaxe, "Equalizer_PreHat");
 	ItemVariant(Wep_Pickaxe, "Equalizer_Release");
+	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
 	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN, Set_Expert);
@@ -648,6 +661,8 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
+
+	AddCommandListener(CommandListener_EurekaTeleport, "eureka_teleport");
 
 	AddNormalSoundHook(OnSoundNormal);
 
@@ -1556,6 +1571,12 @@ public void OnGameFrame() {
 						}
 					}
 				}
+
+				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
+					// reset if player isn't engineer
+					players[idx].is_eureka_teleporting = false;
+					players[idx].eureka_teleport_target = -1;
+				}
 			} else {
 				// reset if player is dead
 				players[idx].spy_is_feigning = false;
@@ -1566,6 +1587,8 @@ public void OnGameFrame() {
 				players[idx].drain_victim = 0;
 				players[idx].drain_time = 0.0;
 				players[idx].spy_under_feign_buffs = false;
+				players[idx].is_eureka_teleporting = false;
+				players[idx].eureka_teleport_target = -1;
 			}
 		}
 	}
@@ -1680,6 +1703,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		StrEqual(class, "obj_teleporter")
 	) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
+	}
+
+	if (StrEqual(class, "instanced_scripted_scene")) {
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 	}
 
 	if (StrEqual(class, "tf_projectile_rocket")) {
@@ -1896,6 +1923,25 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
 		) {
 			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
+		}
+	}
+	{
+		if (
+			ItemIsEnabled(Wep_EurekaEffect) &&
+			TF2_GetPlayerClass(client) == TFClass_Engineer &&
+			condition == TFCond_Taunting &&
+			players[client].is_eureka_teleporting == true
+		) {
+			players[client].is_eureka_teleporting = false;
+
+			if (
+				players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
+				players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
+				FindBuiltTeleporterExitOwnedByClient(client) == -1
+			) {
+				// Refill player health and ammo
+				TF2_RegeneratePlayer(client);
+			}
 		}
 	}
 }
@@ -3054,6 +3100,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
+						case 589: player_weapons[client][Wep_EurekaEffect] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
@@ -3389,6 +3436,35 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 	return Plugin_Continue;
 }
 
+Action CommandListener_EurekaTeleport(int client, const char[] command, int argc) {
+	if (TF2_GetPlayerClass(client) != TFClass_Engineer)
+		return Plugin_Continue;
+
+	if (
+		ItemIsEnabled(Wep_EurekaEffect) &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
+
+		if (argc == 0) {
+			players[client].eureka_teleport_target = EUREKA_TELEPORT_HOME;
+			return Plugin_Continue;
+		}
+		
+		char buf[8];
+		GetCmdArg(1, buf, sizeof(buf));
+		int teleport_target = StringToInt(buf);
+
+		if (teleport_target != EUREKA_TELEPORT_TELEPORTER_EXIT) {
+			teleport_target = EUREKA_TELEPORT_HOME;
+		}
+
+		players[client].eureka_teleport_target = teleport_target;
+	}
+
+	return Plugin_Continue;
+}
+
 Action OnSoundNormal(
 	int clients[MAXPLAYERS], int& clients_num, char sample[PLATFORM_MAX_PATH], int& entity, int& channel,
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
@@ -3467,11 +3543,30 @@ Action OnSoundNormal(
 
 Action SDKHookCB_Spawn(int entity) {
 	char class[64];
+	char scene[128];
+	int owner;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
 	if (StrContains(class, "tf_projectile_") == 0) {
 		entities[entity].spawn_time = GetGameTime();
+	}
+
+	if (StrEqual(class, "instanced_scripted_scene")) {
+
+		GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
+		if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
+			owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+
+			if (
+				owner >= 1 &&
+				owner <= MaxClients
+			) {
+				if (ItemIsEnabled(Wep_EurekaEffect)) {
+					players[owner].is_eureka_teleporting = true;
+				}
+			}
+		}
 	}
 
 	return Plugin_Continue;
@@ -5455,7 +5550,6 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 #if defined MEMORY_PATCHES
 // Get the sentry of a specific engineer
 // WARNING: Do not use in MVM!
-
 int FindSentryGunOwnedByClient(int client)
 {
 	if (cvar_ref_tf_gamemode_mvm.BoolValue)
@@ -5474,9 +5568,28 @@ int FindSentryGunOwnedByClient(int client)
 
 	return -1;
 }
-
-
 #endif
+
+// Get the built (construction finished) teleporter exit of a specific engineer
+int FindBuiltTeleporterExitOwnedByClient(int client)
+{
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (
+			owner == client &&
+			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
+			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
+		)
+			return ent;
+	}
+
+	return -1;
+}
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;

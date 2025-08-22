@@ -258,6 +258,10 @@
 	{
 		"en"	"Equalizer & Escape Plan"
 	}
+	"eureka"
+	{
+		"en"	"Eureka Effect"
+	}
 	"eviction"
 	{
 		"en"	"Eviction Notice"
@@ -683,6 +687,10 @@
 	"Equalizer_Release"
 	{
 		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"en"	"Teleporting to spawn refills health and ammo again"
 	}
 	"Eviction_PreJI"
 	{
