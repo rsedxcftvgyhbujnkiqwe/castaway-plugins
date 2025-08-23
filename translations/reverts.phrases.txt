@@ -570,7 +570,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, bash dmg at 60%% depleted"
+		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, full bash dmg at end of charge"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -1002,7 +1002,7 @@
 	}	
 	"Turner_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at 60%% depleted"
+		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge"
 	}
 	"Tomislav_PrePyro"
 	{
