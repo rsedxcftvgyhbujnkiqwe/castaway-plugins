@@ -810,7 +810,7 @@
 	}
 	"Phlog_Release"
 	{
-		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), longer 12 sec crit buff"
+		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), longer 13 sec crit buff"
 	}
 	"Pomson_PreGM"
 	{

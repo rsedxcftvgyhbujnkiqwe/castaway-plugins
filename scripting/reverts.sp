@@ -1936,9 +1936,9 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 				}
 			}
 			if (GetItemVariant(Wep_Phlogistinator) == 1) {
-				TF2_AddCondition(client, TFCond_UberchargedCanteen, 4.0, 0); 
+				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0); 
 				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
-					PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 4 sec", 0);
+					PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 3.5 sec", 0);
 			}
 		}
 	}	
@@ -4819,6 +4819,30 @@ Action SDKHookCB_OnTakeDamageAlive(
 				players[victim].old_health = GetClientHealth(victim);
 				SetEntityHealth(victim, 500);
 					//PrintToChat(victim, "SJ: set health to 500, tanking...", 0);
+			}
+		}
+		{
+			if (
+				((GetItemVariant(Wep_Phlogistinator) == 2 && player_weapons[victim][Wep_Phlogistinator])) &&
+				TF2_GetPlayerClass(victim) == TFClass_Pyro &&
+				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
+				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
+				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
+			) {
+				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
+
+				// apply resistance
+				if (damage_type & DMG_CRIT != 0)
+					damage *= players[victim].crit_flag ? 1.0 : 0.45; // for crits and minicrits, respectively
+					// I am not sure if the old Phlog defense buff taunt had damage resistance againt minicrits. 
+					// I will assume it has 55% damage resistance (90-35=55, 100-55=45).
+				else
+					damage *= 0.10;
+
+				// to do: add taunt kill immunity (must resist 500 damage)
+
+				returnValue = Plugin_Changed;
 			}
 		}
 	}
