@@ -1904,42 +1904,39 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	}
 
 	{
-		// phlogistinator restore to max health on mmmph activation
+		// Phlogistinator reverts (uber and knockback immunity removal handled in OnAddCond)
 		if (
 			ItemIsEnabled(Wep_Phlogistinator) &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro &&
 			condition == TFCond_Taunting &&
-			TF2_IsPlayerInCondition(client, TFCond_CritMmmph) &&
-			TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) &&
-			TF2_IsPlayerInCondition(client, TFCond_MegaHeal)
+			TF2_IsPlayerInCondition(client, TFCond_CritMmmph)
 		) {
-				PrintToChat(client, "Detected Mmmph taunt", 0);
+			// Instantly restore to max health on mmmph activation
 			health_cur = GetClientHealth(client);
 			health_max = SDKCall(sdkcall_GetMaxHealth, client);
 			if (health_cur < health_max) {
 				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
-					PrintToChat(client, "Detected health not full, setting health to full", 0);
 			}
-			if (GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2) {
-				TF2_RemoveCondition(client, TFCond_UberchargedCanteen);
-				TF2_RemoveCondition(client, TFCond_MegaHeal);
-				if (GetItemVariant(Wep_Phlogistinator) == 0) {
-					// not sure how to make release phlog have 90% defense via conditions. i'll get to this later.
-					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
-						PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
+
+			switch(GetItemVariant(Wep_Phlogistinator)) {
+				case 0: { // Pyromania Phlog
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
+					//PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
 				}
-				if (GetItemVariant(Wep_Phlogistinator) == 2) {
-					// not sure how to make release phlog have 90% defense via conditions. i'll get to this later.
-					// changelog says 12 seconds, but the wiki says 13 seconds. i think i'll set it to 13 instead because of the taunt duration.
-					TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
-						PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
-				}
-			}
-			if (GetItemVariant(Wep_Phlogistinator) == 1) {
-				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0); 
+				case 1: { // Tough Break Phlog
 				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
-					PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 3.5 sec", 0);
-			}
+				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
+					//PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 3.5 sec", 0);
+				}
+				case 2: { // Release Phlog
+				// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
+				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					//PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
+				}
+			}			
 		}
 	}	
 }
@@ -2044,6 +2041,25 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		) {
 			time = 6.0;
 			return Plugin_Changed;
+		}
+	}
+	{
+		// prevent Phlog uber and knockback immunity for Release and Pyromania variants
+		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
+		if (
+			(GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2) &&
+			TF2_GetPlayerClass(client) == TFClass_Pyro
+		) {
+			// Prevent Uber effect (should also prevent debuff removal)
+			if (condition == TFCond_UberchargedCanteen) {
+					//PrintToChat(client, "Detected Release/Pyromania Phlogistinator, prevented TFCond_UberchargedCanteen", 0);
+				return Plugin_Handled;	
+			}
+			// Prevent knockback immunity (this removes the healing circle visual effect! visual effect must be readded via addcond 20)
+			if (condition == TFCond_MegaHeal) {
+					//PrintToChat(client, "Detected Release/Pyromania Phlogistinator, prevented TFCond_MegaHeal", 0);
+				return Plugin_Handled;
+			}
 		}
 	}
 	return Plugin_Continue;
@@ -4831,17 +4847,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 			) {
 				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
 				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
-
-				// apply resistance
-				if (damage_type & DMG_CRIT != 0)
-					damage *= players[victim].crit_flag ? 1.0 : 0.45; // for crits and minicrits, respectively
-					// I am not sure if the old Phlog defense buff taunt had damage resistance againt minicrits. 
-					// I will assume it has 55% damage resistance (90-35=55, 100-55=45).
-				else
-					damage *= 0.10;
-
-				// to do: add taunt kill immunity (must resist 500 damage)
-
+				damage *= 0.10;
+				// to do: add taunt kill immunity (must resist 500 damage when hit by any taunt kill damage). no idea how to do this or if this is nececessary.
 				returnValue = Plugin_Changed;
 			}
 		}
