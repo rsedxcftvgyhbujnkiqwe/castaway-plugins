@@ -1928,6 +1928,17 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
 						PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
 				}
+				if (GetItemVariant(Wep_Phlogistinator) == 2) {
+					// not sure how to make release phlog have 90% defense via conditions. i'll get to this later.
+					// changelog says 12 seconds, but the wiki says 13 seconds. i think i'll set it to 13 instead because of the taunt duration.
+					TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
+						PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
+				}
+			}
+			if (GetItemVariant(Wep_Phlogistinator) == 1) {
+				TF2_AddCondition(client, TFCond_UberchargedCanteen, 4.0, 0); 
+				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
+					PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 4 sec", 0);
 			}
 		}
 	}	
@@ -6287,6 +6298,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
 
 MRESReturn ModifyRageMeter(Address thisPointer, DHookParam parameters)
 {
+	// Imported from NotnHeavy's plugin
     int client = GetEntityFromAddress(Dereference(thisPointer + CTFPlayerShared_m_pOuter));
 	int weapon;
 		// Grab primary weapon

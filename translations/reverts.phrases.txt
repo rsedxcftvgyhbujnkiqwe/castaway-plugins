@@ -806,7 +806,7 @@
 	}
 	"Phlog_TB"
 	{
-		"en"	"Reverted to Tough Break, activating MMMPH instantly restores to full health, MMMPH requires lower fire damage (225)"
+		"en"	"Reverted to Tough Break, activating MMMPH instantly restores to full health, Ubered a bit after taunting, MMMPH requires lower fire damage (225)"
 	}
 	"Phlog_Release"
 	{
