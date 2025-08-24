@@ -4843,6 +4843,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_GetPlayerClass(victim) == TFClass_Pyro &&
 				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
 				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
+				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.
 				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
 			) {
 				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
