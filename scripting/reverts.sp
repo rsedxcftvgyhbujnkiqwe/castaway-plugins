@@ -292,6 +292,9 @@ DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
+DynamicDetour dhook_CTFPlayerShared_SetRageMeter;
+
+Address CTFPlayerShared_m_pOuter;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -712,6 +715,9 @@ public void OnPluginStart() {
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
+		dhook_CTFPlayerShared_SetRageMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::SetRageMeter");
+
+		CTFPlayerShared_m_pOuter = view_as<Address>(GameConfGetOffset(conf, "CTFPlayerShared::m_pOuter"));
 
 		delete conf;
 	}
@@ -822,6 +828,7 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
+	if (dhook_CTFPlayerShared_SetRageMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_SetRageMeter");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -831,6 +838,8 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, ModifyRageMeter);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, ModifyRageMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -6276,6 +6285,27 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
     return MRES_Ignored;
 }
 
+MRESReturn ModifyRageMeter(Address thisPointer, DHookParam parameters)
+{
+    int client = GetEntityFromAddress(Dereference(thisPointer + CTFPlayerShared_m_pOuter));
+	int weapon;
+		// Grab primary weapon
+		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+		if (
+			TF2_GetPlayerClass(client) == TFClass_Pyro &&
+			ItemIsEnabled(Wep_Phlogistinator) &&
+			weapon > 0
+		) {
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594) {
+				float delta = view_as<float>(parameters.Get(1));
+     			delta *= (300.00 / 225.00); // Take only 225 damage to build up the Phlog rage meter. This is hacky but it's simple, at least.
+     			parameters.Set(1, delta);
+     			return MRES_ChangedHandled;
+			}
+		}
+    return MRES_Ignored;
+}
+
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
@@ -6374,4 +6404,9 @@ int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
 	// offset seems right, cache it for the next call
 	offs_RefEHandle = offs_angRotation + 0x0C;
 	return GetEntityFromAddress(pEntity);
+}
+
+any Dereference(Address address, NumberType bitdepth = NumberType_Int32)
+{
+	return LoadFromAddress(address, bitdepth);
 }
