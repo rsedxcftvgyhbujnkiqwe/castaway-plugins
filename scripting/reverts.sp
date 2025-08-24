@@ -382,6 +382,7 @@ enum
 	Wep_Natascha,
 	Wep_PanicAttack,
 	Wep_Persian,
+	Wep_Phlogistinator,
 	Wep_PocketPistol,
 	Wep_Pomson,
 	Wep_Powerjack,
@@ -559,6 +560,9 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemDefine("phlogistinator", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
+	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
+	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
@@ -1760,6 +1764,8 @@ public void OnEntityDestroyed(int entity) {
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
 	float cloak;
+	int health_cur;
+	int health_max;
 
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
@@ -1887,6 +1893,34 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
         	players[client].sleeper_time_since_scoping = GetGameTime();
 		}
 	}
+
+	{
+		// phlogistinator restore to max health on mmmph activation
+		if (
+			ItemIsEnabled(Wep_Phlogistinator) &&
+			TF2_GetPlayerClass(client) == TFClass_Pyro &&
+			condition == TFCond_Taunting &&
+			TF2_IsPlayerInCondition(client, TFCond_CritMmmph) &&
+			TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) &&
+			TF2_IsPlayerInCondition(client, TFCond_MegaHeal)
+		) {
+			health_cur = GetClientHealth(client);
+			health_max = SDKCall(sdkcall_GetMaxHealth, client);
+			if (health_cur < health_max) {
+				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
+					PrintToChat(client, "Detected Mmmph taunt, setting health to full", 0);
+			}
+			if (GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2) {
+				TF2_RemoveCondition(client, TFCond_UberchargedCanteen);
+				TF2_RemoveCondition(client, TFCond_MegaHeal);
+				if (GetItemVariant(Wep_Phlogistinator) == 0) {
+					// not sure how to make release phlog have 90% defense via conditions. i'll get to this later.
+					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
+						PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
+				}
+			}
+		}
+	}	
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -2467,6 +2501,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 8, 708, 1.00); // Hold fire to load up to 4 shells
 			TF2Items_SetAttribute(itemNew, 9, 709, 2.5); // Weapon spread increases as health decreases.
 			TF2Items_SetAttribute(itemNew, 10, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+		}}
+		case 594: { if (ItemIsEnabled(Wep_Phlogistinator)) {
+			switch (GetItemVariant(Wep_Phlogistinator)) {
+			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
+				case 0: { // Pyromania Phlogistinator
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // 10% damage penalty
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // 0% damage penalty
+				}
+			}
 		}}
 		case 773: { if (ItemIsEnabled(Wep_PocketPistol)) {
 			switch (GetItemVariant(Wep_PocketPistol)) {
@@ -3114,6 +3161,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
+						case 594: player_weapons[client][Wep_Phlogistinator] = true;
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
 						case 588: player_weapons[client][Wep_Pomson] = true;
 						case 214: player_weapons[client][Wep_Powerjack] = true;
