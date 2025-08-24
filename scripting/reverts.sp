@@ -1904,11 +1904,12 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) &&
 			TF2_IsPlayerInCondition(client, TFCond_MegaHeal)
 		) {
+				PrintToChat(client, "Detected Mmmph taunt", 0);
 			health_cur = GetClientHealth(client);
 			health_max = SDKCall(sdkcall_GetMaxHealth, client);
 			if (health_cur < health_max) {
 				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
-					PrintToChat(client, "Detected Mmmph taunt, setting health to full", 0);
+					PrintToChat(client, "Detected health not full, setting health to full", 0);
 			}
 			if (GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2) {
 				TF2_RemoveCondition(client, TFCond_UberchargedCanteen);
