@@ -960,7 +960,11 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, pas de réduction de réparations et de munitions données quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'Engineer"
+		"fr"	"Réversion à pré-Gun Mettle, pas de pénalité de réparation quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'utilisateur"
+	}
+	"Wrangler_PreLW"
+	{
+		"fr"	"Réversion à pré-Love & War, pas de pénalité de réparation quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'utilisateur, pas de baisse de dégâts en-dehors du périmètre de détection, dégâts calculés par rapport à la position de l'utilisateur"
 	}
 	"Eternal_PreJI"
 	{
