@@ -144,6 +144,10 @@
 	{
 		"fr"	"Ambassadeur"
 	}
+	"amputator"
+	{
+		"fr"	"Amputateur"
+	}
 	"atomizer"
 	{
 		"fr"	"Atomiseur"
@@ -204,6 +208,10 @@
 	{
 		"fr"	"Carabine du Nettoyeur"
 	}
+	"concheror"
+	{
+		"fr"	"Conque-érant"
+	}
 	"cowmangler"
 	{
 		"fr"	"Broyeur Bovin 5000"
@@ -251,6 +259,10 @@
 	"equalizer"
 	{
 		"fr"	"Equalizer & Plan d'Évasion"
+	}
+	"eureka"
+	{
+		"fr"	"Effet Eurêka"
 	}
 	"eviction"
 	{
@@ -347,6 +359,10 @@
 	"razorback"
 	{
 		"fr"	"Razorback"
+	}
+	"redtape"
+	{
+		"fr"	"Enregistreur de formalités"
 	}
 	"rescueranger"
 	{
@@ -466,6 +482,10 @@
 	{
 		"fr"	"Réversion à pré-Inferno, dégâts de tir en pleine tête maximaux (102) à n'importe quelle portée"
 	}
+	"Amputator_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, regénère toujours +3 santé/s quand actif peut-importe si l'utilisateur a récemment prit des dégâts"
+	}
 	"Atomizer_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, triple saut à tout moment, infligant 10 dégâts au porteur à chaque fois"
@@ -566,6 +586,10 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, minicrits pendant 8s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
 	}
+	"Concheror_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, regénère toujours +2 santé/s peut-importe si l'utilisateur a récemment prit des dégâts"
+	}
 	"CowMangler_Release"
 	{
 		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs, ne peut pas être crit-boosté"
@@ -616,7 +640,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse"
+		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse, pas d'immunité à la postcombustion après activation"
 	}
 	"Ringer_PreJI"
 	{
@@ -628,11 +652,11 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6.5s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt"
+		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6.5s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
 	}
 	"Degreaser_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion"
+		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion, pas de pénalité de coût de tir d'air comprimé"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -665,6 +689,10 @@
 	"Equalizer_Release"
 	{
 		"fr"	"Refusionné à la version d'origine, pas de soins par Medic et impossible d'appeler un Medic quand actif, pas de marquage à mort, (si santé max 200) 125 dégâts à 58 PV, 150 dégâts à 20 PV, 162 dégâts à 1 PV"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"fr"	"Se téléporter à la salle de réapparition restaure la santé et les munitions automatiquement"
 	}
 	"Eviction_PreJI"
 	{
@@ -818,9 +846,17 @@
 	{
 		"fr"	"Réversion à pré-Inferno, peut recevoir un bonus d'extra-santé, bouclier ne se régénère pas"
 	}
+	"RedTapeRecorder_Release"
+	{
+		"fr"	"Réversion à la version d'origine, 1.6s de vitesse de déconstruction sur les bâtiments améliorés (au lieu de 3s)"
+	}
 	"RescueRanger_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, soigne +75 fixe sans coût de métal, récupérations à distance coûtent 130"
+	}
+	"RescueRanger_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de coût de métal pour réparer des bâtiments"
 	}
 	"Reserve_PreTB"
 	{
@@ -928,11 +964,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
+		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
 	}
 	"Splendid_Release"
 	{
-		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
+		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
 	}
 	"SpyCicle_PreGM"
 	{
