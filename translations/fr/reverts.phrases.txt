@@ -482,6 +482,10 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, crits par derrière, mini-crits par devant, pas de bonus de vitesse en tuant"
 	}
+	"Axtinguisher_PreBM"
+	{
+		"fr"	"Réversion à pré-Blue Moon, crits sur les cibles en feu, déploiement 75%% plus lent, cadence 20%% plus lente, pas de bonus de vitesse en tuant"
+	}
 	"Backburner_PreHat"
 	{
 		"fr"	"Réversion à la mise à jour Sans-Chapeau, +10%% de dégâts"
@@ -509,6 +513,10 @@
 	"Beggars_Pre2013"
 	{
 		"fr"	"Réversion à pré-2013, pas de pénalité de rayon d'explosion, surcharges n'enlèvent pas de munitions du chargeur"
+	}
+	"Beggars_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de rayon d'explosion"
 	}
 	"BlackBox_PreGM"
 	{
@@ -544,7 +552,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, 40%% de résistance aux explosions, immunité à la postcombustion, crit après impact, pas de suppression de debuffs"
+		"fr"	"Réversion à pré-Tough Break, 40%% de résistance aux explosions, immunité à la postcombustion, crit après impact, pas de suppression de debuffs, dégâts d'impact à 60%% de charge consommée"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -553,6 +561,10 @@
 	"Carbine_Release"
 	{
 		"fr"	"Réversion à la version d'origine, crits pendant 3s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
+	}
+	"Carbine_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, minicrits pendant 8s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
 	}
 	"CowMangler_Release"
 	{
@@ -614,6 +626,10 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, même stats modernes mais 50%% initial de resistance aux dégâts, peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
 	}
+	"Ringer_PostRelease"
+	{
+		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6.5s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt"
+	}
 	"Degreaser_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion"
@@ -668,7 +684,7 @@
 	}
 	"FistSteel_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, déploiement de l'arme 20%% plus lent, pas de pénalité de soin, pas de pénalité de rangement de l'arme"
+		"fr"	"Réversion à pré-Tough Break, déploiement 20%% plus lent, pas de pénalité de soin, pas de pénalité de rangement de l'arme"
 	}
 	"FistSteel_Release"
 	{
@@ -685,6 +701,10 @@
 	"GlovesRU_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, pas de drain de santé, pas de pénalité de rangement de l'arme, marquage à mort, -25%% de dégâts"
+	}
+	"GlovesRU_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de drain de santé, marquage à mort, -25%% de dégâts"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -844,7 +864,11 @@
 	}
 	"Sandman_PreJI"
 	{
-		"fr"	"Réversion à pré-Inferno, étourdit de nouveau les joueurs, rechargement de balle de 15s"
+		"fr"	"Réversion à pré-Inferno, étourdit la cible, 15s de rechargement de balle"
+	}
+	"Sandman_PreWAR"
+	{
+		"fr"	"Réversion à pré-WAR!, étourdissement complet, joueurs étourdits ne subissent que 75%% des dégâts infligés, santé max -30, 15s de rechargement de balle"
 	}
 	"Scottish_Release"
 	{
@@ -878,6 +902,14 @@
 	{
 		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, pas de bousculade"
 	}
+	"Shortstop_Release_Shove"
+	{
+		"fr"	"Réversion à la version d'origine, ralentit la cible de 40%% pendant 0.5s, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, bousculade est conservée"
+	}
+	"Shortstop_Release"
+	{
+		"fr"	"Réversion à la version d'origine, ralentit la cible de 40%% pendant 0.5s, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, pas de bousculade"
+	}
 	"Sodapop_Pre2013"
 	{
 		"fr"	"Réversion à pré-Smissmas 2013, jauge d'excitation se remplit en courant, mode excité s'active automatiquement et donne des mini-crits"
@@ -897,6 +929,10 @@
 	"Splendid_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
+	}
+	"Splendid_Release"
+	{
+		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -932,7 +968,7 @@
 	}	
 	"Turner_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff"
+		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff, dégâts d'impact à 60%% de charge consommée"
 	}
 	"Tomislav_PrePyro"
 	{
