@@ -566,6 +566,7 @@ public void OnPluginStart() {
 	ItemDefine("phlogistinator", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
 	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
+	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
@@ -1936,6 +1937,11 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 				// 90% defense buff handled elsewhere in OnTakeDamageAlive
 					//PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
 				}
+				case 3: { // March 15, 2012 Phlog
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					//PrintToChat(client, "Detected March 2012 Phlogistinator", 0);
+				}
 			}			
 		}
 	}	
@@ -2044,20 +2050,20 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		}
 	}
 	{
-		// prevent Phlog uber and knockback immunity for Release and Pyromania variants
+		// prevent Phlog uber and knockback immunity for Release, Pyromania, and March 2012 variants
 		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
 		if (
-			(GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2) &&
+			(GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro
 		) {
 			// Prevent Uber effect (should also prevent debuff removal)
 			if (condition == TFCond_UberchargedCanteen) {
-					//PrintToChat(client, "Detected Release/Pyromania Phlogistinator, prevented TFCond_UberchargedCanteen", 0);
+					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_UberchargedCanteen", 0);
 				return Plugin_Handled;	
 			}
 			// Prevent knockback immunity (this removes the healing circle visual effect! visual effect must be readded via addcond 20)
 			if (condition == TFCond_MegaHeal) {
-					//PrintToChat(client, "Detected Release/Pyromania Phlogistinator, prevented TFCond_MegaHeal", 0);
+					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_MegaHeal", 0);
 				return Plugin_Handled;
 			}
 		}
@@ -2542,7 +2548,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 594: { if (ItemIsEnabled(Wep_Phlogistinator)) {
 			switch (GetItemVariant(Wep_Phlogistinator)) {
 			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
-				case 0: { // Pyromania Phlogistinator
+				case 0, 3: { // Pyromania and March 2012 Phlogistinator
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // 10% damage penalty
 				}
@@ -4838,8 +4844,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
+			// 90% damage resistance revert for Release and March 2012 Phlog variants
 			if (
-				((GetItemVariant(Wep_Phlogistinator) == 2 && player_weapons[victim][Wep_Phlogistinator])) &&
+				(((GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) && player_weapons[victim][Wep_Phlogistinator])) &&
 				TF2_GetPlayerClass(victim) == TFClass_Pyro &&
 				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
 				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
@@ -4848,8 +4855,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			) {
 				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
 				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
-				damage *= 0.10;
-				// to do: add taunt kill immunity (must resist 500 damage when hit by any taunt kill damage). no idea how to do this or if this is nececessary.
+				damage *= 0.10; // will also resist taunt kills!
 				returnValue = Plugin_Changed;
 			}
 		}

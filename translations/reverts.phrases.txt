@@ -812,6 +812,10 @@
 	{
 		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), longer 13 sec crit buff"
 	}
+	"Phlog_March2012"
+	{
+		"en"	"Reverted to March 15, 2012, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), -10%% dmg penalty"
+	}
 	"Pomson_PreGM"
 	{
 		"en"	"Increased hitbox size, passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
