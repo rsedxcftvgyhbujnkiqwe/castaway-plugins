@@ -807,7 +807,7 @@
 	"Pomson_PreGM_Historical"
 	{
 		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
-	}	
+	}
 	"Powerjack_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal"
@@ -887,7 +887,7 @@
 	"RocketJmp_Oct2010"
 	{
 		"en"	"Reverted to October 27, 2010: no self blast damage including from Equalizer/Escape Plan taunt, -100 max health, wearer can pick up intel, random crits"
-	}		
+	}
 	"Saharan_Release"
 	{
 		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger (removes +40%% cloak) and YER to gain the bonus, the hat is not required."
@@ -987,7 +987,7 @@
 	"StkJumper_ReleaseDay2"
 	{
 		"en"	"Reverted to October 28, 2010: 8 stickybombs out at once again, wearer can pick up intel, -75 max health, no self blast damage, random crits"
-	}			
+	}
 	"Sleeper_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, headshots and fully charged shots splash jarate, no cooldown reduction"
@@ -999,7 +999,7 @@
 	"Sleeper_Release"
 	{
 		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
-	}	
+	}
 	"Turner_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at 60%% depleted"
