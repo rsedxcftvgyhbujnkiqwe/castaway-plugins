@@ -4512,20 +4512,25 @@ Action SDKHookCB_OnTakeDamage(
 		victim >= 1 &&
 		victim <= MaxClients &&
 		players[victim].spy_is_feigning &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy &&
-		(GetItemVariant(Wep_DeadRinger) == 0 || GetItemVariant(Wep_DeadRinger) == 3)
+		players[victim].spy_under_feign_buffs &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy
 	) {
 		// dead ringer damage tracking and modification
 	
-		if (GetItemVariant(Wep_DeadRinger) == 0) {
-			players[victim].damage_taken_during_feign += damage;
+		players[victim].damage_taken_during_feign += damage;
+
+		bool resist_damage = false;
+
+		if (weapon) {
+			// Don't resist if weapon pierces resists (vanilla Enforcer)
+			if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+				resist_damage = true;
+			}
+		} else {
+			resist_damage = true;
 		}
 
-		if (
-			players[victim].spy_under_feign_buffs &&
-			weapon &&
-			TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
-		) {
+		if (resist_damage) {
 			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
 			returnValue = Plugin_Changed;
 		}
