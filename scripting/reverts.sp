@@ -94,15 +94,17 @@ public Plugin myinfo = {
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
 // flags for item definitions
-#define CLASSFLAG_SCOUT		(1<<0)
-#define CLASSFLAG_SNIPER	(1<<1)
-#define CLASSFLAG_SOLDIER	(1<<2)
-#define CLASSFLAG_DEMOMAN	(1<<3)
-#define CLASSFLAG_MEDIC		(1<<4)
-#define CLASSFLAG_HEAVY		(1<<5)
-#define CLASSFLAG_PYRO		(1<<6)
-#define CLASSFLAG_SPY		(1<<7)
-#define CLASSFLAG_ENGINEER	(1<<8)
+#define CLASSFLAG_SCOUT		(1 << 0)
+#define CLASSFLAG_SNIPER	(1 << 1)
+#define CLASSFLAG_SOLDIER	(1 << 2)
+#define CLASSFLAG_DEMOMAN	(1 << 3)
+#define CLASSFLAG_MEDIC		(1 << 4)
+#define CLASSFLAG_HEAVY		(1 << 5)
+#define CLASSFLAG_PYRO		(1 << 6)
+#define CLASSFLAG_SPY		(1 << 7)
+#define CLASSFLAG_ENGINEER	(1 << 8)
+
+#define ITEMFLAG_DISABLED	(1 << 9) // Disabled by default
 
 // game code defs
 #define EF_NODRAW 0x20
@@ -506,7 +508,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
 	ItemVariant(Wep_CritCola, "CritCola_Release");
-	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER, Set_CrocoStyle);
+	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
 #endif
@@ -533,18 +535,18 @@ public void OnPluginStart() {
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
-	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN, Set_Expert);
+	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Set_Expert);
 	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemVariant(Wep_FistsSteel, "FistSteel_PreTB");
 	ItemVariant(Wep_FistsSteel, "FistSteel_Release");
 	ItemDefine("guillotine", "Guillotine_PreJI", CLASSFLAG_SCOUT, Wep_Cleaver);
-	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO, Set_GasJockey);
+	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Set_GasJockey);
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
-	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY, Set_Hibernate);
+	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");  
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
@@ -572,9 +574,9 @@ public void OnPluginStart() {
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
-	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN, Wep_Quickiebomb);
+	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback","Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
-	ItemDefine("redtape","RedTapeRecorder_Release", CLASSFLAG_SPY, Wep_RedTapeRecorder);
+	ItemDefine("redtape","RedTapeRecorder_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTapeRecorder);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
@@ -585,11 +587,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Pre2011");
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Oct2010");
-	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY, Set_Saharan);
+	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
-	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN, Wep_Scottish);
+	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
 	ItemVariant(Wep_ShortCircuit, "Circuit_Dec2013");
@@ -599,7 +601,7 @@ public void OnPluginStart() {
 	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
 	ItemVariant(Wep_SodaPopper, "Sodapop_PreMYM");
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
-	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT, Set_SpDelivery);
+	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
@@ -4510,20 +4512,25 @@ Action SDKHookCB_OnTakeDamage(
 		victim >= 1 &&
 		victim <= MaxClients &&
 		players[victim].spy_is_feigning &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy &&
-		(GetItemVariant(Wep_DeadRinger) == 0 || GetItemVariant(Wep_DeadRinger) == 3)
+		players[victim].spy_under_feign_buffs &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy
 	) {
 		// dead ringer damage tracking and modification
 	
-		if (GetItemVariant(Wep_DeadRinger) == 0) {
-			players[victim].damage_taken_during_feign += damage;
+		players[victim].damage_taken_during_feign += damage;
+
+		bool resist_damage = false;
+
+		if (weapon) {
+			// Don't resist if weapon pierces resists (vanilla Enforcer)
+			if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+				resist_damage = true;
+			}
+		} else {
+			resist_damage = true;
 		}
 
-		if (
-			players[victim].spy_under_feign_buffs &&
-			weapon &&
-			TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
-		) {
+		if (resist_damage) {
 			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
 			returnValue = Plugin_Changed;
 		}
@@ -5203,7 +5210,7 @@ void ItemFinalize() {
 			StrCat(cvar_desc, sizeof(cvar_desc), item_desc);
 		}
 
-		items[idx].cvar = CreateConVar(cvar_name, "1", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
+		items[idx].cvar = CreateConVar(cvar_name, items[idx].flags & ITEMFLAG_DISABLED == 0 ? "1" : "0", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 #if defined MEMORY_PATCHES
 		if (items[idx].mem_patch) {
 			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
