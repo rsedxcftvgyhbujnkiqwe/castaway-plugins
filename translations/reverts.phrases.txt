@@ -334,6 +334,10 @@
 	{
 		"en"	"Persian Persuader"
 	}
+	"phlogistinator"
+	{
+		"en"	"Phlogistinator"
+	}
 	"pomson"
 	{
 		"en"	"Pomson 6000"
@@ -795,6 +799,22 @@
 	"Persuader_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty"
+	}
+	"Phlog_Pyro"
+	{
+		"en"	"Reverted to Pyromania, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), -10%% dmg penalty"
+	}
+	"Phlog_TB"
+	{
+		"en"	"Reverted to Tough Break, activating MMMPH instantly restores to full health, Ubered a bit after taunting, MMMPH requires lower fire damage (225)"
+	}
+	"Phlog_Release"
+	{
+		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), longer 13 sec crit buff"
+	}
+	"Phlog_March2012"
+	{
+		"en"	"Reverted to March 15, 2012, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), -10%% dmg penalty"
 	}
 	"Pomson_PreGM"
 	{

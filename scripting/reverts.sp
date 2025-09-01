@@ -294,6 +294,9 @@ DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
+DynamicDetour dhook_CTFPlayerShared_SetRageMeter;
+
+Address CTFPlayerShared_m_pOuter;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -384,6 +387,7 @@ enum
 	Wep_Natascha,
 	Wep_PanicAttack,
 	Wep_Persian,
+	Wep_Phlogistinator,
 	Wep_PocketPistol,
 	Wep_Pomson,
 	Wep_Powerjack,
@@ -561,6 +565,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemDefine("phlogistinator", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
+	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
+	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
+	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
@@ -710,6 +718,9 @@ public void OnPluginStart() {
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
+		dhook_CTFPlayerShared_SetRageMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::SetRageMeter");
+
+		CTFPlayerShared_m_pOuter = view_as<Address>(GameConfGetOffset(conf, "CTFPlayerShared::m_pOuter"));
 
 		delete conf;
 	}
@@ -820,6 +831,7 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
+	if (dhook_CTFPlayerShared_SetRageMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_SetRageMeter");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -829,6 +841,8 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, ModifyRageMeter);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, ModifyRageMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1762,6 +1776,8 @@ public void OnEntityDestroyed(int entity) {
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
 	float cloak;
+	int health_cur;
+	int health_max;
 
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
@@ -1889,6 +1905,48 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
         	players[client].sleeper_time_since_scoping = GetGameTime();
 		}
 	}
+
+	{
+		// Phlogistinator reverts (uber and knockback immunity removal handled in OnAddCond)
+		if (
+			ItemIsEnabled(Wep_Phlogistinator) &&
+			TF2_GetPlayerClass(client) == TFClass_Pyro &&
+			condition == TFCond_Taunting &&
+			TF2_IsPlayerInCondition(client, TFCond_CritMmmph)
+		) {
+			// Instantly restore to max health on mmmph activation
+			health_cur = GetClientHealth(client);
+			health_max = SDKCall(sdkcall_GetMaxHealth, client);
+			if (health_cur < health_max) {
+				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
+			}
+
+			switch(GetItemVariant(Wep_Phlogistinator)) {
+				case 0: { // Pyromania Phlog
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
+					//PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
+				}
+				case 1: { // Tough Break Phlog
+				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
+				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
+					//PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 3.5 sec", 0);
+				}
+				case 2: { // Release Phlog
+				// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
+				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					//PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
+				}
+				case 3: { // March 15, 2012 Phlog
+				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					//PrintToChat(client, "Detected March 2012 Phlogistinator", 0);
+				}
+			}			
+		}
+	}	
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
@@ -1991,6 +2049,25 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		) {
 			time = 6.0;
 			return Plugin_Changed;
+		}
+	}
+	{
+		// prevent Phlog uber and knockback immunity for Release, Pyromania, and March 2012 variants
+		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
+		if (
+			(GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
+			TF2_GetPlayerClass(client) == TFClass_Pyro
+		) {
+			// Prevent Uber effect (should also prevent debuff removal)
+			if (condition == TFCond_UberchargedCanteen) {
+					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_UberchargedCanteen", 0);
+				return Plugin_Handled;	
+			}
+			// Prevent knockback immunity (this removes the healing circle visual effect! visual effect must be readded via addcond 20)
+			if (condition == TFCond_MegaHeal) {
+					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_MegaHeal", 0);
+				return Plugin_Handled;
+			}
 		}
 	}
 	return Plugin_Continue;
@@ -2469,6 +2546,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 8, 708, 1.00); // Hold fire to load up to 4 shells
 			TF2Items_SetAttribute(itemNew, 9, 709, 2.5); // Weapon spread increases as health decreases.
 			TF2Items_SetAttribute(itemNew, 10, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+		}}
+		case 594: { if (ItemIsEnabled(Wep_Phlogistinator)) {
+			switch (GetItemVariant(Wep_Phlogistinator)) {
+			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
+				case 0, 3: { // Pyromania and March 2012 Phlogistinator
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // 10% damage penalty
+				}
+				default: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // 0% damage penalty
+				}
+			}
 		}}
 		case 773: { if (ItemIsEnabled(Wep_PocketPistol)) {
 			switch (GetItemVariant(Wep_PocketPistol)) {
@@ -3116,6 +3206,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
+						case 594: player_weapons[client][Wep_Phlogistinator] = true;
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
 						case 588: player_weapons[client][Wep_Pomson] = true;
 						case 214: player_weapons[client][Wep_Powerjack] = true;
@@ -4759,6 +4850,22 @@ Action SDKHookCB_OnTakeDamageAlive(
 					//PrintToChat(victim, "SJ: set health to 500, tanking...", 0);
 			}
 		}
+		{
+			// 90% damage resistance revert for Release and March 2012 Phlog variants
+			if (
+				(((GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) && player_weapons[victim][Wep_Phlogistinator])) &&
+				TF2_GetPlayerClass(victim) == TFClass_Pyro &&
+				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
+				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
+				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.
+				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
+			) {
+				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
+				damage *= 0.10; // will also resist taunt kills!
+				returnValue = Plugin_Changed;
+			}
+		}
 	}
 
 	return returnValue;
@@ -6234,6 +6341,28 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
     return MRES_Ignored;
 }
 
+MRESReturn ModifyRageMeter(Address thisPointer, DHookParam parameters)
+{
+	// Imported from NotnHeavy's plugin
+    int client = GetEntityFromAddress(Dereference(thisPointer + CTFPlayerShared_m_pOuter));
+	int weapon;
+		// Grab primary weapon
+		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+		if (
+			TF2_GetPlayerClass(client) == TFClass_Pyro &&
+			ItemIsEnabled(Wep_Phlogistinator) &&
+			weapon > 0
+		) {
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594) {
+				float delta = view_as<float>(parameters.Get(1));
+     			delta *= (300.00 / 225.00); // Take only 225 damage to build up the Phlog rage meter. This is hacky but it's simple, at least.
+     			parameters.Set(1, delta);
+     			return MRES_ChangedHandled;
+			}
+		}
+    return MRES_Ignored;
+}
+
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
@@ -6332,4 +6461,9 @@ int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
 	// offset seems right, cache it for the next call
 	offs_RefEHandle = offs_angRotation + 0x0C;
 	return GetEntityFromAddress(pEntity);
+}
+
+any Dereference(Address address, NumberType bitdepth = NumberType_Int32)
+{
+	return LoadFromAddress(address, bitdepth);
 }
