@@ -5133,6 +5133,13 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 		return false;
 	}
 
+	// ignore respawn room visualizers
+	if (StrEqual(class, "func_respawnroomvisualizer")) {
+		return false;
+	}
+
+	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
+
 	return true;
 }
 
