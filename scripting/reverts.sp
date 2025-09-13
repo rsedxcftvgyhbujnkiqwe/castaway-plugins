@@ -4738,6 +4738,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
 	Action returnValue = Plugin_Continue;
+
 	if (
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
@@ -4746,7 +4747,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// sleeper jarate application (pre-Blue Moon)
 
 			if (
-				ItemIsEnabled(Wep_SydneySleeper) &&
 				GetItemVariant(Wep_SydneySleeper) == 0 &&
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
@@ -4767,7 +4767,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 		{
 			// sydney sleeper (pre-Gun Mettle & release) jarate effect
 			if (
-				ItemIsEnabled(Wep_SydneySleeper) &&
 				(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
 				player_weapons[attacker][Wep_SydneySleeper] &&
 				GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0 &&
@@ -4789,21 +4788,33 @@ Action SDKHookCB_OnTakeDamageAlive(
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
 				(GetItemVariant(Wep_Natascha) == 0 && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
+				TF2_GetPlayerClass(victim) == TFClass_Heavy
 			) {
 				// Brass Beast/Natascha (pre-MyM) damage resistance when spun up
 
-				// play damage resist sound
-				EmitGameSoundToAll("Player.ResistanceLight", victim);
+				bool resist_damage = false;
 
-				// apply resistance
-				if (damage_type & DMG_CRIT != 0)
-					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
-				else
-					damage *= 0.80;
+				if (weapon) {
+					// Don't resist if weapon pierces resists (vanilla Enforcer)
+					if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+						resist_damage = true;
+					}
+				} else {
+					resist_damage = true;
+				}
 
-				returnValue = Plugin_Changed;
+				if (resist_damage) {
+					// play damage resist sound
+					EmitGameSoundToAll("Player.ResistanceLight", victim);
+					
+					// apply resistance
+					if (damage_type & DMG_CRIT != 0)
+						damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
+					else
+						damage *= 0.80;
+
+					returnValue = Plugin_Changed;
+				}
 			}
 		}
 		{
