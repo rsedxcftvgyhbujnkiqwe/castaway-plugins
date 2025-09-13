@@ -4612,7 +4612,7 @@ Action SDKHookCB_OnTakeDamage(
 
 		bool resist_damage = false;
 
-		if (weapon) {
+		if (weapon > 0) {
 			// Don't resist if weapon pierces resists (vanilla Enforcer)
 			if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
 				resist_damage = true;
@@ -4794,7 +4794,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 
 				bool resist_damage = false;
 
-				if (weapon) {
+				if (weapon > 0) {
 					// Don't resist if weapon pierces resists (vanilla Enforcer)
 					if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
 						resist_damage = true;
