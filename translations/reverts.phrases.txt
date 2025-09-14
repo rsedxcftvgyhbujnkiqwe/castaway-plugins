@@ -894,7 +894,7 @@
 	}
 	"RescueRanger_Release"
 	{
-		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg"
+		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
 	}
 	"Reserve_PreTB"
 	{
