@@ -2331,6 +2331,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
 			}
 		}}
+#if defined MEMORY_PATCHES
 		case 642: { if (ItemIsEnabled(Wep_CozyCamper)) {
 			switch (GetItemVariant(Wep_CozyCamper)) {
 				case 1: {
@@ -2349,6 +2350,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+#endif
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
 			switch (GetItemVariant(Wep_CritCola)) {
 				case 0, 1, 2: {
