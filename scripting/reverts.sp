@@ -6387,10 +6387,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 		}
 
 #if defined MEMORY_PATCHES
-		if (
-			ItemIsEnabled(Wep_CozyCamper) &&
-			GetItemVariant(Wep_CozyCamper) != 0
-		) {
+		if (GetItemVariant(Wep_CozyCamper) > 0) {
 			// Loop through wearables
 			int num_wearables = TF2Util_GetPlayerWearableCount(client);
 			for (int i = 0; i < num_wearables; i++)
