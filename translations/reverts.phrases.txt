@@ -334,7 +334,7 @@
 	{
 		"en"	"Persian Persuader"
 	}
-	"phlogistinator"
+	"phlog"
 	{
 		"en"	"Phlogistinator"
 	}

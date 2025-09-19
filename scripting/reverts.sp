@@ -565,7 +565,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
-	ItemDefine("phlogistinator", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
+	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
 	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
