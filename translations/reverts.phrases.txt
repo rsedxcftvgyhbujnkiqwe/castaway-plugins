@@ -608,18 +608,6 @@
 	{
 		"en"	"Reverted to pre-matchmaking, flinch resist at any charge level"
 	}
-	"CozyCamper_PreTB"
-	{
-		"en"	"Reverted to pre-toughbreak, flinch resist at any charge level, +1 HP/s regen"
-	}
-	"CozyCamper_PreGM"
-	{
-		"en"	"Reverted to pre-gunmettle, flinch resist at any charge level, +1 HP/s regen, 20%% dmg vuln"
-	}
-	"CozyCamper_Pre2013"
-	{
-		"en"	"Reverted to pre-Summer 2013, flinch resist at any charge level, +1 HP/s regen, -80%% movespeed when aiming"
-	}
 	"CritCola_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"

@@ -507,9 +507,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
-	ItemVariant(Wep_CozyCamper, "CozyCamper_PreTB");
-	ItemVariant(Wep_CozyCamper, "CozyCamper_PreGM");
-	ItemVariant(Wep_CozyCamper, "CozyCamper_Pre2013");
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
@@ -2331,26 +2328,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
 			}
 		}}
-#if defined MEMORY_PATCHES
-		case 642: { if (ItemIsEnabled(Wep_CozyCamper)) {
-			switch (GetItemVariant(Wep_CozyCamper)) {
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer
-				}
-				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer
-					TF2Items_SetAttribute(itemNew, 1, 412, 1.20); // 20% damage vulnerability on wearer
-				}
-				case 3: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer
-					TF2Items_SetAttribute(itemNew, 1, 378, 0.20); // 80% slower move speed when aiming
-				}
-			}
-		}}
-#endif
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
 			switch (GetItemVariant(Wep_CritCola)) {
 				case 0, 1, 2: {
@@ -6387,24 +6364,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 				full_regen = true;
 			}
 		}
-
-#if defined MEMORY_PATCHES
-		if (GetItemVariant(Wep_CozyCamper) > 0) {
-			// Loop through wearables
-			int num_wearables = TF2Util_GetPlayerWearableCount(client);
-			for (int i = 0; i < num_wearables; i++)
-			{
-				int wearable = TF2Util_GetPlayerWearable(client, i);
-				int index = GetEntProp(wearable, Prop_Send, "m_iItemDefinitionIndex");
-
-				if (index == 642) {
-					// Player has a Cozy Camper, fake MvM game state for full regen
-					full_regen = true;
-					break;
-				}
-			}
-		}
-#endif
 
 		if (full_regen) {
 			prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
