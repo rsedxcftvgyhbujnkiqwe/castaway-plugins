@@ -1472,6 +1472,7 @@ public void OnGameFrame() {
 										cloak = (players[idx].spy_cloak_meter + 35.0);
 										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 									}
+									TF2Attrib_RemoveByDefIndex(weapon, 729);
 								}
 							}
 						}
@@ -4189,6 +4190,8 @@ Action SDKHookCB_OnTakeDamage(
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
 					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
 				) {
+					damage = 15.0; // always deal 15 impact damage at any range
+
 					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
 						players[victim].projectile_touch_frame = 0;
 
@@ -4237,17 +4240,13 @@ Action SDKHookCB_OnTakeDamage(
 									// Pre-WAR Sandman stun victims receive 75% of damage dealt
 									// "dmg taken increased" is the only attribute of class "mult_dmgtaken"
 									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", 0.75, stun_dur);
+									damage /= 0.75; // compensate damage for initial hit
 								}
 
 								players[victim].stunball_fix_time_bonk = GetGameTime();
 								players[victim].stunball_fix_time_wear = 0.0;
 							}
 						}
-					}
-
-					if (damage == 22.5) {
-						// always deal 15 impact damage at any range
-						damage = 15.0;
 					}
 
 					returnValue = Plugin_Changed;
@@ -6116,72 +6115,100 @@ float PersuaderPackRatios[] =
 MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	int client = GetEntityFromAddress(parameters.Get(1));
-	if (ItemIsEnabled(Wep_Persian) && player_weapons[client][Wep_Persian])
-	{
-		// Health pickup with the Persian Persuader.
-		returnValue.Value = false;
-		int health = GetClientHealth(client);
-		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-		if (health < health_max)
+
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		int pack_size = SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity);
+		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1)
 		{
-			// Get amount to heal.
-			int heal = RoundFloat(40 * PersuaderPackRatios[SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity)]);
-
-			// Show that the player got healed.
-			Event event = CreateEvent("player_healonhit", true);
-			event.SetInt("amount", intMin(health_max - health, heal));
-			event.SetInt("entindex", client);
-			event.Fire();
-
-			// remove afterburn and bleed debuffs on heal
-			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
+			// Health pickup with the Persian Persuader.
+			returnValue.Value = false;
+			int health = GetClientHealth(client);
+			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+			if (health < health_max)
 			{
+				// Get amount to heal.
+				int heal = RoundFloat(40 * PersuaderPackRatios[pack_size]);
+
+				// Show that the player got healed.
+				Event event = CreateEvent("player_healonhit", true);
+				event.SetInt("amount", intMin(health_max - health, heal));
+				event.SetInt("entindex", client);
+				event.Fire();
+
+				// remove afterburn and bleed debuffs on heal
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
-			}
 
-			// Set health.
-			SetEntityHealth(client, intMin(health + heal, health_max));
-			EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
-			returnValue.Value = true;
+				// Set health.
+				SetEntityHealth(client, intMin(health + heal, health_max));
+				EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+				returnValue.Value = true;
+			}
+			return MRES_Supercede;
 		}
-		return MRES_Supercede;
+		if (GetItemVariant(Wep_DeadRinger) == 0) {
+			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
+			if (weapon > 0) {
+				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
+					// cap cloak gain to 35% per pack
+					float multiplier = 1.0;
+					if (pack_size > 0) {
+						multiplier = (pack_size == 1) ? 0.7 : 0.35;
+					}
+					TF2Attrib_SetByDefIndex(weapon, 729, multiplier); // ReducedCloakFromAmmo
+				}
+			}
+		}
 	}
+
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
 {
 	int client = parameters.Get(1);
-	if (ItemIsEnabled(Wep_Persian) && client > 0 && client <= MaxClients && player_weapons[client][Wep_Persian])
-	{
-		// Health pickup with the Persian Persuader from dropped ammo packs.
-		int health = GetClientHealth(client);
-		int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-		if (health < health_max)
-		{
-			// Show that the player got healed.
-			Event event = CreateEvent("player_healonhit", true);
-			event.SetInt("amount", intMin(health_max - health, 20));
-			event.SetInt("entindex", client);
-			event.Fire();
-
-			// remove afterburn and bleed debuffs on heal
-			if (TF2_IsPlayerInCondition(client, TFCond_OnFire) || TF2_IsPlayerInCondition(client, TFCond_Bleeding))
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1) {
+			// Health pickup with the Persian Persuader from dropped ammo packs.
+			int health = GetClientHealth(client);
+			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+			if (health < health_max)
 			{
+				// Show that the player got healed.
+				Event event = CreateEvent("player_healonhit", true);
+				event.SetInt("amount", intMin(health_max - health, 20));
+				event.SetInt("entindex", client);
+				event.Fire();
+
+				// remove afterburn and bleed debuffs on heal
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
-			}
 
-			// Set health.
-			SetEntityHealth(client, intMin(health + 20, health_max));
-			// If you're wondering why EmitSoundToAll below is repeated in a different channel,
-			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
-			RemoveEntity(entity);
+				// Set health.
+				SetEntityHealth(client, intMin(health + 20, health_max));
+				// If you're wondering why EmitSoundToAll below is repeated in a different channel,
+				// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
+				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+				RemoveEntity(entity);
+			}
+			return MRES_Supercede;
 		}
-		return MRES_Supercede;
+		if (GetItemVariant(Wep_DeadRinger) == 0) {
+			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
+			if (weapon > 0) {
+				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
+					// cap cloak gain to 35% per pack
+					TF2Attrib_SetByDefIndex(weapon, 729, 0.7); // ReducedCloakFromAmmo
+				}
+			}
+		}
 	}
 	return MRES_Ignored;
 }
@@ -6201,8 +6228,8 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 
 			if (
 				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
-			{
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997
+			) {
 				returnValue = MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
 			}
 		}
@@ -6241,8 +6268,8 @@ MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 
 			if (
 				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997)
-			{
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997
+			) {
 				// Now we can proceed with healing the building etc.
 				// Sentry and Engineer must be on the same team for heal to happen.
 				if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
@@ -6290,6 +6317,17 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	return MRES_Ignored;
 }
 #endif
+
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	if (ItemIsEnabled(Wep_Spycicle))
+	{
+		// Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+		returnValue.Value = false;
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
 
 MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 {
@@ -6407,17 +6445,6 @@ int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
-}
-
-MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
-{
-	if (ItemIsEnabled(Wep_Spycicle))
-	{
-		// Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
-		returnValue.Value = false;
-		return MRES_Supercede;
-	}
-	return MRES_Ignored;
 }
 
 /**
