@@ -1834,7 +1834,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 					players[client].feign_ready_tick > 0
 				) {
 					// undo 50% drain on activated
-					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak + 50.0);
+					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", floatMin(cloak + 50.0, 100.0));
 				}
 			}
 
