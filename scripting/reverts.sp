@@ -1455,22 +1455,22 @@ public void OnGameFrame() {
 						cloak = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
 
 						if (GetItemVariant(Wep_DeadRinger) == 0) {
-							if (
-								(cloak - players[idx].spy_cloak_meter) > 35.0 &&
-								(players[idx].ammo_grab_frame + 1) == GetGameTickCount()
-							) {
-								weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Building);
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Building);
 
-								if (weapon > 0) {
-									GetEntityClassname(weapon, class, sizeof(class));
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
 
+								if (
+									StrEqual(class, "tf_weapon_invis") &&
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59
+								) {
 									if (
-										StrEqual(class, "tf_weapon_invis") &&
-										GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59
+										(cloak - players[idx].spy_cloak_meter) > 35.0 &&
+										(players[idx].ammo_grab_frame + 1) == GetGameTickCount()
 									) {
 										// ammo boxes only give 35% cloak max
 										cloak = (players[idx].spy_cloak_meter + 35.0);
-										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
+										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);	
 									}
 									TF2Attrib_RemoveByDefIndex(weapon, 729);
 								}
