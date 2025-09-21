@@ -106,7 +106,7 @@ public void OnLibraryAdded(const char[] name)
 {
 	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
 	{
-		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall, OnScrambleVoteVisCheck);
 	}
 }
 
@@ -114,7 +114,7 @@ public void OnLibraryRemoved(const char[] name)
 {
 	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
 	{
-		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall, OnScrambleVoteVisCheck);
 	}
 }
 
@@ -198,6 +198,13 @@ public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, c
 {
 	AttemptVoteScramble(client, true);
 	return Plugin_Handled;
+}
+
+public Action OnScrambleVoteVisCheck(int client, NativeVotesOverride overrideType) {
+	if (!g_bIsMapAllowed) {
+		return Plugin_Handled;
+	}
+	return Plugin_Continue;
 }
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
