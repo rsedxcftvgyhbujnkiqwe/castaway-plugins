@@ -184,7 +184,7 @@ public Action Cmd_ForceScramble(int client, int args)
 
 public Action Cmd_VoteScramble(int client, int args)
 {
-	AttemptVoteScramble(client, false);
+	AttemptVoteScramble(client);
 	return Plugin_Handled;
 }
 
@@ -209,7 +209,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	{
 		ReplySource old = SetCmdReplySource(SM_REPLY_TO_CHAT);
 
-		AttemptVoteScramble(client, false);
+		AttemptVoteScramble(client);
 
 		SetCmdReplySource(old);
 	}
@@ -217,7 +217,9 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 {
-	char errorMsg[MAX_NAME_LENGTH] = "";
+	if (isVoteCalledFromMenu) {
+		SetCmdReplySource(SM_REPLY_TO_CHAT);
+	}
 	if (!g_bIsMapAllowed)
 	{
 		if (isVoteCalledFromMenu)
@@ -225,7 +227,8 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Disabled);
 			return;
 		}
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_MAP_DISABLED", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_MAP_DISABLED");
+		return;
 	}
 	if (g_bServerWaitingForPlayers)
 	{
@@ -234,13 +237,13 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Waiting);
 			return;
 		}
-		if (g_bIsMapAllowed) {
-			Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_WAITING_FOR_PLAYERS", client);
-		}
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_WAITING_FOR_PLAYERS");
+		return;
 	}
 	if (g_bScrambleTeams)
 	{
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND");
+		return;
 	}
 	if (g_bVoteCooldown)
 	{
@@ -249,23 +252,12 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Recent, g_iVoteCooldownExpireTime - GetTime());
 			return;
 		}
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_COOLDOWN", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_COOLDOWN");
+		return;
 	}
 	if (g_bVoted[client])
 	{
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_VOTED", client, g_iVotes, g_iVotesNeeded);
-	}
-
-	if (!StrEqual(errorMsg, ""))
-	{
-		if (isVoteCalledFromMenu)
-		{
-			PrintToChat(client, errorMsg);
-		}
-		else
-		{
-			ReplyToCommand(client, errorMsg);
-		}
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_VOTED", g_iVotes, g_iVotesNeeded);
 		return;
 	}
 
