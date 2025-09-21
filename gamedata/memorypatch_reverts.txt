@@ -96,6 +96,12 @@
 				// this is weird, blame makesig.idc for this
 				"windows" "\x57\x8B\xF9\x8B\x0D\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A"
 			}
+			"CTFSniperRifle::SetInternalUnzoomTime"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x56\x8B\xF1\xF3\x0F\x10\x50"
+				"linux" "@_ZN14CTFSniperRifle21SetInternalUnzoomTimeEf"
+			}
 		}
 
 		"MemPatches"
@@ -382,6 +388,31 @@
 						"patch"     "\xB0\x01\x90\x90\x90" // MOV AL, 1; NOP x3 — skip call, return true
 					}
 				}
+
+				// ================================================
+				//	Jumping after firing scoped shots revert for all Sniper Rifles
+				//	Reverts the Sniper to allow him to jump immediately after firing a scoped shot.
+				//	NOPs over the jump restriction line
+				//	https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_weapon_sniperrifle.cpp#L744
+			
+				
+				"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump"
+				{
+					"signature" "CTFSniperRifle::SetInternalUnzoomTime"
+					"linux"
+					{
+						"offset"	"84"
+						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5 times - skip over DisableJump()
+					}
+					"windows"
+					{
+						"offset"	"51"
+						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5 times - skip over DisableJump()
+					}
+				}
+				
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                     Spy                      ║

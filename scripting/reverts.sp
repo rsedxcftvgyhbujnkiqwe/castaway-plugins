@@ -276,6 +276,8 @@ float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar rev
 Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
+
+MemoryPatch patch_RevertSniperRifles_ScopeJump;
 #endif
 
 Handle sdkcall_JarExplode;
@@ -321,6 +323,7 @@ enum
 	Feat_Airblast,
 #if defined MEMORY_PATCHES
 	Feat_Minigun, // All Miniguns
+	Feat_SniperRifle, // All Sniper Rifles
 #endif
 	Feat_Sword, // All Swords	
 
@@ -472,6 +475,7 @@ public void OnPluginStart() {
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
+	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
@@ -776,6 +780,9 @@ public void OnPluginStart() {
 		patch_DroppedWeapon =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DropAmmoPack");
+		patch_RevertSniperRifles_ScopeJump =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");		
 		
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
@@ -796,6 +803,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
+		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
@@ -891,6 +899,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
@@ -956,6 +965,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertMiniguns_RampupNerf_Spread.Disable();
 			}
 		}
+		case Feat_SniperRifle: {
+			if (enable) {
+				patch_RevertSniperRifles_ScopeJump.Enable();
+			} else {
+				patch_RevertSniperRifles_ScopeJump.Disable();
+			}
+		}		
 		case Wep_Wrangler: {
 			if (enable) {
 				patch_RevertWrangler_WrenchRepairNerf.Enable();
@@ -3149,6 +3165,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					else if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
 					}
+					else if (StrEqual(class, "tf_weapon_sniperrifle") || StrEqual(class, "tf_weapon_sniperrifle_decap") || StrEqual(class, "tf_weapon_sniperrifle_classic")) {
+						player_weapons[client][Feat_SniperRifle] = true;
+					}					
 #endif
 
 					else if (
