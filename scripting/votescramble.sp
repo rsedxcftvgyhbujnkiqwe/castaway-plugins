@@ -196,7 +196,9 @@ public Action Cmd_ReloadExclusionList(int args) {
 
 public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, const char[] voteArgument)
 {
+	ReplySource oldReplySource = SetCmdReplySource(SM_REPLY_TO_CHAT);
 	AttemptVoteScramble(client, true);
+	SetCmdReplySource(oldReplySource);
 	return Plugin_Handled;
 }
 
@@ -224,9 +226,6 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 {
-	if (isVoteCalledFromMenu) {
-		SetCmdReplySource(SM_REPLY_TO_CHAT);
-	}
 	if (!g_bIsMapAllowed)
 	{
 		if (isVoteCalledFromMenu)
