@@ -1,0 +1,6 @@
+// Lines beginning with "//" are ignored
+// All of these should be PCRE regex patterns
+
+// Examples:
+vsh_.*
+.*_well
