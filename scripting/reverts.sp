@@ -213,6 +213,7 @@ enum struct Player {
 	bool spy_under_feign_buffs;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
+	bool cloak_gain_capped;
 }
 
 enum struct Entity {
@@ -1472,7 +1473,10 @@ public void OnGameFrame() {
 										cloak = (players[idx].spy_cloak_meter + 35.0);
 										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);	
 									}
-									TF2Attrib_RemoveByDefIndex(weapon, 729);
+									if (players[idx].cloak_gain_capped) {
+										TF2Attrib_RemoveByDefIndex(weapon, 729);
+										players[idx].cloak_gain_capped = false;
+									}
 								}
 							}
 						}
@@ -1526,6 +1530,7 @@ public void OnGameFrame() {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
 					players[idx].spy_under_feign_buffs = false;
+					players[idx].cloak_gain_capped = false;
 				}
 
 				if (
@@ -1606,6 +1611,7 @@ public void OnGameFrame() {
 				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
+				players[idx].cloak_gain_capped = false;
 			}
 		}
 	}
@@ -6149,7 +6155,10 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 			}
 			return MRES_Supercede;
 		}
-		if (GetItemVariant(Wep_DeadRinger) == 0) {
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
+		) {
 			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
 			if (weapon > 0) {
 				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
@@ -6159,6 +6168,7 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 						multiplier = (pack_size == 1) ? 0.7 : 0.35;
 					}
 					TF2Attrib_SetByDefIndex(weapon, 729, multiplier); // ReducedCloakFromAmmo
+					players[client].cloak_gain_capped = true;
 				}
 			}
 		}
@@ -6200,12 +6210,16 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			}
 			return MRES_Supercede;
 		}
-		if (GetItemVariant(Wep_DeadRinger) == 0) {
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
+		) {
 			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
 			if (weapon > 0) {
 				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
 					// cap cloak gain to 35% per pack
 					TF2Attrib_SetByDefIndex(weapon, 729, 0.7); // ReducedCloakFromAmmo
+					players[client].cloak_gain_capped = true;
 				}
 			}
 		}
