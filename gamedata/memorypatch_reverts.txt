@@ -392,8 +392,9 @@
 				// ================================================
 				//	Jumping after firing scoped shots revert for all Sniper Rifles
 				//	Reverts the Sniper to allow him to jump immediately after firing a scoped shot.
-				//	NOPs over the jump restriction line
-				//	https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_weapon_sniperrifle.cpp#L744
+				//	MindfulProtons: Special thanks to VerdiusArcana and Eric for assistance with this
+				//	Relevant source code line:
+				//	https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_weapon_sniperrifle.cpp#L742
 			
 				
 				"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump"
@@ -401,15 +402,21 @@
 					"signature" "CTFSniperRifle::SetInternalUnzoomTime"
 					"linux"
 					{
-						"offset"	"84"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 5 times - skip over DisableJump()
+						"offset"	"33"
+						"verify"	"\x77\x2A" // JA, x2A wildcard
+						"patch"		"\x90\x90" // NOP 2 times - NOPs over if statement for DisableJump()
 					}
 					"windows"
 					{
-						"offset"	"51"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 5 times - skip over DisableJump()
+						"offset"	"49"
+						"verify"	"\x76\x07" // JBE
+						"patch"		"\xEB\x07" // patch into a JMP, JMP to EnableJump()
+
+						// In case the above patch does not work, use this one instead
+						// Jump used for consistency with Linux Patch, old method kept incase if needed in the future
+						// "offset"	"51"
+						// "verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard
+						// "patch"	"\x90\x90\x90\x90\x90" // NOP 5 times - skip over DisableJump()		
 					}
 				}
 				
