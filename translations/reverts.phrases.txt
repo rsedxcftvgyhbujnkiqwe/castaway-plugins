@@ -134,6 +134,10 @@
 	{
 		"en"	"All Miniguns"
 	}
+	"stickybomb"
+	{
+		"en"	"All Stickybomb Launchers"
+	}
 	"swords"
 	{
 		"en"	"All Swords"
@@ -475,6 +479,10 @@
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
+	}
+	"Stickybomb_PreLW"
+	{
+		"en"	"Reverted to pre-love&war, air-detonated stickies have full blast radius, increased base blast radius"
 	}
 	"Swords_PreTB"
 	{
