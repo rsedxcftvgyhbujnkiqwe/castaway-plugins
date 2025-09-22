@@ -79,6 +79,7 @@ translations/ru/*
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/build.yml
+!.github/workflows/snapshot.yml
 
 !reverts-git-commit.sh
 !check-translations.py
