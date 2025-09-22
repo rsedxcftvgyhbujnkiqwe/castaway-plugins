@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Make weekly snapshot
+      - name: Make snapshot
         uses: actions/github-script@v8
         with:
           script: |
