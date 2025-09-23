@@ -1661,8 +1661,6 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-			cvar_ref_tf_sticky_airdet_radius.RestoreDefault();
-			cvar_ref_tf_sticky_radius_ramp_time.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
@@ -1670,6 +1668,9 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
 			// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
+			// Winbomb revert cvars for stickybomb launchers
+			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
+			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 		}
 	}
 }
@@ -5797,18 +5798,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 
 			return MRES_Ignored;
 		}
-
-		if (
-			StrEqual(class, "tf_weapon_pipebomblauncher")
-		) {
-			// stickybomb launcher air det stickies set type cvar
-
-			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1", ItemIsEnabled(Feat_Stickybomb));
-			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0", ItemIsEnabled(Feat_Stickybomb));
-
-			return MRES_Ignored;
-		}		
-
 		if (
 			GetItemVariant(Wep_ShortCircuit) == 0 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
