@@ -213,6 +213,7 @@ enum struct Player {
 	bool spy_under_feign_buffs;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
+	int powerjack_kill_tick;
 }
 
 enum struct Entity {
@@ -1282,7 +1283,7 @@ public void OnGameFrame() {
 									else
 									{
 										hype -= 9.375 * GetTickInterval(); // m_fEnergyDrinkConsumeRate*0.75f
-										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", hype);
+										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
 									}
 								}
 							}
@@ -1331,6 +1332,40 @@ public void OnGameFrame() {
 					}
 				}
 
+				if (TF2_GetPlayerClass(idx) == TFClass_Pyro) {
+					{
+						// Powerjack overheal on kill
+
+						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
+
+						if (weapon > 0) {
+
+							if (
+								ItemIsEnabled(Wep_Powerjack) &&
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214 &&
+								players[idx].powerjack_kill_tick + 1 == GetGameTickCount()
+							) {
+								int max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
+								int health_cur = GetClientHealth(idx);
+								int health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+
+								int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
+								if (health_max - health_cur >= heal_amt)
+									heal_amt = 0;
+								else if (health_max > health_cur)
+									heal_amt -= health_max - health_cur;
+								
+								heal_amt = intMin(max_overheal - health_cur, heal_amt);
+
+								if (heal_amt > 0) {
+									// Apply overheal
+									TF2Util_TakeHealth(idx, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+								}
+							}
+						}
+					}
+				}
+
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
 					{
 						// vitasaw charge store
@@ -1367,7 +1402,7 @@ public void OnGameFrame() {
 								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
 
 								if (
-									ItemIsEnabled(Wep_SydneySleeper) && (GetItemVariant(Wep_SydneySleeper) == 0) &&
+									GetItemVariant(Wep_SydneySleeper) == 0 &&
 									ammo == (players[idx].sleeper_ammo - 1)
 								) {
 									GetClientEyePosition(idx, pos1);
@@ -1403,6 +1438,29 @@ public void OnGameFrame() {
 								}
 
 								players[idx].sleeper_ammo = ammo;
+							}
+						}
+					}
+
+					{
+						// release cleaner's carbine use crikey meter to indicate remaining buff duration
+						// this is purely a custom cosmetic thing
+						if (GetItemVariant(Wep_CleanerCarbine) == 0) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+
+							if (weapon > 0) {
+
+								if (HasEntProp(weapon, Prop_Send, "m_flMinicritCharge")) {
+									hype = GetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge");
+									timer = TF2Attrib_HookValueFloat(0.0, "add_onkill_critboost_time", weapon);
+
+									if (timer != 0.0) timer += 1.0;
+
+									if (hype > 0.0 && timer > 0.0) {
+										hype -= 100.0 / timer * GetTickInterval();
+										SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", floatMax(hype, 0.0));
+									}
+								}
 							}
 						}
 					}
@@ -2584,31 +2642,31 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
 		}}
 		case 214: { if (ItemIsEnabled(Wep_Powerjack)) {
-			// health bonus with overheal for all variants handled elsewhere
 			switch (GetItemVariant(Wep_Powerjack)) {
 				case 0: {
 					// Pre-Gun Mettle Powerjack (pre-2015)
 					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 180, 0.0); // remove +25 hp on kill attribute
+					TF2Items_SetAttribute(itemNew, 0, 180, 75.0); // +75 health restored on kill
 				}
 				case 1: {
 					// Release Powerjack (2010)
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 180, 0.0); // remove +25 hp on kill attribute
-					TF2Items_SetAttribute(itemNew, 1, 107, 1.00); // remove faster move speed on wearer while active
-					TF2Items_SetAttribute(itemNew, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
-					TF2Items_SetAttribute(itemNew, 3, 2, 1.25); // add +25% damage bonus
-					TF2Items_SetAttribute(itemNew, 4, 15, 0.0); // no random crits mod
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.25); // +25% damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // No random critical hits
+					TF2Items_SetAttribute(itemNew, 2, 107, 1.0); // +0% faster move speed on wearer
+					TF2Items_SetAttribute(itemNew, 3, 180, 75.0); // +75 health restored on kill
+					TF2Items_SetAttribute(itemNew, 4, 412, 1.0); // 0% damage vulnerability on wearer
 				}
 				case 2: {
 					// Hatless Update Powerjack (2011 to 2013)
 					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 180, 0.0); // remove +25 hp on kill attribute
-					TF2Items_SetAttribute(itemNew, 1, 107, 1.00); // remove faster move speed on wearer while active
-					TF2Items_SetAttribute(itemNew, 2, 412, 1.0); // remove damage vulnerability on wearer while active 
-					TF2Items_SetAttribute(itemNew, 3, 206, 1.20); // add +20% damage from melee sources while active 
+					TF2Items_SetAttribute(itemNew, 0, 107, 1.0); // +0% faster move speed on wearer
+					TF2Items_SetAttribute(itemNew, 1, 180, 75.0); // +75 health restored on kill
+					TF2Items_SetAttribute(itemNew, 2, 206, 1.2); // +20% damage from melee sources while active
+					TF2Items_SetAttribute(itemNew, 3, 412, 1.0); // 0% damage vulnerability on wearer
 				}
 			}
+			// Overheal on kill handled elsewhere
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
 			bool swords = ItemIsEnabled(Feat_Sword);
@@ -3056,7 +3114,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			}
 
 			{
-				// Powerjack heal on kill with overheal copied from NotnHeavy's code
 				if (
 					client != attacker &&
 					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
@@ -3068,37 +3125,22 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
 					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
 
 						if (
 							ItemIsEnabled(Wep_Powerjack) &&
-							StrEqual(class, "tf_weapon_fireaxe") &&
 							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214
 						) {
-							health_cur = GetClientHealth(attacker);
-							int pyro_overheal_max = 260; // this needs to be adjusted in case the backburner is reverted to the release version
-							if (GetItemVariant(Wep_Backburner) == 2) {
-								pyro_overheal_max = 335;
-								// 175 + 50 = 225 hp, then multiply for overheal: 225*1.5 = 337.5 hp. 
-								// According to the wiki, max overheal hp is found by rounding down to the nearest multiple of 5, so 335 max overheal	
-							}
-						
-							{
-								event1 = CreateEvent("player_healonhit", true);
-								event1.SetInt("amount", intMin(pyro_overheal_max - health_cur, 75));
-								event1.SetInt("entindex", attacker);
-								event1.SetInt("weapon_def_index", -1);
-								FireEvent(event1);
-								// Set health
-								if(health_cur <= pyro_overheal_max) {
-									SetEntityHealth(attacker, intMin(GetClientHealth(attacker) + 75, pyro_overheal_max));
-								}
-								// prevent removing extra hp beyond normal max overheal in case the pyro uses the 2x overheal spell during halloween
-								// pyro will not get extra hp when killing an enemy. this is a niche case for halloween
-								else if(health_cur > pyro_overheal_max) {
-									SetEntityHealth(attacker, health_cur);
-								}
-							}
+							// Save kill tick for later use
+							players[attacker].powerjack_kill_tick = GetGameTickCount();
+						}
+						if (
+							GetItemVariant(Wep_CleanerCarbine) == 0 &&
+							TF2_GetPlayerClass(attacker) == TFClass_Sniper &&
+							HasEntProp(weapon, Prop_Send, "m_flMinicritCharge")
+						) {
+							// release cleaner's carbine use crikey meter to indicate remaining buff duration
+							// this is purely a custom cosmetic thing
+							SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 						}
 					}
 				}
@@ -4483,6 +4525,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_CowMangler) &&
 					StrEqual(class, "tf_weapon_particle_cannon") &&
+					TF2Attrib_HookValueInt(0, "no_crit_boost", weapon) &&
 					damage_type & DMG_CRIT != 0
 				) {
 					damage_type ^= DMG_CRIT;
@@ -4541,7 +4584,7 @@ Action SDKHookCB_OnTakeDamage(
 
 							// cloak/uber drain is done in OnTakeDamagePost
 
-							// Historically accurate Pre-MyM Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
+							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
 							if (
 								(GetItemVariant(Wep_Bison) == 1 && should_penetrate) ||
 								(GetItemVariant(Wep_Pomson) == 2 && !should_penetrate)
@@ -5034,8 +5077,7 @@ public Action OnPlayerRunCmd(
 							(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne, the attribute will handle air jumps
 						) {
 							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
-							// apply the following so movement gets reset immediately, maybe there's a better way
-							TF2Attrib_AddCustomPlayerAttribute(client, "move speed penalty", 0.99, 0.001);
+							TF2Util_UpdatePlayerSpeed(client, true);
 						}
 						players[client].player_jumped = true;
 					}
@@ -6421,11 +6463,11 @@ MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnV
 }
 
 /**
- * Get the smaller integer between two integers.
+ * Get the lesser integer between two integers.
  * 
  * @param x		Integer x.
  * @param y		Integer y.
- * @return		The smaller integer between x and y.
+ * @return		The lesser integer between x and y.
  */
 int intMin(int x, int y)
 {
@@ -6433,15 +6475,27 @@ int intMin(int x, int y)
 }
 
 /**
- * Get the smaller float between two floats.
+ * Get the lesser float between two floats.
  * 
  * @param x		Float x.
  * @param y		Float y.
- * @return		The smaller float between x and y.
+ * @return		The lesser float between x and y.
  */
 float floatMin(float x, float y)
 {
 	return x > y ? y : x;
+}
+
+/**
+ * Get the greater float between two floats.
+ * 
+ * @param x		Float x.
+ * @param y		Float y.
+ * @return		The greater float between x and y.
+ */
+float floatMax(float x, float y)
+{
+    return x > y ? x : y;
 }
 
 int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
