@@ -278,7 +278,11 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 
 MemoryPatch patch_RevertSniperRifles_ScopeJump;
+#if defined WIN32
+// Hacky way, prevent extra Linux mempatch from compiling
+#else
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
+#endif
 #endif
 
 Handle sdkcall_JarExplode;
