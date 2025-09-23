@@ -3889,7 +3889,6 @@ Action SDKHookCB_OnTakeDamage(
 	float damage1;
 	int health_cur;
 	int health_max;
-	int health_new;
 	int weapon1;
 	Action returnValue = Plugin_Continue;
 
@@ -4443,8 +4442,6 @@ Action SDKHookCB_OnTakeDamage(
 					TF2_GetClientTeam(attacker) != TF2_GetClientTeam(victim) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)
-					// reverted black box will heal on Bonked Scouts
-					// for some reason adding TF2_IsPlayerInCondition(victim, TFCond_Bonked) makes the healing not work
 				) {
 					// Show that attacker got healed.
 					Event event = CreateEvent("player_healonhit", true);
@@ -4452,20 +4449,8 @@ Action SDKHookCB_OnTakeDamage(
 					event.SetInt("entindex", attacker);
 					event.Fire();
 
-					// Set health.
-					health_cur = GetClientHealth(attacker);
-					health_new = health_cur + 15;
-					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
-
-					if(health_max > health_new) {
-						SetEntityHealth(attacker, health_new);
-					}
-					else if(health_max > health_cur) {
-						SetEntityHealth(attacker, health_max); //check if the current health is 14HP less than the max health
-					}
-					else if(health_max < health_cur) {
-						SetEntityHealth(attacker, health_cur); //don't remove overheal (still shows +15 HP on hit)
-					}
+					// Add health.
+					TF2Util_TakeHealth(attacker, 15.0);
 				}
 			}
 
@@ -4525,7 +4510,6 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_CowMangler) &&
 					StrEqual(class, "tf_weapon_particle_cannon") &&
-					TF2Attrib_HookValueInt(0, "no_crit_boost", weapon) &&
 					damage_type & DMG_CRIT != 0
 				) {
 					damage_type ^= DMG_CRIT;
@@ -6182,8 +6166,8 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 			}
 
-			// Set health.
-			SetEntityHealth(client, intMin(health + heal, health_max));
+			// Add health.
+			TF2Util_TakeHealth(client, float(heal));
 			EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
 			returnValue.Value = true;
 		}
@@ -6215,8 +6199,8 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 			}
 
-			// Set health.
-			SetEntityHealth(client, intMin(health + 20, health_max));
+			// Add health.
+			TF2Util_TakeHealth(client, 20.0);
 			// If you're wondering why EmitSoundToAll below is repeated in a different channel,
 			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
 			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
