@@ -3130,7 +3130,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled(Wep_Powerjack) &&
 							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214
 						) {
-							// Save kill tick for later use
+							// Save kill tick for applying overheal on next tick
 							players[attacker].powerjack_kill_tick = GetGameTickCount();
 						}
 						if (
