@@ -482,7 +482,7 @@
 	}
 	"Stickybomb_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, air-detonated stickies have full blast radius, increased base blast radius"
+		"en"	"Reverted to pre-love&war, +9%% base blast radius; air-detonated stickies have full blast radius"
 	}
 	"Swords_PreTB"
 	{
