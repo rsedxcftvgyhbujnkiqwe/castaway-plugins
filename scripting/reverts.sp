@@ -278,6 +278,7 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 
 MemoryPatch patch_RevertSniperRifles_ScopeJump;
+MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
 Handle sdkcall_JarExplode;
@@ -782,7 +783,15 @@ public void OnPluginStart() {
 			"CTFPlayer::DropAmmoPack");
 		patch_RevertSniperRifles_ScopeJump =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");		
+			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
+#if defined WIN32
+// Hacky way, but I need to avoid this being compiled on Windows.
+#else
+		patch_RevertSniperRifles_ScopeJump_linuxextra =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFSniperRifle::Fire_SniperScopeJump");
+		PrintToServer("Made the sniperscope linuxextra patch!");
+#endif
 		
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
@@ -804,6 +813,12 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
+#if defined WIN32
+// Hacky way, but I need to avoid this being compiled on Windows.
+#else
+		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
+		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
+#endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
@@ -968,8 +983,19 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Feat_SniperRifle: {
 			if (enable) {
 				patch_RevertSniperRifles_ScopeJump.Enable();
+#if defined WIN32
+// Hacky way, but I need to avoid this being compiled on Windows.
+#else
+				patch_RevertSniperRifles_ScopeJump_linuxextra.Enable();
+				PrintToServer("patch_RevertSniperRifles_ScopeJump_linuxextra enabled!");
+#endif
 			} else {
 				patch_RevertSniperRifles_ScopeJump.Disable();
+#if defined WIN32
+// Hacky way, but I need to avoid this being compiled on Windows.
+#else
+				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
+#endif
 			}
 		}		
 		case Wep_Wrangler: {
