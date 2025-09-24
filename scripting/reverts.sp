@@ -786,9 +786,7 @@ public void OnPluginStart() {
 		patch_RevertSniperRifles_ScopeJump =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
-#if defined WIN32
-// Hacky way, but I need to avoid this being compiled on Windows.
-#else
+#if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::Fire_SniperScopeJump");
