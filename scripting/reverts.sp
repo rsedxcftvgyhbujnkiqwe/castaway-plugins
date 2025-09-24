@@ -987,9 +987,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #endif
 			} else {
 				patch_RevertSniperRifles_ScopeJump.Disable();
-#if defined WIN32
-// Hacky way, but I need to avoid this being compiled on Windows.
-#else
+#if !defined WIN32
 				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
 #endif
 			}
