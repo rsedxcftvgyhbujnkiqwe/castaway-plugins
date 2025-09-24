@@ -981,9 +981,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Feat_SniperRifle: {
 			if (enable) {
 				patch_RevertSniperRifles_ScopeJump.Enable();
-#if defined WIN32
-// Hacky way, but I need to avoid this being compiled on Windows.
-#else
+#if !defined WIN32
 				patch_RevertSniperRifles_ScopeJump_linuxextra.Enable();
 				PrintToServer("patch_RevertSniperRifles_ScopeJump_linuxextra enabled!");
 #endif
