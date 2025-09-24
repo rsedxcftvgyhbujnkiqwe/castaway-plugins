@@ -838,12 +838,12 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
 	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
-	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
-	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
+	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
+	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, ModifyRageMeter);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, ModifyRageMeter);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_SetRageMeter);
+	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, DHookCallback_CTFPlayerShared_SetRageMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -6198,7 +6198,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int arrowEntity, DHookParam parameters) {
 	MRESReturn returnValue = MRES_Ignored;
 	int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
 
@@ -6236,7 +6236,7 @@ MRESReturn PreHealingBoltImpact(int arrowEntity, DHookParam parameters) {
 	return returnValue;
 }
 
-MRESReturn PostHealingBoltImpact(int arrowEntity, DHookParam parameters) {
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int arrowEntity, DHookParam parameters) {
 	MRESReturn returnValue = MRES_Ignored;
 	int buildingIndex = parameters.Get(1);
 	int engineerIndex = GetEntityOwner(arrowEntity);
@@ -6371,7 +6371,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
     return MRES_Ignored;
 }
 
-MRESReturn ModifyRageMeter(Address thisPointer, DHookParam parameters)
+MRESReturn DHookCallback_CTFPlayerShared_SetRageMeter(Address thisPointer, DHookParam parameters)
 {
 	// Imported from NotnHeavy's plugin
     int client = GetEntityFromAddress(Dereference(thisPointer + CTFPlayerShared_m_pOuter));
