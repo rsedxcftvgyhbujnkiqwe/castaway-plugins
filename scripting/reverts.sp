@@ -813,9 +813,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
-#if defined WIN32
-// Hacky way, but I need to avoid this being compiled on Windows.
-#else
+#if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
 #endif
