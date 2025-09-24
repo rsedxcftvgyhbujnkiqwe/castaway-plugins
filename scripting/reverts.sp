@@ -3052,8 +3052,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		) {
 
 			{
-				// zatoichi heal on kill
-
 				if (
 					client != attacker &&
 					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
@@ -3069,7 +3067,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							ItemIsEnabled(Wep_Zatoichi) &&
 							StrEqual(class, "tf_weapon_katana")
 						) {
-
+							// zatoichi heal on kill
 							health_cur = GetClientHealth(attacker);
 							health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
@@ -3084,6 +3082,27 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 								event1.Fire();
 							}
+						}
+
+						if (
+							ItemIsEnabled(Wep_Powerjack) &&
+							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214 &&
+							// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
+							GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE // powerjack melee kill has a customkill value of 0, thanks huutti; -mindfulprotons
+						) {
+							// Save kill tick for applying overheal on next tick
+							players[attacker].powerjack_kill_tick = GetGameTickCount();
+						}
+
+						if (
+							GetItemVariant(Wep_CleanerCarbine) == 0 &&
+							TF2_GetPlayerClass(attacker) == TFClass_Sniper &&
+							HasEntProp(weapon, Prop_Send, "m_flMinicritCharge") &&
+							GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE
+						) {
+							// release cleaner's carbine use crikey meter to indicate remaining buff duration
+							// this is purely a custom cosmetic thing
+							SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 						}
 					}
 				}
@@ -3108,39 +3127,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
 
 							return Plugin_Changed;
-						}
-					}
-				}
-			}
-
-			{
-				if (
-					client != attacker &&
-					(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
-					GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
-					IsPlayerAlive(attacker) &&
-					// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
-					GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE // powerjack melee kill has a customkill value of 0, thanks huutti; -mindfulprotons
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon > 0) {
-
-						if (
-							ItemIsEnabled(Wep_Powerjack) &&
-							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214
-						) {
-							// Save kill tick for applying overheal on next tick
-							players[attacker].powerjack_kill_tick = GetGameTickCount();
-						}
-						if (
-							GetItemVariant(Wep_CleanerCarbine) == 0 &&
-							TF2_GetPlayerClass(attacker) == TFClass_Sniper &&
-							HasEntProp(weapon, Prop_Send, "m_flMinicritCharge")
-						) {
-							// release cleaner's carbine use crikey meter to indicate remaining buff duration
-							// this is purely a custom cosmetic thing
-							SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 						}
 					}
 				}
