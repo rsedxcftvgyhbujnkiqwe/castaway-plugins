@@ -213,6 +213,7 @@ enum struct Player {
 	bool spy_under_feign_buffs;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
+	float damage_received_time;
 }
 
 enum struct Entity {
@@ -305,8 +306,6 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
-int prev_mvm_state;
-bool regen_think_override = false;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -842,8 +841,7 @@ public void OnPluginStart() {
 	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, PreHealingBoltImpact);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, PostHealingBoltImpact);
-	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
-	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
+	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, ModifyRageMeter);
 	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, ModifyRageMeter);
 
@@ -3891,6 +3889,11 @@ Action SDKHookCB_OnTakeDamage(
 		// damage from any source
 
 		{
+			// track when victim is damaged for use with conch and amputator reverts
+			players[victim].damage_received_time = GetGameTime();
+		}
+
+		{
 			// save fall dmg tick for overriding with old fall dmg sound
 			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
 		}
@@ -6326,10 +6329,13 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 }
 #endif
 
-MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
+MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 {
 	int weapon;
 	bool full_regen = false;
+	float regen_amount;
+	float time_since_damage;
+	float regen_scale;
 
 	// Don't proceed if in MvM
     if (cvar_ref_tf_gamemode_mvm.BoolValue)
@@ -6347,7 +6353,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 			weapon > 0
 		) {
 			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 354) {
-				// Weapon is a Concheror, fake MvM game state for full regen
+				// Weapon is a Concheror, increase regen amount for this instance
 				full_regen = true;
 			}
 		}
@@ -6360,39 +6366,34 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client)
 			weapon > 0
 		) {
 			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 304) {
-				// Weapon is an Amputator, fake MvM game state for full regen
+				// Weapon is an Amputator, increase regen amount for this instance
 				full_regen = true;
 			}
 		}
 
 		if (full_regen) {
-			prev_mvm_state = GameRules_GetProp("m_bPlayingMannVsMachine");
-			GameRules_SetProp("m_bPlayingMannVsMachine", 1);
-			regen_think_override = true;
+			regen_amount = TF2Attrib_HookValueFloat(0.0, "add_health_regen", client);
+			time_since_damage = GetGameTime() - players[client].damage_received_time;
+			regen_scale = 1.0;
+
+			if (time_since_damage < 5.0) {
+				regen_scale = 4.0; // 1 / 0.25
+			} else {
+				// inverse of flScale = RemapValClamped( flTimeSinceDamage, 5.0f, 10.0f, 0.5f, 1.0f );
+				// third parameter is 9.0 to minimize chance of regen overshooting
+				regen_scale = ValveRemapVal(time_since_damage, 5.0, 9.0, 2.0, 1.0);
+			}
+
+			// apply regen
+			regen_amount *= regen_scale - 1.0; // compensate for original regen source
+			if (regen_amount > 0.0) {
+				TF2Attrib_AddCustomPlayerAttribute(client, "health regen", regen_amount, 0.001);
+			}
+
 			return MRES_Ignored;
 		}
 	}
 	
-    return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
-{
-	// Don't proceed if in MvM
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
-		return MRES_Ignored;
-
-	if (
-		client > 0 &&
-		client <= MaxClients
-	) {
-		if (regen_think_override) {
-			// Restore previous gamerule state
-			GameRules_SetProp("m_bPlayingMannVsMachine", prev_mvm_state);
-			regen_think_override = false;
-		}
-	}
-
     return MRES_Ignored;
 }
 
