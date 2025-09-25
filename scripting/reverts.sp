@@ -4752,6 +4752,16 @@ Action SDKHookCB_OnTakeDamageAlive(
 ) {
 	Action returnValue = Plugin_Continue;
 
+	bool resist_damage = false;
+	if (weapon > 0) {
+		// Don't resist if weapon pierces resists (vanilla Enforcer)
+		if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+			resist_damage = true;
+		}
+	} else {
+		resist_damage = true;
+	}
+
 	if (
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
@@ -4801,88 +4811,53 @@ Action SDKHookCB_OnTakeDamageAlive(
 				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
 				(GetItemVariant(Wep_Natascha) == 0 && player_weapons[victim][Wep_Natascha])) &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				TF2_GetPlayerClass(victim) == TFClass_Heavy
+				resist_damage
 			) {
 				// Brass Beast/Natascha (pre-MyM) damage resistance when spun up
 
-				bool resist_damage = false;
+				// play damage resist sound
+				EmitGameSoundToAll("Player.ResistanceLight", victim);
+				
+				// apply resistance
+				if (damage_type & DMG_CRIT != 0)
+					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
+				else
+					damage *= 0.80;
 
-				if (weapon > 0) {
-					// Don't resist if weapon pierces resists (vanilla Enforcer)
-					if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-						resist_damage = true;
-					}
-				} else {
-					resist_damage = true;
-				}
-
-				if (resist_damage) {
-					// play damage resist sound
-					EmitGameSoundToAll("Player.ResistanceLight", victim);
-					
-					// apply resistance
-					if (damage_type & DMG_CRIT != 0)
-						damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
-					else
-						damage *= 0.80;
-
-					returnValue = Plugin_Changed;
-				}
+				returnValue = Plugin_Changed;
 			}
 		}
 		{
-			if(
-				ItemIsEnabled(Wep_RocketJumper) &&
-				victim == attacker &&
-				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-				player_weapons[victim][Wep_RocketJumper]
-			) {
-				// save old health and set health to 500 to tank the grenade blast
-				// do it this way in order to preserve knockback caused by the explosion
-				players[victim].old_health = GetClientHealth(victim);
-				SetEntityHealth(victim, 500);
-					//PrintToChat(victim, "Kamikaze: set health to 500, tanking...", 0);
-			}
-		}
-		{
-			// no self blast damage including from pumpkin bombs for rocket jumper revert variants
-			if(
-				GetItemVariant(Wep_RocketJumper) >= 1 &&
-				victim == attacker &&
-				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE && // bug fix to prevent 500 hp overheal
-				damage > 0 &&
-				player_weapons[victim][Wep_RocketJumper]
-			) {
-				// save old health and set health to 500 to tank self blast damage
-				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
-				players[victim].old_health = GetClientHealth(victim);
-				SetEntityHealth(victim, 500);
-					//PrintToChat(victim, "RJ: set health to 500, tanking...", 0);
-			}
-
-			// no self blast damage including from pumpkin bombs for sticky jumper variants
-			if(
-				GetItemVariant(Wep_StickyJumper) >= 2 &&
+			if (
 				victim == attacker &&
 				damage > 0 &&
-				player_weapons[victim][Wep_StickyJumper]
+				damage_type & DMG_BLAST != 0
 			) {
-				// save old health and set health to 500 to tank self blast damage
-				// Note: hurtme console command does not work whenever the jumper weapons are equipped.
-				players[victim].old_health = GetClientHealth(victim);
-				SetEntityHealth(victim, 500);
-					//PrintToChat(victim, "SJ: set health to 500, tanking...", 0);
+				if (
+					// Kamikaze taunt tanking for all Rocket Jumper variants
+					(ItemIsEnabled(Wep_RocketJumper) &&
+					player_weapons[victim][Wep_RocketJumper] &&
+					damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+					// All self blast damage tanking for some Rocket Jumper and Sticky Jumper variants
+					(GetItemVariant(Wep_RocketJumper) >= 1 &&
+					player_weapons[victim][Wep_RocketJumper]) ||
+					(GetItemVariant(Wep_StickyJumper) >= 2 &&
+					player_weapons[victim][Wep_StickyJumper])
+				) {
+					players[victim].old_health = GetClientHealth(victim);
+					SetEntityHealth(victim, 500);
+				}
 			}
 		}
 		{
 			// 90% damage resistance revert for Release and March 2012 Phlog variants
 			if (
-				(((GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) && player_weapons[victim][Wep_Phlogistinator])) &&
-				TF2_GetPlayerClass(victim) == TFClass_Pyro &&
+				(GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
+				player_weapons[victim][Wep_Phlogistinator] &&
 				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
 				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
 				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.
-				TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0 // Don't resist if weapon pierces resists (vanilla Enforcer)
+				resist_damage
 			) {
 				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
 				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
@@ -4911,38 +4886,22 @@ void SDKHookCB_OnTakeDamagePost(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
-		if(
-			ItemIsEnabled(Wep_RocketJumper) &&
+		if (
 			victim == attacker &&
-			damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-			player_weapons[victim][Wep_RocketJumper]
+			damage > 0 &&
+			damage_type & DMG_BLAST != 0
 		) {
-			// set back saved health after tauntkill
-			SetEntityHealth(victim, players[victim].old_health);
-				//PrintToChat(victim, "Kamikaze: set back to saved health", 0);
-		}
-
-		{
-			// set back saved health after self blast damage with jumper weapons
-			if(
-				GetItemVariant(Wep_RocketJumper) >= 1 &&
-				victim == attacker &&
-				damage_custom != TF_DMG_CUSTOM_TAUNTATK_GRENADE &&
-				damage > 0 &&
-				player_weapons[victim][Wep_RocketJumper]
+			if (
+				(ItemIsEnabled(Wep_RocketJumper) &&
+				player_weapons[victim][Wep_RocketJumper] &&
+				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+				(GetItemVariant(Wep_RocketJumper) >= 1 &&
+				player_weapons[victim][Wep_RocketJumper]) ||
+				(GetItemVariant(Wep_StickyJumper) >= 2 &&
+				player_weapons[victim][Wep_StickyJumper])
 			) {
+				// Restore health after tanking self blast damage
 				SetEntityHealth(victim, players[victim].old_health);
-					//PrintToChat(victim, "RJ: set back to saved health", 0);
-			}
-
-			if(
-				GetItemVariant(Wep_StickyJumper) >= 2 &&
-				victim == attacker &&
-				damage > 0 &&
-				player_weapons[victim][Wep_StickyJumper]
-			) {
-				SetEntityHealth(victim, players[victim].old_health);
-					//PrintToChat(victim, "SJ: set back to saved health", 0);
 			}
 		}
 
