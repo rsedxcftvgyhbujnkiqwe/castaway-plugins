@@ -245,6 +245,7 @@ ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_scout_hype_mod;
 ConVar cvar_ref_tf_gamemode_mvm;
+ConVar cvar_ref_tf_weapon_criticals;
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -653,6 +654,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
+	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1969,7 +1971,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// Pre-GM and Release Sydney Sleeper time since scoping tracking
 		// Modify checks for the Sydney Sleeper.
 		if (
-			(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
+			GetItemVariant(Wep_SydneySleeper) >= 1 &&
 			condition == TFCond_Slowed && 
 			GetPlayerWeaponSlot(client, TFWeaponSlot_Primary) == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
 		) {
@@ -2793,14 +2795,9 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
 			switch (GetItemVariant(Wep_SydneySleeper)) {
 				// jarate application handled elsewhere for all variants
-				case 0: {
+				case 0, 1: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
-				}
-				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
-					TF2Items_SetAttribute(itemNew, 1, 42, 1.0); // sniper no headshots
 				}
 				case 2: {
 					TF2Items_SetNumAttributes(itemNew, 5);
@@ -4293,73 +4290,65 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_sniperrifle") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
 				) {
+					charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage");
+
 					if (
-						GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") > 0.1 &&
-						PlayerIsInvulnerable(victim) == false
+						(GetItemVariant(Wep_SydneySleeper) == 0 &&
+						charge > 0.1) ||
+						(GetItemVariant(Wep_SydneySleeper) >= 1 &&
+						charge > 0.1 &&
+						GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0)
 					) {
-						charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage");
-
-						// this should cause a jarate application
-						players[attacker].sleeper_piss_frame = GetGameTickCount();
-						if (GetItemVariant(Wep_SydneySleeper) == 0) {
-							players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
-						}
-						players[attacker].sleeper_piss_explode = false;
-
 						if (
-							GetItemVariant(Wep_SydneySleeper) == 0 &&
-							GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") > 149.0 ||
-							players[attacker].headshot_frame == GetGameTickCount()
+							GetItemVariant(Wep_SydneySleeper) == 2 ||
+							PlayerIsInvulnerable(victim) == false
 						) {
-							// this should also cause a jarate explosion
-							players[attacker].sleeper_piss_explode = true;
-						}
-					}
-				}
-			}
+							players[attacker].sleeper_piss_frame = GetGameTickCount();
+							players[attacker].sleeper_piss_explode = false;
 
-			{
-				// workaround for enabling random crits on release sydney sleeper
-				// TO DO: Replicate random crit mechanic / Find a way to get the random crit multiplier so as to follow random crit damage ramp-up.
-				// https://github.com/ValveSoftware/source-sdk-2013/blob/39f6dde8fbc238727c020d13b05ecadd31bda4c0/src/game/shared/tf/tf_player_shared.cpp#L9414
-				
-				if (
-					ItemIsEnabled(Wep_SydneySleeper) &&
-					GetItemVariant(Wep_SydneySleeper) == 2 &&
-					StrEqual(class, "tf_weapon_sniperrifle") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							StrEqual(class, "tf_weapon_sniperrifle") &&
-							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
-						) {
-							// Random crit chance
-							// how to get flRemapCritMul from the game?
-							//float crit_threshold = 0.02*(flRemapCritMul);
-
-							// Because I don't know yet how to get the random crit multiplier, instead we just choose a random threshold for the time being.
-							float crit_threshold = GetRandomFloat(0.02, 0.08);
-								//PrintToChatAll("crit_threshold: %f", crit_threshold);
-							float crit_roll = GetRandomFloat(0.0, 1.0);
-								//PrintToChatAll("crit_roll: %f", crit_roll);
-
-							if (crit_roll <= crit_threshold) {
-								damage_type = (damage_type | DMG_CRIT);
-									//PrintToChatAll("Random crit! crit_roll is less than crit_threshold", 0);
-								// critical hit lightning sound doesn't play, so add it back.
-								EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
-								
-								returnValue = Plugin_Changed;
-								break;
+							// this should cause a jarate application
+							switch (GetItemVariant(Wep_SydneySleeper)) {
+								case 0: {
+									players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
+									if (
+										charge > 149.0 ||
+										players[attacker].headshot_frame == GetGameTickCount()
+									) {
+										// this should also cause a jarate explosion
+										players[attacker].sleeper_piss_explode = true;
+									}
+								}
+								case 1, 2:
+									players[attacker].sleeper_piss_duration = 8.0;
 							}
 						}
 					}
-					break;
+
+					if (
+						GetItemVariant(Wep_SydneySleeper) == 2 &&
+						cvar_ref_tf_weapon_criticals.BoolValue
+					) {
+						// workaround for enabling random crits on release sydney sleeper
+
+						// Random crit chance
+						float crit_mult = float(GetEntProp(attacker, Prop_Send, "m_iCritMult"));
+						crit_mult = ValveRemapVal(crit_mult, 0.0, 255.0, 1.0, 4.0);
+						float crit_threshold = 0.02 * crit_mult;
+						float crit_roll = GetRandomFloat(0.0, 1.0);
+
+						//PrintToChat(attacker, "crit_threshold: %f", crit_threshold);
+						//PrintToChat(attacker, "crit_roll: %f", crit_roll);
+
+						if (crit_roll <= crit_threshold) {
+							damage_type |= DMG_CRIT;
+							//PrintToChat(attacker, "Random crit! crit_roll is less than crit_threshold", 0);
+							// critical hit lightning sound doesn't play, so add it back.
+							EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
+							
+							returnValue = Plugin_Changed;
+							break;
+						}
+					}
 				}
 			}
 
@@ -4770,10 +4759,10 @@ Action SDKHookCB_OnTakeDamageAlive(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		{
-			// sleeper jarate application (pre-Blue Moon)
+			// sleeper jarate application
 
 			if (
-				GetItemVariant(Wep_SydneySleeper) == 0 &&
+				ItemIsEnabled(Wep_SydneySleeper) &&
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
 				// condition must be added in OnTakeDamageAlive, otherwise initial shot will crit
@@ -4787,25 +4776,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 					);
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
-				}
-			}
-		}
-		{
-			// sydney sleeper (pre-Gun Mettle & release) jarate effect
-			if (
-				(GetItemVariant(Wep_SydneySleeper) == 1 || GetItemVariant(Wep_SydneySleeper) == 2) &&
-				player_weapons[attacker][Wep_SydneySleeper] &&
-				GetGameTime() - players[attacker].sleeper_time_since_scoping >= 1.0 &&
-				TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
-			) {
-				if (
-					(GetItemVariant(Wep_SydneySleeper) == 1 && !PlayerIsInvulnerable(victim)) || 
-					GetItemVariant(Wep_SydneySleeper) == 2)
-				{
-					// prevent jarate effect on invulnerable targets for pre-gun mettle sydney sleeper
-					// only apply jarate effect on invulnerable targets for release sydney sleeper for historical accuracy
-					TF2_AddCondition(victim, TFCond_Jarated, 8.0);
-					ParticleShowSimple("peejar_impact_small", damage_position); // add back small jarate impact effect
 				}
 			}
 		}		
