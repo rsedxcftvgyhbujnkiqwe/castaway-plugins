@@ -1992,24 +1992,24 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
 			}
 
-			switch(GetItemVariant(Wep_Phlogistinator)) {
+			switch (GetItemVariant(Wep_Phlogistinator)) {
 				case 0: { // Pyromania Phlog
-				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-				TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
+					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
 				}
 				case 1: { // Tough Break Phlog
-				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
-				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
+					// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
+					TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
 				}
 				case 2: { // Release Phlog
-				// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
-				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-				TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
-				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
+					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+					TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
+					// 90% defense buff handled elsewhere in OnTakeDamageAlive
 				}
 				case 3: { // March 15, 2012 Phlog
-				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-				// 90% defense buff handled elsewhere in OnTakeDamageAlive
+					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
+					// 90% defense buff handled elsewhere in OnTakeDamageAlive
 				}
 			}			
 		}
@@ -2122,7 +2122,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		// prevent Phlog uber and knockback immunity for Release, Pyromania, and March 2012 variants
 		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
 		if (
-			(GetItemVariant(Wep_Phlogistinator) == 0 || GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
+			ItemIsEnabled(Wep_Phlogistinator) && GetItemVariant(Wep_Phlogistinator) != 1 &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro
 		) {
 			// Prevent Uber effect (should also prevent debuff removal)
