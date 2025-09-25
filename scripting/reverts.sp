@@ -193,7 +193,6 @@ enum struct Player {
 	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
-	float parachute_cond_time;
 	float cleaver_regen_time;
 	float icicle_regen_time;
 	int scout_airdash_value;
@@ -243,6 +242,7 @@ ConVar cvar_ref_tf_feign_death_speed_duration;
 ConVar cvar_ref_tf_fireball_radius;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
+ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
 ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_weapon_criticals;
@@ -652,6 +652,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_fireball_radius = FindConVar("tf_fireball_radius");
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
+	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
@@ -1630,39 +1631,6 @@ public void OnGameFrame() {
 							}
 						}
 					}
-
-					{
-						// parachute redeploy & updraft
-
-						if (TF2_IsPlayerInCondition(idx, TFCond_Parachute)) {
-							players[idx].parachute_cond_time = GetGameTime();
-
-							if (
-								ItemIsEnabled(Wep_BaseJumper) &&
-								TF2_IsPlayerInCondition(idx, TFCond_OnFire) &&
-								GetEntProp(idx, Prop_Data, "m_nWaterLevel") == 0
-							) {
-								GetEntPropVector(idx, Prop_Data, "m_vecVelocity", pos1);
-
-								if (pos1[2] < cvar_ref_tf_parachute_maxspeed_onfire_z.FloatValue) {
-									pos1[2] = cvar_ref_tf_parachute_maxspeed_onfire_z.FloatValue;
-
-									// don't use TeleportEntity to avoid the trigger re-entry bug
-									SetEntPropVector(idx, Prop_Data, "m_vecAbsVelocity", pos1);
-								}
-							}
-						} else {
-							if (
-								TF2_IsPlayerInCondition(idx, TFCond_ParachuteDeployed) &&
-								(GetGameTime() - players[idx].parachute_cond_time) > 0.2 &&
-								ItemIsEnabled(Wep_BaseJumper)
-							) {
-								// this cond is what stops redeploy
-								// tf_parachute_deploy_toggle_allowed can also be used
-								TF2_RemoveCondition(idx, TFCond_ParachuteDeployed);
-							}
-						}
-					}
 				}
 
 				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
@@ -1733,8 +1701,8 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
-			// By setting tf_parachute_maxspeed_onfire_z = 10.0, fire updraft is back again. Valve set this to -100 for some reason by default.
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
+			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
 		}
 	}
 }
@@ -1745,7 +1713,6 @@ public void OnClientConnected(int client) {
 	players[client].resupply_time = 0.0;
 	players[client].medic_medigun_defidx = 0;
 	players[client].medic_medigun_charge = 0.0;
-	players[client].parachute_cond_time = 0.0;
 	players[client].received_help_notice = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
