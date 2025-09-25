@@ -214,6 +214,7 @@ enum struct Player {
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
+	float pyro_rage_meter;
 }
 
 enum struct Entity {
@@ -295,9 +296,6 @@ DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
-DynamicDetour dhook_CTFPlayerShared_SetRageMeter;
-
-Address CTFPlayerShared_m_pOuter;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -719,9 +717,6 @@ public void OnPluginStart() {
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
-		dhook_CTFPlayerShared_SetRageMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::SetRageMeter");
-
-		CTFPlayerShared_m_pOuter = view_as<Address>(GameConfGetOffset(conf, "CTFPlayerShared::m_pOuter"));
 
 		delete conf;
 	}
@@ -832,7 +827,6 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CTFPlayerShared_SetRageMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_SetRageMeter");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -842,8 +836,6 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_SetRageMeter);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, DHookCallback_CTFPlayerShared_SetRageMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1364,6 +1356,31 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// Phlog rage takes 225 damage to fully fill (from 300)
+
+						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
+
+						if (weapon > 0) {
+
+							if (
+								ItemIsEnabled(Wep_Phlogistinator) &&
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594
+							) {
+								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
+								float delta = hype - players[idx].pyro_rage_meter;
+
+								if (delta > 0.0) {
+									delta *= 1.33333333; // 300.0 / 225.0
+									hype = floatMin(players[idx].pyro_rage_meter + delta, 100.0);
+									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
+								}
+
+								players[idx].pyro_rage_meter = hype;
+							}
+						}
+					}
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
@@ -1649,7 +1666,6 @@ public void OnGameFrame() {
 				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
 					// reset if player isn't engineer
 					players[idx].is_eureka_teleporting = false;
-					players[idx].eureka_teleport_target = -1;
 				}
 			} else {
 				// reset if player is dead
@@ -1658,11 +1674,8 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
 				players[idx].player_jumped = false;
-				players[idx].drain_victim = 0;
-				players[idx].drain_time = 0.0;
 				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
-				players[idx].eureka_teleport_target = -1;
 			}
 		}
 	}
@@ -1983,24 +1996,20 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 				case 0: { // Pyromania Phlog
 				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
 				TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
-					//PrintToChat(client, "Detected Pyromania Phlogistinator, adding TFCond_DefenseBuffMmmph", 0);
 				}
 				case 1: { // Tough Break Phlog
 				// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
 				TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
-					//PrintToChat(client, "Detected Tough Break Phlogistinator, adding TFCond_UberchargedCanteen for 3.5 sec", 0);
 				}
 				case 2: { // Release Phlog
 				// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
 				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
 				TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
 				// 90% defense buff handled elsewhere in OnTakeDamageAlive
-					//PrintToChat(client, "Detected Release Phlogistinator, adding TFCond_CritMmmph for 13 sec", 0);
 				}
 				case 3: { // March 15, 2012 Phlog
 				TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
 				// 90% defense buff handled elsewhere in OnTakeDamageAlive
-					//PrintToChat(client, "Detected March 2012 Phlogistinator", 0);
 				}
 			}			
 		}
@@ -2118,12 +2127,10 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		) {
 			// Prevent Uber effect (should also prevent debuff removal)
 			if (condition == TFCond_UberchargedCanteen) {
-					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_UberchargedCanteen", 0);
 				return Plugin_Handled;	
 			}
 			// Prevent knockback immunity (this removes the healing circle visual effect! visual effect must be readded via addcond 20)
 			if (condition == TFCond_MegaHeal) {
-					//PrintToChat(client, "Detected Release/Pyromania/March2012 Phlogistinator, prevented TFCond_MegaHeal", 0);
 				return Plugin_Handled;
 			}
 		}
@@ -2611,10 +2618,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 0, 3: { // Pyromania and March 2012 Phlogistinator
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // 10% damage penalty
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // 0% damage penalty
 				}
 			}
 		}}
@@ -6330,28 +6333,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
     return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayerShared_SetRageMeter(Address thisPointer, DHookParam parameters)
-{
-	// Imported from NotnHeavy's plugin
-    int client = GetEntityFromAddress(Dereference(thisPointer + CTFPlayerShared_m_pOuter));
-	int weapon;
-		// Grab primary weapon
-		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-		if (
-			TF2_GetPlayerClass(client) == TFClass_Pyro &&
-			ItemIsEnabled(Wep_Phlogistinator) &&
-			weapon > 0
-		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594) {
-				float delta = view_as<float>(parameters.Get(1));
-     			delta *= (300.00 / 225.00); // Take only 225 damage to build up the Phlog rage meter. This is hacky but it's simple, at least.
-     			parameters.Set(1, delta);
-     			return MRES_ChangedHandled;
-			}
-		}
-    return MRES_Ignored;
-}
-
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
@@ -6464,7 +6445,3 @@ int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
 	return GetEntityFromAddress(pEntity);
 }
 
-any Dereference(Address address, NumberType bitdepth = NumberType_Int32)
-{
-	return LoadFromAddress(address, bitdepth);
-}
