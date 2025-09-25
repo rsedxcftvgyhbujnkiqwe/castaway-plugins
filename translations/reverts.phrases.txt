@@ -482,7 +482,7 @@
 	}
 	"SniperRifle_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, can jump immediately after firing a scoped shot (scope jumps)"
+		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
 	}
 	"Swords_PreTB"
 	{
