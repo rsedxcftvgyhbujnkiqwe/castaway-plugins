@@ -1469,7 +1469,7 @@ public void OnGameFrame() {
 									if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 57) {
 	
 										timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
-										if (timer < 0.1) {
+										if (timer < 1.0) {
 											RemoveEntity(weapon);
 										}
 									}
@@ -2220,10 +2220,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 237: { if (ItemIsEnabled(Wep_RocketJumper)) {
-			switch (GetItemVariant(Wep_RocketJumper)) {
-				case 0: { // RocketJmp_Pre2013
-					TF2Items_SetNumAttributes(itemNew, 0);
-				}				
+			switch (GetItemVariant(Wep_RocketJumper)) {				
 				case 1: { // RocketJmp_Release
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 400, 0.0); // cannot_pick_up_intelligence
