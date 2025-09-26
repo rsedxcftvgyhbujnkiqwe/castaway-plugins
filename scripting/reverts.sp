@@ -4731,7 +4731,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					weapon > 0
 				) {
 					if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230) {
-						// Restore sleeper attrib for pre-MyM variant
+						// Restore sleeper attrib
 						TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 					}
 				}
