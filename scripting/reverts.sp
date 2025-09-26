@@ -186,14 +186,13 @@ enum struct Player {
 	int bonk_cond_frame;
 	int bison_hit_frame;
 	int beggars_ammo;
-	int sleeper_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
 	bool sleeper_piss_explode;
 	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
-	float cleaver_regen_time;
+	float secondary_regen_time;
 	float icicle_regen_time;
 	int scout_airdash_value;
 	int scout_airdash_count;
@@ -1017,12 +1016,12 @@ public void OnGameFrame() {
 	int weapon;
 	int ammo;
 	int clip;
-	int ent;
+	//int ent;
 	float timer;
 	float pos1[3];
-	float pos2[3];
-	float maxs[3];
-	float mins[3];
+	//float pos2[3];
+	//float maxs[3];
+	//float mins[3];
 	float hype;
 	int airdash_value;
 	int airdash_limit_old;
@@ -1195,15 +1194,15 @@ public void OnGameFrame() {
 
 									if (
 										timer > 0.1 &&
-										players[idx].cleaver_regen_time > 0.1 &&
-										(players[idx].cleaver_regen_time - timer) > 1.49 &&
-										(players[idx].cleaver_regen_time - timer) < 1.51
+										players[idx].secondary_regen_time > 0.1 &&
+										(players[idx].secondary_regen_time - timer) > 1.49 &&
+										(players[idx].secondary_regen_time - timer) < 1.51
 									) {
-										timer = players[idx].cleaver_regen_time;
+										timer = players[idx].secondary_regen_time;
 										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer);
 									}
 
-									players[idx].cleaver_regen_time = timer;
+									players[idx].secondary_regen_time = timer;
 								}
 							}
 						}
@@ -1405,66 +1404,39 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Sniper) {
 					{
-						// sleeper teammate extinguish
+						// sydney sleeper headshots don't reduce jarate cooldown
 
-						// shots are detected via ammo change, again pretty hacky
-						// no lagcomp so a decently large hull trace is used instead
+						if (
+							ItemIsEnabled(Wep_SydneySleeper) &&
+							player_weapons[idx][Wep_SydneySleeper]
+						) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
 
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
 
-						if (weapon > 0) {
-							GetEntityClassname(weapon, class, sizeof(class));
+								if (StrEqual(class, "tf_weapon_jar")) {
+									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
-							if (
-								StrEqual(class, "tf_weapon_sniperrifle") &&
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
-							) {
-								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
-
-								if (
-									GetItemVariant(Wep_SydneySleeper) == 0 &&
-									ammo == (players[idx].sleeper_ammo - 1)
-								) {
-									GetClientEyePosition(idx, pos1);
-
-									GetClientEyeAngles(idx, pos2);
-									GetAngleVectors(pos2, pos2, NULL_VECTOR, NULL_VECTOR);
-									ScaleVector(pos2, 10000.0);
-									AddVectors(pos1, pos2, pos2);
-
-									maxs[0] = 20.0;
-									maxs[1] = 20.0;
-									maxs[2] = 5.0;
-
-									mins[0] = (0.0 - maxs[0]);
-									mins[1] = (0.0 - maxs[1]);
-									mins[2] = (0.0 - maxs[2]);
-
-									TR_TraceHullFilter(pos1, pos2, mins, maxs, MASK_SOLID, TraceFilter_ExcludeSingle, idx);
-
-									if (TR_DidHit()) {
-										ent = TR_GetEntityIndex();
-
-										if (
-											ent >= 1 &&
-											ent <= MaxClients &&
-											GetClientTeam(ent) == GetClientTeam(idx) &&
-											TF2_IsPlayerInCondition(ent, TFCond_OnFire)
-										) {
-											// this will remove fire and play the appropriate sound
-											AcceptEntityInput(ent, "ExtinguishPlayer");
-										}
+									if (
+										timer > 0.1 &&
+										players[idx].secondary_regen_time > 0.1 &&
+										(players[idx].secondary_regen_time - timer) > 0.99 &&
+										(players[idx].secondary_regen_time - timer) < 1.01
+									) {
+										timer = players[idx].secondary_regen_time;
+										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer);
 									}
-								}
 
-								players[idx].sleeper_ammo = ammo;
+									players[idx].secondary_regen_time = timer;
+								}
 							}
 						}
 					}
 
 					{
 						// release cleaner's carbine use crikey meter to indicate remaining buff duration
-						// this is purely a custom cosmetic thing
+						// this is purely a custom visual thing
 						if (GetItemVariant(Wep_CleanerCarbine) == 0) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
 
@@ -2762,7 +2734,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 230: { if (ItemIsEnabled(Wep_SydneySleeper)) {
 			switch (GetItemVariant(Wep_SydneySleeper)) {
 				// jarate application handled elsewhere for all variants
-				case 0, 1: {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 175, 8.0); // jarate duration
+				}
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
 				}
@@ -3068,7 +3044,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							GetEventInt(event,"customkill") == TF_DMG_CUSTOM_NONE
 						) {
 							// release cleaner's carbine use crikey meter to indicate remaining buff duration
-							// this is purely a custom cosmetic thing
+							// this is purely a custom visual thing
 							SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 						}
 					}
@@ -4284,6 +4260,11 @@ Action SDKHookCB_OnTakeDamage(
 										// this should also cause a jarate explosion
 										players[attacker].sleeper_piss_explode = true;
 									}
+
+									// Remove sleeper attrib for now to prevent minicrit headshots
+									// (Jarate cooldown reduction handled separately)
+									// This will get restored in OnTakeDamageAlive
+									TF2Attrib_SetByDefIndex(weapon, 175, 0.0);
 								}
 								case 1, 2:
 									players[attacker].sleeper_piss_duration = 8.0;
@@ -4744,6 +4725,16 @@ Action SDKHookCB_OnTakeDamageAlive(
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
 				}
+
+				if (
+					GetItemVariant(Wep_SydneySleeper) == 0 &&
+					weapon > 0
+				) {
+					if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230) {
+						// Restore sleeper attrib for pre-MyM variant
+						TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
+					}
+				}
 			}
 		}		
 		{
@@ -5024,9 +5015,9 @@ void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
 }
 
-bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
-	return (entity != data);
-}
+// bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
+// 	return (entity != data);
+// }
 
 bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
 	return (entity < 1 || entity > MaxClients);
