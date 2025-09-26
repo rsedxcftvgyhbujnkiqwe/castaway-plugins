@@ -96,6 +96,18 @@
 				// this is weird, blame makesig.idc for this
 				"windows" "\x57\x8B\xF9\x8B\x0D\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A"
 			}
+			"CTFFlameManager::GetFlameDamageScale"
+			{
+				"library"	"server"
+				"linux"		"@_ZNK15CTFFlameManager19GetFlameDamageScaleEPK10tf_point_tP9CTFPlayer"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x8B\x15\x2A\x2A\x2A\x2A\x57"
+			}
+			"CTFFlameManager::OnCollide"
+			{
+				"library"	"server"
+				"linux"		"@_ZN15CTFFlameManager9OnCollideEP11CBaseEntityi"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x78\x01\x00\x00"
+			}
 		}
 
 		"MemPatches"
@@ -185,6 +197,45 @@
 						"offset"    "1676"
 						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
 						"patch"     "\x90\x90" // 2x NOP
+					}
+				}
+
+				// ================================================
+				//  (TEST ATTEMPT) Revert flamethrower damage to Pre-Bluemoon.
+ 
+				"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
+				{
+					"signature" "CTFFlameManager::GetFlameDamageScale"
+					"linux"
+					{
+						"offset"    "239"
+						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
+						"patch"  "\xE9\x93\x00\x00\x00\x90"
+ 
+					}
+					"windows"
+					{
+						"offset"    "349"
+						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
+						"patch"  "\xE9\x88\x00\x00\x00\x90"
+					}
+				}
+ 
+				"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage"
+				{
+					"signature" "CTFFlameManager::OnCollide"
+					"linux"
+					{
+						"offset"    "254"
+						"verify"    "\x74\x2A"
+						"patch"     "\xEB\x5A"
+ 
+					}
+					"windows"
+					{
+						"offset"    "270"
+						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
+						"patch"     "\xEB\x58" 
 					}
 				}
 

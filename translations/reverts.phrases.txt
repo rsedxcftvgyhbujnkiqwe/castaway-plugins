@@ -130,6 +130,10 @@
 	{
 		"en"	"Air Strike"
 	}
+	"flamethrower"
+	{
+		"en"	"All Flamethrowers"
+	}
 	"miniramp"
 	{
 		"en"	"All Miniguns"
@@ -471,6 +475,10 @@
 	"Airstrike_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
+	}
+	"Flamethrower_PreBM"
+	{
+		"en"	"Reverted to pre-bluemoon, no flame dmg ramp up based on density of flame encountered, +50%% initial flame dmg"
 	}
 	"Minigun_ramp_PreLW"
 	{
