@@ -123,6 +123,7 @@ public Plugin myinfo = {
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 #define SHIELD_NORMAL_VALUE 0.33
+#define LOADOUT_POSITION_SECONDARY 1
 
 enum
 {
@@ -1456,6 +1457,31 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// razorback no recharge
+
+						if (
+							ItemIsEnabled(Wep_Razorback) &&
+							player_weapons[idx][Wep_Razorback]
+						) {
+							for (int i = 0; i < TF2Util_GetPlayerWearableCount(idx); i++)
+							{
+								weapon = TF2Util_GetPlayerWearable(idx, i);
+
+								if (weapon > 0) {
+
+									if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 57) {
+	
+										timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
+										if (timer < 0.1) {
+											RemoveEntity(weapon);
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
@@ -2627,9 +2653,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			sword_reverted = true;
 		}}
 		case 57: { if (ItemIsEnabled(Wep_Razorback)) {
-			TF2Items_SetNumAttributes(itemNew, 2);
-			TF2Items_SetAttribute(itemNew, 0, 800, 1.0); //overheal penalty
-			TF2Items_SetAttribute(itemNew, 1, 874, 10000.0); //shield regen time. big number so it never respawns
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 800, 1.0); // 0% maximum overheal on wearer
 		}}
 		case 411: { if (ItemIsEnabled(Wep_QuickFix)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
