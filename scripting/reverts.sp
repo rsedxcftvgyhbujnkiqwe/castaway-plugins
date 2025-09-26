@@ -1407,7 +1407,7 @@ public void OnGameFrame() {
 						// sydney sleeper headshots don't reduce jarate cooldown
 
 						if (
-							ItemIsEnabled(Wep_SydneySleeper) &&
+							GetItemVariant(Wep_SydneySleeper) == 0 &&
 							player_weapons[idx][Wep_SydneySleeper]
 						) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
