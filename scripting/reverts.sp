@@ -193,7 +193,7 @@ enum struct Player {
 	float sleeper_time_since_scoping;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
-	float secondary_regen_time;
+	float cleaver_regen_time;
 	float icicle_regen_time;
 	int scout_airdash_value;
 	int scout_airdash_count;
@@ -1195,15 +1195,15 @@ public void OnGameFrame() {
 
 									if (
 										timer > 0.1 &&
-										players[idx].secondary_regen_time > 0.1 &&
-										(players[idx].secondary_regen_time - timer) > 1.49 &&
-										(players[idx].secondary_regen_time - timer) < 1.51
+										players[idx].cleaver_regen_time > 0.1 &&
+										(players[idx].cleaver_regen_time - timer) > 1.49 &&
+										(players[idx].cleaver_regen_time - timer) < 1.51
 									) {
-										timer = players[idx].secondary_regen_time;
+										timer = players[idx].cleaver_regen_time;
 										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer);
 									}
 
-									players[idx].secondary_regen_time = timer;
+									players[idx].cleaver_regen_time = timer;
 								}
 							}
 						}
@@ -1405,32 +1405,6 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Sniper) {
 					{
-						// sydney sleeper headshots don't reduce jarate cooldown
-
-						if (
-							GetItemVariant(Wep_SydneySleeper) == 0 &&
-							player_weapons[idx][Wep_SydneySleeper]
-						) {
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_jar")) {
-									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
-
-									if (players[idx].headshot_frame + 1 == GetGameTickCount()) {
-										timer = players[idx].secondary_regen_time;
-										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer);
-									}
-
-									players[idx].secondary_regen_time = timer;
-								}
-							}
-						}
-					}
-
-					{
 						// release cleaner's carbine use crikey meter to indicate remaining buff duration
 						// this is purely a custom visual thing
 						if (GetItemVariant(Wep_CleanerCarbine) == 0) {
@@ -1471,6 +1445,7 @@ public void OnGameFrame() {
 										timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
 										if (timer < 1.0) {
 											RemoveEntity(weapon);
+											player_weapons[idx][Wep_Razorback] = false;
 										}
 									}
 								}
@@ -4278,9 +4253,8 @@ Action SDKHookCB_OnTakeDamage(
 										players[attacker].sleeper_piss_explode = true;
 									}
 
-									// Remove sleeper attrib for now to prevent minicrit headshots
-									// (Jarate cooldown reduction handled separately)
-									// This will get restored in OnTakeDamageAlive
+									// Remove sleeper attrib for now to prevent vanilla headshot bonuses
+									// Attrib will get restored in OnTakeDamagePost
 									TF2Attrib_SetByDefIndex(weapon, 175, 0.0);
 								}
 								case 1, 2:
@@ -4742,16 +4716,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
 				}
-
-				if (
-					GetItemVariant(Wep_SydneySleeper) == 0 &&
-					weapon > 0
-				) {
-					if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230) {
-						// Restore sleeper attrib
-						TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
-					}
-				}
 			}
 		}		
 		{
@@ -4850,6 +4814,17 @@ void SDKHookCB_OnTakeDamagePost(
 			) {
 				// Restore health after tanking self blast damage
 				SetEntityHealth(victim, players[victim].old_health);
+			}
+		}
+
+		if (
+			GetItemVariant(Wep_SydneySleeper) == 0 &&
+			players[attacker].sleeper_piss_frame == GetGameTickCount() &&
+			weapon > 0
+		) {
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230) {
+				// Restore sleeper attrib
+				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 			}
 		}
 
