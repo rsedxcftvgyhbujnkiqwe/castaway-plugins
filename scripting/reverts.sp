@@ -1419,12 +1419,7 @@ public void OnGameFrame() {
 								if (StrEqual(class, "tf_weapon_jar")) {
 									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
-									if (
-										timer > 0.1 &&
-										players[idx].secondary_regen_time > 0.1 &&
-										(players[idx].secondary_regen_time - timer) > 0.99 &&
-										(players[idx].secondary_regen_time - timer) < 1.01
-									) {
+									if (players[idx].headshot_frame + 1 == GetGameTickCount()) {
 										timer = players[idx].secondary_regen_time;
 										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer);
 									}
