@@ -6265,7 +6265,10 @@ MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn r
 		client > 0 &&
 		client <= MaxClients
 	) {
-		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1) {
+		if (
+			ItemIsEnabled(Wep_Persian) &&
+			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
+		) {
 			// Prevent ammo pick-up from Dispensers with Persian Persuader equipped.
 			returnValue.Value = false;
 			return MRES_Supercede;
