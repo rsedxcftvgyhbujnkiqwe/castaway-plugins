@@ -6127,8 +6127,10 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		client <= MaxClients
 	) {
 		int pack_size = SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity);
-		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1)
-		{
+		if (
+			ItemIsEnabled(Wep_Persian) &&
+			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
+		) {
 			// Health pickup with the Persian Persuader.
 			returnValue.Value = false;
 			int health = GetClientHealth(client);
@@ -6184,7 +6186,10 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		client > 0 &&
 		client <= MaxClients
 	) {
-		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1) {
+		if (
+			ItemIsEnabled(Wep_Persian) &&
+			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
+		) {
 			// Health pickup with the Persian Persuader from dropped ammo packs.
 			int health = GetClientHealth(client);
 			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
