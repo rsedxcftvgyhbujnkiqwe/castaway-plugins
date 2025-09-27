@@ -290,6 +290,7 @@ DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
+DynamicHook dhook_CObjectDispenser_DispenseAmmo;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -713,6 +714,7 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
+		dhook_CObjectDispenser_DispenseAmmo = DynamicHook.FromConf(conf, "CObjectDispenser::DispenseAmmo");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -830,6 +832,7 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
+	if (dhook_CObjectDispenser_DispenseAmmo == null) SetFailState("Failed to create dhook_CObjectDispenser_DispenseAmmo");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1758,9 +1761,12 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
-	if (StrContains(class, "item_ammopack") == 0)
-	{
+	if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
+	}
+
+	if (StrEqual(class, "obj_dispenser")) {
+		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Pre, entity, DHookCallback_CObjectDispenser_DispenseAmmo);
 	}
 }
 
@@ -6251,6 +6257,21 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client)
 	}
 
     return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn returnValue, DHookParam parameters) {
+	int client = GetEntityFromAddress(parameters.Get(1));
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		if (TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1) {
+			// Prevent ammo pick-up from Dispensers with Persian Persuader equipped.
+			returnValue.Value = false;
+			return MRES_Supercede;
+		}
+	}
+	return MRES_Ignored;
 }
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
