@@ -324,8 +324,8 @@ enum
 #if defined MEMORY_PATCHES
 	Feat_Minigun, // All Miniguns
 #endif
-	Feat_Sword, // All Swords
 	Feat_Stickybomb, // All Stickybomb Launchers
+	Feat_Sword, // All Swords
 
 	//Item sets
 	Set_SpDelivery,
@@ -476,8 +476,8 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 #endif
-	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
+	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
@@ -2879,6 +2879,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	if (
+		ItemIsEnabled(Feat_Stickybomb) &&
+		!sword_reverted && //must be set to true on every weapon that implements Feat_Stickybomb check! 
+		StrEqual(class, "tf_weapon_pipebomblauncher")
+	) {
+		TF2Items_SetNumAttributes(itemNew, 1);
+		TF2Items_SetAttribute(itemNew, 0, 99, 1.089); // mult_explosion_radius; +%s1% explosion radius
+		// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
+	}
+
+	if (
 		ItemIsEnabled(Feat_Sword) &&
 		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
 		(StrEqual(class, "tf_weapon_sword") ||
@@ -2888,16 +2898,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		TF2Items_SetAttribute(itemNew, 0, 781, 0.0); // is a sword
 		TF2Items_SetAttribute(itemNew, 1, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 	}
-
-	if (
-		ItemIsEnabled(Feat_Stickybomb) &&
-		!sword_reverted && //must be set to true on every weapon that implements Feat_Stickybomb check! 
-		StrEqual(class, "tf_weapon_pipebomblauncher")
-	) {
-		TF2Items_SetNumAttributes(itemNew, 1);
-		TF2Items_SetAttribute(itemNew, 0, 99, 1.089); // mult_explosion_radius; +%s1% explosion radius
-		// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
-	}	
 
 	if (TF2Items_GetNumAttributes(itemNew)) {
 		itemTarget = itemNew;
@@ -3171,16 +3171,16 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #endif
 
 					else if (
+						StrEqual(class, "tf_weapon_pipebomblauncher")
+					) {
+						player_weapons[client][Feat_Stickybomb] = true;
+					}
+
+					else if (
 						StrEqual(class, "tf_weapon_sword") ||
 						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana"))
 					) {
 						player_weapons[client][Feat_Sword] = true;
-					}
-
-					else if (
-						StrEqual(class, "tf_weapon_pipebomblauncher")
-					) {
-						player_weapons[client][Feat_Stickybomb] = true;
 					}
 
 					switch (index) {
