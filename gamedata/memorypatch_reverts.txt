@@ -201,7 +201,7 @@
 				}
 
 				// ================================================
-				//  (TEST ATTEMPT) Revert flamethrower damage to Pre-Bluemoon.
+				//  Revert flamethrower damage and mechanics to Pre-Bluemoon/Jungle Inferno.
  
 				"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
 				{
@@ -210,14 +210,14 @@
 					{
 						"offset"    "239"
 						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-						"patch"  "\xE9\x93\x00\x00\x00\x90"
+						"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
  
 					}
 					"windows"
 					{
 						"offset"    "349"
 						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-						"patch"  "\xE9\x88\x00\x00\x00\x90"
+						"patch"  "\xE9\x88\x00\x00\x00\x90" // JMP 136 bytes forward, NOP
 					}
 				}
  
@@ -228,14 +228,14 @@
 					{
 						"offset"    "254"
 						"verify"    "\x74\x2A"
-						"patch"     "\xEB\x5A"
+						"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
  
 					}
 					"windows"
 					{
 						"offset"    "270"
 						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
-						"patch"     "\xEB\x58" 
+						"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
 					}
 				}
 
