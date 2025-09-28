@@ -3168,7 +3168,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 #if defined MEMORY_PATCHES
-					else if (StrEqual(class, "tf_weapon_flamethrower")) {
+					if (StrEqual(class, "tf_weapon_flamethrower")) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
 					else if (StrEqual(class, "tf_weapon_minigun")) {
