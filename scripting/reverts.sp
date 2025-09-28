@@ -865,8 +865,6 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Pre, ModifyRageMeter);
-	dhook_CTFPlayerShared_SetRageMeter.Enable(Hook_Post, ModifyRageMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -6130,10 +6128,11 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 
-			// Add health.
-			TF2Util_TakeHealth(client, float(heal));
-			EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
-			returnValue.Value = true;
+				// Add health.
+				TF2Util_TakeHealth(client, float(heal));
+				EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+				returnValue.Value = true;
+			}
 		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
@@ -6183,13 +6182,14 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 
-			// Add health.
-			TF2Util_TakeHealth(client, 20.0);
-			// If you're wondering why EmitSoundToAll below is repeated in a different channel,
-			// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-			EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
-			RemoveEntity(entity);
+				// Add health.
+				TF2Util_TakeHealth(client, 20.0);
+				// If you're wondering why EmitSoundToAll below is repeated in a different channel,
+				// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
+				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+				RemoveEntity(entity);
+			}
 		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
