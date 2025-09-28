@@ -32,6 +32,10 @@
 	{
 		"en"	"Server is still waiting for players."
 	}
+	"VOTESCRAMBLE_MAP_DISABLED"
+	{
+		"en"	"Votescramble is not allowed on this map."
+	}
 	"VOTESCRAMBLE_VOTED"
 	{
 		"#format"	"{1:d},{2:d}"

@@ -7,6 +7,7 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <regex>
 #include <nativevotes>
 #include <tf2>
 #include <tf2_stocks>
@@ -29,6 +30,7 @@ ConVar cvarVoteMenuPercent;
 ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
 ConVar cvarVanillaScrambleTimeout;
+ConVar cvarMapExcludeListPath;
 
 int g_iVoters;
 int g_iVotes;
@@ -41,7 +43,9 @@ bool g_bCanScramble;
 bool g_bIsArena;
 bool g_bServerWaitingForPlayers;
 bool g_bScrambleTeamsInProgress;
+bool g_bIsMapAllowed = true;
 Handle g_tRoundResetTimer;
+ArrayList g_aMapExclusionList;
 
 public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast)
 {
@@ -78,11 +82,13 @@ public void OnPluginStart()
 	cvarMinimumVotesNeeded = CreateConVar("nano_votescramble_minimum", "3", "What are the minimum number of votes needed to initiate a chat vote?", 0);
 	cvarSkipSecondVote = CreateConVar("nano_votescramble_skip_second_vote", "0", "Should the second vote be skipped?", 0, true, 0.0, true, 1.0);
 	cvarVanillaScrambleTimeout = CreateConVar("nano_votescramble_vanilla_scramble_timeout", "1", "Should scramble follow timeout sequence", 0, true, 0.0, true, 1.0);
+	cvarMapExcludeListPath = CreateConVar("nano_votescramble_exclusion_list_path", "", "Path to the map exclusion list relative to SourceMod root. (Defaults to configs/votescramble_exclude.txt)");
 
 	RegConsoleCmd("sm_votescramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_vscramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_scramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegAdminCmd("sm_forcescramble", Cmd_ForceScramble, ADMFLAG_VOTE, "Force a team scramble vote.");
+	RegServerCmd("sm_reload_votescramble_exclusion_list", Cmd_ReloadExclusionList, "Reload map exclusion list.");
 
 	HookEvent("teamplay_win_panel", Event_RoundWin, EventHookMode_PostNoCopy);
 	HookEvent("teamplay_round_start", Event_RoundStart, EventHookMode_PostNoCopy);
@@ -92,6 +98,7 @@ public void OnPluginStart()
 }
 
 public void OnMapEnd() {
+	LoadExclusionList(false);
 	delete g_tRoundResetTimer;
 }
 
@@ -99,7 +106,7 @@ public void OnLibraryAdded(const char[] name)
 {
 	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
 	{
-		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+		NativeVotes_RegisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall, OnScrambleVoteVisCheck);
 	}
 }
 
@@ -107,8 +114,13 @@ public void OnLibraryRemoved(const char[] name)
 {
 	if (StrEqual(name, "nativevotes", false) && NativeVotes_IsVoteTypeSupported(NativeVotesType_ScrambleNow))
 	{
-		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall);
+		NativeVotes_UnregisterVoteCommand(NativeVotesOverride_Scramble, OnScrambleVoteCall, OnScrambleVoteVisCheck);
 	}
+}
+
+public void OnConfigsExecuted() {
+	LoadExclusionList(false);
+	g_bIsMapAllowed = !IsCurrentMapInExclusionList();
 }
 
 public void OnMapStart()
@@ -122,6 +134,8 @@ public void OnMapStart()
 	g_bServerWaitingForPlayers = false;
 	g_bCanScramble = false;
 	g_bIsArena = false;
+
+	g_bIsMapAllowed = !IsCurrentMapInExclusionList();
 
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "tf_logic_arena")) != -1)
@@ -170,14 +184,29 @@ public Action Cmd_ForceScramble(int client, int args)
 
 public Action Cmd_VoteScramble(int client, int args)
 {
-	AttemptVoteScramble(client, false);
+	AttemptVoteScramble(client);
+	return Plugin_Handled;
+}
+
+public Action Cmd_ReloadExclusionList(int args) {
+	LoadExclusionList();
+	g_bIsMapAllowed = !IsCurrentMapInExclusionList();
 	return Plugin_Handled;
 }
 
 public Action OnScrambleVoteCall(int client, NativeVotesOverride overrideType, const char[] voteArgument)
 {
+	ReplySource oldReplySource = SetCmdReplySource(SM_REPLY_TO_CHAT);
 	AttemptVoteScramble(client, true);
+	SetCmdReplySource(oldReplySource);
 	return Plugin_Handled;
+}
+
+public Action OnScrambleVoteVisCheck(int client, NativeVotesOverride overrideType) {
+	if (!g_bIsMapAllowed) {
+		return Plugin_Handled;
+	}
+	return Plugin_Continue;
 }
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
@@ -189,7 +218,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	{
 		ReplySource old = SetCmdReplySource(SM_REPLY_TO_CHAT);
 
-		AttemptVoteScramble(client, false);
+		AttemptVoteScramble(client);
 
 		SetCmdReplySource(old);
 	}
@@ -197,7 +226,16 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 {
-	char errorMsg[MAX_NAME_LENGTH] = "";
+	if (!g_bIsMapAllowed)
+	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Disabled);
+			return;
+		}
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_MAP_DISABLED");
+		return;
+	}
 	if (g_bServerWaitingForPlayers)
 	{
 		if (isVoteCalledFromMenu)
@@ -205,11 +243,13 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Waiting);
 			return;
 		}
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_WAITING_FOR_PLAYERS", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_WAITING_FOR_PLAYERS");
+		return;
 	}
 	if (g_bScrambleTeams)
 	{
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND");
+		return;
 	}
 	if (g_bVoteCooldown)
 	{
@@ -218,23 +258,12 @@ void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Recent, g_iVoteCooldownExpireTime - GetTime());
 			return;
 		}
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_COOLDOWN", client);
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_COOLDOWN");
+		return;
 	}
 	if (g_bVoted[client])
 	{
-		Format(errorMsg, sizeof(errorMsg), "%T", "VOTESCRAMBLE_VOTED", client, g_iVotes, g_iVotesNeeded);
-	}
-
-	if (!StrEqual(errorMsg, ""))
-	{
-		if (isVoteCalledFromMenu)
-		{
-			PrintToChat(client, errorMsg);
-		}
-		else
-		{
-			ReplyToCommand(client, errorMsg);
-		}
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_VOTED", g_iVotes, g_iVotesNeeded);
 		return;
 	}
 
@@ -293,6 +322,82 @@ void VoteScrambleMenu()
 	vote.AddItem("yes", "Yes");
 	vote.AddItem("no", "No");
 	vote.DisplayVoteToAll(cvarVoteTime.IntValue);
+}
+
+bool IsCurrentMapInExclusionList() {
+	char mapName[128];
+	GetCurrentMap(mapName, sizeof(mapName));
+	return IsMapInExclusionList(mapName);
+}
+
+void LoadExclusionList(bool printResult=true) {
+	if (g_aMapExclusionList == null) {
+		g_aMapExclusionList = new ArrayList(ByteCountToCells(64));
+	} else {
+		g_aMapExclusionList.Clear();
+	}
+
+	char cvarPath[PLATFORM_MAX_PATH], path[PLATFORM_MAX_PATH];
+	cvarMapExcludeListPath.GetString(cvarPath, sizeof(cvarPath));
+	if (strlen(cvarPath)) {
+		BuildPath(Path_SM, path, sizeof(path), cvarPath);
+		if (!FileExists(path)) {
+			ThrowError("File \"%s\" doesn't exist.", cvarPath);
+		}
+	}
+	if (!strlen(path)) {
+		BuildPath(Path_SM, path, sizeof(path), "configs/votescramble_exclude.txt");
+	}
+	if (!FileExists(path)) {
+		return;
+	}
+
+	File exclusionList = OpenFile(path, "r");
+	if (exclusionList == null) {
+		ThrowError("Exclusion list file \"%s\" cannot be opened.", path);
+		return;
+	}
+
+	while (!exclusionList.EndOfFile()) {
+		char line[64];
+		exclusionList.ReadLine(line, sizeof(line));
+		TrimString(line);
+		if (!strlen(line) || (line[0] == '/' && line[1] == '/')) {
+			continue;
+		}
+		g_aMapExclusionList.PushString(line);
+	}
+
+	delete exclusionList;
+
+	if (printResult) {
+		PrintToServer("Reloaded map exclusion list for votescramble.");
+	}
+}
+
+bool IsMapInExclusionList(const char[] mapName) {
+	if (g_aMapExclusionList == null || !g_aMapExclusionList.Length) {
+		return false;
+	}
+
+	bool match = false;
+	for (int i = 0; i < g_aMapExclusionList.Length; i++) {
+		char patternStr[64], regexErrorMsg[128];
+		g_aMapExclusionList.GetString(i, patternStr, sizeof(patternStr));
+		RegexError regexError;
+		Regex pattern = new Regex(patternStr, _, regexErrorMsg, sizeof(regexErrorMsg), regexError);
+		if (regexError != REGEX_ERROR_NONE) {
+			delete pattern;
+			ThrowError("Error encountered while compiling regex pattern \"%s\". Error Message: %s", patternStr, regexErrorMsg);
+		}
+		if (pattern.Match(mapName) > 0) {
+			delete pattern;
+			match = true;
+			break;
+		}
+		delete pattern;
+	}
+	return match;
 }
 
 public int NativeVote_Handler(NativeVote vote, MenuAction action, int param1, int param2)
