@@ -560,6 +560,10 @@
 	{
 		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
 	}
+	"Bushwacka_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, 20%% fire vuln at all times instead of dmg vuln when active"
+	}
 	"BuffaloSteak_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and 10%% dmg vuln while buffed"
@@ -870,11 +874,15 @@
 	}
 	"RescueRanger_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups"
+		"en"	"Reverted to pre-gunmettle, heals +75 flat for no metal cost, 130 cost long-range pickups"
 	}
 	"RescueRanger_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no metal cost for healing buildings"
+	}
+	"RescueRanger_Release"
+	{
+		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
 	}
 	"Reserve_PreTB"
 	{
@@ -883,6 +891,10 @@
 	"Reserve_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
+	}
+	"Reserve_Release"
+	{
+		"en"	"Reverted to release, minicrits all airborne targets for 3 sec after deploying, 15%% faster weapon switch, -50%% clip size"
 	}
 	"Bison_PreMYM"
 	{
