@@ -134,6 +134,10 @@
 	{
 		"en"	"All Miniguns"
 	}
+	"sniperrifles"
+	{
+		"en"	"All Sniper Rifles"
+	}
 	"swords"
 	{
 		"en"	"All Swords"
@@ -475,6 +479,10 @@
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
+	}
+	"SniperRifle_PreLW"
+	{
+		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
 	}
 	"Swords_PreTB"
 	{
