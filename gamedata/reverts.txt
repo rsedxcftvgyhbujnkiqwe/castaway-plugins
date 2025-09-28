@@ -59,14 +59,6 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
 				"linux"   "@_ZN9CTFPlayer10RegenThinkEv"
 			}
-
-			// "CTFPlayerShared::ModifyRage"
-			"CTFPlayerShared::SetRageMeter" // aRageOnHit "rage_on_hit", go to subroutine call after SIMD instruction ~~go to subroutine (2nd line down previously) that is just a one-liner func call~~
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\xF3\x0F\x10\x45\x08\x83\xEC\x08"
-				"linux"	  "@_ZN15CTFPlayerShared12SetRageMeterEf"
-			}			
 		}
 
 		"Offsets"
@@ -106,6 +98,12 @@
 				"windows" "396"
 				"linux"	  "396"
 			}
+
+			"CObjectDispenser::DispenseAmmo"
+			{
+				"linux" "425"
+				"windows" "411"
+			}
 		}
 
 		"Functions"
@@ -137,6 +135,21 @@
 			"CAmmoPack::MyTouch"
 			{
 				"offset"   "CAmmoPack::MyTouch"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "int"
+					}
+				}
+			}
+
+			"CObjectDispenser::DispenseAmmo"
+			{
+				"offset"	"CObjectDispenser::DispenseAmmo"
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "bool"
@@ -247,22 +260,6 @@
 				"this"      "entity"
 				"return"    "void"
 			}
-
-			//"CTFPlayerShared::ModifyRage"
-			"CTFPlayerShared::SetRageMeter"
-			{
-				"signature" "CTFPlayerShared::SetRageMeter"
-				"callconv"  "thiscall"
-				"this"      "address"
-				"return"    "void"
-				"arguments"
-				{
-					"fDelta"
-					{
-						"type" "float"
-					}
-				}
-			}			
 		}
 	}
 }
