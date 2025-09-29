@@ -138,6 +138,10 @@
 	{
 		"en"	"All Miniguns"
 	}
+	"sniperrifles"
+	{
+		"en"	"All Sniper Rifles"
+	}
 	"swords"
 	{
 		"en"	"All Swords"
@@ -484,6 +488,10 @@
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
 	}
+	"SniperRifle_PreLW"
+	{
+		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
+	}
 	"Swords_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
@@ -567,6 +575,10 @@
 	"Bushwacka_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
+	}
+	"Bushwacka_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, 20%% fire vuln at all times instead of dmg vuln when active"
 	}
 	"BuffaloSteak_PreMYM"
 	{
@@ -878,11 +890,15 @@
 	}
 	"RescueRanger_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, heals +75 flat, no metal cost, 130 cost long ranged pickups"
+		"en"	"Reverted to pre-gunmettle, heals +75 flat for no metal cost, 130 cost long-range pickups"
 	}
 	"RescueRanger_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no metal cost for healing buildings"
+	}
+	"RescueRanger_Release"
+	{
+		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
 	}
 	"Reserve_PreTB"
 	{
@@ -891,6 +907,10 @@
 	"Reserve_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
+	}
+	"Reserve_Release"
+	{
+		"en"	"Reverted to release, minicrits all airborne targets for 3 sec after deploying, 15%% faster weapon switch, -50%% clip size"
 	}
 	"Bison_PreMYM"
 	{
