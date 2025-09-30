@@ -2957,7 +2957,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 	if (
 		ItemIsEnabled(Feat_Stickybomb) &&
-		!sword_reverted && //must be set to true on every weapon that implements Feat_Stickybomb check! 
 		StrEqual(class, "tf_weapon_pipebomblauncher")
 	) {
 		TF2Items_SetNumAttributes(itemNew, 1);
