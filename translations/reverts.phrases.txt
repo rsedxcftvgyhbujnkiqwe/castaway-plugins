@@ -486,7 +486,7 @@
 	}
 	"Flamethrower_PreBM"
 	{
-		"en"	"Reverted to pre-bluemoon, no flame dmg ramp up based on density of flame encountered, +50%% initial flame dmg"
+		"en"	"Reverted to pre-bluemoon, full dmg with no density ramp up"
 	}
 	"Minigun_ramp_PreLW"
 	{
