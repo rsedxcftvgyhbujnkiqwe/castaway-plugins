@@ -818,7 +818,7 @@
 	}
 	"Persuader_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty"
+		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty, cannot gain ammo from dispensers and carts"
 	}
 	"Phlog_Pyro"
 	{
