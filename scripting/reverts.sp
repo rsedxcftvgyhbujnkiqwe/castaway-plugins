@@ -261,6 +261,8 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 #endif
 
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
+MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
+MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertWrangler_WrenchRepairNerf;
@@ -329,6 +331,7 @@ enum
 	//Generic class features
 	Feat_Airblast,
 #if defined MEMORY_PATCHES
+	Feat_Flamethrower, // All Flamethrowers
 	Feat_Minigun, // All Miniguns
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
@@ -482,6 +485,7 @@ public void OnPluginStart() {
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
+	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
@@ -761,6 +765,12 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
 
+		patch_RevertFlamethrowers_Density_DmgScale =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
+		patch_RevertFlamethrowers_Density_OnCollide =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
 		patch_RevertMiniguns_RampupNerf_Dmg =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck");
@@ -812,6 +822,8 @@ public void OnPluginStart() {
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
 		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
+		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_DmgScale)) SetFailState("Failed to create patch_RevertFlamethrowers_Density_DmgScale");
+		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) SetFailState("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
 		if (!ValidateAndNullCheck(patch_RevertWrangler_WrenchRepairNerf)) SetFailState("Failed to create patch_RevertWrangler_WrenchRepairNerf");
@@ -919,6 +931,7 @@ public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
@@ -975,6 +988,15 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertDragonsFury_CenterHitForBonusDmg.Enable();
 			} else {
 				patch_RevertDragonsFury_CenterHitForBonusDmg.Disable();
+			}
+		}
+		case Feat_Flamethrower: {
+			if (enable) {
+				patch_RevertFlamethrowers_Density_DmgScale.Enable();
+				patch_RevertFlamethrowers_Density_OnCollide.Enable();
+			} else {
+				patch_RevertFlamethrowers_Density_DmgScale.Disable();
+				patch_RevertFlamethrowers_Density_OnCollide.Disable();
 			}
 		}
 		case Feat_Minigun: {
@@ -3211,6 +3233,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 #if defined MEMORY_PATCHES
+					if (StrEqual(class, "tf_weapon_flamethrower")) {
+						player_weapons[client][Feat_Flamethrower] = true;
+					}
 					else if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
 					}
