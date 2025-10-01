@@ -248,6 +248,9 @@ ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
 ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_weapon_criticals;
+ConVar cvar_ref_tf_sticky_airdet_radius;
+ConVar cvar_ref_tf_sticky_radius_ramp_time;
+
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
 // If Windows, prepare additional vars for Disciplinary Action.
@@ -329,7 +332,8 @@ enum
 	Feat_Minigun, // All Miniguns
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
-	Feat_Sword, // All Swords	
+	Feat_Stickybomb, // All Stickybomb Launchers
+	Feat_Sword, // All Swords
 
 	//Item sets
 	Set_SpDelivery,
@@ -481,6 +485,7 @@ public void OnPluginStart() {
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
+	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
@@ -667,6 +672,8 @@ public void OnPluginStart() {
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
+  cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
+	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1718,7 +1725,11 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
-			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
+      SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
+
+			// Winbomb revert cvars for stickybomb launchers
+      SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
+			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 		}
 	}
 }
@@ -2945,6 +2956,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	if (
+		ItemIsEnabled(Feat_Stickybomb) &&
+		StrEqual(class, "tf_weapon_pipebomblauncher")
+	) {
+		TF2Items_SetNumAttributes(itemNew, 1);
+		TF2Items_SetAttribute(itemNew, 0, 99, 1.089); // mult_explosion_radius; +%s1% explosion radius
+		// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
+	}
+
+	if (
 		ItemIsEnabled(Feat_Sword) &&
 		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
 		(StrEqual(class, "tf_weapon_sword") ||
@@ -3198,6 +3218,12 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}					
 #endif
+
+					else if (
+						StrEqual(class, "tf_weapon_pipebomblauncher")
+					) {
+						player_weapons[client][Feat_Stickybomb] = true;
+					}
 
 					else if (
 						StrEqual(class, "tf_weapon_sword") ||
@@ -5756,7 +5782,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 
 			return MRES_Ignored;
 		}
-
 		if (
 			GetItemVariant(Wep_ShortCircuit) == 0 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
