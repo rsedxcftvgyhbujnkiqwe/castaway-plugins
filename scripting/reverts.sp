@@ -250,6 +250,7 @@ ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_weapon_criticals;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
+ConVar cvar_ref_tf_damage_disablespread;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -332,6 +333,9 @@ enum
 	Feat_Airblast,
 #if defined MEMORY_PATCHES
 	Feat_Flamethrower, // All Flamethrowers
+#endif
+	Feat_Grenade, // All Grenade Launchers
+#if defined MEMORY_PATCHES
 	Feat_Minigun, // All Miniguns
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
@@ -483,14 +487,17 @@ public void OnPluginStart() {
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
 
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
-	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 #if defined MEMORY_PATCHES
 	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
+#endif
+	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
+#if defined MEMORY_PATCHES
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
+	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
@@ -676,8 +683,9 @@ public void OnPluginStart() {
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
-  cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
+	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
+	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1747,10 +1755,10 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
-      SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
+			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
 
 			// Winbomb revert cvars for stickybomb launchers
-      SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
+			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 		}
 	}
@@ -2590,11 +2598,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_LochLoad)) {
 				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 6);
-					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
-					TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
-					TF2Items_SetAttribute(itemNew, 2, 207, 1.25); // self damage
-					TF2Items_SetAttribute(itemNew, 3, 100, 1.00); // radius penalty
-					TF2Items_SetAttribute(itemNew, 4, 3, 0.50); // clip size
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // +20% damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 3, 0.50); // -50% clip size
+					TF2Items_SetAttribute(itemNew, 2, 100, 1.00); // -0% explosion radius
+					TF2Items_SetAttribute(itemNew, 3, 137, 1.00); // +0% damage vs buildings
+					TF2Items_SetAttribute(itemNew, 4, 207, 1.25); // +25% damage to self
 					TF2Items_SetAttribute(itemNew, 5, 681, 0.00); // grenade no spin
 				}
 				default: {
@@ -2978,16 +2986,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	}
 
 	if (
-		ItemIsEnabled(Feat_Stickybomb) &&
-		StrEqual(class, "tf_weapon_pipebomblauncher") &&
-		index != 265 //todo: replcae this with logic similar to the sword
-	) {
-		TF2Items_SetNumAttributes(itemNew, 1);
-		TF2Items_SetAttribute(itemNew, 0, 99, 1.089); // mult_explosion_radius; +%s1% explosion radius
-		// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
-	}
-
-	if (
 		ItemIsEnabled(Feat_Sword) &&
 		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
 		(StrEqual(class, "tf_weapon_sword") ||
@@ -3237,18 +3235,34 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					if (StrEqual(class, "tf_weapon_flamethrower")) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
+#endif
+
+					else if (StrEqual(class, "tf_weapon_grenadelauncher")) {
+						player_weapons[client][Feat_Grenade] = true;
+
+						if (ItemIsEnabled(Feat_Grenade)) {
+							TF2Attrib_SetByDefIndex(weapon, 99, 1.089); // +8.9% explosion radius
+							// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
+						}
+					}
+
+#if defined MEMORY_PATCHES
 					else if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
 					}
-					else if (StrEqual(class, "tf_weapon_sniperrifle") || StrEqual(class, "tf_weapon_sniperrifle_decap") || StrEqual(class, "tf_weapon_sniperrifle_classic")) {
+
+					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}					
 #endif
 
-					else if (
-						StrEqual(class, "tf_weapon_pipebomblauncher")
-					) {
+					else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
 						player_weapons[client][Feat_Stickybomb] = true;
+
+						if (ItemIsEnabled(Feat_Stickybomb)) {
+							TF2Attrib_SetByDefIndex(weapon, 99, 1.089); // +8.9% explosion radius
+							// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
+						}
 					}
 
 					else if (
@@ -3259,7 +3273,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					switch (index) {
-						case 1104:player_weapons[client][Wep_Airstrike] = true;
+						case 1104: player_weapons[client][Wep_Airstrike] = true;
 						case 61: player_weapons[client][Wep_Ambassador] = true;
 						case 1006: player_weapons[client][Wep_Ambassador] = true;
 						case 304: player_weapons[client][Wep_Amputator] = true;
@@ -3323,6 +3337,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 448: player_weapons[client][Wep_SodaPopper] = true;
 						case 413: player_weapons[client][Wep_Solemn] = true;
 						case 528: player_weapons[client][Wep_ShortCircuit] = true;
+						case 220: {
+							player_weapons[client][Wep_Shortstop] = true;
+
+							if (ItemIsEnabled(Wep_Shortstop)) {
+								// Reverted Shortstop uses secondary ammo
+								SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 2);
+							}
+						}
 						case 649: player_weapons[client][Wep_Spycicle] = true;
 						case 265: player_weapons[client][Wep_StickyJumper] = true;
 						case 424: player_weapons[client][Wep_Tomislav] = true;
@@ -3333,13 +3355,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
 #endif
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
-						case 220: {
-							player_weapons[client][Wep_Shortstop] = true;
-							if (ItemIsEnabled(Wep_Shortstop)) {
-								int SCOUT_PISTOL_AMMO_TYPE = 2;
-								SetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", SCOUT_PISTOL_AMMO_TYPE);
-							}
-						}
 					}
 				}
 			}
@@ -3947,7 +3962,6 @@ Action SDKHookCB_OnTakeDamage(
 	int health_cur;
 	int health_max;
 	int weapon1;
-	Action returnValue = Plugin_Continue;
 
 	if (
 		victim >= 1 &&
@@ -4079,7 +4093,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (damage < damage1) // no falloff
 					damage = damage1;
 
-				returnValue = Plugin_Changed;
+				return Plugin_Changed;
 			}
 		}
 #endif
@@ -4094,12 +4108,7 @@ Action SDKHookCB_OnTakeDamage(
 		// useful for checking minicrits in OnTakeDamageAlive
 		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
 
-		// i need the ability to break
-		for (
-			bool has_run = false;
-			(weapon > MaxClients) && (has_run == false);
-			has_run = true
-		) {
+		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
 			{
@@ -4115,8 +4124,7 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// melee damage is always 35
 						damage = 35.0;
-						returnValue = Plugin_Changed;
-						break;
+						return Plugin_Changed;
 					}
 
 					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
@@ -4138,8 +4146,7 @@ Action SDKHookCB_OnTakeDamage(
 							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
 						}
 
-						returnValue = Plugin_Changed;
-						break;
+						return Plugin_Changed;
 					}
 				}
 			}
@@ -4157,27 +4164,22 @@ Action SDKHookCB_OnTakeDamage(
 						damage < 51.0
 					) {
 						damage = 60.0;
-						returnValue = Plugin_Changed;
-						break;
+						return Plugin_Changed;
 					}
 				}
 			}
 
 			{
-				// loch-n-load damage spread
+				// grenade damage variance on hit location
 				
 				if (
-					GetItemVariant(Wep_LochLoad) == 1 &&
-					StrEqual(class, "tf_weapon_grenadelauncher") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 308
+					ItemIsEnabled(Feat_Grenade) &&
+					StrEqual(class, "tf_weapon_grenadelauncher")
 				) {
-					// don't apply spread on crits
-					if (damage_type & DMG_CRIT != 0) break;
-					
-					// apply ±15% damage variance
-					damage *= GetRandomFloat(0.85, 1.15);
-					returnValue = Plugin_Changed;
-					break;
+					// Vary damage by up to 10%, with most damage at the player's feet and least at the head
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
+					damage *= ValveRemapVal(GetVectorDistance(pos1, damage_position), 0.0, 82.0, 1.1, 0.9);
+					return Plugin_Changed;
 				}
 			}
 
@@ -4195,8 +4197,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					damage_type = (damage_type | DMG_CRIT);
 					players[victim].crit_flag = true;
-					returnValue = Plugin_Changed;
-					break;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4226,8 +4227,7 @@ Action SDKHookCB_OnTakeDamage(
 
 					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
 
-					returnValue = Plugin_Changed;
-					break;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4353,8 +4353,7 @@ Action SDKHookCB_OnTakeDamage(
 						}
 					}
 
-					returnValue = Plugin_Changed;
-					break;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4425,8 +4424,7 @@ Action SDKHookCB_OnTakeDamage(
 							// critical hit lightning sound doesn't play, so add it back.
 							EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
 							
-							returnValue = Plugin_Changed;
-							break;
+							return Plugin_Changed;
 						}
 					}
 				}
@@ -4451,12 +4449,11 @@ Action SDKHookCB_OnTakeDamage(
 
 								damage_type = (damage_type | DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE);
 
-								returnValue = Plugin_Changed;
-								break;
+								return Plugin_Changed;
 							}
 						}
 					}
-					break;
+					return Plugin_Continue;
 				}
 			}
 
@@ -4474,7 +4471,7 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
-					break;
+					return Plugin_Continue;
 				}
 			}
 
@@ -4543,8 +4540,7 @@ Action SDKHookCB_OnTakeDamage(
 					// increase damage from splendid screen attribute
 					damage *= TF2Attrib_HookValueFloat(1.0, "charge_impact_damage", weapon);
 					
-					returnValue = Plugin_Changed;
-					break;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4571,8 +4567,7 @@ Action SDKHookCB_OnTakeDamage(
 					damage_type & DMG_CRIT != 0
 				) {
 					damage_type ^= DMG_CRIT;
-					returnValue = Plugin_Changed;
-					break;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4646,8 +4641,7 @@ Action SDKHookCB_OnTakeDamage(
 							// Restore knockback
 							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
 
-							returnValue = Plugin_Changed;
-							break;
+							return Plugin_Changed;
 						}
 					}
 				}
@@ -4671,8 +4665,7 @@ Action SDKHookCB_OnTakeDamage(
 							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
 							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
 
-							returnValue = Plugin_Changed;
-							break;
+							return Plugin_Changed;
 						}
 
 						return Plugin_Continue;
@@ -4680,39 +4673,10 @@ Action SDKHookCB_OnTakeDamage(
 				}
 				*/
 			}
-			break;
 		}
 	}
 
-	if (
-		victim >= 1 &&
-		victim <= MaxClients &&
-		players[victim].spy_is_feigning &&
-		players[victim].spy_under_feign_buffs &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy
-	) {
-		// dead ringer damage tracking and modification
-	
-		players[victim].damage_taken_during_feign += damage;
-
-		bool resist_damage = false;
-
-		if (weapon > 0) {
-			// Don't resist if weapon pierces resists (vanilla Enforcer)
-			if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-				resist_damage = true;
-			}
-		} else {
-			resist_damage = true;
-		}
-
-		if (resist_damage) {
-			damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
-			returnValue = Plugin_Changed;
-		}
-	}
-
-	return returnValue;
+	return Plugin_Continue;
 }
 
 Action SDKHookCB_OnTakeDamage_Building(
@@ -4881,6 +4845,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
+			// pre-2014 grenade random damage spread
+			if (
+				ItemIsEnabled(Feat_Grenade) &&
+				player_weapons[attacker][Feat_Grenade] &&
+				damage_type & DMG_CRIT == 0 &&
+				cvar_ref_tf_damage_disablespread.BoolValue == false
+			) {
+				// values chosen to be approximately +/- 15% random variance in total
+				damage *= GetRandomFloat(0.867, 1.127);
+				returnValue = Plugin_Changed;
+			}
+		}
+		{
 			if (
 				victim == attacker &&
 				damage > 0 &&
@@ -4920,6 +4897,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 		}
 	}
 
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		players[victim].spy_is_feigning &&
+		players[victim].spy_under_feign_buffs &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy &&
+		resist_damage
+	) {
+		// dead ringer damage modification
+		damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
+		returnValue = Plugin_Changed;
+	}
+
 	return returnValue;
 }
 
@@ -4934,6 +4924,17 @@ void SDKHookCB_OnTakeDamagePost(
 	float charge;
 	float damage1;
 	int weapon1;
+
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		players[victim].spy_is_feigning &&
+		players[victim].spy_under_feign_buffs &&
+		TF2_GetPlayerClass(victim) == TFClass_Spy
+	) {
+		// dead ringer damage tracking
+		players[victim].damage_taken_during_feign += damage;
+	}
 
 	if (
 		victim >= 1 && victim <= MaxClients &&

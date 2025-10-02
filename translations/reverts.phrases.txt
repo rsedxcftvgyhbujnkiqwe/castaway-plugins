@@ -134,6 +134,10 @@
 	{
 		"en"	"All Flamethrowers"
 	}
+	"grenade"
+	{
+		"en"	"All Grenade Launchers"
+	}
 	"miniramp"
 	{
 		"en"	"All Miniguns"
@@ -142,10 +146,10 @@
 	{
 		"en"	"All Sniper Rifles"
 	}
-  "stickybomb"
+	"stickybomb"
 	{
 		"en"	"All Stickybomb Launchers"
-  }
+	}
 	"swords"
 	{
 		"en"	"All Swords"
@@ -488,18 +492,22 @@
 	{
 		"en"	"Reverted to pre-bluemoon, full dmg with no density ramp up"
 	}
+	"Grenade_Pre2014"
+	{
+		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, damage variance on hit location (more damage near player's feet)"
+	}
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
 	}
 	"SniperRifle_PreLW"
 	{
-		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
+		"en"	"Reverted to pre-August 27, 2014, can jump immediately after firing a scoped shot (scope jumping)"
 	}
-  "Stickybomb_PreLW"
+	"Stickybomb_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, +9%% base blast radius; air-detonated stickies have full blast radius"
-  }
+		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius"
+	}
 	"Swords_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
@@ -798,7 +806,7 @@
 	}
 	"LochLoad_2013"
 	{
-		"en"	"Reverted to pre-2014, +20%% damage (15%% variance), -50%% clip, +25%% self dmg, no radius penalty, grenades tumble"
+		"en"	"Reverted to pre-2014, +20%% damage, -50%% clip size, +25%% self dmg, no radius penalty, grenades tumble"
 	}
 	"Cannon_PreTB"
 	{
