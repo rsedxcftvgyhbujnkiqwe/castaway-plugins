@@ -2979,7 +2979,8 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 	if (
 		ItemIsEnabled(Feat_Stickybomb) &&
-		StrEqual(class, "tf_weapon_pipebomblauncher")
+		StrEqual(class, "tf_weapon_pipebomblauncher") &&
+		index != 265 //todo: replcae this with logic similar to the sword
 	) {
 		TF2Items_SetNumAttributes(itemNew, 1);
 		TF2Items_SetAttribute(itemNew, 0, 99, 1.089); // mult_explosion_radius; +%s1% explosion radius
