@@ -6184,6 +6184,7 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 				EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
 				returnValue.Value = true;
 			}
+			return MRES_Supercede;
 		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
@@ -6241,6 +6242,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
 				RemoveEntity(entity);
 			}
+			return MRES_Supercede;
 		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
