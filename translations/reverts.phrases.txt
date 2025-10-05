@@ -310,6 +310,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"ironbomber"
+	{
+		"en"	"Iron Bomber"
+	}
 	"jag"
 	{
 		"en"	"Jag"
@@ -496,10 +500,10 @@
 	{
 		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
 	}
-  "Stickybomb_PreLW"
+	"Stickybomb_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, +9%% base blast radius; air-detonated stickies have full blast radius"
-  }
+	}
 	"Swords_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
@@ -779,6 +783,10 @@
 	"Hibernate_Release"
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
+	}
+	"IronBomber_Pre2022"
+	{
+		"en"	"Reverted to pre-July 7, 2022; ~2x larger grenade hitbox"
 	}
 	"Jag_PreTB"
 	{
