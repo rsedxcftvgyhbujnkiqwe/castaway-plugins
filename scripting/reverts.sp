@@ -270,6 +270,7 @@ MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Shells;
 MemoryPatch patch_RevertWrangler_WrenchRefillNerf_Rockets;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
+MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
@@ -394,7 +395,9 @@ enum
 	Wep_GRU,
 	Wep_Gunboats,
 	Wep_Zatoichi, // Half-Zatoichi
+#if defined MEMORY_PATCHES	
 	Wep_IronBomber,
+#endif
 	Wep_Jag,
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
@@ -570,7 +573,9 @@ public void OnPluginStart() {
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
-	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber);
+#if defined MEMORY_PATCHES	
+	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber, true);
+#endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");  
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
@@ -809,6 +814,9 @@ public void OnPluginStart() {
 		patch_RevertSniperRifles_ScopeJump =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
+		patch_RevertIronBomber_PipeHitbox =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");			
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -838,6 +846,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
+		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
@@ -941,6 +950,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1070,6 +1080,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertMadMilk_ChgFloatAddr.Disable();
 			}
 		}
+		case Wep_IronBomber: {
+			if (enable) {
+				patch_RevertIronBomber_PipeHitbox.Enable();
+			} else {
+				patch_RevertIronBomber_PipeHitbox.Disable();
+			}
+		}		
 	}
 }
 #endif
@@ -3300,7 +3317,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
+#if defined MEMORY_PATCHES
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
+#endif
 						case 329: player_weapons[client][Wep_Jag] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
