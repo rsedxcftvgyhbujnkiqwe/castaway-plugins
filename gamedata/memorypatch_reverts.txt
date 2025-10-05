@@ -267,6 +267,8 @@
 				//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
 				//	Normal pipe grenade hitbox size is 4x4x4. 
 				//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
+				//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
+				//	Function can be found via the DevMsg string in a decompiler.
 
 				"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert"
 				{
