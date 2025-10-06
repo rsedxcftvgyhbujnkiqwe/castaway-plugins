@@ -5808,7 +5808,6 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	return true;
 }
 
-#if defined MEMORY_PATCHES
 // Get the sentry of a specific engineer
 // WARNING: Do not use in MVM!
 int FindSentryGunOwnedByClient(int client)
@@ -5829,7 +5828,6 @@ int FindSentryGunOwnedByClient(int client)
 
 	return -1;
 }
-#endif
 
 // Get the built (construction finished) teleporter exit of a specific engineer
 int FindBuiltTeleporterExitOwnedByClient(int client)
