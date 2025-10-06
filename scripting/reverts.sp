@@ -301,9 +301,6 @@ DynamicDetour dhook_CBaseObject_GetConstructionMultiplier;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 
 Address CObjectBase_m_flHealth; // *((float *)a1 + 652)
-
-Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
-
 #endif
 
 Handle sdkcall_JarExplode;
@@ -840,11 +837,6 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
-
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
-		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
-		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
 		
 		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
@@ -853,7 +845,6 @@ public void OnPluginStart() {
 		dhook_CBaseObject_GetConstructionMultiplier = DynamicDetour.FromConf(conf, "CBaseObject::GetConstructionMultiplier");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
-		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
 		if (dhook_CBaseObject_StartBuilding == null) SetFailState("Failed to create dhook_CBaseObject_StartBuilding");
 		if (dhook_CBaseObject_Construct == null) SetFailState("Failed to create dhook_CBaseObject_Construct");
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
