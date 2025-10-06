@@ -633,7 +633,14 @@
 			"CBaseObject::GetConstructionMultiplier"
 			{
 				"signature" "CBaseObject::GetConstructionMultiplier"
-				"callconv"  "thiscall"
+				"linux"
+				{
+					"callconv"  "thiscall"
+				}
+				"windows"
+				{
+					"callconv"  "fastcall"
+				}
 				"this"      "entity"
 				"return"    "float"
 			}

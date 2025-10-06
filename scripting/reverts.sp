@@ -6585,6 +6585,16 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 }
 
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+#if defined MEMORY_PATCHES
+	// Do not allow repairs on mini sentries.
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		returnValue.Value = false;
+		return MRES_Supercede;
+	}
+#endif
 	// Revert the sentry's shield.
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
