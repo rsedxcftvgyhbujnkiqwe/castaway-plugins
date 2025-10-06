@@ -3393,8 +3393,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
-						case 142: player_weapons[client][Wep_Gunslinger] = true;
 #if defined MEMORY_PATCHES
+						case 142: player_weapons[client][Wep_Gunslinger] = true;
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 #endif
 						case 329: player_weapons[client][Wep_Jag] = true;
