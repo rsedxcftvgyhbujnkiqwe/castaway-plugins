@@ -5768,16 +5768,6 @@ bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 		return false;
 	}
 
-#if defined MEMORY_PATCHES
-	// Do not allow healing on mini sentries.
-	if (
-		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(buildingIndex, Prop_Send, "m_bMiniBuilding")
-	) {
-		return false;
-	}
-#endif
-
 	return true;
 }
 
@@ -6355,6 +6345,17 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int arrowEntity, DHookParam parameters) {
 	MRESReturn returnValue = MRES_Ignored;
 	int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
+	int sentry = parameters.Get(1);
+
+#if defined MEMORY_PATCHES
+	// Do not allow healing on mini sentries.
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(sentry, Prop_Send, "m_bMiniBuilding")
+	) {
+		return MRES_Supercede;
+	}
+#endif
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int weapon;
@@ -6375,7 +6376,6 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int arrowE
 	}
 	
 	// Fake the sentry being unshielded to allow for maximum healing potential.
-	int sentry = parameters.Get(1);
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
 		IsValidEntity(sentry) &&
@@ -6392,6 +6392,16 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int arrow
 	MRESReturn returnValue = MRES_Ignored;
 	int buildingIndex = parameters.Get(1);
 	int engineerIndex = GetEntityOwner(arrowEntity);
+
+#if defined MEMORY_PATCHES
+	// Do not allow healing on mini sentries.
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(buildingIndex, Prop_Send, "m_bMiniBuilding")
+	) {
+		return MRES_Supercede;
+	}
+#endif
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		int weapon;
