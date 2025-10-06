@@ -4787,6 +4787,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
 	Action returnValue = Plugin_Continue;
+	char class[64];
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -4848,13 +4849,18 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// pre-2014 grenade random damage spread
 			if (
 				ItemIsEnabled(Feat_Grenade) &&
-				player_weapons[attacker][Feat_Grenade] &&
 				damage_type & DMG_CRIT == 0 &&
 				cvar_ref_tf_damage_disablespread.BoolValue == false
 			) {
-				// values chosen to be approximately +/- 15% random variance in total
-				damage *= GetRandomFloat(0.867, 1.127);
-				returnValue = Plugin_Changed;
+				if (weapon > MaxClients) {
+					GetEntityClassname(weapon, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
+						// values chosen to be approximately +/- 15% random variance in total
+						damage *= GetRandomFloat(0.867, 1.127);
+						returnValue = Plugin_Changed;
+					}
+				}
 			}
 		}
 		{
