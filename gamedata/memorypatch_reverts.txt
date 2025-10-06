@@ -140,7 +140,7 @@
 			"CBaseObject::CreateAmmoPack" // offset aModelsWeaponsW_11 ; "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x2C\x56\x57\x8B\xF9\x8B\x87\x3C\x01\x00\x00"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x3C\x01\x00\x00"
 				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
 			}
 		}
