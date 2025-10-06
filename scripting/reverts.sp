@@ -225,6 +225,7 @@ enum struct Entity {
 	float spawn_time;
 	bool is_demo_shield;
 	int old_shield;
+	float building_health;
 }
 
 ConVar cvar_enable;
@@ -292,6 +293,17 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 #if !defined WIN32
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
+
+DynamicHook dhook_CBaseObject_StartBuilding;
+DynamicHook dhook_CBaseObject_Construct;
+
+DynamicDetour dhook_CBaseObject_GetConstructionMultiplier;
+DynamicDetour dhook_CBaseObject_CreateAmmoPack;
+
+Address CObjectBase_m_flHealth; // *((float *)a1 + 652)
+
+Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -398,6 +410,9 @@ enum
 	Wep_MarketGardener,
 	Wep_GRU,
 	Wep_Gunboats,
+#if defined MEMORY_PATCHES
+	Wep_Gunslinger,
+#endif
 	Wep_Zatoichi, // Half-Zatoichi
 #if defined MEMORY_PATCHES	
 	Wep_IronBomber,
@@ -578,6 +593,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
+#if defined MEMORY_PATCHES
+	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
+	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
+#endif
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
 #if defined MEMORY_PATCHES	
@@ -821,12 +840,29 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
+
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
 		
+		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
+		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
+
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
+		dhook_CBaseObject_GetConstructionMultiplier = DynamicDetour.FromConf(conf, "CBaseObject::GetConstructionMultiplier");
+		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
+
+		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
+		if (dhook_CBaseObject_StartBuilding == null) SetFailState("Failed to create dhook_CBaseObject_StartBuilding");
+		if (dhook_CBaseObject_Construct == null) SetFailState("Failed to create dhook_CBaseObject_Construct");
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+		if (dhook_CBaseObject_GetConstructionMultiplier == null) SetFailState("Failed to create dhook_CBaseObject_GetConstructionMultiplier");
+		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
-
-		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+		dhook_CBaseObject_GetConstructionMultiplier.Enable(Hook_Post, DHookCallback_CBaseObject_GetConstructionMultiplier);
+		dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
 		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
@@ -849,6 +885,7 @@ public void OnPluginStart() {
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
+		CObjectBase_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 
 		delete conf;
 	}
@@ -1827,6 +1864,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].spawn_time = 0.0;
 	entities[entity].is_demo_shield = false;
 	entities[entity].old_shield = 0;
+	entities[entity].building_health = 0.0;
 
 	if (StrEqual(class, "tf_wearable_demoshield")) {
 		entities[entity].is_demo_shield = true;
@@ -1890,6 +1928,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 	if (StrEqual(class, "obj_sentrygun")) {
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
+#if defined MEMORY_PATCHES
+		dhook_CBaseObject_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_StartBuilding);
+		dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
+		dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
+#endif
 	}
 }
 
@@ -3350,6 +3393,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
+						case 142: player_weapons[client][Wep_Gunslinger] = true;
 #if defined MEMORY_PATCHES
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 #endif
@@ -5700,19 +5744,21 @@ bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 	char classname[64];
 	GetEntityClassname(buildingIndex, classname, sizeof(classname));
 
-	if (!StrEqual(classname, "obj_sentrygun", false)
-	 && !StrEqual(classname, "obj_teleporter", false)
-	 && !StrEqual(classname, "obj_dispenser", false))
-	{
+	if (
+		!StrEqual(classname, "obj_sentrygun", false) &&
+		!StrEqual(classname, "obj_teleporter", false) &&
+		!StrEqual(classname, "obj_dispenser", false)
+	) {
 		//PrintToChatAll("Entity did not match buildings");
 		return false;
 	}
 
-	if (GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper")
-	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable")
-	 || GetEntProp(buildingIndex, Prop_Send, "m_bBuilding")
-	 || GetEntProp(buildingIndex, Prop_Send, "m_bPlacing"))
-	{
+	if (
+		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
+	) {
 		//PrintToChatAll("Big if statement about sappers etc triggered");
 		return false;
 	}
@@ -5721,6 +5767,16 @@ bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
 		//PrintToChatAll("Entities were not on the same team");
 		return false;
 	}
+
+#if defined MEMORY_PATCHES
+	// Do not allow healing on mini sentries.
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(buildingIndex, Prop_Send, "m_bMiniBuilding")
+	) {
+		return false;
+	}
+#endif
 
 	return true;
 }
@@ -6497,6 +6553,16 @@ MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn r
 }
 
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+#if defined MEMORY_PATCHES
+	// Do not allow repairs on mini sentries.
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		returnValue.Value = false;
+		return MRES_Supercede;
+	}
+#endif
 	// Fake the sentry being unshielded to allow for full repair.
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
@@ -6522,6 +6588,78 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 
 	return MRES_Ignored;
 }
+
+#if defined MEMORY_PATCHES
+MRESReturn DHookCallback_CBaseObject_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		// Mini sentries always start off at max health.
+		StoreToAddress(GetEntityAddress(entity) + CObjectBase_m_flHealth, 100.00, NumberType_Int32);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+	entities[entity].building_health = LoadFromAddress(GetEntityAddress(entity) + CObjectBase_m_flHealth, NumberType_Int32);
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+	// For Pre-GM Gunslinger, prevent mini sentries from gaining health while being built.
+	if (
+		GetItemVariant(Wep_Gunslinger) == 0 &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding"))
+	{
+		Address m_flHealth = GetEntityAddress(entity) + CObjectBase_m_flHealth;
+		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
+			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
+		else
+			StoreToAddress(m_flHealth, entities[entity].building_health, NumberType_Int32);
+	}
+	return MRES_Ignored;
+}
+
+float GetBuildingConstructionMultiplier_NoHook(int entity) {
+	// Is the building being sapped by the Red Tape Recorder?
+	if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
+		return -1.0;
+	float multiplier = 1.0;
+
+	// Increase the speed if the building is being redeployed or if it is a mini sentry.
+	multiplier += GetEntProp(entity, Prop_Send, "m_bCarryDeploy") ? 2.0 : 0.0;
+	multiplier += GetEntProp(entity, Prop_Send, "m_bMiniBuilding") ? 3.0 : 0.0;
+	return multiplier;
+}
+
+MRESReturn DHookCallback_CBaseObject_GetConstructionMultiplier(int entity, DHookReturn returnValue) {
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		// Do not allow mini sentries to be construction boosted.
+		// The actual function is still called so the CUtlMap is still properly managed.
+		returnValue.Value = GetBuildingConstructionMultiplier_NoHook(entity);
+		return MRES_Override;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	// Allow metal to be picked up from mini sentry gibs.
+    if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+        parameters.Set(2, 7);
+        return MRES_ChangedHandled;
+    }
+    return MRES_Ignored;
+}
+
+#endif
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
