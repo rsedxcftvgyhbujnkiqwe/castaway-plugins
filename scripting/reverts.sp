@@ -5840,6 +5840,32 @@ int FindBuiltTeleporterExitOwnedByClient(int client)
 	return -1;
 }
 
+int FindAttachedSapper(int buildingIndex) {
+	if (!IsValidEntity(buildingIndex))
+		return -1;
+
+	char classname[64];
+	GetEntityClassname(buildingIndex, classname, sizeof(classname));
+
+	if (
+		!StrEqual(classname, "obj_sentrygun", false) &&
+		!StrEqual(classname, "obj_teleporter", false) &&
+		!StrEqual(classname, "obj_dispenser", false)
+	) {
+		//PrintToChatAll("Entity did not match buildings");
+		return -1;
+	}
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_attachment_sapper")) != -1)
+	{
+		if (GetEntPropEnt(ent, Prop_Send, "m_hBuiltOnEntity") == buildingIndex)
+			return ent;
+	}
+
+	return -1;
+}
+
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
@@ -6631,7 +6657,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding"))
 	{
 		Address m_flHealth = GetEntityAddress(entity) + CObjectBase_m_flHealth;
-		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
+		if (BuildingIsBeingReversedBySapper(entity))
 			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
 		else
 			StoreToAddress(m_flHealth, entities[entity].building_health, NumberType_Int32);
@@ -6641,7 +6667,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 
 float GetBuildingConstructionMultiplier_NoHook(int entity) {
 	// Is the building being sapped by the Red Tape Recorder?
-	if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
+	if (BuildingIsBeingReversedBySapper(entity))
 		return -1.0;
 	float multiplier = 1.0;
 
@@ -6649,6 +6675,33 @@ float GetBuildingConstructionMultiplier_NoHook(int entity) {
 	multiplier += GetEntProp(entity, Prop_Send, "m_bCarryDeploy") ? 2.0 : 0.0;
 	multiplier += GetEntProp(entity, Prop_Send, "m_bMiniBuilding") ? 3.0 : 0.0;
 	return multiplier;
+}
+
+static bool BuildingIsBeingReversedBySapper(int buildingEnt)
+{
+    if (!IsValidEntity(buildingEnt)) return false;
+
+    // Only operate on actual buildings (avoid players/others)
+    static char class[64];
+    GetEntityClassname(buildingEnt, class, sizeof(class));
+    if (StrContains(class, "obj_")) return false;
+
+    // During placement/building, fields/vtables can be in flux — skip
+    bool placing  = GetEntProp(buildingEnt, Prop_Send, "m_bPlacing")  != 0;
+    bool building = GetEntProp(buildingEnt, Prop_Send, "m_bBuilding") != 0;
+    if (placing || building) return false;
+
+    // Resolve sapper entity attached to this building
+    int sapperEnt = FindAttachedSapper(buildingEnt);
+    if (!(sapperEnt > MaxClients && IsValidEntity(sapperEnt))) return false;
+
+    // Optional: confirm it's actually a sapper
+    GetEntityClassname(sapperEnt, class, sizeof(class));
+    // typical class: "obj_attachment_sapper" (don’t hard fail if names differ across builds)
+    if (class[0]!='o') {/* continue; */}
+
+    float reverses = TF2Attrib_HookValueFloat(0.0, "sapper_degenerates_buildings", sapperEnt);
+    return reverses != 0.0;
 }
 
 MRESReturn DHookCallback_CBaseObject_GetConstructionMultiplier(int entity, DHookReturn returnValue) {
