@@ -840,7 +840,7 @@ public void OnPluginStart() {
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
 #if defined WIN32
-		dhook_CBaseObject_StartBuilding = DynamicDetour.FromConf(conf, "CBaseObject::StartBuilding");
+		dhook_CBaseObject_StartBuilding = DynamicDetour.FromConf(conf, "CBaseObject::StartBuilding_Detour");
 #else
 		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
 #endif
