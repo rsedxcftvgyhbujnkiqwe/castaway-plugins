@@ -792,10 +792,6 @@
 	{
 		"en"	"Reverted to pre-gunmettle, mini sentries start at max health, build fast, cannot be wrench boosted or repaired, gibs give metal"
 	}
-	"Gunslinger_Release"
-	{
-		"en"	"Reverted to release, mini sentries start at max health, build fast, heal during construction, cannot be wrench boosted or repaired, gibs give metal"
-	}
 	"Zatoichi_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, fast switch, less range, cannot switch until kill, full heal, has random crits"

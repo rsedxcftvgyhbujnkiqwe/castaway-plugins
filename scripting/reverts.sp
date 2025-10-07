@@ -225,7 +225,7 @@ enum struct Entity {
 	float spawn_time;
 	bool is_demo_shield;
 	int old_shield;
-	float building_health;
+	int minisentry_health;
 }
 
 ConVar cvar_enable;
@@ -300,7 +300,6 @@ DynamicHook dhook_CBaseObject_Construct;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 
-Address CObjectBase_m_flHealth; // *((float *)a1 + 652)
 #endif
 
 Handle sdkcall_JarExplode;
@@ -592,7 +591,6 @@ public void OnPluginStart() {
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
 #if defined MEMORY_PATCHES
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
-	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
 #endif
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
@@ -875,8 +873,6 @@ public void OnPluginStart() {
 #endif
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-
-		CObjectBase_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 
 		delete conf;
 	}
@@ -1855,7 +1851,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].spawn_time = 0.0;
 	entities[entity].is_demo_shield = false;
 	entities[entity].old_shield = 0;
-	entities[entity].building_health = 0.0;
+	entities[entity].minisentry_health = 0;
 
 	if (StrEqual(class, "tf_wearable_demoshield")) {
 		entities[entity].is_demo_shield = true;
@@ -6636,30 +6632,33 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 MRESReturn DHookCallback_CBaseObject_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding") &&
+		!GetEntProp(entity, Prop_Send, "m_bCarryDeploy")
 	) {
 		// Mini sentries always start off at max health.
-		StoreToAddress(GetEntityAddress(entity) + CObjectBase_m_flHealth, 100.00, NumberType_Int32);
+		SetEntityHealth(entity, 100);
 	}
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-	entities[entity].building_health = LoadFromAddress(GetEntityAddress(entity) + CObjectBase_m_flHealth, NumberType_Int32);
+	if (
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		entities[entity].minisentry_health = GetEntProp(entity, Prop_Send, "m_iHealth");
+	}
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	// For Pre-GM Gunslinger, prevent mini sentries from gaining health while being built.
+	// Prevent mini sentries from gaining health while being built.
 	if (
-		GetItemVariant(Wep_Gunslinger) == 0 &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding"))
-	{
-		Address m_flHealth = GetEntityAddress(entity) + CObjectBase_m_flHealth;
-		if (BuildingIsBeingReversedBySapper(entity))
-			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
-		else
-			StoreToAddress(m_flHealth, entities[entity].building_health, NumberType_Int32);
+		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+	) {
+		if (!BuildingIsBeingReversedBySapper(entity))
+			SetEntityHealth(entity, entities[entity].minisentry_health);
 	}
 	return MRES_Ignored;
 }
