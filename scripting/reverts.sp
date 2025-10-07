@@ -297,7 +297,7 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 DynamicHook dhook_CBaseObject_StartBuilding;
 DynamicHook dhook_CBaseObject_Construct;
 
-DynamicDetour dhook_CBaseObject_GetConstructionMultiplier;
+DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 
 Address CObjectBase_m_flHealth; // *((float *)a1 + 652)
@@ -842,17 +842,17 @@ public void OnPluginStart() {
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-		dhook_CBaseObject_GetConstructionMultiplier = DynamicDetour.FromConf(conf, "CBaseObject::GetConstructionMultiplier");
+		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
 		if (dhook_CBaseObject_StartBuilding == null) SetFailState("Failed to create dhook_CBaseObject_StartBuilding");
 		if (dhook_CBaseObject_Construct == null) SetFailState("Failed to create dhook_CBaseObject_Construct");
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
-		if (dhook_CBaseObject_GetConstructionMultiplier == null) SetFailState("Failed to create dhook_CBaseObject_GetConstructionMultiplier");
+		if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
-		dhook_CBaseObject_GetConstructionMultiplier.Enable(Hook_Post, DHookCallback_CBaseObject_GetConstructionMultiplier);
+		dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 		dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
@@ -2640,6 +2640,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 133: { if (ItemIsEnabled(Wep_Gunboats)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 135, 0.25); // -75% blast damage from rocket jumps
+		}}
+		case 142: { if (ItemIsEnabled(Wep_Gunslinger)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 464, 4.0); // Sentry build speed increased by 300%
 		}}
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -6695,15 +6699,13 @@ static bool BuildingIsBeingReversedBySapper(int buildingEnt)
     return reverses != 0.0;
 }
 
-MRESReturn DHookCallback_CBaseObject_GetConstructionMultiplier(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookReturn returnValue) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		// Do not allow mini sentries to be construction boosted.
-		// The actual function is still called so the CUtlMap is still properly managed.
-		returnValue.Value = GetBuildingConstructionMultiplier_NoHook(entity);
-		return MRES_Override;
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }

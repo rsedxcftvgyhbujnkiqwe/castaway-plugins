@@ -143,6 +143,12 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x3C\x01\x00\x00"
 				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
 			}
+			"CBaseObject::OnConstructionHit" // offset aNutsnboltsBuil ; "nutsnbolts_build", don't use precache subroutine
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x08\x53"
+				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
+			}
 		}
 
 		"Offsets"
@@ -630,23 +636,6 @@
 				"this"      "entity"
 				"return"    "void"
 			}
-			"CBaseObject::GetConstructionMultiplier"
-			{
-				"linux"
-				{
-					"signature" "CBaseObject::GetConstructionMultiplier"
-					"callconv"  "thiscall"
-					"this"      "entity"
-					"return"    "float"
-				}
-				"windows"
-				{
-					"signature" "CBaseObject::GetConstructionMultiplier"
-					"callconv"  "fastcall"
-					"this"      "entity"
-					"return"    "float"
-				}
-			}
 			"CBaseObject::CreateAmmoPack"
 			{
 				"signature" "CBaseObject::CreateAmmoPack"
@@ -662,6 +651,29 @@
 					"nMetal"
 					{
 						"type" "int"
+					}
+				}
+			}
+			"CBaseObject::OnConstructionHit"
+			{
+				"signature" "CBaseObject::OnConstructionHit"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "cbaseentity"
+					}
+					"pWrench"
+					{
+						"type" "cbaseentity"
+					}
+					"hitLoc"
+					{
+						"type" "object"
+						"size" "12"
 					}
 				}
 			}
