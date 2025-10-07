@@ -140,13 +140,13 @@
 			"CBaseObject::CreateAmmoPack" // offset aModelsWeaponsW_11 ; "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x3C\x01\x00\x00"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
 				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
 			}
 			"CBaseObject::OnConstructionHit" // offset aNutsnboltsBuil ; "nutsnbolts_build", don't use precache subroutine
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x08\x53"
+				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
 		}
