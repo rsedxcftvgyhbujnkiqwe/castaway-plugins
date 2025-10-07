@@ -2641,10 +2641,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 135, 0.25); // -75% blast damage from rocket jumps
 		}}
+#if defined MEMORY_PATCHES
 		case 142: { if (ItemIsEnabled(Wep_Gunslinger)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 464, 4.0); // Sentry build speed increased by 300%
 		}}
+#endif
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
@@ -5835,6 +5837,7 @@ int FindBuiltTeleporterExitOwnedByClient(int client)
 	return -1;
 }
 
+#if defined MEMORY_PATCHES
 int FindAttachedSapper(int buildingIndex) {
 	if (!IsValidEntity(buildingIndex))
 		return -1;
@@ -5860,6 +5863,7 @@ int FindAttachedSapper(int buildingIndex) {
 
 	return -1;
 }
+#endif
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
@@ -6658,18 +6662,6 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 			StoreToAddress(m_flHealth, entities[entity].building_health, NumberType_Int32);
 	}
 	return MRES_Ignored;
-}
-
-float GetBuildingConstructionMultiplier_NoHook(int entity) {
-	// Is the building being sapped by the Red Tape Recorder?
-	if (BuildingIsBeingReversedBySapper(entity))
-		return -1.0;
-	float multiplier = 1.0;
-
-	// Increase the speed if the building is being redeployed or if it is a mini sentry.
-	multiplier += GetEntProp(entity, Prop_Send, "m_bCarryDeploy") ? 2.0 : 0.0;
-	multiplier += GetEntProp(entity, Prop_Send, "m_bMiniBuilding") ? 3.0 : 0.0;
-	return multiplier;
 }
 
 static bool BuildingIsBeingReversedBySapper(int buildingEnt)
