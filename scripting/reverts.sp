@@ -857,7 +857,7 @@ public void OnPluginStart() {
 		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
 #if defined WIN32
-		dhook_CBaseObject_StartBuilding.Enable(Hook_Post, entity, DHookCallback_CBaseObject_StartBuilding);
+		dhook_CBaseObject_StartBuilding.Enable(Hook_Post, DHookCallback_CBaseObject_StartBuilding);
 #endif
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
