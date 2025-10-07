@@ -153,14 +153,14 @@
 
 		"Offsets"
 		{
-			"CBaseObject::StartBuilding"
+			"CObjectSentrygun::StartBuilding"
 			{
-				"windows" "343"
+				"windows" "342"
 				"linux"   "344"
 			}
-			"CBaseObject::Construct"
+			"CObjectSentrygun::Construct" // look for CBaseObject::Construct in CObjectSentrygun
 			{
-				"windows" "351"
+				"windows" "350"
 				"linux"   "352"
 			}
 		}
@@ -601,9 +601,9 @@
 			}
 		"Functions"
 		{
-			"CBaseObject::StartBuilding"
+			"CObjectSentrygun::StartBuilding"
 			{
-				"offset"   "CBaseObject::StartBuilding"
+				"offset"   "CObjectSentrygun::StartBuilding"
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "bool"
@@ -615,9 +615,9 @@
 					}
 				}
 			}
-			"CBaseObject::Construct"
+			"CObjectSentrygun::Construct"
 			{
-				"offset"   "CBaseObject::Construct"
+				"offset"   "CObjectSentrygun::Construct"
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "bool"

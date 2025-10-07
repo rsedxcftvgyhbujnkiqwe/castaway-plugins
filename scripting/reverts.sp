@@ -294,8 +294,8 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
-DynamicHook dhook_CBaseObject_StartBuilding;
-DynamicHook dhook_CBaseObject_Construct;
+DynamicHook dhook_CObjectSentrygun_StartBuilding;
+DynamicHook dhook_CObjectSentrygun_Construct;
 
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
@@ -836,15 +836,15 @@ public void OnPluginStart() {
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
 		
-		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
-		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
+		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
+		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
-		if (dhook_CBaseObject_StartBuilding == null) SetFailState("Failed to create dhook_CBaseObject_StartBuilding");
-		if (dhook_CBaseObject_Construct == null) SetFailState("Failed to create dhook_CBaseObject_Construct");
+		if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
+		if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 		if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
@@ -1916,9 +1916,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
 #if defined MEMORY_PATCHES
-		dhook_CBaseObject_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_StartBuilding);
-		dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
-		dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
+		dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding);
+		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
+		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 #endif
 	}
 }
@@ -6629,7 +6629,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 }
 
 #if defined MEMORY_PATCHES
-MRESReturn DHookCallback_CBaseObject_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding") &&
@@ -6641,7 +6641,7 @@ MRESReturn DHookCallback_CBaseObject_StartBuilding(int entity, DHookReturn retur
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
@@ -6651,7 +6651,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn retur
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Prevent mini sentries from gaining health while being built.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
