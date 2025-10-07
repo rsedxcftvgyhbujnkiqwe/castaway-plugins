@@ -632,17 +632,20 @@
 			}
 			"CBaseObject::GetConstructionMultiplier"
 			{
-				"signature" "CBaseObject::GetConstructionMultiplier"
 				"linux"
 				{
+					"signature" "CBaseObject::GetConstructionMultiplier"
 					"callconv"  "thiscall"
+					"this"      "entity"
+					"return"    "float"
 				}
 				"windows"
 				{
+					"signature" "CBaseObject::GetConstructionMultiplier"
 					"callconv"  "fastcall"
+					"this"      "entity"
+					"return"    "float"
 				}
-				"this"      "entity"
-				"return"    "float"
 			}
 			"CBaseObject::CreateAmmoPack"
 			{

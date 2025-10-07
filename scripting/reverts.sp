@@ -6675,7 +6675,7 @@ static bool BuildingIsBeingReversedBySapper(int buildingEnt)
     // Only operate on actual buildings (avoid players/others)
     static char class[64];
     GetEntityClassname(buildingEnt, class, sizeof(class));
-    if (StrContains(class, "obj_")) return false;
+    if (StrContains(class, "obj_") == -1) return false;
 
     // During placement/building, fields/vtables can be in flux — skip
     bool placing  = GetEntProp(buildingEnt, Prop_Send, "m_bPlacing")  != 0;
