@@ -301,6 +301,9 @@ DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
+
+Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -837,6 +840,11 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
+
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
 		
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
 		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
@@ -845,6 +853,7 @@ public void OnPluginStart() {
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
+		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
 		if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
 		if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
@@ -5837,34 +5846,6 @@ int FindBuiltTeleporterExitOwnedByClient(int client)
 	return -1;
 }
 
-#if defined MEMORY_PATCHES
-int FindAttachedSapper(int buildingIndex) {
-	if (!IsValidEntity(buildingIndex))
-		return -1;
-
-	char classname[64];
-	GetEntityClassname(buildingIndex, classname, sizeof(classname));
-
-	if (
-		!StrEqual(classname, "obj_sentrygun", false) &&
-		!StrEqual(classname, "obj_teleporter", false) &&
-		!StrEqual(classname, "obj_dispenser", false)
-	) {
-		//PrintToChatAll("Entity did not match buildings");
-		return -1;
-	}
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_attachment_sapper")) != -1)
-	{
-		if (GetEntPropEnt(ent, Prop_Send, "m_hBuiltOnEntity") == buildingIndex)
-			return ent;
-	}
-
-	return -1;
-}
-#endif
-
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
@@ -6662,39 +6643,12 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
-		if (BuildingIsBeingReversedBySapper(entity))
+		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
 			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
 		else
 			StoreToAddress(m_flHealth, entities[entity].minisentry_health, NumberType_Int32);
 	}
 	return MRES_Ignored;
-}
-
-static bool BuildingIsBeingReversedBySapper(int buildingEnt)
-{
-    if (!IsValidEntity(buildingEnt)) return false;
-
-    // Only operate on actual buildings (avoid players/others)
-    static char class[64];
-    GetEntityClassname(buildingEnt, class, sizeof(class));
-    if (StrContains(class, "obj_") == -1) return false;
-
-    // During placement/building, fields/vtables can be in flux — skip
-    bool placing  = GetEntProp(buildingEnt, Prop_Send, "m_bPlacing")  != 0;
-    bool building = GetEntProp(buildingEnt, Prop_Send, "m_bBuilding") != 0;
-    if (placing || building) return false;
-
-    // Resolve sapper entity attached to this building
-    int sapperEnt = FindAttachedSapper(buildingEnt);
-    if (!(sapperEnt > MaxClients && IsValidEntity(sapperEnt))) return false;
-
-    // Optional: confirm it's actually a sapper
-    GetEntityClassname(sapperEnt, class, sizeof(class));
-    // typical class: "obj_attachment_sapper" (don’t hard fail if names differ across builds)
-    if (class[0]!='o') {/* continue; */}
-
-    float reverses = TF2Attrib_HookValueFloat(0.0, "sapper_degenerates_buildings", sapperEnt);
-    return reverses != 0.0;
 }
 
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookReturn returnValue) {
