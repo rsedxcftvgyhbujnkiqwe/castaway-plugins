@@ -294,11 +294,7 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
-#if defined WIN32
-DynamicDetour dhook_CBaseObject_StartBuilding;
-#else
 DynamicHook dhook_CBaseObject_StartBuilding;
-#endif
 DynamicHook dhook_CBaseObject_Construct;
 
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
@@ -839,11 +835,8 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 		PrintToServer("Made the sniperscope linuxextra patch!");
 #endif
-#if defined WIN32
-		dhook_CBaseObject_StartBuilding = DynamicDetour.FromConf(conf, "CBaseObject::StartBuilding_Detour");
-#else
+		
 		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
-#endif
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
@@ -856,9 +849,6 @@ public void OnPluginStart() {
 		if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
-#if defined WIN32
-		dhook_CBaseObject_StartBuilding.Enable(Hook_Post, DHookCallback_CBaseObject_StartBuilding);
-#endif
 		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 		dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
@@ -1926,9 +1916,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
 #if defined MEMORY_PATCHES
-#if !defined WIN32
 		dhook_CBaseObject_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_StartBuilding);
-#endif
 		dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
 		dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
 #endif

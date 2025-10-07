@@ -149,11 +149,6 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x08\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
-			"CBaseObject::StartBuilding_Detour" // "#TF_Not_Enough_Resources"
-			{
-				"library" "server"
-				"windows" "\x53\x8b\xdc\x83\xec\x08\x83\xe4\xf0\x83\xc4\x04\x55\x8b\x6b\x04\x89\x6c\x24\x04\x8b\xec\x81\xec\xf8\x00\x00\x00\x56\x57\x8b\xf9\xe8\x2a\x2a\x2a\x2a"
-			}
 		}
 
 		"Offsets"
@@ -679,20 +674,6 @@
 					{
 						"type" "object"
 						"size" "12"
-					}
-				}
-			}
-			"CBaseObject::StartBuilding_Detour"
-			{
-				"signature" "CBaseObject::StartBuilding_Detour"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
-				"arguments"
-				{
-					"pBuilder"
-					{
-						"type" "cbaseentity"
 					}
 				}
 			}
