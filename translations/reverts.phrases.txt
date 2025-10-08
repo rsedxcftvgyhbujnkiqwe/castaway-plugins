@@ -838,19 +838,19 @@
 	}
 	"Phlog_Pyro"
 	{
-		"en"	"Reverted to Pyromania, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), -10%% dmg penalty"
+		"en"	"Reverted to pre-toughbreak, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
 	}
 	"Phlog_TB"
 	{
-		"en"	"Reverted to Tough Break, activating MMMPH instantly restores to full health, Ubered a bit after taunting, MMMPH requires lower fire damage (225)"
+		"en"	"Reverted to post-toughbreak, activating MMMPH instantly restores to full health, Ubered a bit after taunting, MMMPH requires 225 fire damage"
 	}
 	"Phlog_Release"
 	{
-		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), longer 13 sec crit buff"
+		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, longer 13 sec crit buff"
 	}
 	"Phlog_March2012"
 	{
-		"en"	"Reverted to March 15, 2012, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires lower fire damage (225), -10%% dmg penalty"
+		"en"	"Reverted to March 15, 2012; activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
 	}
 	"Pomson_PreGM"
 	{

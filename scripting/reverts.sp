@@ -2022,23 +2022,14 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			}
 
 			switch (GetItemVariant(Wep_Phlogistinator)) {
-				case 0: { // Pyromania Phlog
+				case 0, 2, 3: { // Pyromania, Release and March 15, 2012 Phlog
 					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
 					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
+					// 90% damage reduction for release and march variants handled in OnTakeDamageAlive
 				}
 				case 1: { // Tough Break Phlog
 					// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
 					TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
-				}
-				case 2: { // Release Phlog
-					// changelog says 12 seconds, but the wiki says 13 seconds. I'll set it to 13 instead because of the taunt duration.
-					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-					TF2_AddCondition(client, TFCond_CritMmmph, 13.0, 0);
-					// 90% defense buff handled elsewhere in OnTakeDamageAlive
-				}
-				case 3: { // March 15, 2012 Phlog
-					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-					// 90% defense buff handled elsewhere in OnTakeDamageAlive
 				}
 			}			
 		}
@@ -2654,6 +2645,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 0, 3: { // Pyromania and March 2012 Phlogistinator
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // 10% damage penalty
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 357, 1.30); // +30% buff duration (hidden)
 				}
 			}
 		}}
@@ -4890,14 +4885,13 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if (
 				(GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
 				player_weapons[victim][Wep_Phlogistinator] &&
-				TF2_IsPlayerInCondition(victim, TFCond_Taunting) &&
-				TF2_IsPlayerInCondition(victim, TFCond_CritMmmph) &&
+				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
 				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.
 				resist_damage
 			) {
-				// Release Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
-				// https://github.com/ValveSoftware/source-sdk-2013/blob/68c8b82fdcb41b8ad5abde9fe1f0654254217b8e/src/game/shared/tf/tf_shareddefs.h#L735
-				damage *= 0.10; // will also resist taunt kills!
+				// Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
+				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
+				damage *= 0.40; // will also resist taunt kills!
 				returnValue = Plugin_Changed;
 			}
 		}
