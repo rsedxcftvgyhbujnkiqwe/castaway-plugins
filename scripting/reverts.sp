@@ -6631,22 +6631,30 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn 
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-		entities[entity].minisentry_health = LoadFromAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, NumberType_Int32);
+		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
+		entities[entity].minisentry_health = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32));
 	}
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	// For Pre-GM Gunslinger, prevent mini sentries from gaining health while being built.
 	if (
-		GetItemVariant(Wep_Gunslinger) == 0 &&
+		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
 		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
 			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
-		else
+		else if (GetItemVariant(Wep_Gunslinger) == 0) {
+			// Pre-GM Gunslinger, prevent mini sentries from gaining health while being built.
 			StoreToAddress(m_flHealth, entities[entity].minisentry_health, NumberType_Int32);
+		} else {
+			// Release Gunslinger double heal rate on construction
+			float delta = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - entities[entity].minisentry_health;
+			if (delta > 0.0) {
+				StoreToAddress(m_flHealth, entities[entity].minisentry_health + 2 * delta, NumberType_Int32);
+			}
+		}
 	}
 	return MRES_Ignored;
 }
