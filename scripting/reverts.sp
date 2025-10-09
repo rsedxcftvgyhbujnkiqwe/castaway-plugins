@@ -1513,7 +1513,6 @@ public void OnGameFrame() {
 									float spinup_time = TF2Attrib_HookValueFloat(TF_MINIGUN_SPINUP_TIME, "mult_minigun_spinup_time", weapon);
 									float spunup_duration = GetGameTime() - players[idx].aiming_cond_time - spinup_time;
 
-									// Cancel out initial rampup
 									if (spunup_duration < TF_MINIGUN_PENALTY_PERIOD) {
 
 										// weapon spread
@@ -5160,7 +5159,7 @@ public Action OnPlayerRunCmd(
 							(GetEntityFlags(client) & FL_ONGROUND) != 0 // don't reset if airborne, the attribute will handle air jumps
 						) {
 							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
-							TF2Util_UpdatePlayerSpeed(client, true);
+							TF2Util_UpdatePlayerSpeed(client);
 						}
 						players[client].player_jumped = true;
 					}
