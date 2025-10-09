@@ -126,6 +126,8 @@ public Plugin myinfo = {
 #define LOADOUT_POSITION_SECONDARY 1
 #define TF_MINIGUN_SPINUP_TIME 0.75
 #define TF_MINIGUN_PENALTY_PERIOD 1.0
+#define SENTRYGUN_ADD_SHELLS 40
+#define SENTRYGUN_MAX_SHELLS_1 150
 
 enum
 {
@@ -6567,16 +6569,6 @@ MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn r
 }
 
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-#if defined MEMORY_PATCHES
-	// Do not allow repairs on mini sentries.
-	if (
-		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
-	) {
-		returnValue.Value = false;
-		return MRES_Supercede;
-	}
-#endif
 	// Fake the sentry being unshielded to allow for full repair.
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
@@ -6587,20 +6579,51 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		SetEntProp(entity, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
 	}
 
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 #if defined MEMORY_PATCHES
-	// Do not allow repairs on mini sentries.
+	// Do not allow repairs on mini sentries. Mini sentries can still get refilled with ammo.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-		returnValue.Value = false;
+		// Refill ammo for mini sentry. Logic sourced from TF2 source code
+
+		bool did_work = false;
+		int client = parameters.Get(1);
+		if (
+			client > 0 &&
+			client <= MaxClients
+		) {
+			int metal = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 3);
+			int sentry_ammo = GetEntProp(entity, Prop_Send, "m_iAmmoShells");
+			int sentry_max_ammo = SENTRYGUN_MAX_SHELLS_1;
+
+			if (sentry_ammo < sentry_max_ammo && metal > 0) {
+				float amount_to_add_float = float(intMin(SENTRYGUN_ADD_SHELLS, metal));
+
+				if (GetEntProp(entity, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
+					amount_to_add_float *= SHIELD_NORMAL_VALUE;
+				}
+
+				amount_to_add_float = floatMin(float(sentry_max_ammo - sentry_ammo), amount_to_add_float);
+
+				int amount_to_add = RoundToNearest(amount_to_add_float);
+				SetEntProp(client, Prop_Send, "m_iAmmo", intMax(metal - amount_to_add, 0), 4, 3);
+				SetEntProp(entity, Prop_Send, "m_iAmmoShells", sentry_ammo + amount_to_add);
+
+				if (amount_to_add > 0) {
+					did_work = true;
+				}
+			}
+		}
+		returnValue.Value = did_work;
 		return MRES_Supercede;
 	}
 #endif
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Revert the sentry's shield.
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
@@ -6652,7 +6675,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 			// Release Gunslinger double heal rate on construction
 			float delta = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - entities[entity].minisentry_health;
 			if (delta > 0.0) {
-				StoreToAddress(m_flHealth, entities[entity].minisentry_health + 2 * delta, NumberType_Int32);
+				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, 100.0), NumberType_Int32);
 			}
 		}
 	}
@@ -6723,6 +6746,18 @@ int abs(int x)
 int intMin(int x, int y)
 {
 	return x > y ? y : x;
+}
+
+/**
+ * Get the greater integer between two integers.
+ * 
+ * @param x		Integer x.
+ * @param y		Integer y.
+ * @return		The greater integer between x and y.
+ */
+int intMax(int x, int y)
+{
+	return x > y ? x : y;
 }
 
 /**
