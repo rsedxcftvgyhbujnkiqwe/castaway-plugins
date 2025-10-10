@@ -104,6 +104,12 @@
 				"linux" "425"
 				"windows" "411"
 			}
+
+			"CObjectSentrygun::OnWrenchHit"
+			{
+				"linux" "367"
+				"windows" "365"
+			}
 		}
 
 		"Functions"
@@ -142,7 +148,7 @@
 				{
 					"pPlayer"
 					{
-						"type" "int"
+						"type" "cbaseentity"
 					}
 				}
 			}
@@ -157,7 +163,31 @@
 				{
 					"pPlayer"
 					{
-						"type" "int"
+						"type" "cbaseentity"
+					}
+				}
+			}
+
+			"CObjectSentrygun::OnWrenchHit"
+			{
+				"offset"   "CObjectSentrygun::OnWrenchHit"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "cbaseentity"
+					}
+					"pWrench"
+					{
+						"type" "cbaseentity"
+					}
+					"hitLoc"
+					{
+						"type" "object"
+						"size" "12"
 					}
 				}
 			}
