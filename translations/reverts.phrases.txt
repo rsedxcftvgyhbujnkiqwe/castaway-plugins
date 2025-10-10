@@ -314,6 +314,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"ironbomber"
+	{
+		"en"	"Iron Bomber"
+	}
 	"jag"
 	{
 		"en"	"Jag"
@@ -787,6 +791,10 @@
 	"Hibernate_Release"
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
+	}
+	"IronBomber_Pre2022"
+	{
+		"en"	"Reverted to pre-July 7, 2022; ~2x larger grenade hitbox"
 	}
 	"Jag_PreTB"
 	{

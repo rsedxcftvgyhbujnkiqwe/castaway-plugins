@@ -118,7 +118,13 @@
 				"library"	"server"
 				"linux"		"@_ZN15CTFFlameManager9OnCollideEP11CBaseEntityi"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x78\x01\x00\x00"
-      }      
+			}
+			"CTFWeaponBaseGun::FirePipeBomb"
+			{
+				"library"	"server"
+				"linux"		"@_ZN16CTFWeaponBaseGun12FirePipeBombEP9CTFPlayeri"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xF1"
+			}
 		}
 
 		"MemPatches"
@@ -255,6 +261,31 @@
 				// ╚══════════════════════════════════════════════╝
 
 				//  Demoman related MemoryPatches go here.
+
+				// ================================================
+				//  Iron Bomber - Pre-July 7, 2022 patch
+				//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
+				//	Normal pipe grenade hitbox size is 4x4x4. 
+				//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
+				//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
+				//	Function can be found via the DevMsg string in a decompiler.
+
+				"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert"
+				{
+					"signature"	"CTFWeaponBaseGun::FirePipeBomb"
+					"linux"
+					{
+						"offset"	"2092"
+						"verify"	"\xE8\x0F\x2C\x2A\x2A" // CALL, x2A wildcard twice
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
+					}
+					"windows"
+					{
+						"offset"	"1383"
+						"verify"	"\xE8\xC4\x35\x2A\x2A" // CALL, x2A wildcard twice
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
+					}
+				}
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Heavy                     ║
