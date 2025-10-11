@@ -205,7 +205,6 @@ enum struct Player {
 	int feign_ready_tick;
 	float damage_taken_during_feign;
 	bool is_under_hype;
-	bool crit_flag;
 	int charge_tick;
 	int fall_dmg_tick;
 	int ticks_since_switch;
@@ -2160,11 +2159,9 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			}
 		}
 	}
-#if !defined MEMORY_PATCHES
 	{
-		// Patchless minigun rampup attrib removal on spin-down
+		// Temporary attribute removal on minigun spin-down
 		if (
-			ItemIsEnabled(Feat_Minigun) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			condition == TFCond_Slowed
 		) {
@@ -2175,13 +2172,18 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (StrEqual(class, "tf_weapon_minigun")) {
+					// patchless minigun rampup revert
 					TF2Attrib_RemoveByDefIndex(weapon, 36);
 					TF2Attrib_RemoveByDefIndex(weapon, 476);
+					
+					// spunup resist regardless of health
+					TF2Attrib_RemoveByDefIndex(weapon, 63);
+					TF2Attrib_RemoveByDefIndex(weapon, 412);
+					TF2Attrib_RemoveByDefIndex(weapon, 738);
 				}
 			}
 		}
 	}
-#endif
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -2406,10 +2408,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 107, 1.10); // move speed bonus
 			TF2Items_SetAttribute(itemNew, 1, 788, 1.00); // move speed bonus shield required
-		}}
-		case 312: { if (ItemIsEnabled(Wep_BrassBeast)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // spunup damage resistance
 		}}
 		case 311: { if (ItemIsEnabled(Wep_BuffaloSteak)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -2706,20 +2704,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
 		}}
 #endif
-		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
-			switch (GetItemVariant(Wep_Natascha)) {
-				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // spunup damage resistance
-				}
-				case 1: { // imported from NotnHeavy's pre-GM plugin
-					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // 0% damage resistance when below 50% health and spun up
-					TF2Items_SetAttribute(itemNew, 1, 32, 0.00); // On Hit: 0% chance to slow target
-					TF2Items_SetAttribute(itemNew, 2, 76, 1.50); // 50% max primary ammo on wearer
-					// no distance falloff for natascha slowdown handled elsewhere
-				}
-			}
+		case 41: { if (GetItemVariant(Wep_Natascha) == 1) {
+			// imported from NotnHeavy's pre-GM plugin
+			TF2Items_SetNumAttributes(itemNew, 3);
+			TF2Items_SetAttribute(itemNew, 0, 32, 0.00); // On Hit: 0% chance to slow target
+			TF2Items_SetAttribute(itemNew, 1, 76, 1.50); // 50% max primary ammo on wearer
+			TF2Items_SetAttribute(itemNew, 2, 738, 1.00); // 0% damage resistance when below 50% health and spun up
+			// no distance falloff for natascha slowdown handled elsewhere
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
 			TF2Items_SetNumAttributes(itemNew, 11);
@@ -3328,7 +3319,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 						player_weapons[client][Feat_SniperRifle] = true;
-					}					
+					}
 #endif
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
@@ -4048,6 +4039,16 @@ Action SDKHookCB_OnTakeDamage(
 	int health_max;
 	int weapon1;
 
+	bool resist_damage = false;
+	if (weapon > 0) {
+		// Don't resist if weapon pierces resists (vanilla Enforcer)
+		if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+			resist_damage = true;
+		}
+	} else {
+		resist_damage = true;
+	}
+
 	if (
 		victim >= 1 &&
 		victim <= MaxClients
@@ -4180,6 +4181,44 @@ Action SDKHookCB_OnTakeDamage(
 				return Plugin_Changed;
 			}
 		}
+
+		{
+			// spunup resistance regardless of health
+
+			if (
+				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
+				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
+				resist_damage
+			) {
+				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
+
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_minigun")) {
+
+						if (
+							ItemIsEnabled(Wep_BrassBeast) &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
+							GetItemVariant(Wep_Natascha) == 0 &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
+						) {
+							// play damage resist sound
+							EmitGameSoundToAll("Player.ResistanceLight", victim);
+
+							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
+							if (spunup_resist > 0.0) {
+								// increase crit vuln here for proper resist on crits and minicrits
+								// (multiplicative inverse of spunup resist value)
+								TF2Attrib_SetByDefIndex(weapon1, 63, 1.0 / spunup_resist); // mult_dmgtaken_from_crit
+								TF2Attrib_SetByDefIndex(weapon1, 412, spunup_resist); // mult_dmgtaken
+								TF2Attrib_SetByDefIndex(weapon1, 738, 1.0); // spunup_damage_resistance
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	if (
@@ -4187,9 +4226,6 @@ Action SDKHookCB_OnTakeDamage(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		// damage from players only
-
-		// useful for checking minicrits in OnTakeDamageAlive
-		players[victim].crit_flag = (damage_type & DMG_CRIT != 0) ? true : false;
 
 		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
@@ -4279,7 +4315,6 @@ Action SDKHookCB_OnTakeDamage(
 					)
 				) {
 					damage_type = (damage_type | DMG_CRIT);
-					players[victim].crit_flag = true;
 					return Plugin_Changed;
 				}
 			}
@@ -4422,13 +4457,6 @@ Action SDKHookCB_OnTakeDamage(
 								}
 
 								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
-
-								if (GetItemVariant(Wep_Sandman) == 1) {
-									// Pre-WAR Sandman stun victims receive 75% of damage dealt
-									// "dmg taken increased" is the only attribute of class "mult_dmgtaken"
-									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", 0.75, stun_dur);
-									damage /= 0.75; // compensate damage for initial hit
-								}
 
 								players[victim].stunball_fix_time_bonk = GetGameTime();
 								players[victim].stunball_fix_time_wear = 0.0;
@@ -4883,6 +4911,43 @@ Action SDKHookCB_OnTakeDamageAlive(
 	}
 
 	if (
+		victim >= 1 &&
+		victim <= MaxClients
+	) {
+		{
+			// dead ringer damage modification
+
+			if (
+				players[victim].spy_is_feigning &&
+				players[victim].spy_under_feign_buffs &&
+				TF2_GetPlayerClass(victim) == TFClass_Spy &&
+				resist_damage
+			) {
+				damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
+				returnValue = Plugin_Changed;
+			}
+		}
+		{
+			// pre-WAR! sandman victims take 75% of damage dealt
+
+			if (
+				GetItemVariant(Wep_Sandman) == 1 &&
+				TF2_IsPlayerInCondition(victim, TFCond_Dazed) &&
+				resist_damage
+			) {
+				int stun_fls = GetEntProp(victim, Prop_Send, "m_iStunFlags");
+				if (
+					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
+					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
+				) {
+					damage *= 0.75;
+					returnValue = Plugin_Changed;
+				}
+			}
+		}
+	}
+
+	if (
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
@@ -4905,27 +4970,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
 				}
-			}
-		}		
-		{
-			if (
-				((ItemIsEnabled(Wep_BrassBeast) && player_weapons[victim][Wep_BrassBeast]) ||
-				(GetItemVariant(Wep_Natascha) == 0 && player_weapons[victim][Wep_Natascha])) &&
-				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				resist_damage
-			) {
-				// Brass Beast/Natascha (pre-MyM) damage resistance when spun up
-
-				// play damage resist sound
-				EmitGameSoundToAll("Player.ResistanceLight", victim);
-				
-				// apply resistance
-				if (damage_type & DMG_CRIT != 0)
-					damage *= players[victim].crit_flag ? 0.93333333 : 0.851851851; // for crits and minicrits, respectively
-				else
-					damage *= 0.80;
-
-				returnValue = Plugin_Changed;
 			}
 		}
 		{
@@ -4985,19 +5029,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 		}
 	}
 
-	if (
-		victim >= 1 &&
-		victim <= MaxClients &&
-		players[victim].spy_is_feigning &&
-		players[victim].spy_under_feign_buffs &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy &&
-		resist_damage
-	) {
-		// dead ringer damage modification
-		damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
-		returnValue = Plugin_Changed;
-	}
-
 	return returnValue;
 }
 
@@ -5015,13 +5046,45 @@ void SDKHookCB_OnTakeDamagePost(
 
 	if (
 		victim >= 1 &&
-		victim <= MaxClients &&
-		players[victim].spy_is_feigning &&
-		players[victim].spy_under_feign_buffs &&
-		TF2_GetPlayerClass(victim) == TFClass_Spy
+		victim <= MaxClients
 	) {
-		// dead ringer damage tracking
-		players[victim].damage_taken_during_feign += damage;
+		{
+			// dead ringer damage tracking
+
+			if (
+				players[victim].spy_is_feigning &&
+				players[victim].spy_under_feign_buffs &&
+				TF2_GetPlayerClass(victim) == TFClass_Spy
+			) {
+				players[victim].damage_taken_during_feign += damage;
+			}
+		}
+		{
+			// spunup resistance regardless of health
+
+			if (TF2_GetPlayerClass(victim) == TFClass_Heavy) {
+				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
+
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_minigun")) {
+
+						if (
+							ItemIsEnabled(Wep_BrassBeast) &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
+							GetItemVariant(Wep_Natascha) == 0 &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
+						) {
+							// remove temp attribs
+							TF2Attrib_RemoveByDefIndex(weapon1, 63);
+							TF2Attrib_RemoveByDefIndex(weapon1, 412);
+							TF2Attrib_RemoveByDefIndex(weapon1, 738);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	if (
