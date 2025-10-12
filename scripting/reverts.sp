@@ -2172,14 +2172,22 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (StrEqual(class, "tf_weapon_minigun")) {
-					// patchless minigun rampup revert
-					TF2Attrib_RemoveByDefIndex(weapon, 36);
-					TF2Attrib_RemoveByDefIndex(weapon, 476);
-					
-					// spunup resist regardless of health
-					TF2Attrib_RemoveByDefIndex(weapon, 63);
-					TF2Attrib_RemoveByDefIndex(weapon, 412);
-					TF2Attrib_RemoveByDefIndex(weapon, 738);
+#if !defined MEMORY_PATCHES
+					if (ItemIsEnabled(Feat_Minigun)) {
+						// patchless minigun rampup revert
+						TF2Attrib_RemoveByDefIndex(weapon, 36);
+						TF2Attrib_RemoveByDefIndex(weapon, 476);
+					}
+#endif
+					if (
+						ItemIsEnabled(Wep_BrassBeast) ||
+						GetItemVariant(Wep_Natascha) == 0
+					) {
+						// spunup resist regardless of health
+						TF2Attrib_RemoveByDefIndex(weapon, 63);
+						TF2Attrib_RemoveByDefIndex(weapon, 412);
+						TF2Attrib_RemoveByDefIndex(weapon, 738);
+					}
 				}
 			}
 		}
