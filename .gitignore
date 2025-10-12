@@ -10,6 +10,9 @@ scripting/*
 !scripting/nativevotes_rockthevote.sp
 !scripting/nativevotes-basecommands.sp
 !scripting/nativevotes.sp
+!scripting/nativevotes/
+!scripting/nativevotes/game.sp
+!scripting/nativevotes/data-keyvalues.sp
 !scripting/nextmap.sp
 !scripting/reverts.sp
 !scripting/chat-adverts.sp
@@ -32,6 +35,8 @@ scripting/include/*
 !scripting/include/tf2utils.inc
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
+!scripting/include/nativevotes.inc
+!scripting/include/implodeexplode.inc
 
 !gamedata/
 gamedata/*

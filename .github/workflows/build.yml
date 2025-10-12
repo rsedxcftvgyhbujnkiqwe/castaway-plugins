@@ -23,18 +23,14 @@ jobs:
       - name: Setup SourceMod
         run: |
           export LATEST_SOURCEMOD=$(curl https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/sourcemod-latest-linux)
-          export LATEST_NATIVEVOTES=$(curl https://api.github.com/repos/sapphonie/sourcemod-nativevotes-updated/releases/latest | jq -r '.assets[] | select ( .name == "nativevotes_sm_1.12.zip" ).browser_download_url')
           wget -O sourcemod.tar.gz https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/$LATEST_SOURCEMOD
           mkdir sourcemod
           cd sourcemod
           tar xf ../sourcemod.tar.gz
-          wget -O nativevotes.zip $LATEST_NATIVEVOTES
-          unzip nativevotes.zip
           cd addons/sourcemod/scripting
           mv compile.sh ../../../../scripting
           mv spcomp* ../../../../scripting
           mv include/*.inc ../../../../scripting/include
-          mv nativevotes ../../../../scripting
 
       - name: Get current Git commit hash
         run: echo "GIT_COMMIT=-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_ENV
