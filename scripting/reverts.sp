@@ -4211,11 +4211,14 @@ Action SDKHookCB_OnTakeDamage(
 							GetItemVariant(Wep_Natascha) == 0 &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
 						) {
-							// play damage resist sound
-							EmitGameSoundToAll("Player.ResistanceLight", victim);
-
 							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
-							if (spunup_resist > 0.0) {
+							if (
+								spunup_resist > 0.0 &&
+								spunup_resist != 1.0
+							) {
+								// play damage resist sound
+								EmitGameSoundToAll("Player.ResistanceLight", victim);
+
 								// increase crit vuln here for proper resist on crits and minicrits
 								// (multiplicative inverse of spunup resist value)
 								TF2Attrib_SetByDefIndex(weapon1, 63, 1.0 / spunup_resist); // mult_dmgtaken_from_crit
