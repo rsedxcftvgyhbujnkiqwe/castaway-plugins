@@ -2185,7 +2185,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 					) {
 						// spunup resist regardless of health
 						TF2Attrib_RemoveByDefIndex(weapon, 63);
-						TF2Attrib_RemoveByDefIndex(weapon, 412);
+						TF2Attrib_RemoveByDefIndex(weapon, 852);
 						TF2Attrib_RemoveByDefIndex(weapon, 738);
 					}
 				}
@@ -2584,14 +2584,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Eviction)) {
 				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 855, 0.0); // mod maxhealth drain rate
-					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer; mult_player_movespeed_active
-					TF2Items_SetAttribute(itemNew, 2, 6, 0.50); // set faster firing speed to +50%; 
+					TF2Items_SetAttribute(itemNew, 0, 6, 0.50); // +50% faster firing speed
+					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer
+					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
 				}
 				default: {
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 855, 0.0); // mod maxhealth drain rate
-					TF2Items_SetAttribute(itemNew, 1, 852, 1.20); // dmg taken increased
+					TF2Items_SetAttribute(itemNew, 0, 852, 1.20); // mult_dmgtaken_active
+					TF2Items_SetAttribute(itemNew, 1, 855, 0.0); // mod maxhealth drain rate
 				}
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
@@ -4222,7 +4222,7 @@ Action SDKHookCB_OnTakeDamage(
 								// increase crit vuln here for proper resist on crits and minicrits
 								// (multiplicative inverse of spunup resist value)
 								TF2Attrib_SetByDefIndex(weapon1, 63, 1.0 / spunup_resist); // mult_dmgtaken_from_crit
-								TF2Attrib_SetByDefIndex(weapon1, 412, spunup_resist); // mult_dmgtaken
+								TF2Attrib_SetByDefIndex(weapon1, 852, spunup_resist); // mult_dmgtaken_active
 								TF2Attrib_SetByDefIndex(weapon1, 738, 1.0); // spunup_damage_resistance
 							}
 						}
@@ -5089,7 +5089,7 @@ void SDKHookCB_OnTakeDamagePost(
 						) {
 							// remove temp attribs
 							TF2Attrib_RemoveByDefIndex(weapon1, 63);
-							TF2Attrib_RemoveByDefIndex(weapon1, 412);
+							TF2Attrib_RemoveByDefIndex(weapon1, 852);
 							TF2Attrib_RemoveByDefIndex(weapon1, 738);
 						}
 					}
