@@ -22,9 +22,9 @@ public void OnPluginStart() {
 	Handle conf;
 	conf = LoadGameConfigFile("stalemate");
 	if (conf == null) SetFailState("Failed to load stalemate conf");
-		patch_ForceAlways_StalemateOrOvertime = 
-			MemoryPatch.CreateFromConf(conf,
-			"ForceAlways_StalemateOrOvertime");
+	patch_ForceAlways_StalemateOrOvertime = 
+		MemoryPatch.CreateFromConf(conf,
+		"ForceAlways_StalemateOrOvertime");
 	if (!ValidateAndNullCheck(patch_ForceAlways_StalemateOrOvertime)) SetFailState("Failed to create ForceAlways_StalemateOrOvertime");
 	delete conf;
 
