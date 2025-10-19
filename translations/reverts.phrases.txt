@@ -594,7 +594,7 @@
 	}
 	"BrassBeast_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
 	}
 	"Bushwacka_PreLW"
 	{
@@ -842,7 +842,7 @@
 	}
 	"Natascha_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, 20%% damage resistance (6.7%% against crits) when spun up at any health"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
 	}
 	"Natascha_PreGM"
 	{
