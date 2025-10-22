@@ -2159,6 +2159,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			}
 		}
 	}
+#if !defined MEMORY_PATCHES
 	{
 		// Temporary attribute removal on minigun spin-down
 		if (
@@ -2172,26 +2173,17 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (StrEqual(class, "tf_weapon_minigun")) {
-#if !defined MEMORY_PATCHES
 					if (ItemIsEnabled(Feat_Minigun)) {
 						// patchless minigun rampup revert
 						TF2Attrib_RemoveByDefIndex(weapon, 36);
 						TF2Attrib_RemoveByDefIndex(weapon, 476);
 					}
-#endif
-					if (
-						ItemIsEnabled(Wep_BrassBeast) ||
-						GetItemVariant(Wep_Natascha) == 0
-					) {
-						// spunup resist regardless of health
-						TF2Attrib_RemoveByDefIndex(weapon, 63);
-						TF2Attrib_RemoveByDefIndex(weapon, 852);
-						TF2Attrib_RemoveByDefIndex(weapon, 738);
-					}
+
 				}
 			}
 		}
 	}
+#endif
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -5089,8 +5081,8 @@ void SDKHookCB_OnTakeDamagePost(
 						) {
 							// remove temp attribs
 							TF2Attrib_RemoveByDefIndex(weapon1, 63);
-							TF2Attrib_RemoveByDefIndex(weapon1, 852);
 							TF2Attrib_RemoveByDefIndex(weapon1, 738);
+							TF2Attrib_RemoveByDefIndex(weapon1, 852);
 						}
 					}
 				}
