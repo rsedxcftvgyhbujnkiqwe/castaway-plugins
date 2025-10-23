@@ -24,6 +24,7 @@ enum struct SSHCVars
     ConVar location;
     ConVar hudTime;
 	ConVar removeOnDC;
+    ConVar disableByDefault;
 }
 SSHCVars cvar;
 
@@ -70,6 +71,8 @@ TopMenuObject menu_category = INVALID_TOPMENUOBJECT;
 // Glow effect
 int g_PrecacheRedGlow;
 
+Cookie g_cShowTrace;
+
 /** ----------------------------- Plugin info -------------------------------- */
 
 public Plugin myinfo =
@@ -104,9 +107,14 @@ public void OnPluginStart()
     cvar.location = CreateConVar("sm_ssh_location","1","Display: 0=Off 1=KeyHint 2=Hint 3=Center 4=HUD");
     cvar.hudTime  = CreateConVar("sm_ssh_hudtime","1.0","Time HUD messages persist after look-away.");
 
+    cvar.disableByDefault = CreateConVar("sm_ssh_disable_trace_default", "0", "Disable spray trace for users by default");
+
     cvar.refresh.AddChangeHook(TimerChanged);
     cvar.location.AddChangeHook(LocationChanged);
     g_iHudLoc = cvar.location.IntValue;
+
+    g_cShowTrace = new Cookie("Show spray trace", "Toggle the \"Sprayed by...\" HUD message.", CookieAccess_Public);
+    g_cShowTrace.SetPrefabMenu(CookieMenu_OnOff_Int, "Show spray trace", OnTraceCookieMenu);
 
     AutoExecConfig(true, "plugin.ssh");
 
@@ -202,6 +210,10 @@ public void CheckAllTraces(Handle timer)
             continue;
         }
 
+        if (!g_cShowTrace.GetInt(client, cvar.disableByDefault.BoolValue ? 0 : 1)) {
+            continue;
+        }
+
         // Clear lingering non-HUD text
         switch (hudType) {
             case 1: Client_PrintKeyHintText(client, "");
@@ -276,6 +288,12 @@ void ClearHud(int client, int hudType, float gameTime)
             }
         }
         g_Spray[client].hudTarget = -1;
+    }
+}
+
+public void OnTraceCookieMenu(int client, CookieMenuAction action, any info, char[] buffer, int maxlen) {
+    if (action == CookieMenuAction_DisplayOption) {
+        Format(buffer, maxlen, "%t", "Spray Trace Toggle", client);
     }
 }
 

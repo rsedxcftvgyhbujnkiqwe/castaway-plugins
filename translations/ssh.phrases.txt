@@ -465,4 +465,9 @@
 		"#format"		"{1:s}"
 		"en"			"You tried to punish {1} but failed. {1} has higher immunity."
 	}
+
+	"Spray Trace Toggle"
+	{
+		"en"	"Show spray trace"
+	}
 }
