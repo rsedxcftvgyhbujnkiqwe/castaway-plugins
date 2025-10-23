@@ -25,6 +25,7 @@ scripting/nativevotes/*
 !scripting/forcestalemate.sp
 !scripting/arena-autoscramble.sp
 !scripting/webshortcuts.sp
+!scripting/supersprayhandler.sp
 
 #includes
 !scripting/include/
