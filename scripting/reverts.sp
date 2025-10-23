@@ -90,7 +90,7 @@ public Plugin myinfo = {
 #define MAX_VARIANTS 4 // not including base version
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
-#define BALANCE_CIRCUIT_RECOVERY 0.5
+#define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
 // flags for item definitions
@@ -6102,6 +6102,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 									// damage players
 									if (damage != 0.0) {
 										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
+
+										// show particle effect
+										ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
 									}
 								} else {
 									// delete projectiles
