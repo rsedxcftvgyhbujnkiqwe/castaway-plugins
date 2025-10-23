@@ -38,22 +38,34 @@ enum struct MessageGroup {
 #define MAX_GROUPS 16
 #define MAX_MSGS 32
 #define MAX_MSG_LEN 256
-#define CRON_FIELD_SIZE 256
+#define CRON_FIELD_SIZE 64
 
 char g_Messages[MAX_GROUPS][MAX_MSGS][MAX_MSG_LEN];
 MessageGroup g_MessageGroups[MAX_GROUPS];
 int g_MessageGroupCount;
+int g_LastMin;
 
 public void OnPluginStart() {
+    RegAdminCmd("sm_chatadverts_reload", Cmd_Reload, ADMFLAG_RCON);
     CCheckTrie();
     LoadCustomColors();
     LoadCrons();
+    g_LastMin = GetTime() / 60;
     CreateTimer(1.0, CronDaemon,_,TIMER_REPEAT);
+}
+
+public Action Cmd_Reload(int client, int args) {
+    LoadCustomColors();
+    LoadCrons();
+    ReplyToCommand(client, "[ChatAdverts] Reloaded config.");
+    return Plugin_Handled;
 }
 
 Action CronDaemon(Handle timer, any data) {
     int timestamp = GetTime();
-    if (timestamp % 60 == 0) {
+    int cur_min = timestamp/60;
+    if (cur_min != g_LastMin) {
+        g_LastMin =  cur_min;
         CheckAndRunCrons(timestamp);
     }
     return Plugin_Continue;
@@ -138,29 +150,29 @@ void LoadCrons() {
             kv.GetString("type",       sType,   sizeof(sType),   "sequential");
 
             // parse cron configs
-            if (!ParseCronField(sMinute, g_MessageGroups[group_index].cron.min, 59, false)) {
+            if (!ParseCronField(sMinute, g_MessageGroups[group_index].cron.min, 0, 59, false)) {
                 LogError("Invalid cron '%s' for field minute in group '%s'", sMinute, group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             }
-            if (!ParseCronField(sHour, g_MessageGroups[group_index].cron.hour, 23, false)) {
+            if (!ParseCronField(sHour, g_MessageGroups[group_index].cron.hour, 0, 23, false)) {
                 LogError("Invalid cron '%s' for field hour in group '%s'", sHour, group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             }
-            if (!ParseCronField(sDOW, g_MessageGroups[group_index].cron.dow, 7, true)) {
+            if (!ParseCronField(sDOW, g_MessageGroups[group_index].cron.dow, 0, 7, true)) {
                 LogError("Invalid cron '%s' for field day of week in group '%s'", sDOW, group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             }
-            if (!ParseCronField(sDOM, g_MessageGroups[group_index].cron.dom, 30, false)) {
+            if (!ParseCronField(sDOM, g_MessageGroups[group_index].cron.dom, 1, 31, false)) {
                 LogError("Invalid cron '%s' for field day of month in group '%s'", sDOM, group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             }
-            if (!ParseCronField(sMon, g_MessageGroups[group_index].cron.mon, 11, false)) {
+            if (!ParseCronField(sMon, g_MessageGroups[group_index].cron.mon, 1, 12, false)) {
                 LogError("Invalid cron '%s' for field month in group '%s'", sMon, group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             }
 
@@ -182,7 +194,7 @@ void LoadCrons() {
             g_MessageGroups[group_index].msg_count = 0;
             if (!kv.JumpToKey("Messages", false)) {
                 LogError("ChatAdverts: group '%s' missing Messages block", group_name);
-                group_index--;
+                g_MessageGroupCount--;
                 continue;
             } else {
                 int count = 0;
@@ -231,33 +243,30 @@ void CheckAndRunCrons(int timestamp) {
 }
 
 void ExecuteMessageGroup(int group_index) {
-    MessageGroup grp;
-    grp = g_MessageGroups[group_index];
-    CPrintToChatAll("%s", g_Messages[group_index][grp.msg_index]);
-    grp.msg_index = GetNextMessageIndex(group_index);
+    CPrintToChatAll("%s", g_Messages[group_index][g_MessageGroups[group_index].msg_index]);
+    g_MessageGroups[group_index].msg_index = GetNextMessageIndex(group_index);
 }
 
 int GetNextMessageIndex(int group_index) {
-    MessageGroup grp;
-    grp = g_MessageGroups[group_index];
     int message_index = 0;
-    switch(grp.send_type) {
+    switch(g_MessageGroups[group_index].send_type) {
         case SEND_SEQUENTIAL: {
-            message_index = (message_index + 1)%grp.msg_count;
+            message_index = (g_MessageGroups[group_index].msg_index + 1)%g_MessageGroups[group_index].msg_count;
         }
         case SEND_RANDOM: {
-            message_index = GetRandomInt(0,grp.msg_count-1);
+            message_index = GetRandomInt(0,g_MessageGroups[group_index].msg_count-1);
         }
         case SEND_PICKRANDOM: {
-            if (grp.picked_msg & ((1 << grp.msg_count) - 1)) {
-                grp.picked_msg = 0;
+            int mask = (1 << g_MessageGroups[group_index].msg_count) - 1;
+            if ((g_MessageGroups[group_index].picked_msg & mask) == mask) {
+                g_MessageGroups[group_index].picked_msg = 0;
             }
             for (;;) {
-                int random_pick = GetRandomInt(0,grp.msg_count-1);
-                if (grp.picked_msg & (1 << random_pick)) {
+                int random_pick = GetRandomInt(0,g_MessageGroups[group_index].msg_count-1);
+                if (g_MessageGroups[group_index].picked_msg & (1 << random_pick)) {
                     continue;
                 } else {
-                    grp.picked_msg |= 1 << random_pick;
+                    g_MessageGroups[group_index].picked_msg |= 1 << random_pick;
                     message_index = random_pick;
                     break;
                 }
@@ -267,23 +276,22 @@ int GetNextMessageIndex(int group_index) {
     return message_index;
 }
 
-bool ParseCronField(const char[] fieldStr, int result[2], int max, bool wrap) {
+bool ParseCronField(const char[] fieldStr, int result[2], int minv, int maxv, bool wrap) {
     if(fieldStr[0]=='\0') {
+        LogError("Empty cron field");
         return false;
     }
     result[0] = 0;
     result[1] = 0;
-    char part[16],current[CRON_FIELD_SIZE],buffer[CRON_FIELD_SIZE],leftpart[16],rightpart[16];
-    strcopy(current, sizeof(current), fieldStr);
+    char parts[32][8],current[8],leftpart[8],rightpart[8];
+    int num_parts = ExplodeString(fieldStr,",",parts,32,8);
     bool left = true;
     bool range,step;
-    int previous,count,leftint,rightint;
-    do {
-        strcopy(buffer, sizeof(buffer), current[previous]);
-        strcopy(current, sizeof(current), buffer);
-        previous = SplitString(buffer,",",part,sizeof(part)) + 1;
+    int count,leftint,rightint;
+    for (int i = 0; i < num_parts; i++) {
+        strcopy(current,sizeof(current),parts[i]);
 
-        if (part[0] == '\0') {
+        if (current[0] == '\0') {
             continue;
         }
 
@@ -294,34 +302,51 @@ bool ParseCronField(const char[] fieldStr, int result[2], int max, bool wrap) {
         left = true;
         count = 0;
 
-        for (int i = 0; i < sizeof(part); i++) {
-            if ((part[i] >= '0' && part[i] <= '9') || part[i] == '*') {
+        for (int j = 0; j < sizeof(parts[i]); j++) {
+            if ((current[j] >= '0' && current[j] <= '9') || current[j] == '*' || current[j] == '\0') {
                 if(left) {
-                    leftpart[count] = part[i];
+                    leftpart[count] = current[j];
                 } else {
-                    rightpart[count] = part[i];
+                    rightpart[count] = current[j];
                 }
                 count++;
-            } else if (part[i]=='-' && range == false) {
+                if (current[j] == '\0') break;
+            } else if (current[j]=='-' && range == false) {
                 leftpart[count] = '\0';
                 left = false;
                 count = 0;
                 range = true;
-            } else if (part[i]=='/' && step == false) {
+            } else if (current[j]=='/' && step == false) {
                 leftpart[count] = '\0';
                 left = false;
                 count = 0;
                 step = true;
+            } else if (current[j]==' ') {
+                // ignore
             } else {
                 // unparseable cron!
+                LogError("Invalid character %c for cron field %s",current[j],fieldStr);
                 return false;
             }
         }
-        rightpart[count] = '\0';
 
         // if wildcard is second, just ignore it
         if (StrEqual(rightpart,"*")) {
             left = true;
+        }
+
+        leftint = StringToInt(leftpart,10);
+        if (
+            (leftint == 0 && 
+            !StrEqual(leftpart,"0") && 
+            !StrEqual(leftpart,"*")) || 
+            leftint > maxv ||
+            (leftint < minv &&
+            !StrEqual(leftpart,"*"))
+        ) {
+            // conversion failure
+            LogError("Invalid lefthand side %s for cron part %s",leftpart,current);
+            return false;
         }
 
         if (left) {
@@ -332,23 +357,14 @@ bool ParseCronField(const char[] fieldStr, int result[2], int max, bool wrap) {
                 return true;
             }
 
-            leftint = StringToInt(leftpart,10);
-
-            if (leftint == 0 && !StrEqual(leftpart,"0") || leftint > max) {
-                // conversion failure
-                return false;
-            }
-
             // single int, just set that bit flag only
-            result[1] |= 1 << leftint;
+            result[leftint/32] |= 1 << (leftint%32);
         } else {
-            leftint = StringToInt(leftpart,10);
-            rightint = StringToInt(rightpart,10);
             // right int technically can be arbitrarily large and it will just run once
+            rightint = StringToInt(rightpart,10);
             if (rightint == 0) {
-                return false;
-            }
-            if (leftint > max) {
+                LogError("Invalid righthand side %s for cron part %s",rightpart,current);
+                // no zero or wildcard
                 return false;
             }
             if (range) {
@@ -362,32 +378,33 @@ bool ParseCronField(const char[] fieldStr, int result[2], int max, bool wrap) {
 
                 // invalid range
                 if (leftint > rightint) {
+                    LogError("Invalid range %s for cron part",current);
                     return false;
                 }
 
                 // x-y
                 // set all from x to y
-                for (int i=leftint; i<=rightint; i++) {
-                    result[i/32] |= 1 << (i%32);
+                for (int j=leftint; j<=rightint; j++) {
+                    result[j/32] |= 1 << (j%32);
                 }
             } else if (step) {
 
                 // in this case * functions as zero 
                 // so no handling is needed for the left side
 
-                for (int i=leftint; i<max; i += rightint) {
-                    result[i/32] |= 1 << (i%32);
+                for (int j=leftint; j<=maxv; j += rightint) {
+                    result[j/32] |= 1 << (j%32);
                 }
             } else {
+                LogError("Side flag checked incorrectly for %s",current);
                 return false;
             }
         }
-
-    } while (previous != 0);
+    }
 
     if (wrap) {
-        if(result[0] & 1) {
-            result[max/32] |= 1 << (max%32);
+        if(result[maxv/32] & 1 << (maxv%32)) {
+            result[minv/32] |= 1 << minv;
         }
     }
     return true;
