@@ -4304,7 +4304,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// Vary damage by up to 10%, with most damage at the player's feet and least at the head
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
-					damage *= ValveRemapVal(GetVectorDistance(pos1, damage_position), 0.0, 82.0, 1.1, 0.9);
+					damage *= ValveRemapVal(FloatAbs(pos1[2] - damage_position[2]), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.1, 0.9);
 					return Plugin_Changed;
 				}
 			}
