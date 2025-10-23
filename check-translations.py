@@ -79,7 +79,7 @@ for i in languages:
     with open(TRANSLATION_FILE_PATH, encoding="utf-8") as f:
         language_phrases = vdf.loads(f.read()).get("Phrases")
     if language_phrases is None:
-        print(f"Warning: Section \"Phrases\" doesn't exist for {language}", file=sys.stderr)
+        print(f"Warning: Section \"Phrases\" doesn't exist for {language}.", file=sys.stderr)
         continue
 
     for key in all_phrases:
@@ -97,7 +97,10 @@ for i in languages:
     if old_base_phrases is None:
         raise ValueError(f"Base phrases from commit {last_modified_commit.hexsha} is invalid")
     for key, value in old_base_phrases.items():
-        if all_phrases.get(key).get("en") != value.get("en"):
+        if (all_phrases_key := all_phrases.get(key)) is None:
+            print(f"Warning: Key \"{key}\" doesn't exist in current translation file.", file=sys.stderr)
+            continue
+        if all_phrases_key.get("en") != value.get("en"):
             formatted_key = key
             if format_markdown:
                 formatted_key = f"`{key}`"
