@@ -115,7 +115,7 @@ public void OnPluginStart()
 
     // HUD support per game
     char gamename[32];
-    GetGameFolderName(gamename, sizeof gamename);
+    GetGameFolderName(gamename, sizeof(gamename));
     g_bCanUseHUD =
         StrEqual(gamename, "tf", false) ||
         StrEqual(gamename, "hl2mp", false) ||
@@ -237,7 +237,7 @@ public void CheckAllTraces(Handle timer)
             continue;
         }
 
-        FormatEx(msg, sizeof msg, "Sprayed by:\n%s", fullAccess ? g_Spray[target].auth : g_Spray[target].name);
+        FormatEx(msg, sizeof(msg), "Sprayed by:\n%s", fullAccess ? g_Spray[target].auth : g_Spray[target].name);
 
         switch (hudType) {
             case 1: Client_PrintKeyHintText(client, msg);
@@ -358,8 +358,8 @@ public Action Player_Decal(const char[] name, const int[] clients, int count, fl
         // record
         g_Spray[client].pos = fSprayVector;
         g_Spray[client].time = RoundFloat(GetGameTime());
-        GetClientName(client, g_Spray[client].name, sizeof g_Spray[].name);
-        if (!GetClientAuthId(client, AuthId_Steam2, g_Spray[client].steam2, sizeof g_Spray[].steam2)) {
+        GetClientName(client, g_Spray[client].name, sizeof(g_Spray[].name));
+        if (!GetClientAuthId(client, AuthId_Steam2, g_Spray[client].steam2, sizeof(g_Spray[].steam2))) {
             g_Spray[client].steam2[0] = '\0';
         }
 
@@ -368,18 +368,18 @@ public Action Player_Decal(const char[] name, const int[] clients, int count, fl
         bool any = false;
 
         if (cvar.auth.IntValue & 1) {
-            Format(g_Spray[client].auth, sizeof g_Spray[].auth, "%N", client);
+            Format(g_Spray[client].auth, sizeof(g_Spray[].auth), "%N", client);
             any = true;
         }
         if (cvar.auth.IntValue & 2) {
-            Format(g_Spray[client].auth, sizeof g_Spray[].auth, "%s%s(%s)",
+            Format(g_Spray[client].auth, sizeof(g_Spray[].auth), "%s%s(%s)",
                    g_Spray[client].auth, any ? "\n" : "", g_Spray[client].steam2);
             any = true;
         }
         if (cvar.auth.IntValue & 4) {
             char ip[32];
-            GetClientIP(client, ip, sizeof ip);
-            Format(g_Spray[client].auth, sizeof g_Spray[].auth, "%s%s(%s)",
+            GetClientIP(client, ip, sizeof(ip));
+            Format(g_Spray[client].auth, sizeof(g_Spray[].auth), "%s%s(%s)",
                    g_Spray[client].auth, any ? "\n" : "", ip);
         }
     }
@@ -461,7 +461,7 @@ public Action Command_RemoveSpray(int client, int args)
     float pos[3];
     if (GetClientEyeEndLocation(client, pos)) {
         char adminName[MAX_NAME_LENGTH];
-        GetClientName(client, adminName, sizeof adminName);
+        GetClientName(client, adminName, sizeof(adminName));
 
         int target = FindSprayAt(pos, cvar.maxDist.FloatValue);
         if (IsValidClient(target) && UserCanTarget(client, target)) {
@@ -498,7 +498,7 @@ public Action Command_QuickRemoveSpray(int client, int args)
     float pos[3];
     if (GetClientEyeEndLocation(client, pos)) {
         char adminName[MAX_NAME_LENGTH];
-        GetClientName(client, adminName, sizeof adminName);
+        GetClientName(client, adminName, sizeof(adminName));
 
         int target = FindSprayAt(pos, cvar.maxDist.FloatValue);
         if (IsValidClient(target) && UserCanTarget(client, target)) {
@@ -537,7 +537,7 @@ public Action Command_RemoveAllSprays(int client, int args)
     if (!IsValidClient(client)) return Plugin_Handled;
 
     char adminName[MAX_NAME_LENGTH];
-    GetClientName(client, adminName, sizeof adminName);
+    GetClientName(client, adminName, sizeof(adminName));
 
     for (int i = 1; i <= MaxClients; i++) {
         if (!UserCanTarget(client, i)) continue;
@@ -580,7 +580,7 @@ public Action Command_AdminSpray(int client, int args)
     int target = client;
 
     if (args >= 1) {
-        GetCmdArg(1, arg, sizeof arg);
+        GetCmdArg(1, arg, sizeof(arg));
         target = FindTarget(client, arg, false, false);
         if (!IsValidClient(target)) {
             return Plugin_Handled;
@@ -611,8 +611,8 @@ void DisplayAdminSprayMenu(int client, int pos = 0)
     for (int i = 1; i <= MaxClients; i++) {
         if (IsValidClient(i) && !IsClientReplay(i) && !IsClientSourceTV(i)) {
             char info[8], name[MAX_NAME_LENGTH];
-            IntToString(GetClientUserId(i), info, sizeof info);
-            GetClientName(i, name, sizeof name);
+            IntToString(GetClientUserId(i), info, sizeof(info));
+            GetClientName(i, name, sizeof(name));
             menu.AddItem(info, name);
         }
     }
@@ -637,7 +637,7 @@ public void MenuHandler_AdminSpray(Menu menu, MenuAction action, int param1, int
         case MenuAction_Select:
         {
             char info[32];
-            menu.GetItem(param2, info, sizeof info);
+            menu.GetItem(param2, info, sizeof(info));
 
             int target = GetClientOfUserId(StringToInt(info));
             if (target == 0 || !IsClientInGame(target)) {
@@ -669,7 +669,7 @@ public bool GoSpray(int client, int target)
     }
 
     char spray[8];
-    if (!GetPlayerDecalFile(target, spray, sizeof spray)) {
+    if (!GetPlayerDecalFile(target, spray, sizeof(spray))) {
         return false;
     }
 
@@ -716,7 +716,7 @@ public int GetClientFromAuthID(const char[] auth)
     char other[32];
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientInGame(i) && !IsFakeClient(i)) {
-            if (GetClientAuthId(i, AuthId_Steam2, other, sizeof other)) {
+            if (GetClientAuthId(i, AuthId_Steam2, other, sizeof(other))) {
                 if (strcmp(other, auth) == 0) {
                     return i;
                 }
