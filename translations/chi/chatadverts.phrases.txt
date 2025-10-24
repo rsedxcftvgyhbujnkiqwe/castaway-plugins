@@ -1,0 +1,17 @@
+"Phrases"
+{
+	"CHAT_ADVERTS_TOGGLE_NOT_ALLOWED"
+	{
+		"chi"	"你不能关闭/开启广告。"
+	}
+
+	"CHAT_ADVERTS_DISABLED"
+	{
+		"chi"	"广告已关闭。"
+	}
+
+	"CHAT_ADVERTS_ENABLED"
+	{
+		"chi"	"广告已开启。"
+	}
+}

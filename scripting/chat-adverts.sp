@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
+#include <clientprefs>
 #include <morecolors>
 
 public Plugin myinfo = {
@@ -44,20 +45,42 @@ char g_Messages[MAX_GROUPS][MAX_MSGS][MAX_MSG_LEN];
 MessageGroup g_MessageGroups[MAX_GROUPS];
 int g_MessageGroupCount;
 int g_LastMin;
+ConVar g_cvAllowClientsDisable;
+Cookie g_cChatDisable;
 
 public void OnPluginStart() {
+    LoadTranslations("chatadverts.phrases");
+
+    g_cvAllowClientsDisable = CreateConVar("sm_chat_adverts_allow_clients_disable", "1", "Allow clients to disable chat adverts.");
+    g_cChatDisable = new Cookie("Chat adverts disable", "Disable chat adverts", CookieAccess_Private);
     RegAdminCmd("sm_chatadverts_reload", Cmd_Reload, ADMFLAG_RCON);
+    RegConsoleCmd("sm_toggleadverts", Cmd_ToggleAdverts, "Toggle chat adverts");
     CCheckTrie();
     LoadCustomColors();
     LoadCrons();
     g_LastMin = GetTime() / 60;
     CreateTimer(1.0, CronDaemon,_,TIMER_REPEAT);
+
+    AutoExecConfig();
 }
 
 public Action Cmd_Reload(int client, int args) {
     LoadCustomColors();
     LoadCrons();
     ReplyToCommand(client, "[ChatAdverts] Reloaded config.");
+    return Plugin_Handled;
+}
+
+public Action Cmd_ToggleAdverts(int client, int args) {
+    if (!g_cvAllowClientsDisable.BoolValue) {
+        ReplyToCommand(client, "%t", "CHAT_ADVERTS_TOGGLE_NOT_ALLOWED");
+        return Plugin_Handled;
+    }
+    if (AreClientCookiesCached(client)) {
+        int configValue = g_cChatDisable.GetInt(client, 0);
+        ReplyToCommand(client, "%t", configValue ? "CHAT_ADVERTS_ENABLED" : "CHAT_ADVERTS_DISABLED");
+        g_cChatDisable.SetInt(client, configValue ? 0 : 1);
+    }
     return Plugin_Handled;
 }
 
@@ -243,8 +266,29 @@ void CheckAndRunCrons(int timestamp) {
 }
 
 void ExecuteMessageGroup(int group_index) {
-    CPrintToChatAll("%s", g_Messages[group_index][g_MessageGroups[group_index].msg_index]);
+    CPrintToChatAllOnPref("%s", g_Messages[group_index][g_MessageGroups[group_index].msg_index]);
     g_MessageGroups[group_index].msg_index = GetNextMessageIndex(group_index);
+}
+
+void CPrintToChatAllOnPref(const char[] message, any...) {
+    CCheckTrie();
+    char buffer[MAX_BUFFER_LENGTH], buffer2[MAX_BUFFER_LENGTH];
+    bool canClientDisable = g_cvAllowClientsDisable.BoolValue;
+    for (int i = 1; i <= MaxClients; i++) {
+        if(!IsClientInGame(i) || CSkipList[i]) {
+            CSkipList[i] = false;
+            continue;
+        }
+
+        if (canClientDisable && g_cChatDisable.GetInt(i, 0)) {
+            continue;
+        }
+
+        Format(buffer, sizeof(buffer), "\x01%s", message);
+        VFormat(buffer2, sizeof(buffer2), buffer, 2);
+        CReplaceColorCodes(buffer2);
+        CSendMessage(i, buffer2);
+    }
 }
 
 int GetNextMessageIndex(int group_index) {

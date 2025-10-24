@@ -51,10 +51,12 @@ gamedata/*
 translations/*
 !translations/reverts.phrases.txt
 !translations/votescramble.phrases.txt
+!translations/chatadverts.phrases.txt
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
 !translations/chi/votescramble.phrases.txt
+!translations/chi/chatadverts.phrases.txt
 !translations/zho/
 translations/zho/*
 !translations/zho/reverts.phrases.txt
