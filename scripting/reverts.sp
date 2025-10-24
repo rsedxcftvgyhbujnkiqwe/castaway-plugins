@@ -208,7 +208,7 @@ enum struct Player {
 	int charge_tick;
 	int fall_dmg_tick;
 	int ticks_since_switch;
-	bool player_jumped;
+	bool holding_jump;
 	int drain_victim;
 	float drain_time;
 	bool spy_under_feign_buffs;
@@ -1763,7 +1763,7 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
-				players[idx].player_jumped = false;
+				players[idx].holding_jump = false;
 				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
@@ -5220,7 +5220,7 @@ public Action OnPlayerRunCmd(
 				// Release Baby Face's Blaster boost reset on jump
 				if (buttons & IN_JUMP != 0)
 				{
-					if (!players[client].player_jumped)
+					if (!players[client].holding_jump)
 					{
 						if (
 							GetEntPropFloat(client, Prop_Send, "m_flHypeMeter") > 0.0 && 
@@ -5231,12 +5231,12 @@ public Action OnPlayerRunCmd(
 							SetEntPropFloat(client, Prop_Send, "m_flHypeMeter", 0.0);
 							TF2Util_UpdatePlayerSpeed(client);
 						}
-						players[client].player_jumped = true;
+						players[client].holding_jump = true;
 					}
 				}
 				else
 				{
-					players[client].player_jumped = false;
+					players[client].holding_jump = false;
 				}
 			}
 		}
