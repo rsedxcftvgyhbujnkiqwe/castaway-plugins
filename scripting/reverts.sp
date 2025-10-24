@@ -6330,9 +6330,9 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 				// Get amount to heal.
 				int heal = RoundFloat(40 * PersuaderPackRatios[pack_size]);
 
-				// Show that the player got healed.
+				// Add health and show that the player got healed.
 				Event event = CreateEvent("player_healonhit", true);
-				event.SetInt("amount", intMin(health_max - health, heal));
+				event.SetInt("amount", TF2Util_TakeHealth(client, float(heal)));
 				event.SetInt("entindex", client);
 				event.Fire();
 
@@ -6340,8 +6340,7 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 
-				// Add health.
-				TF2Util_TakeHealth(client, float(heal));
+				// Play pickup sound
 				EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
 				returnValue.Value = true;
 			}
@@ -6385,9 +6384,9 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
 			if (health < health_max)
 			{
-				// Show that the player got healed.
+				// Add health and show that the player got healed.
 				Event event = CreateEvent("player_healonhit", true);
-				event.SetInt("amount", intMin(health_max - health, 20));
+				event.SetInt("amount", TF2Util_TakeHealth(client, 20.0));
 				event.SetInt("entindex", client);
 				event.Fire();
 
@@ -6395,8 +6394,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 				TF2_RemoveCondition(client, TFCond_OnFire);
 				TF2_RemoveCondition(client, TFCond_Bleeding);
 
-				// Add health.
-				TF2Util_TakeHealth(client, 20.0);
+				// Play pickup sound
 				// If you're wondering why EmitSoundToAll below is repeated in a different channel,
 				// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
 				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
