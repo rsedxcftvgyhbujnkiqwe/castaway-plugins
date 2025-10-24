@@ -6753,12 +6753,17 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 }
 
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookReturn returnValue) {
+	char class[64];
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-		// Do not allow mini sentries to be construction boosted.
-		return MRES_Supercede;
+		GetEntityClassname(entity, class, sizeof(class));
+
+		if (StrEqual(class, "obj_sentrygun")) {
+			// Do not allow mini sentries to be construction boosted.
+			return MRES_Supercede;
+		}
 	}
 	return MRES_Ignored;
 }
