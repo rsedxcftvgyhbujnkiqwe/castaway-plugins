@@ -6385,6 +6385,7 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			int health = GetClientHealth(client);
 			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
 
+			// For crit pumpkins and smissmas present ammo pickups
 			int packtype = 0;
 #if defined WIN32
 			packtype = GetEntData(entity, 1332, 4);
@@ -6417,13 +6418,24 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			// Fix for reverted Persian Persuader not gaining critical hit buff for 3 seconds when picking up crit pumpkins
 			// Expected behavior is that the Persuader picks up ammo as health, gains 3 seconds of critical hits for all weapons, and counts towards the Candy Coroner achievement
 			// For Christmas Present ammo pickups, should count towards Gift Grab achievement.
-
-			if (packtype == 1) {
-			// Crit stuff here, don't forget to generate a event if it needs to and don't forget to award achievement if needed. Emit sound etc or anything else needed
-				TF2_AddCondition(client, TFCond_HalloweenCritCandy, 3.0);
-				EmitGameSoundToAll("Halloween.PumpkinPickup", client);
-			} else if (packtype == 2) {
-			// Christmas stuff here, don't forget to generate a event if it needs to and don't forget to award achievement if needed. Emit sound etc or anything else needed
+			// Hallowen Crit stuff here
+			if (
+				TF2_IsPlayerInCondition(client, TFCond_HalloweenCritCandy) || 
+				TF2Util_GetPlayerConditionDuration(client, TFCond_HalloweenCritCandy) < 3.0 // derived from tf2 source code, not sure what this is for but might be a good idea including this
+			) {
+				if (packtype == 1) {
+					if (health >= health_max) {
+						TF2_AddCondition(client, TFCond_HalloweenCritCandy, 3.0);
+						RemoveEntity(entity);
+					}
+					else if (health < health_max)
+						TF2_AddCondition(client, TFCond_HalloweenCritCandy, 3.0);
+					EmitGameSoundToAll("Halloween.PumpkinPickup", client);
+				} 
+			}
+			
+			// Christmas stuff here
+			if (packtype == 2) {
 				EmitGameSoundToAll("Christmas.GiftPickup", client);
 			}
 
