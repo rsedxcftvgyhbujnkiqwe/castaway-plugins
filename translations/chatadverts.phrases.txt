@@ -1,0 +1,17 @@
+"Phrases"
+{
+	"CHAT_ADVERTS_TOGGLE_NOT_ALLOWED"
+	{
+		"en"	"You cannot toggle chat adverts."
+	}
+
+	"CHAT_ADVERTS_DISABLED"
+	{
+		"en"	"Chat adverts disabled."
+	}
+
+	"CHAT_ADVERTS_ENABLED"
+	{
+		"en"	"Chat adverts enabled."
+	}
+}
