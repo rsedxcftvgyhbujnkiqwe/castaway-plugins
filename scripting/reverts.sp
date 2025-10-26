@@ -6384,6 +6384,13 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 			// Health pickup with the Persian Persuader from dropped ammo packs.
 			int health = GetClientHealth(client);
 			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+
+			int packtype = 0;
+#if defined WIN32
+			packtype = GetEntData(entity, 1332, 4);
+#else
+			packtype = GetEntData(entity, 1356, 4);
+#endif
 			if (health < health_max)
 			{
 				// Show that the player got healed.
@@ -6400,10 +6407,26 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 				TF2Util_TakeHealth(client, 20.0);
 				// If you're wondering why EmitSoundToAll below is repeated in a different channel,
 				// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+				if (packtype == 0) {
+					EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
+					EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
+				}
 				RemoveEntity(entity);
 			}
+
+			// Fix for reverted Persian Persuader not gaining critical hit buff for 3 seconds when picking up crit pumpkins
+			// Expected behavior is that the Persuader picks up ammo as health, gains 3 seconds of critical hits for all weapons, and counts towards the Candy Coroner achievement
+			// For Christmas Present ammo pickups, should count towards Gift Grab achievement.
+
+			if (packtype == 1) {
+			// Crit stuff here, don't forget to generate a event if it needs to and don't forget to award achievement if needed. Emit sound etc or anything else needed
+				TF2_AddCondition(client, TFCond_HalloweenCritCandy, 3.0);
+				EmitGameSoundToAll("Halloween.PumpkinPickup", client);
+			} else if (packtype == 2) {
+			// Christmas stuff here, don't forget to generate a event if it needs to and don't forget to award achievement if needed. Emit sound etc or anything else needed
+				EmitGameSoundToAll("Christmas.GiftPickup", client);
+			}
+
 			return MRES_Supercede;
 		}
 		if (
