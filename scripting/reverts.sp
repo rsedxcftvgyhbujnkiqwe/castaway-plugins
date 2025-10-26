@@ -6430,12 +6430,20 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 					}
 					else if (health < health_max)
 						TF2_AddCondition(client, TFCond_HalloweenCritCandy, 3.0);
+					AddProgressOnAchievement(GetClientUserId(client),1901,1); // For Candy Coroner achievement tracking
+					Event event = CreateEvent("halloween_pumpkin_grab", true);
+					event.SetInt("userid", GetClientUserId(client));
+					event.Fire();					
 					EmitGameSoundToAll("Halloween.PumpkinPickup", client);
 				} 
 			}
 			
 			// Christmas stuff here
 			if (packtype == 2) {
+				AddProgressOnAchievement(GetClientUserId(client),2101,1); // For Gift Grab achievement tracking
+				Event event = CreateEvent("christmas_gift_grab", true);
+				event.SetInt("userid", GetClientUserId(client));
+				event.Fire();				
 				EmitGameSoundToAll("Christmas.GiftPickup", client);
 			}
 
