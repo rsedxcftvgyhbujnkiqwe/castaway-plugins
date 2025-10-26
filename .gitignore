@@ -52,6 +52,7 @@ translations/*
 !translations/reverts.phrases.txt
 !translations/votescramble.phrases.txt
 !translations/chatadverts.phrases.txt
+!translations/ssh.phrases.txt
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
@@ -76,6 +77,7 @@ translations/fr/*
 !translations/ru/
 translations/ru/*
 !translations/ru/reverts.phrases.txt
+!translations/ru/ssh.phrases.txt
 
 !cfg/
 !cfg/*

@@ -83,20 +83,20 @@
 
 			"CAmmoPack::MyTouch"
 			{
+				"linux" "230"
 				"windows" "229"
-				"linux"   "230"
 			}
 			
 			"CAmmoPack::GetPowerupSize"
 			{
+				"linux" "237"
 				"windows" "234"
-				"linux"   "237"
 			}
 
 			"CTFPlayerShared::m_pOuter"
 			{
+				"linux"	"396"
 				"windows" "396"
-				"linux"	  "396"
 			}
 
 			"CObjectDispenser::DispenseAmmo"
