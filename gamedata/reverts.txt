@@ -59,6 +59,13 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
 				"linux"   "@_ZN9CTFPlayer10RegenThinkEv"
 			}
+
+			"CTFPlayer::GiveAmmo"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
+				"linux"   "@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
+			}
 		}
 
 		"Offsets"
@@ -289,6 +296,33 @@
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
+			}
+
+			"CTFPlayer::GiveAmmo"
+			{
+				"signature" "CTFPlayer::GiveAmmo"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "int"
+				"arguments"
+				{
+					"iCount"
+					{
+						"type" "int"
+					}
+					"iAmmoIndex"
+					{
+						"type" "int"
+					}
+					"bSuppressSound"
+					{
+						"type" "bool"
+					}
+					"eAmmoSource"
+					{
+						"type" "int"
+					}
+				}
 			}
 		}
 	}
