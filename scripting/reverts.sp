@@ -1947,7 +1947,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 
 	if (StrEqual(class, "obj_dispenser")) {
-		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Pre, entity, DHookCallback_CObjectDispenser_DispenseAmmo);
+		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Pre, entity, DHookCallback_CObjectDispenser_DispenseAmmo_Pre);
+		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Post, entity, DHookCallback_CObjectDispenser_DispenseAmmo_Post);
 	}
 
 	if (StrEqual(class, "obj_sentrygun")) {
@@ -6581,12 +6582,41 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
     return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
 	if (
 		client > 0 &&
 		client <= MaxClients
 	) {
+		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+		if (
+			GetItemVariant(Wep_Beggars) == 0 &&
+			player_weapons[client][Wep_Beggars] &&
+			weapon > 0
+		) {
+			// For release Beggar's Bazooka, prevent primary ammo from being gained regardless if active or not
+			TF2Attrib_SetByDefIndex(weapon, 421, 1.0); // no primary ammo from dispensers while active
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+	int client = parameters.Get(1);
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+		if (
+			GetItemVariant(Wep_Beggars) == 0 &&
+			player_weapons[client][Wep_Beggars] &&
+			weapon > 0
+		) {
+			TF2Attrib_RemoveByDefIndex(weapon, 421); // no primary ammo from dispensers while active
+		}
 	}
 	return MRES_Ignored;
 }
