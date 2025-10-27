@@ -239,6 +239,7 @@ enum struct Player {
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
+	int ammo_heal_amount;
 }
 
 enum struct Entity {
@@ -1519,6 +1520,27 @@ public void OnGameFrame() {
 					}
 				}
 
+				if (TF2_GetPlayerClass(idx) == TFClass_DemoMan) {
+					{
+						if (
+							ItemIsEnabled(Wep_Persian) &&
+							players[idx].ammo_heal_amount > 0
+						) {
+							// Fire heal event for persuader
+							Event event = CreateEvent("player_healonhit", true);
+							event.SetInt("amount", players[idx].ammo_heal_amount);
+							event.SetInt("entindex", idx);
+							event.Fire();
+
+							// Reset variable
+							players[idx].ammo_heal_amount = 0;
+						}
+					}
+				} else {
+					// reset if player isn't demoman
+					players[idx].ammo_heal_amount = 0;
+				}
+
 #if !defined MEMORY_PATCHES
 				if (TF2_GetPlayerClass(idx) == TFClass_Heavy) {
 					{
@@ -1793,6 +1815,7 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].cloak_gain_capped = false;
+				players[idx].ammo_heal_amount = 0;
 			}
 		}
 	}
@@ -6791,11 +6814,9 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 						EmitGameSoundToAll("BaseCombatCharacter.AmmoPickup", client);
 					}
 
-					// Show that the player got healed.
-					Event event = CreateEvent("player_healonhit", true);
-					event.SetInt("amount", iTakenHealth);
-					event.SetInt("entindex", client);
-					event.Fire();
+					// Accumulate heal amount for the heal event to be fired later.
+					// Fixes the messy visuals that was present on the pre-TB persuader
+					players[client].ammo_heal_amount += iTakenHealth;
 
 					// remove afterburn and bleed debuffs on heal
 					TF2_RemoveCondition(client, TFCond_OnFire);
