@@ -337,7 +337,6 @@ DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
-DynamicHook dhook_CObjectDispenser_DispenseAmmo;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
@@ -790,7 +789,6 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
-		dhook_CObjectDispenser_DispenseAmmo = DynamicHook.FromConf(conf, "CObjectDispenser::DispenseAmmo");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
@@ -942,7 +940,6 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CObjectDispenser_DispenseAmmo == null) SetFailState("Failed to create dhook_CObjectDispenser_DispenseAmmo");
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 
@@ -1967,11 +1964,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
-	}
-
-	if (StrEqual(class, "obj_dispenser")) {
-		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Pre, entity, DHookCallback_CObjectDispenser_DispenseAmmo_Pre);
-		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Post, entity, DHookCallback_CObjectDispenser_DispenseAmmo_Post);
 	}
 
 	if (StrEqual(class, "obj_sentrygun")) {
@@ -6605,45 +6597,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
     return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-	int client = parameters.Get(1);
-	if (
-		client > 0 &&
-		client <= MaxClients
-	) {
-		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-		if (
-			GetItemVariant(Wep_Beggars) == 0 &&
-			player_weapons[client][Wep_Beggars] &&
-			weapon > 0
-		) {
-			// For release Beggar's Bazooka, prevent primary ammo from being gained regardless if active or not
-			TF2Attrib_SetByDefIndex(weapon, 421, 1.0); // no primary ammo from dispensers while active
-		}
-	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	int client = parameters.Get(1);
-	if (
-		client > 0 &&
-		client <= MaxClients
-	) {
-		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-		if (
-			GetItemVariant(Wep_Beggars) == 0 &&
-			player_weapons[client][Wep_Beggars] &&
-			weapon > 0
-		) {
-			TF2Attrib_RemoveByDefIndex(weapon, 421); // no primary ammo from dispensers while active
-		}
-	}
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Fake the sentry being unshielded to allow for full repair.
 	if (
@@ -6800,6 +6753,17 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 		int ammo_source = parameters.Get(4);
 
 		if (
+			GetItemVariant(Wep_Beggars) == 0 &&
+			TF2Attrib_HookValueInt(0, "no_primary_ammo_from_dispensers", client) != 0 &&
+			ammo_idx == TF_AMMO_PRIMARY &&
+			ammo_source == kAmmoSource_DispenserOrCart
+		) {
+			// Prevent primary ammo gain from dispensers for release Beggar's Bazooka
+			returnValue.Value = 0;
+			return MRES_Supercede;
+		}
+
+		if (
 			ItemIsEnabled(Wep_Persian) &&
 			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1 &&
 			ammo_idx != TF_AMMO_METAL
@@ -6815,7 +6779,7 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 					}
 
 					// Accumulate heal amount for the heal event to be fired later.
-					// Fixes the messy visuals that was present on the pre-TB persuader
+					// Fixes the messy visuals that were present on the pre-TB persuader
 					players[client].ammo_heal_amount += iTakenHealth;
 
 					// remove afterburn and bleed debuffs on heal
