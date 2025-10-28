@@ -4084,15 +4084,15 @@ Action SDKHookCB_OnTakeDamage(
 	int health_max;
 	int weapon1;
 
-	bool resist_damage = false;
-	if (weapon > 0) {
-		// Don't resist if weapon pierces resists (vanilla Enforcer)
-		if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-			resist_damage = true;
-		}
-	} else {
-		resist_damage = true;
-	}
+	// bool resist_damage = false;
+	// if (weapon > 0) {
+	// 	// Don't resist if weapon pierces resists (vanilla Enforcer)
+	// 	if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+	// 		resist_damage = true;
+	// 	}
+	// } else {
+	// 	resist_damage = true;
+	// }
 
 	if (
 		victim >= 1 &&
@@ -4224,47 +4224,6 @@ Action SDKHookCB_OnTakeDamage(
 					damage = damage1;
 
 				return Plugin_Changed;
-			}
-		}
-
-		{
-			// spunup resistance regardless of health
-
-			if (
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				resist_damage
-			) {
-				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
-
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_minigun")) {
-
-						if (
-							ItemIsEnabled(Wep_BrassBeast) &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
-							GetItemVariant(Wep_Natascha) == 0 &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
-						) {
-							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
-							if (
-								spunup_resist > 0.0 &&
-								spunup_resist != 1.0
-							) {
-								// play damage resist sound
-								EmitGameSoundToAll("Player.ResistanceLight", victim);
-
-								// increase crit vuln here for proper resist on crits and minicrits
-								// (multiplicative inverse of spunup resist value)
-								TF2Attrib_SetByDefIndex(weapon1, 63, 1.0 / spunup_resist); // mult_dmgtaken_from_crit
-								TF2Attrib_SetByDefIndex(weapon1, 852, spunup_resist); // mult_dmgtaken_active
-								TF2Attrib_SetByDefIndex(weapon1, 738, 1.0); // spunup_damage_resistance
-							}
-						}
-					}
-				}
 			}
 		}
 	}
@@ -4947,6 +4906,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 ) {
 	Action returnValue = Plugin_Continue;
 	char class[64];
+	int weapon1;
+	int health_cur;
+	int health_max;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -4990,6 +4952,51 @@ Action SDKHookCB_OnTakeDamageAlive(
 				) {
 					damage *= 0.75;
 					returnValue = Plugin_Changed;
+				}
+			}
+		}
+		{
+			// spunup resistance regardless of health
+
+			if (
+				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
+				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
+				resist_damage
+			) {
+				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
+
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_minigun")) {
+
+						if (
+							ItemIsEnabled(Wep_BrassBeast) &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
+							GetItemVariant(Wep_Natascha) == 0 &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
+						) {
+							health_cur = GetClientHealth(victim);
+							health_max = SDKCall(sdkcall_GetMaxHealth, victim);
+							
+							// apply resistance only when above 50% of max health
+							if ((float(health_cur) - damage) / health_max > 0.5) {
+								float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
+								if (
+									spunup_resist > 0.0 &&
+									spunup_resist != 1.0
+								) {
+									// play damage resist sound
+									EmitGameSoundToAll("Player.ResistanceLight", victim);
+
+									// increase crit vuln here for proper resist on crits and minicrits
+									// (multiplicative inverse of spunup resist value)
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1 / spunup_resist, 0.001);
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", spunup_resist, 0.001);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -5105,32 +5112,6 @@ void SDKHookCB_OnTakeDamagePost(
 				TF2_GetPlayerClass(victim) == TFClass_Spy
 			) {
 				players[victim].damage_taken_during_feign += damage;
-			}
-		}
-		{
-			// spunup resistance regardless of health
-
-			if (TF2_GetPlayerClass(victim) == TFClass_Heavy) {
-				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
-
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_minigun")) {
-
-						if (
-							ItemIsEnabled(Wep_BrassBeast) &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
-							GetItemVariant(Wep_Natascha) == 0 &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
-						) {
-							// remove temp attribs
-							TF2Attrib_RemoveByDefIndex(weapon1, 63);
-							TF2Attrib_RemoveByDefIndex(weapon1, 738);
-							TF2Attrib_RemoveByDefIndex(weapon1, 852);
-						}
-					}
-				}
 			}
 		}
 	}
