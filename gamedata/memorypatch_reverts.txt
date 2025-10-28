@@ -307,7 +307,7 @@
 					"windows"
 					{
 						"offset"	"666"
-						"verify"	"\xE8\x71\x2A\x2A\x2A" // CALL, x2A wildcard twice
+						"verify"	"\xE8\x71\xBB\x2A\x2A" // CALL, x2A wildcard twice
 						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
 					}
 				}
