@@ -306,9 +306,9 @@
 					"signature" "CTFPlayerShared::ConditionThink"
 					"windows"
 					{
-						"offset"	"576"
-						"verify"	"\xE8\xCB\xBB\x2A\x2A" // CALL, x2A wildcard twice
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 2x, prevent RemoveCond() from running
+						"offset"	"666"
+						"verify"	"\xE8\x71\x2A\x2A\x2A" // CALL, x2A wildcard twice
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
 					}
 				}
 
