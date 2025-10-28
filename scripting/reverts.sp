@@ -6754,7 +6754,7 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 
 		if (
 			GetItemVariant(Wep_Beggars) == 0 &&
-			TF2Attrib_HookValueInt(0, "no_primary_ammo_from_dispensers", client) != 0 &&
+			player_weapons[client][Wep_Beggars] &&
 			ammo_idx == TF_AMMO_PRIMARY &&
 			ammo_source == kAmmoSource_DispenserOrCart
 		) {
