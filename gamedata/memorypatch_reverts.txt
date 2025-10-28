@@ -20,7 +20,7 @@
 			{
 				"library"   "server"
 				"linux"     "@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
-				"windows"   "\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x0C\x8B\xF1"
+				"windows"   "\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
 			}		
 			"CObjectSentrygun::OnWrenchHit"
 			{
@@ -203,8 +203,8 @@
 					}
 					"windows"
 					{
-						"offset"    "935"
-						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // mulss xmm0, ds:flt_1077A508 (0.6 in flt_1077A508)
+						"offset"    "996"
+						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // mulss xmm0, ds:flt_1077A508 (0.6 in flt_1077A508), f3 0f 59 05 08 a5 77 10
 						"patch"     "\xF3\x0F\x59\x05\x00\x00\x00\x00" // mulss xmm0, 0 (retrieve from plugin)
 					}
 				}
@@ -324,7 +324,7 @@
 				//	Normal pipe grenade hitbox size is 4x4x4. 
 				//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
 				//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
-				//	Function can be found via the DevMsg string in a decompiler.
+				//	Function can be found via the DevMsg "Fire bomb at %f %f %f\n" string in a decompiler.
 
 				"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert"
 				{
@@ -332,13 +332,13 @@
 					"linux"
 					{
 						"offset"	"2092"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard twice
+						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x
 						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
 					}
 					"windows"
 					{
 						"offset"	"1383"
-						"verify"	"\xE8\xC4\x35\x2A\x2A" // CALL, x2A wildcard twice
+						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x, e8 d4 34 d3 ff
 						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
 					}
 				}
