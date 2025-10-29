@@ -153,7 +153,7 @@
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
-				"linux"	  "@__ZN15CTFPlayerShared14ConditionThinkEv"
+				"linux"	  "@_ZN15CTFPlayerShared14ConditionThinkEv"
 			}
 		}
 
