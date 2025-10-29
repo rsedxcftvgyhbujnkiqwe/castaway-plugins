@@ -153,6 +153,7 @@
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
+				"linux"	  "@__ZN15CTFPlayerShared14ConditionThinkEv"
 			}
 		}
 
@@ -301,9 +302,16 @@
 
 				// ================================================
 				//  Revert Thermal Thruster October 27, 2025 bug fix
+				//	Reverts bug fix (https://github.com/ValveSoftware/source-sdk-2013/pull/1490) in the TF2 source code by preventing RemoveCond() from happening
 				"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval"
 				{
 					"signature" "CTFPlayerShared::ConditionThink"
+					"linux"
+					{
+						"offset"	"1912"
+						"verify"	"\xE8\xC3\x80\x2A\x2A" // CALL, x2A wildcard twice
+						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
+					}
 					"windows"
 					{
 						"offset"	"666"
