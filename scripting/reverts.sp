@@ -3343,6 +3343,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
+
+					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
+						player_weapons[client][Wep_ThermalThruster] = true;
+					}
 #endif
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
