@@ -5264,6 +5264,24 @@ public Action OnPlayerRunCmd(
 				}
 			}
 		}
+
+		case TFClass_Pyro:
+		{
+			if (
+				ItemIsEnabled(Wep_ThermalThruster) &&
+				player_weapons[client][Wep_ThermalThruster]
+			) {
+				// Pre-May 1, 2025 Thermal Thruster Revert - keep stomp condition when bunnyhopping
+				if(IsPlayerAlive(client) && (buttons & IN_JUMP)) {
+					PrintToChatAll("Bunnyhop detected");
+					if(!TF2_IsPlayerInCondition(client, TFCond_RocketPack) && (GetEntityFlags(client) & FL_ONGROUND)
+					) {
+						TF2_AddCondition(client, TFCond_RocketPack);
+						PrintToChatAll("Added TFCond_RocketPack");
+					}
+				}
+			}
+		}
 	}
 	
 	return returnValue;
