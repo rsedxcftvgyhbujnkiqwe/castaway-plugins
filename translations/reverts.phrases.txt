@@ -1090,7 +1090,7 @@
 	}
 	"ThermalThrust_Pre2025"
 	{
-		"en"	"Reverted to pre-October 27, 2025; bug fix reverted, able to keep jetpack passives after unequipping (turn off respawn on loadout change in adv. options)"
+		"en"	"Reverted to pre-May 1, 2025; able to keep jetpack passives after unequipping (turn off respawn on loadout change in adv. options); bunnyhops keeps passives"
 	}
 	"Turner_PreTB"
 	{

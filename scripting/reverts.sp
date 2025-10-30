@@ -219,6 +219,8 @@ enum struct Player {
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
+	bool has_used_jetpack;
+	int bunnyhop_frame;
 }
 
 enum struct Entity {
@@ -5272,12 +5274,47 @@ public Action OnPlayerRunCmd(
 				player_weapons[client][Wep_ThermalThruster]
 			) {
 				// Pre-May 1, 2025 Thermal Thruster Revert - keep stomp condition when bunnyhopping
-				if(IsPlayerAlive(client) && (buttons & IN_JUMP)) {
-					PrintToChatAll("Bunnyhop detected");
-					if(!TF2_IsPlayerInCondition(client, TFCond_RocketPack) && (GetEntityFlags(client) & FL_ONGROUND)
-					) {
+
+				// check if thermal thruster got used or not
+				if (
+					IsPlayerAlive(client) &&
+					TF2_IsPlayerInCondition(client, TFCond_RocketPack) &&
+					TF2_IsPlayerInCondition(client, TFCond_Dazed)
+				) {
+					// check if thermal thruster was used, simplest but hacky way to do it
+					players[client].has_used_jetpack = true;
+				}
+				else if (
+					IsPlayerAlive(client) &&
+					!TF2_IsPlayerInCondition(client, TFCond_RocketPack) &&
+					(GetEntityFlags(client) & FL_ONGROUND)
+				) {
+					// this should be good enough
+					players[client].has_used_jetpack = false;
+				}
+
+				// preserve stomp condition when bunnyhopping
+				if (
+					IsPlayerAlive(client) && 
+					players[client].has_used_jetpack &&
+					(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
+				) {
+					PrintToChat(client, "Bunnyhop detected and used jetpack");
+					players[client].bunnyhop_frame = GetGameTickCount();
+					players[client].has_used_jetpack = true;
+				}
+
+				if (
+					IsPlayerAlive(client) && 
+					players[client].has_used_jetpack &&
+					players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
+					!(GetEntityFlags(client) & FL_ONGROUND) // is player in air
+				) {
+					PrintToChat(client, "Player is in air");
+					if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) {
 						TF2_AddCondition(client, TFCond_RocketPack);
-						PrintToChatAll("Added TFCond_RocketPack");
+						PrintToChat(client, "Added TFCond_RocketPack, reverted jetpack stomp bhop");
+						// When this if statement executes, the jetpack sound plays again
 					}
 				}
 			}
