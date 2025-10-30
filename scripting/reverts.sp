@@ -220,6 +220,7 @@ enum struct Player {
 	float damage_received_time;
 	float aiming_cond_time;
 	bool has_used_jetpack;
+	bool was_jump_key_pressed;
 	int bunnyhop_frame;
 }
 
@@ -5297,25 +5298,33 @@ public Action OnPlayerRunCmd(
 				if (
 					IsPlayerAlive(client) && 
 					players[client].has_used_jetpack &&
+					!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
 					(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
 				) {
 					PrintToChat(client, "Bunnyhop detected and used jetpack");
 					players[client].bunnyhop_frame = GetGameTickCount();
 					players[client].has_used_jetpack = true;
+					players[client].was_jump_key_pressed = true;
 				}
 
 				if (
 					IsPlayerAlive(client) && 
 					players[client].has_used_jetpack &&
 					players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
-					!(GetEntityFlags(client) & FL_ONGROUND) // is player in air
+					!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
 				) {
 					PrintToChat(client, "Player is in air");
+					players[client].was_jump_key_pressed = true;
 					if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) {
 						TF2_AddCondition(client, TFCond_RocketPack);
 						PrintToChat(client, "Added TFCond_RocketPack, reverted jetpack stomp bhop");
 						// When this if statement executes, the jetpack sound plays again
 					}
+				}
+
+				// if jump key is currently not held, always set variable to false
+				if (!(buttons & IN_JUMP)) {
+					players[client].was_jump_key_pressed = false;
 				}
 			}
 		}
