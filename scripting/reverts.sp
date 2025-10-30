@@ -451,9 +451,7 @@ enum
 	Wep_SplendidScreen,
 	Wep_Spycicle,
 	Wep_StickyJumper,
-#if defined MEMORY_PATCHES
 	Wep_ThermalThruster,
-#endif
 	Wep_TideTurner,
 	Wep_Tomislav,	
 	Wep_TribalmansShiv,
@@ -682,7 +680,9 @@ public void OnPluginStart() {
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 #if defined MEMORY_PATCHES
-	ItemDefine("thermal", "ThermalThrust_Pre2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
+	ItemDefine("thermal", "ThermalThrust_Oct2025", CLASSFLAG_PYRO, Wep_ThermalThruster, true);
+#else
+	ItemDefine("thermal", "ThermalThrust_May2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
 #endif
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -3346,11 +3346,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
-
+#endif
 					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
 						player_weapons[client][Wep_ThermalThruster] = true;
 					}
-#endif
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
@@ -3478,8 +3477,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					case 405, 608: player_weapons[client][Wep_Booties] = true;
 #if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
-					case 1179: player_weapons[client][Wep_ThermalThruster] = true;
 #endif
+					case 1179: player_weapons[client][Wep_ThermalThruster] = true;
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
@@ -5301,10 +5300,10 @@ public Action OnPlayerRunCmd(
 					!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
 					(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
 				) {
-					PrintToChat(client, "Bunnyhop detected and used jetpack");
 					players[client].bunnyhop_frame = GetGameTickCount();
 					players[client].has_used_jetpack = true;
 					players[client].was_jump_key_pressed = true;
+					//PrintToChat(client, "Bunnyhop detected and used jetpack");
 				}
 
 				if (
@@ -5313,12 +5312,12 @@ public Action OnPlayerRunCmd(
 					players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
 					!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
 				) {
-					PrintToChat(client, "Player is in air");
 					players[client].was_jump_key_pressed = true;
-					if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) {
+					//PrintToChat(client, "Player is in air");
+					if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) { 
+						// When this executes, the jetpack sound plays again, which shouldn't but it should be fine for now
 						TF2_AddCondition(client, TFCond_RocketPack);
-						PrintToChat(client, "Added TFCond_RocketPack, reverted jetpack stomp bhop");
-						// When this if statement executes, the jetpack sound plays again
+						//PrintToChat(client, "Added TFCond_RocketPack, reverted jetpack stomp bhop");
 					}
 				}
 
