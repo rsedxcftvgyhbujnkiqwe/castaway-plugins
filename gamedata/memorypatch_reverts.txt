@@ -149,12 +149,13 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
-			"CTFPlayerShared::ConditionThink"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
-				"linux"	  "@_ZN15CTFPlayerShared14ConditionThinkEv"
-			}
+			//	Thermal Thruster bug fix has been officially reverted by Valve
+			//	"CTFPlayerShared::ConditionThink"
+			//	{
+			//		"library" "server"
+			//		"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
+			//		"linux"	  "@_ZN15CTFPlayerShared14ConditionThinkEv"
+			//	}
 		}
 
 		"Offsets"
@@ -301,24 +302,27 @@
 				}
 
 				// ================================================
+				//	THERMAL THRUSTER BUG FIX HAS BEEN OFFICIALLY REVERTED BY Valve
+				//	SEE https://www.teamfortress.com/post.php?id=255953
+				//	
 				//  Revert Thermal Thruster October 27, 2025 bug fix
 				//	Reverts bug fix (https://github.com/ValveSoftware/source-sdk-2013/pull/1490) in the TF2 source code by preventing RemoveCond() from happening
-				"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval"
-				{
-					"signature" "CTFPlayerShared::ConditionThink"
-					"linux"
-					{
-						"offset"	"1912"
-						"verify"	"\xE8\xC3\x80\x2A\x2A" // CALL, x2A wildcard twice
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
-					}
-					"windows"
-					{
-						"offset"	"666"
-						"verify"	"\xE8\x71\xBB\x2A\x2A" // CALL, x2A wildcard twice
-						"patch"		"\x83\xC4\x08\x90\x90" // add esp, 0x8; undo pushes, pad rest with NOPs, prevent RemoveCond() from running
-					}
-				}
+				//	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval"
+				//	{
+				//		"signature" "CTFPlayerShared::ConditionThink"
+				//		"linux"
+				//		{
+				//			"offset"	"1912"
+				//			"verify"	"\xE8\xC3\x80\x2A\x2A" // CALL, x2A wildcard twice
+				//			"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
+				//		}
+				//		"windows"
+				//		{
+				//			"offset"	"666"
+				//			"verify"	"\xE8\x71\xBB\x2A\x2A" // CALL, x2A wildcard twice
+				//			"patch"		"\x83\xC4\x08\x90\x90" // add esp, 0x8; undo pushes, pad rest with NOPs, prevent RemoveCond() from running
+				//		}
+				//	}
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                   Demoman                    ║

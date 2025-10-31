@@ -276,7 +276,7 @@ MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
-MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
+// MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
@@ -679,11 +679,11 @@ public void OnPluginStart() {
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
-#if defined MEMORY_PATCHES
-	ItemDefine("thermal", "ThermalThrust_Oct2025", CLASSFLAG_PYRO, Wep_ThermalThruster, true);
-#else
+// #if defined MEMORY_PATCHES
+// 	ItemDefine("thermal", "ThermalThrust_Oct2025", CLASSFLAG_PYRO, Wep_ThermalThruster, true);
+// #else
 	ItemDefine("thermal", "ThermalThrust_May2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
-#endif
+// #endif
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -845,9 +845,9 @@ public void OnPluginStart() {
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		patch_RevertThermalThruster_LoadoutChangePassive =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");				
+		// patch_RevertThermalThruster_LoadoutChangePassive =
+		// 	MemoryPatch.CreateFromConf(conf,
+		// 	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -892,7 +892,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
 		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
-		if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
+		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
@@ -998,7 +998,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_ThermalThruster),Wep_ThermalThruster);
+	// ToggleMemoryPatchReverts(ItemIsEnabled(Wep_ThermalThruster),Wep_ThermalThruster);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1124,13 +1124,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Disable();
 			}
 		}
-		case Wep_ThermalThruster: {
-			if (enable) {
-				patch_RevertThermalThruster_LoadoutChangePassive.Enable();
-			} else {
-				patch_RevertThermalThruster_LoadoutChangePassive.Disable();
-			}
-		}			
+		// case Wep_ThermalThruster: {
+		// 	if (enable) {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Enable();
+		// 	} else {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Disable();
+		// 	}
+		// }
 	}
 }
 #endif
