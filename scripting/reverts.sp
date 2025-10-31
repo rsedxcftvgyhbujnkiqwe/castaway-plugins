@@ -221,6 +221,7 @@ enum struct Player {
 	float aiming_cond_time;
 	bool has_used_jetpack;
 	bool was_jump_key_pressed;
+	bool blast_jump_sound_loop;
 	int bunnyhop_frame;
 }
 
@@ -5271,53 +5272,54 @@ public Action OnPlayerRunCmd(
 		{
 			if (
 				ItemIsEnabled(Wep_ThermalThruster) &&
-				player_weapons[client][Wep_ThermalThruster]
+				player_weapons[client][Wep_ThermalThruster] &&
+				IsPlayerAlive(client)
 			) {
 				// Pre-May 1, 2025 Thermal Thruster Revert - keep stomp condition when bunnyhopping
 
-				// check if thermal thruster got used or not
-				if (
-					IsPlayerAlive(client) &&
-					TF2_IsPlayerInCondition(client, TFCond_RocketPack) &&
-					TF2_IsPlayerInCondition(client, TFCond_Dazed)
-				) {
-					// check if thermal thruster was used, simplest but hacky way to do it
+				// check if thermal thruster got used or not, simplest but hacky way to do it
+				if (TF2_IsPlayerInCondition(client, TFCond_RocketPack) && TF2_IsPlayerInCondition(client, TFCond_Dazed))
 					players[client].has_used_jetpack = true;
-				}
-				else if (
-					IsPlayerAlive(client) &&
-					!TF2_IsPlayerInCondition(client, TFCond_RocketPack) &&
-					(GetEntityFlags(client) & FL_ONGROUND)
-				) {
-					// this should be good enough
-					players[client].has_used_jetpack = false;
-				}
+				else if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack) && (GetEntityFlags(client) & FL_ONGROUND))
+					players[client].has_used_jetpack = false; // this should be good enough
 
 				// preserve stomp condition when bunnyhopping
-				if (
-					IsPlayerAlive(client) && 
-					players[client].has_used_jetpack &&
-					!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
-					(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
-				) {
-					players[client].bunnyhop_frame = GetGameTickCount();
-					players[client].has_used_jetpack = true;
-					players[client].was_jump_key_pressed = true;
-					//PrintToChat(client, "Bunnyhop detected and used jetpack");
-				}
+				if (players[client].has_used_jetpack) {
+					if (
+						!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
+						(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
+					) {
+						players[client].bunnyhop_frame = GetGameTickCount();
+						players[client].has_used_jetpack = true;
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Bunnyhop detected and used jetpack");
+					}
 
-				if (
-					IsPlayerAlive(client) && 
-					players[client].has_used_jetpack &&
-					players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
-					!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
-				) {
-					players[client].was_jump_key_pressed = true;
-					//PrintToChat(client, "Player is in air");
-					if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) { 
-						// When this executes, the jetpack sound plays again, which shouldn't but it should be fine for now
-						TF2_AddCondition(client, TFCond_RocketPack);
-						//PrintToChat(client, "Added TFCond_RocketPack, reverted jetpack stomp bhop");
+					if (
+						players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
+						!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
+					) {
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Player is in air");
+						if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) { 
+							TF2_AddCondition(client, TFCond_RocketPack);
+							// Get rid of landing sound spam (somewhat) on a successful bunnyhop, replace it with air whistle sound
+							EmitGameSoundToAll("Weapon_RocketPack.Land", client, SND_STOP);
+							EmitGameSoundToAll("Weapon_RocketPack.BoostersShutdown", client, SND_STOP);
+							EmitGameSoundToAll("BlastJump.Whistle", client);
+							players[client].blast_jump_sound_loop = true;
+							// PrintToChat(client, "Valid bhop, added TFCond_RocketPack stomp attribute, removed & added sounds, reverted jetpack stomp bhop");
+						}
+					}
+					
+					// stop air whistling sound when bunnyhopping ends
+					if (
+						players[client].blast_jump_sound_loop && 
+						(GetEntityFlags(client) & FL_ONGROUND)
+					) {
+						players[client].blast_jump_sound_loop = false;
+						EmitGameSoundToAll("BlastJump.Whistle", client, SND_STOP);
+						// PrintToChat(client, "Removed air whistling loop sound");
 					}
 				}
 
