@@ -674,7 +674,7 @@
 	}
 	"CrusadersCrossbow_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, ubercharge gain rate no longer reduced like the medigun is"
+		"en"	"Reverted to pre-inferno, ubercharge gain rate per bolt is now like it was before jungle inferno"
 	}
 	"CrocoStyle_Release"
 	{
