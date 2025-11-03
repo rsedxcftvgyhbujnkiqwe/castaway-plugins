@@ -238,6 +238,10 @@
 	{
 		"en"	"Crit-a-Cola"
 	}
+	"crossbow"
+	{
+		"en"	"Crusader's Crossbow"
+	}
 	"crocostyle"
 	{
 		"en"	"Croc-o-Style Kit"
@@ -667,6 +671,10 @@
 	"CritCola_Release"
 	{
 		"en"	"Reverted to release, damage taken mini-crits, buff lasts 6 seconds"
+	}
+	"CrusadersCrossbow_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, ubercharge gain rate no longer reduced like the medigun is"
 	}
 	"CrocoStyle_Release"
 	{

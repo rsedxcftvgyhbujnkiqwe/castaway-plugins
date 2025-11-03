@@ -20,7 +20,7 @@
 #undef MEMORY_PATCHES
 #endif
 
-//#define WIN32
+#define WIN32
 /*
  ^ ^ ^ ^ ^ ^ ^ ^ ^
 	Additionally, you will need to select your compile OS.
@@ -292,6 +292,7 @@ MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
+MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
@@ -411,6 +412,7 @@ enum
 	Wep_CleanerCarbine,
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
+	Wep_Crossbow,
 	Wep_Dalokohs,
 #endif
 	Wep_Darwin,
@@ -572,6 +574,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
+	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
@@ -835,6 +838,9 @@ public void OnPluginStart() {
 		patch_RevertCozyCamper_FlinchNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition");
+		patch_RevertCrusaderCrossbow_UbergainNerf =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
 		patch_RevertQuickFix_Uber_CannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
@@ -893,6 +899,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
 		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) SetFailState("Failed to create patch_RevertCozyCamper_FlinchNerf");
+		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) SetFailState("Failed to create patch_RevertCrusaderCrossbow_UbergainNerf");
 		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
 		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) SetFailState("Failed to create patch_RevertMadMilk_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
@@ -1002,6 +1009,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
@@ -1094,6 +1102,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertCozyCamper_FlinchNerf.Enable();
 			} else {
 				patch_RevertCozyCamper_FlinchNerf.Disable();
+			}
+		}
+		case Wep_Crossbow: {
+			if (enable) {
+				patch_RevertCrusaderCrossbow_UbergainNerf.Enable();
+			} else {
+				patch_RevertCrusaderCrossbow_UbergainNerf.Disable();
 			}
 		}
 		case Wep_QuickFix: {
@@ -3429,6 +3444,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 354: player_weapons[client][Wep_Concheror] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
+#if defined MEMORY_PATCHES
+						case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
+#endif
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
