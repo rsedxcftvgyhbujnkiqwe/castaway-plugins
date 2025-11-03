@@ -674,7 +674,7 @@
 	}
 	"CrusadersCrossbow_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, ubercharge gain rate per bolt is now like it was before jungle inferno"
+		"en"	"Reverted to pre-inferno, ubercharge gain rate per bolt is now like it was before jungle inferno when patient has recently been in combat"
 	}
 	"CrocoStyle_Release"
 	{
