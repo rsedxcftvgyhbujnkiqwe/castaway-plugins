@@ -614,7 +614,7 @@ public void OnPluginStart() {
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
-	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
+	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Gunboats);
 #if defined MEMORY_PATCHES
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
@@ -3362,7 +3362,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
 
-					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+					if (
+						StrEqual(class, "tf_weapon_sniperrifle") &&
+						!(StrEqual(class, "tf_weapon_compound_bow"))
+					) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
