@@ -578,7 +578,7 @@
 	}
 	"Beggars_Pre2013"
 	{
-		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta"
+		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta, ei voi lainkaan saada ammuksia apulaitteista"
 	}
 	"Beggars_PreTB"
 	{

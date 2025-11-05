@@ -154,6 +154,26 @@ enum
 	EUREKA_NUM_TARGETS
 };
 
+enum
+{
+	kAmmoSource_Pickup,					// this came from either a box of ammo or a player's dropped weapon
+	kAmmoSource_Resupply,				// resupply cabinet and/or full respawn
+	kAmmoSource_DispenserOrCart,		// the player is standing next to an engineer's dispenser or pushing the cart in a payload game
+	kAmmoSource_ResourceMeter			// it regenerated after a cooldown
+};
+
+enum
+{
+	TF_AMMO_DUMMY = 0,	// Dummy index to make the CAmmoDef indices correct for the other ammo types.
+	TF_AMMO_PRIMARY,
+	TF_AMMO_SECONDARY,
+	TF_AMMO_METAL,
+	TF_AMMO_GRENADES1,
+	TF_AMMO_GRENADES2,
+	TF_AMMO_GRENADES3,	// Utility Slot Grenades
+	TF_AMMO_COUNT,
+};
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -223,6 +243,7 @@ enum struct Player {
 	bool was_jump_key_pressed;
 	bool blast_jump_sound_loop;
 	int bunnyhop_frame;
+	int ammo_heal_amount;
 }
 
 enum struct Entity {
@@ -321,7 +342,6 @@ DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
-DynamicHook dhook_CObjectDispenser_DispenseAmmo;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
@@ -330,6 +350,7 @@ DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
+DynamicDetour dhook_CTFPlayer_GiveAmmo;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -599,7 +620,7 @@ public void OnPluginStart() {
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
-	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER, Wep_Gunboats);
+	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Gunboats);
 #if defined MEMORY_PATCHES
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
@@ -779,7 +800,6 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
-		dhook_CObjectDispenser_DispenseAmmo = DynamicHook.FromConf(conf, "CObjectDispenser::DispenseAmmo");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
@@ -788,6 +808,7 @@ public void OnPluginStart() {
 		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
+		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 
 		delete conf;
 	}
@@ -934,8 +955,8 @@ public void OnPluginStart() {
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CObjectDispenser_DispenseAmmo == null) SetFailState("Failed to create dhook_CObjectDispenser_DispenseAmmo");
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
+	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -944,6 +965,7 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
+	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1142,6 +1164,7 @@ public void OnMapStart() {
 	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
+	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 }
 
 public void OnGameFrame() {
@@ -1437,7 +1460,7 @@ public void OnGameFrame() {
 								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 730
 							) {
 								clip = GetEntProp(weapon, Prop_Send, "m_iClip1");
-								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, 1);
+								ammo = GetEntProp(idx, Prop_Send, "m_iAmmo", 4, TF_AMMO_PRIMARY);
 
 								if (
 									GetItemVariant(Wep_Beggars) == 0 &&
@@ -1449,7 +1472,7 @@ public void OnGameFrame() {
 								) {
 									clip = (clip + 1);
 									SetEntProp(weapon, Prop_Send, "m_iClip1", clip);
-									SetEntProp(idx, Prop_Send, "m_iAmmo", (ammo - 1), 4, 1);
+									SetEntProp(idx, Prop_Send, "m_iAmmo", (ammo - 1), 4, TF_AMMO_PRIMARY);
 								}
 
 								players[idx].beggars_ammo = clip;
@@ -1515,6 +1538,27 @@ public void OnGameFrame() {
 							}
 						}
 					}
+				}
+
+				if (TF2_GetPlayerClass(idx) == TFClass_DemoMan) {
+					{
+						if (
+							ItemIsEnabled(Wep_Persian) &&
+							players[idx].ammo_heal_amount > 0
+						) {
+							// Fire heal event for persuader
+							Event event = CreateEvent("player_healonhit", true);
+							event.SetInt("amount", players[idx].ammo_heal_amount);
+							event.SetInt("entindex", idx);
+							event.Fire();
+
+							// Reset variable
+							players[idx].ammo_heal_amount = 0;
+						}
+					}
+				} else {
+					// reset if player isn't demoman
+					players[idx].ammo_heal_amount = 0;
 				}
 
 #if !defined MEMORY_PATCHES
@@ -1791,6 +1835,7 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].cloak_gain_capped = false;
+				players[idx].ammo_heal_amount = 0;
 			}
 		}
 	}
@@ -1942,10 +1987,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
-	}
-
-	if (StrEqual(class, "obj_dispenser")) {
-		dhook_CObjectDispenser_DispenseAmmo.HookEntity(Hook_Pre, entity, DHookCallback_CObjectDispenser_DispenseAmmo);
 	}
 
 	if (StrEqual(class, "obj_sentrygun")) {
@@ -2818,7 +2859,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 77, 1.00); // -0% max primary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 1, 79, 1.00); // -0% max secondary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 2, 249, 2.00); // +100% increase in charge recharge rate
-			TF2Items_SetAttribute(itemNew, 3, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using three DHooks instead)
+			TF2Items_SetAttribute(itemNew, 3, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using a DHook instead)
 			TF2Items_SetAttribute(itemNew, 4, 778, 0.00); // Melee hits refill 0% of your charge meter
 			TF2Items_SetAttribute(itemNew, 5, 782, 0.0); // Ammo boxes collected also (don't) give Charge
 			if (swords) {
@@ -3344,7 +3385,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
 
-					else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+					if (
+						StrEqual(class, "tf_weapon_sniperrifle") &&
+						!(StrEqual(class, "tf_weapon_compound_bow"))
+					) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
@@ -4070,15 +4114,15 @@ Action SDKHookCB_OnTakeDamage(
 	int health_max;
 	int weapon1;
 
-	bool resist_damage = false;
-	if (weapon > 0) {
-		// Don't resist if weapon pierces resists (vanilla Enforcer)
-		if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-			resist_damage = true;
-		}
-	} else {
-		resist_damage = true;
-	}
+	// bool resist_damage = false;
+	// if (weapon > 0) {
+	// 	// Don't resist if weapon pierces resists (vanilla Enforcer)
+	// 	if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
+	// 		resist_damage = true;
+	// 	}
+	// } else {
+	// 	resist_damage = true;
+	// }
 
 	if (
 		victim >= 1 &&
@@ -4210,47 +4254,6 @@ Action SDKHookCB_OnTakeDamage(
 					damage = damage1;
 
 				return Plugin_Changed;
-			}
-		}
-
-		{
-			// spunup resistance regardless of health
-
-			if (
-				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				resist_damage
-			) {
-				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
-
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_minigun")) {
-
-						if (
-							ItemIsEnabled(Wep_BrassBeast) &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
-							GetItemVariant(Wep_Natascha) == 0 &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
-						) {
-							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
-							if (
-								spunup_resist > 0.0 &&
-								spunup_resist != 1.0
-							) {
-								// play damage resist sound
-								EmitGameSoundToAll("Player.ResistanceLight", victim);
-
-								// increase crit vuln here for proper resist on crits and minicrits
-								// (multiplicative inverse of spunup resist value)
-								TF2Attrib_SetByDefIndex(weapon1, 63, 1.0 / spunup_resist); // mult_dmgtaken_from_crit
-								TF2Attrib_SetByDefIndex(weapon1, 852, spunup_resist); // mult_dmgtaken_active
-								TF2Attrib_SetByDefIndex(weapon1, 738, 1.0); // spunup_damage_resistance
-							}
-						}
-					}
-				}
 			}
 		}
 	}
@@ -4933,6 +4936,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 ) {
 	Action returnValue = Plugin_Continue;
 	char class[64];
+	int weapon1;
+	int health_cur;
+	int health_max;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -4976,6 +4982,51 @@ Action SDKHookCB_OnTakeDamageAlive(
 				) {
 					damage *= 0.75;
 					returnValue = Plugin_Changed;
+				}
+			}
+		}
+		{
+			// spunup resistance regardless of health
+
+			if (
+				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
+				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
+				resist_damage
+			) {
+				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
+
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_minigun")) {
+
+						if (
+							ItemIsEnabled(Wep_BrassBeast) &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
+							GetItemVariant(Wep_Natascha) == 0 &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
+						) {
+							health_cur = GetClientHealth(victim);
+							health_max = SDKCall(sdkcall_GetMaxHealth, victim);
+							
+							// apply resistance only when above 50% of max health
+							if ((float(health_cur) - damage) / health_max > 0.5) {
+								float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
+								if (
+									spunup_resist > 0.0 &&
+									spunup_resist != 1.0
+								) {
+									// play damage resist sound
+									EmitGameSoundToAll("Player.ResistanceLight", victim);
+
+									// increase crit vuln here for proper resist on crits and minicrits
+									// (multiplicative inverse of spunup resist value)
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1 / spunup_resist, 0.001);
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", spunup_resist, 0.001);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -5091,32 +5142,6 @@ void SDKHookCB_OnTakeDamagePost(
 				TF2_GetPlayerClass(victim) == TFClass_Spy
 			) {
 				players[victim].damage_taken_during_feign += damage;
-			}
-		}
-		{
-			// spunup resistance regardless of health
-
-			if (TF2_GetPlayerClass(victim) == TFClass_Heavy) {
-				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
-
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_minigun")) {
-
-						if (
-							ItemIsEnabled(Wep_BrassBeast) &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
-							GetItemVariant(Wep_Natascha) == 0 &&
-							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
-						) {
-							// remove temp attribs
-							TF2Attrib_RemoveByDefIndex(weapon1, 63);
-							TF2Attrib_RemoveByDefIndex(weapon1, 738);
-							TF2Attrib_RemoveByDefIndex(weapon1, 852);
-						}
-					}
-				}
 			}
 		}
 	}
@@ -6065,7 +6090,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
 			SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
 
-			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
 
 			if (metal >= BALANCE_CIRCUIT_METAL) {
 				for (idx = 1; idx <= MaxClients; idx++) {
@@ -6128,10 +6153,10 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 	float limit;
 	int metal;
 
-	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
 
 	if (base_amount) {
-		SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - base_amount), 4, 3);
+		SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - base_amount), 4, TF_AMMO_METAL);
 	}
 
 	GetClientEyePosition(owner, player_pos);
@@ -6199,9 +6224,9 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 									// delete projectiles
 									if (amount_per_destroyed)
 									{
-										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, 3);
+										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
 										if (metal < (base_amount + amount_per_destroyed)) break;
-										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - amount_per_destroyed), 4, 3);
+										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - amount_per_destroyed), 4, TF_AMMO_METAL);
 									}
 
 									// show particle effect
@@ -6391,13 +6416,6 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnVal
 	return MRES_Ignored;
 }
 
-float PersuaderPackRatios[] =
-{
-	0.25,	// SMALL
-	0.5,	// MEDIUM
-	1.0,	// FULL
-};
-
 MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	int client = parameters.Get(1);
@@ -6406,35 +6424,6 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		client <= MaxClients
 	) {
 		int pack_size = SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity);
-		if (
-			ItemIsEnabled(Wep_Persian) &&
-			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
-		) {
-			// Health pickup with the Persian Persuader.
-			returnValue.Value = false;
-			int health = GetClientHealth(client);
-			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-			if (health < health_max)
-			{
-				// Get amount to heal.
-				int heal = RoundFloat(40 * PersuaderPackRatios[pack_size]);
-
-				// Add health and show that the player got healed.
-				Event event = CreateEvent("player_healonhit", true);
-				event.SetInt("amount", TF2Util_TakeHealth(client, float(heal)));
-				event.SetInt("entindex", client);
-				event.Fire();
-
-				// remove afterburn and bleed debuffs on heal
-				TF2_RemoveCondition(client, TFCond_OnFire);
-				TF2_RemoveCondition(client, TFCond_Bleeding);
-
-				// Play pickup sound
-				EmitSoundToAll("items/gunpickup2.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
-				returnValue.Value = true;
-			}
-			return MRES_Supercede;
-		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
 			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
@@ -6464,34 +6453,6 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 		client > 0 &&
 		client <= MaxClients
 	) {
-		if (
-			ItemIsEnabled(Wep_Persian) &&
-			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
-		) {
-			// Health pickup with the Persian Persuader from dropped ammo packs.
-			int health = GetClientHealth(client);
-			int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-			if (health < health_max)
-			{
-				// Add health and show that the player got healed.
-				Event event = CreateEvent("player_healonhit", true);
-				event.SetInt("amount", TF2Util_TakeHealth(client, 20.0));
-				event.SetInt("entindex", client);
-				event.Fire();
-
-				// remove afterburn and bleed debuffs on heal
-				TF2_RemoveCondition(client, TFCond_OnFire);
-				TF2_RemoveCondition(client, TFCond_Bleeding);
-
-				// Play pickup sound
-				// If you're wondering why EmitSoundToAll below is repeated in a different channel,
-				// it's so it sounds louder to be like the actual in-game sound and because I can't increase the volume beyond 1.0 for some reason.
-				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // If ammo_pickup sound doesn't play, this should make it play.
-				EmitSoundToAll("items/ammo_pickup.wav", entity, SNDCHAN_BODY, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL); // and I am forced to do this to make it louder. I tried. Why?
-				RemoveEntity(entity);
-			}
-			return MRES_Supercede;
-		}
 		if (
 			GetItemVariant(Wep_DeadRinger) == 0 &&
 			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
@@ -6709,24 +6670,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
     return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectDispenser_DispenseAmmo(int entity, DHookReturn returnValue, DHookParam parameters) {
-	int client = parameters.Get(1);
-	if (
-		client > 0 &&
-		client <= MaxClients
-	) {
-		if (
-			ItemIsEnabled(Wep_Persian) &&
-			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
-		) {
-			// Prevent ammo pick-up from Dispensers with Persian Persuader equipped.
-			returnValue.Value = false;
-			return MRES_Supercede;
-		}
-	}
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Fake the sentry being unshielded to allow for full repair.
 	if (
@@ -6752,7 +6695,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 			client > 0 &&
 			client <= MaxClients
 		) {
-			int metal = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 3);
+			int metal = GetEntProp(client, Prop_Send, "m_iAmmo", 4, TF_AMMO_METAL);
 			int sentry_ammo = GetEntProp(entity, Prop_Send, "m_iAmmoShells");
 			int sentry_max_ammo = SENTRYGUN_MAX_SHELLS_1;
 
@@ -6766,7 +6709,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 				amount_to_add_float = floatMin(float(sentry_max_ammo - sentry_ammo), amount_to_add_float);
 
 				int amount_to_add = RoundToNearest(amount_to_add_float);
-				SetEntProp(client, Prop_Send, "m_iAmmo", intMax(metal - amount_to_add, 0), 4, 3);
+				SetEntProp(client, Prop_Send, "m_iAmmo", intMax(metal - amount_to_add, 0), 4, TF_AMMO_METAL);
 				SetEntProp(entity, Prop_Send, "m_iAmmoShells", sentry_ammo + amount_to_add);
 
 				if (amount_to_add > 0) {
@@ -6871,6 +6814,65 @@ MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn retu
 }
 
 #endif
+
+MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue, DHookParam parameters) {
+	if (
+		client > 0 &&
+		client <= MaxClients
+	) {
+		int amount = parameters.Get(1);
+		int ammo_idx = parameters.Get(2);
+		bool suppress_sound = parameters.Get(3);
+		int ammo_source = parameters.Get(4);
+
+		if (
+			GetItemVariant(Wep_Beggars) == 0 &&
+			player_weapons[client][Wep_Beggars] &&
+			ammo_idx == TF_AMMO_PRIMARY &&
+			ammo_source == kAmmoSource_DispenserOrCart
+		) {
+			// Prevent primary ammo gain from dispensers for release Beggar's Bazooka
+			returnValue.Value = 0;
+			return MRES_Supercede;
+		}
+
+		if (
+			ItemIsEnabled(Wep_Persian) &&
+			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1 &&
+			ammo_idx != TF_AMMO_METAL
+		) {
+			// Ammo from ground pickups is converted to health.
+			if (ammo_source == kAmmoSource_Pickup) {
+				int iTakenHealth = TF2Util_TakeHealth(client, float(amount));
+				if (iTakenHealth > 0)
+				{
+					if (!suppress_sound)
+					{
+						EmitGameSoundToAll("BaseCombatCharacter.AmmoPickup", client);
+					}
+
+					// Accumulate heal amount for the heal event to be fired later.
+					// Fixes the messy visuals that were present on the pre-TB persuader
+					players[client].ammo_heal_amount += iTakenHealth;
+
+					// remove afterburn and bleed debuffs on heal
+					TF2_RemoveCondition(client, TFCond_OnFire);
+					TF2_RemoveCondition(client, TFCond_Bleeding);
+				}
+				returnValue.Value = iTakenHealth;
+				return MRES_Supercede;
+			}
+
+			// Ammo from the cart or engineer dispensers is flatly ignored.
+			if (ammo_source == kAmmoSource_DispenserOrCart) {
+				returnValue.Value = 0;
+				return MRES_Supercede;
+			}
+		}
+	}
+
+	return MRES_Ignored;
+}
 
 float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;

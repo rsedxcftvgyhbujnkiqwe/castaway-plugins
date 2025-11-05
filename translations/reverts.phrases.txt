@@ -578,7 +578,7 @@
 	}
 	"Beggars_Pre2013"
 	{
-		"en"	"Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip"
+		"en"	"Reverted to pre-2013, no radius penalty, misfires don't remove ammo clip, cannot gain ammo from dispensers at all"
 	}
 	"Beggars_PreTB"
 	{
