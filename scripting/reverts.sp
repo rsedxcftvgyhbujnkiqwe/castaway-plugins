@@ -209,7 +209,6 @@ enum struct Player {
 	bool spy_is_feigning;
 	int ammo_grab_frame;
 	int bonk_cond_frame;
-	int bison_hit_frame;
 	int beggars_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
@@ -260,22 +259,21 @@ ConVar cvar_dropped_weapon_enable;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_ref_tf_airblast_cray;
-ConVar cvar_ref_tf_bison_tick_time;
+ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
 ConVar cvar_ref_tf_feign_death_damage_scale;
 ConVar cvar_ref_tf_feign_death_duration;
 ConVar cvar_ref_tf_feign_death_speed_duration;
 ConVar cvar_ref_tf_fireball_radius;
+ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
-ConVar cvar_ref_tf_gamemode_mvm;
-ConVar cvar_ref_tf_weapon_criticals;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
-ConVar cvar_ref_tf_damage_disablespread;
+ConVar cvar_ref_tf_weapon_criticals;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -716,22 +714,21 @@ public void OnPluginStart() {
 	hudsync = CreateHudSynchronizer();
 
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
-	cvar_ref_tf_bison_tick_time = FindConVar("tf_bison_tick_time");
+	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
 	cvar_ref_tf_feign_death_damage_scale = FindConVar("tf_feign_death_damage_scale");
 	cvar_ref_tf_feign_death_duration = FindConVar("tf_feign_death_duration");
 	cvar_ref_tf_feign_death_speed_duration = FindConVar("tf_feign_death_speed_duration");
 	cvar_ref_tf_fireball_radius = FindConVar("tf_fireball_radius");
+	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
-	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
-	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
-	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
+	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1865,7 +1862,6 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
-			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
@@ -4705,41 +4701,8 @@ Action SDKHookCB_OnTakeDamage(
 							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 						) {
-							if (
-								(players[victim].bison_hit_frame + 0) == GetGameTickCount() ||
-								(players[victim].bison_hit_frame + 1) == GetGameTickCount()
-							) {
-								// don't allow bison to hit more than once every other frame
-								return Plugin_Stop;
-							}
-
-							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							pos2[2] += PLAYER_CENTER_HEIGHT;
-
-							TR_TraceRayFilter(pos1, pos2, MASK_SOLID, RayType_EndPoint, TraceFilter_ExcludePlayers);
-
-							if (TR_DidHit()) {
-								// there's a wall between the projectile and the target, cancel the hit
-								return Plugin_Stop;
-							}
-
 							bool should_penetrate = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0;
 							
-							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
-							if (should_penetrate) {
-								pos1[2] = 0.0;
-								pos2[2] = 0.0;
-
-								if (GetVectorDistance(pos1, pos2) > 55.0) {
-									// target is too far from the projectile, cancel the hit
-									return Plugin_Stop;
-								}
-
-								players[victim].bison_hit_frame = GetGameTickCount();
-							}
-
 							// cloak/uber drain is done in OnTakeDamagePost
 
 							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
@@ -4748,19 +4711,17 @@ Action SDKHookCB_OnTakeDamage(
 								(GetItemVariant(Wep_Pomson) == 2 && !should_penetrate)
 							) {
 								// Do not use internal rampup/falloff.
-								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
+								damage_type &= ~DMG_USEDISTANCEMOD;
 								
 								// Deal damage with 125% rampup, 75% falloff.
 								float base_dmg = should_penetrate ? 16.00 : 48.00;
 								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
-							// Remove bullet damage flag so it's untyped damage
-							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
-							// Enable sonic damage flag so the Fists of Steel ranged resistance works correctly
-							if (damage_type & DMG_SONIC == 0) damage_type |= DMG_SONIC;
-							// Restore knockback
-							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
+							// Remove bullet damage type (untyped damage) and restore knockback
+							damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
+							// Enable sonic damage type so Fists of Steel ranged resist still works
+							damage_type |= DMG_SONIC;
 
 							return Plugin_Changed;
 						}
@@ -5336,9 +5297,9 @@ void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 // 	return (entity != data);
 // }
 
-bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
-	return (entity < 1 || entity > MaxClients);
-}
+// bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
+// 	return (entity < 1 || entity > MaxClients);
+// }
 
 bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	char class[64];
