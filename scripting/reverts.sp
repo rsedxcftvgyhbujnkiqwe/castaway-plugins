@@ -1136,9 +1136,12 @@ public void OnMapStart() {
 	PrecacheSound("items/ammo_pickup.wav");
 	PrecacheSound("items/gunpickup2.wav");
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
-	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
+	PrecacheParticleSystem("doublejump_puff_alt");
+	PrecacheParticleSystem("dxhr_arm_muzzleflash");
+	PrecacheParticleSystem("peejar_impact_small");
 }
 
 public void OnGameFrame() {
@@ -5334,132 +5337,6 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	return true;
 }
 
-int GetFeignBuffsEnd(int client)
-{
-	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
-	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
-}
-
-bool PlayerIsInvulnerable(int client) {
-	return (
-		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
-		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
-		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
-	);
-}
-
-/*
-TFCond critboosts[] =
-{
-	TFCond_Kritzkrieged,
-	TFCond_HalloweenCritCandy,
-	TFCond_CritCanteen,
-	TFCond_CritOnFirstBlood,
-	TFCond_CritOnWin,
-	TFCond_CritOnFlagCapture,
-	TFCond_CritOnKill,
-	TFCond_CritMmmph,
-	TFCond_CritOnDamage,
-	TFCond_CritRuneTemp
-};
-
-bool PlayerIsCritboosted(int client) {
-	for (int i = 0; i < sizeof(critboosts); ++i)
-	{
-		if (TF2_IsPlayerInCondition(client, critboosts[i]))
-			return true;
-	}
-
-	return false;
-}
-*/
-
-float ValveRemapVal(float val, float a, float b, float c, float d) {
-	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
-
-	float tmp;
-
-	if (a == b) {
-		return (val >= b ? d : c);
-	}
-
-	tmp = ((val - a) / (b - a));
-
-	if (tmp < 0.0) tmp = 0.0;
-	if (tmp > 1.0) tmp = 1.0;
-
-	return (c + ((d - c) * tmp));
-}
-
-void ParticleShowSimple(const char[] name, float position[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
-
-	if (particle >= 0) {
-		TE_Start("TFParticleEffect");
-		TE_WriteFloat("m_vecOrigin[0]", position[0]);
-		TE_WriteFloat("m_vecOrigin[1]", position[1]);
-		TE_WriteFloat("m_vecOrigin[2]", position[2]);
-		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(position, RangeType_Visibility, 0.0);
-	}
-}
-
-void ParticleShow(char[] name, float origin[3], float start[3], float angles[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
-
-	if (particle >= 0) {
-		TE_Start("TFParticleEffect");
-		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
-		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
-		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
-		TE_WriteFloat("m_vecStart[0]", start[0]);
-		TE_WriteFloat("m_vecStart[1]", start[1]);
-		TE_WriteFloat("m_vecStart[2]", start[2]);
-		TE_WriteVector("m_vecAngles", angles);
-		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
-	}
-}
-
 /**
  * Define an item used for reverts.
  * 
@@ -5775,79 +5652,6 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 	return RepairAmount;
 }
 
-int GetEntityOwner(int entityIndex)
-{
-	if (!IsValidEntity(entityIndex))
-		return -1; // Invalid entity
-
-	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-
-	if (!IsFakeClient(owner) || IsFakeClient(owner))
-		return owner; // Returns the player (or bot) index of the owner
-
-	return -1; // Owner not found
-}
-
-bool AreEntitiesOnSameTeam(int entity1, int entity2)
-{
-	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
-		return false;
-
-	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
-	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
-
-	return (team1 == team2);
-}
-
-bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
-{
-	if (!IsValidEntity(buildingIndex))
-		return false;
-
-	char classname[64];
-	GetEntityClassname(buildingIndex, classname, sizeof(classname));
-
-	if (
-		!StrEqual(classname, "obj_sentrygun", false) &&
-		!StrEqual(classname, "obj_teleporter", false) &&
-		!StrEqual(classname, "obj_dispenser", false)
-	) {
-		//PrintToChatAll("Entity did not match buildings");
-		return false;
-	}
-
-	if (
-		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
-	) {
-		//PrintToChatAll("Big if statement about sappers etc triggered");
-		return false;
-	}
-
-	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
-		//PrintToChatAll("Entities were not on the same team");
-		return false;
-	}
-
-	return true;
-}
-
-void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
-{
-	if (!IsValidEntity(entityIndex))
-	return;
-
-	TE_Start("TFParticleEffect");
-
-	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
-	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
-	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
-
-	TE_SendToAll();
-}
-
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -5859,48 +5663,6 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
 
 	return true;
-}
-
-// Get the sentry of a specific engineer
-// WARNING: Do not use in MVM!
-int FindSentryGunOwnedByClient(int client)
-{
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
-		return -1;
-
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (owner == client)
-			return ent;
-	}
-
-	return -1;
-}
-
-// Get the built (construction finished) teleporter exit of a specific engineer
-int FindBuiltTeleporterExitOwnedByClient(int client)
-{
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (
-			owner == client &&
-			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
-			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
-		)
-			return ent;
-	}
-
-	return -1;
 }
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
@@ -6746,7 +6508,7 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 	return MRES_Ignored;
 }
 
-float CalcViewsOffset(float angle1[3], float angle2[3]) {
+stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
 
@@ -6758,8 +6520,289 @@ float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	return SquareRoot(Pow(v1, 2.0) + Pow(v2, 2.0));
 }
 
-float FixViewAngleY(float angle) {
+stock float FixViewAngleY(float angle) {
 	return (angle > 180.0 ? (angle - 360.0) : angle);
+}
+
+stock int GetFeignBuffsEnd(int client)
+{
+	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
+	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
+}
+
+stock bool PlayerIsInvulnerable(int client) {
+	return (
+		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
+		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
+		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
+	);
+}
+
+
+TFCond critboosts[] =
+{
+	TFCond_Kritzkrieged,
+	TFCond_HalloweenCritCandy,
+	TFCond_CritCanteen,
+	TFCond_CritOnFirstBlood,
+	TFCond_CritOnWin,
+	TFCond_CritOnFlagCapture,
+	TFCond_CritOnKill,
+	TFCond_CritMmmph,
+	TFCond_CritOnDamage,
+	TFCond_CritRuneTemp
+};
+
+stock bool PlayerIsCritboosted(int client) {
+	for (int i = 0; i < sizeof(critboosts); ++i)
+	{
+		if (TF2_IsPlayerInCondition(client, critboosts[i]))
+			return true;
+	}
+
+	return false;
+}
+
+
+stock float ValveRemapVal(float val, float a, float b, float c, float d) {
+	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
+
+	float tmp;
+
+	if (a == b) {
+		return (val >= b ? d : c);
+	}
+
+	tmp = ((val - a) / (b - a));
+
+	if (tmp < 0.0) tmp = 0.0;
+	if (tmp > 1.0) tmp = 1.0;
+
+	return (c + ((d - c) * tmp));
+}
+
+stock void ParticleShowSimple(const char[] name, float position[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", position[0]);
+		TE_WriteFloat("m_vecOrigin[1]", position[1]);
+		TE_WriteFloat("m_vecOrigin[2]", position[2]);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(position, RangeType_Visibility, 0.0);
+	}
+}
+
+stock void ParticleShow(const char[] name, float origin[3], float start[3], float angles[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
+		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
+		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
+		TE_WriteFloat("m_vecStart[0]", start[0]);
+		TE_WriteFloat("m_vecStart[1]", start[1]);
+		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteVector("m_vecAngles", angles);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+	}
+}
+
+stock int PrecacheParticleSystem(const char[] particleSystem)
+{
+    static int particleEffectNames = INVALID_STRING_TABLE;
+
+    if (particleEffectNames == INVALID_STRING_TABLE) {
+        if ((particleEffectNames = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
+            return INVALID_STRING_INDEX;
+        }
+    }
+
+    int index = FindStringIndex2(particleEffectNames, particleSystem);
+    if (index == INVALID_STRING_INDEX) {
+        int numStrings = GetStringTableNumStrings(particleEffectNames);
+        if (numStrings >= GetStringTableMaxStrings(particleEffectNames)) {
+            return INVALID_STRING_INDEX;
+        }
+        
+        AddToStringTable(particleEffectNames, particleSystem);
+        index = numStrings;
+    }
+    
+    return index;
+}
+
+stock int FindStringIndex2(int tableidx, const char[] str)
+{
+    char buf[1024];
+    
+    int numStrings = GetStringTableNumStrings(tableidx);
+    for (int i=0; i < numStrings; i++) {
+        ReadStringTable(tableidx, i, buf, sizeof(buf));
+        
+        if (StrEqual(buf, str)) {
+            return i;
+        }
+    }
+    
+    return INVALID_STRING_INDEX;
+}
+
+stock int GetEntityOwner(int entityIndex)
+{
+	if (!IsValidEntity(entityIndex))
+		return -1; // Invalid entity
+
+	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+
+	if (!IsFakeClient(owner) || IsFakeClient(owner))
+		return owner; // Returns the player (or bot) index of the owner
+
+	return -1; // Owner not found
+}
+
+stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
+{
+	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
+		return false;
+
+	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
+	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
+
+	return (team1 == team2);
+}
+
+stock bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
+{
+	if (!IsValidEntity(buildingIndex))
+		return false;
+
+	char classname[64];
+	GetEntityClassname(buildingIndex, classname, sizeof(classname));
+
+	if (
+		!StrEqual(classname, "obj_sentrygun", false) &&
+		!StrEqual(classname, "obj_teleporter", false) &&
+		!StrEqual(classname, "obj_dispenser", false)
+	) {
+		//PrintToChatAll("Entity did not match buildings");
+		return false;
+	}
+
+	if (
+		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
+	) {
+		//PrintToChatAll("Big if statement about sappers etc triggered");
+		return false;
+	}
+
+	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
+		//PrintToChatAll("Entities were not on the same team");
+		return false;
+	}
+
+	return true;
+}
+
+stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
+{
+	if (!IsValidEntity(entityIndex))
+	return;
+
+	TE_Start("TFParticleEffect");
+
+	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
+	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
+	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
+
+	TE_SendToAll();
+}
+
+// Get the sentry of a specific engineer
+// WARNING: Do not use in MVM!
+stock int FindSentryGunOwnedByClient(int client)
+{
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return -1;
+
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (owner == client)
+			return ent;
+	}
+
+	return -1;
+}
+
+// Get the built (construction finished) teleporter exit of a specific engineer
+stock int FindBuiltTeleporterExitOwnedByClient(int client)
+{
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (
+			owner == client &&
+			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
+			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
+		)
+			return ent;
+	}
+
+	return -1;
 }
 
 /** 
@@ -6768,7 +6811,7 @@ float FixViewAngleY(float angle) {
  * @param x		Integer.
  * @retrun		Absolute value of x.
  */
-int abs(int x)
+stock int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
@@ -6781,7 +6824,7 @@ int abs(int x)
  * @param y		Integer y.
  * @return		The lesser integer between x and y.
  */
-int intMin(int x, int y)
+stock int intMin(int x, int y)
 {
 	return x > y ? y : x;
 }
@@ -6793,7 +6836,7 @@ int intMin(int x, int y)
  * @param y		Integer y.
  * @return		The greater integer between x and y.
  */
-int intMax(int x, int y)
+stock int intMax(int x, int y)
 {
 	return x > y ? x : y;
 }
@@ -6805,7 +6848,7 @@ int intMax(int x, int y)
  * @param y		Float y.
  * @return		The lesser float between x and y.
  */
-float floatMin(float x, float y)
+stock float floatMin(float x, float y)
 {
 	return x > y ? y : x;
 }
@@ -6817,7 +6860,7 @@ float floatMin(float x, float y)
  * @param y		Float y.
  * @return		The greater float between x and y.
  */
-float floatMax(float x, float y)
+stock float floatMax(float x, float y)
 {
     return x > y ? x : y;
 }
