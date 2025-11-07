@@ -271,6 +271,7 @@ ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
+ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
@@ -726,6 +727,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+	cvar_ref_tf_stealth_damage_reduction = FindConVar("tf_stealth_damage_reduction");
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
@@ -1863,6 +1865,7 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
@@ -4121,32 +4124,38 @@ Action SDKHookCB_OnTakeDamage(
 				if (weapon1 > 0) {
 					GetEntityClassname(weapon1, class, sizeof(class));
 
-					if (
-						StrEqual(class, "tf_weapon_invis") &&
-						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
-					) {
-						switch (GetItemVariant(Wep_DeadRinger)) {
-							case 0, 3: {
-								// "Old-Style" Dead Ringer Stats
-								cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
-								cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
-								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-								cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+					if (StrEqual(class, "tf_weapon_invis")) {
+
+						if (GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59) {
+
+							switch (GetItemVariant(Wep_DeadRinger)) {
+								case 0, 3: {
+									// "Old-Style" Dead Ringer Stats
+									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
+								}
+								case 2: {
+									// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+									cvar_ref_tf_feign_death_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
+									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+								}
+								case -1, 1: {
+									// Pre-Inferno and Vanilla Dead Ringer Stat reset
+									cvar_ref_tf_feign_death_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+								}
 							}
-							case 2: {
-								// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-								cvar_ref_tf_feign_death_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-							}
-							case -1, 1: {
-								// Pre-Inferno and Vanilla Dead Ringer Stat reset
-								cvar_ref_tf_feign_death_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-							}
+						} else {
+							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 						}
 					}
 				}
@@ -4900,7 +4909,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_GetPlayerClass(victim) == TFClass_Spy &&
 				resist_damage
 			) {
-				damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
+				damage *= 0.10;
 				returnValue = Plugin_Changed;
 			}
 		}
