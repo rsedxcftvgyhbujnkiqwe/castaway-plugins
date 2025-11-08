@@ -3326,8 +3326,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							players[attacker].headshot_frame <= GetGameTickCount() + 66 &&
 							players[attacker].is_rapid_headshot_ambassador
 						)
-					)
-						
+					)	
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
@@ -4099,15 +4098,16 @@ Action SDKHookCB_TraceAttack(
 		// for ambassador no headshot cooldown variants
 		if (
 			GetItemVariant(Wep_Ambassador) != 0 &&
+			TF2_GetPlayerClass(attacker) == TFClass_Spy &&
 			hitgroup == 1 &&
 			(damage_type & DMG_USE_HITLOCATIONS) == 0 && 
 			player_weapons[attacker][Wep_Ambassador]
 		) {
 			players[attacker].is_rapid_headshot_ambassador = true;
-			PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
+				PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
 		} else if (GetItemVariant(Wep_Ambassador) != 0) {
 			players[attacker].is_rapid_headshot_ambassador = false;
-			PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
+				PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
 		}
 	}
 
@@ -4360,84 +4360,59 @@ Action SDKHookCB_OnTakeDamage(
 				// ambassador headshot crits
 
 				if (
-					(GetItemVariant(Wep_Ambassador) == 0 || GetItemVariant(Wep_Ambassador) == 1) &&
-					StrEqual(class, "tf_weapon_revolver") &&
-					(
+					StrEqual(class, "tf_weapon_revolver") &&				
+					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006)
+				) {
+					// Always deal full crits at any range
+					if (
+						(GetItemVariant(Wep_Ambassador) == 0 || GetItemVariant(Wep_Ambassador) == 1) &&
 						(players[attacker].headshot_frame == GetGameTickCount())
-					) &&
-					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
-					)
-				) {
-					damage_type = (damage_type | DMG_CRIT);
-					return Plugin_Changed;
-				}
-
-				// no cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
-
-				if (
-					GetItemVariant(Wep_Ambassador) != 0 &&
-					players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
-					players[attacker].is_rapid_headshot_ambassador &&
-					StrEqual(class, "tf_weapon_revolver") &&
-					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
-					)
-				) {
-					if (GetItemVariant(Wep_Ambassador) == 1) {
-						damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
-						PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
-					}
-					else if (
-						GetItemVariant(Wep_Ambassador) == 2
 					) {
-						// damage_type = (damage_type | DMG_USE_HITLOCATIONS);
-						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-						PrintToChat(attacker, "rapid headshots; removed DMG_CRIT; addcond 48 (minicrit)");
+						damage_type = (damage_type | DMG_CRIT);
+						return Plugin_Changed;
 					}
-					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
-					
-					return Plugin_Changed;
-				}
 
-				// beyond 1200 hammer units, minicrit damage disappears for the variants?? 
-				// turns into normal damage instead for the first shot beyond 1200 HU
+					// No cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
+					if (
+						GetItemVariant(Wep_Ambassador) != 0 &&
+						players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
+						players[attacker].is_rapid_headshot_ambassador
+					) {
+						if (GetItemVariant(Wep_Ambassador) == 1) { // Pre-June 23, 2009 variant
+							// damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
+							damage_type |= DMG_USE_HITLOCATIONS | DMG_CRIT;
+								PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
+						}
+						else if (GetItemVariant(Wep_Ambassador) == 2) { // Release variant
+							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+								PrintToChat(attacker, "rapid headshots; removed DMG_CRIT; addcond 48 (minicrit)");
+						}
+						return Plugin_Changed;
+					}
 
-				// remove 1st shot crits on headshot in release ambassador and replace with minicrit
+					// remove 1st shot crits on headshot in release ambassador and replace with minicrit
+					// also prevents not dealing mini-crit headshots from beyond 1200 hammer units
+					if (
+						GetItemVariant(Wep_Ambassador) == 2 &&
+						players[attacker].headshot_frame == GetGameTickCount()
+					) {
+						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-				GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-				GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-				if (
-					GetItemVariant(Wep_Ambassador) == 2 &&
-					players[attacker].headshot_frame == GetGameTickCount() &&
-					(damage_type & DMG_CRIT != 0) &&
-					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
-					)
-				) {
-					damage_type ^= DMG_CRIT;
-					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-					PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
-					return Plugin_Changed;
-
-				} else if (					
-					GetItemVariant(Wep_Ambassador) == 2 &&
-					players[attacker].headshot_frame == GetGameTickCount() &&
-					GetVectorDistance(pos1, pos2) >= 1200.0 &&
-					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
-					)					
-				) {
-					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-					PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
-					return Plugin_Changed;
+						if (damage_type & DMG_CRIT != 0) { 
+							// Under 1200 HU, remove crit damage and deal mini-crits on 1st headshot.
+							damage_type ^= DMG_CRIT;
+							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+								PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
+							return Plugin_Changed;
+						} else if (GetVectorDistance(pos1, pos2) >= 1200.0) { 
+							// Beyond 1200 HU, amby deals normal damage on 1st headshots. Adds mini-crit condition to prevent that.
+							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+								PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
+							return Plugin_Changed;
+						}
+					}
 				}
 			}
 
