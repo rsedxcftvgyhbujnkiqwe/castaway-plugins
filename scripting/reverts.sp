@@ -4357,10 +4357,10 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// pre-jungle inferno ambassador headshot crits
+				// ambassador headshot crits
 
 				if (
-					GetItemVariant(Wep_Ambassador) == 0 &&
+					(GetItemVariant(Wep_Ambassador) == 0 || GetItemVariant(Wep_Ambassador) == 1) &&
 					StrEqual(class, "tf_weapon_revolver") &&
 					(
 						(players[attacker].headshot_frame == GetGameTickCount())
@@ -4374,7 +4374,7 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 
-				// pre-june 23, 2009 ambassador variants with no cooldown for full crit/mini crit headshots
+				// no cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
 
 				if (
 					GetItemVariant(Wep_Ambassador) != 0 &&
@@ -4402,23 +4402,41 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 
-				// beyond 1200 hammer units, crit damage and minicrit damage disappears for the variants?? 
+				// beyond 1200 hammer units, minicrit damage disappears for the variants?? 
 				// turns into normal damage instead for the first shot beyond 1200 HU
 
-				// remove crits on headshot in release ambassador
+				// remove 1st shot crits on headshot in release ambassador and replace with minicrit
+
+				GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+				GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
 				if (
 					GetItemVariant(Wep_Ambassador) == 2 &&
 					players[attacker].headshot_frame == GetGameTickCount() &&
-					(damage_type & DMG_CRIT != 0 || GetVectorDistance(pos1, pos2) >= 1200.0)
+					(damage_type & DMG_CRIT != 0) &&
+					(
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
+					)
 				) {
 					damage_type ^= DMG_CRIT;
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-					
-					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-			
-
 					PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
+					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
+					return Plugin_Changed;
+
+				} else if (					
+					GetItemVariant(Wep_Ambassador) == 2 &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
+					GetVectorDistance(pos1, pos2) >= 1200.0 &&
+					(
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
+					)					
+				) {
+					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+					PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
+					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
 					return Plugin_Changed;
 				}
 			}
