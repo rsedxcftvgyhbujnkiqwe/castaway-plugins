@@ -3338,7 +3338,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							StrEqual(class, "tf_weapon_revolver")
 						) {
 							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
-
 							return Plugin_Changed;
 						}
 					}
@@ -4104,10 +4103,10 @@ Action SDKHookCB_TraceAttack(
 			player_weapons[attacker][Wep_Ambassador]
 		) {
 			players[attacker].is_rapid_headshot_ambassador = true;
-				PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
+				// PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
 		} else if (GetItemVariant(Wep_Ambassador) != 0) {
 			players[attacker].is_rapid_headshot_ambassador = false;
-				PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
+				// PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
 		}
 	}
 
@@ -4370,7 +4369,6 @@ Action SDKHookCB_OnTakeDamage(
 						(players[attacker].headshot_frame == GetGameTickCount())
 					) {
 						damage_type = (damage_type | DMG_CRIT);
-						return Plugin_Changed;
 					}
 
 					// No cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
@@ -4380,15 +4378,13 @@ Action SDKHookCB_OnTakeDamage(
 						players[attacker].is_rapid_headshot_ambassador
 					) {
 						if (GetItemVariant(Wep_Ambassador) == 1) { // Pre-June 23, 2009 variant
-							// damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
-							damage_type |= DMG_USE_HITLOCATIONS | DMG_CRIT;
-								PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
+							damage_type |= (DMG_USE_HITLOCATIONS | DMG_CRIT);
+								// PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
 						}
 						else if (GetItemVariant(Wep_Ambassador) == 2) { // Release variant
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								PrintToChat(attacker, "rapid headshots; removed DMG_CRIT; addcond 48 (minicrit)");
+								// PrintToChat(attacker, "Rapid headshots; addcond 48 (minicrit)");
 						}
-						return Plugin_Changed;
 					}
 
 					// remove 1st shot crits on headshot in release ambassador and replace with minicrit
@@ -4404,15 +4400,14 @@ Action SDKHookCB_OnTakeDamage(
 							// Under 1200 HU, remove crit damage and deal mini-crits on 1st headshot.
 							damage_type ^= DMG_CRIT;
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-							return Plugin_Changed;
+								// PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
 						} else if (GetVectorDistance(pos1, pos2) >= 1200.0) { 
 							// Beyond 1200 HU, amby deals normal damage on 1st headshots. Adds mini-crit condition to prevent that.
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-							return Plugin_Changed;
+								// PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
 						}
 					}
+					return Plugin_Changed;					
 				}
 			}
 
