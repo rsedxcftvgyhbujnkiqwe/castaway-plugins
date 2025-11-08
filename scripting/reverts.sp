@@ -4096,15 +4096,16 @@ Action SDKHookCB_TraceAttack(
 			players[attacker].headshot_frame = GetGameTickCount();
 		}
 
+		// for ambassador no headshot cooldown variants
 		if (
 			GetItemVariant(Wep_Ambassador) != 0 &&
 			hitgroup == 1 &&
-			(damage_type & DMG_USE_HITLOCATIONS) == 0 && // for ambassador no headshot cooldown variants
+			(damage_type & DMG_USE_HITLOCATIONS) == 0 && 
 			player_weapons[attacker][Wep_Ambassador]
 		) {
 			players[attacker].is_rapid_headshot_ambassador = true;
 			PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
-		} else {
+		} else if (GetItemVariant(Wep_Ambassador) != 0) {
 			players[attacker].is_rapid_headshot_ambassador = false;
 			PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
 		}
@@ -4356,10 +4357,10 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// ambassador headshot crits
+				// pre-jungle inferno ambassador headshot crits
 
 				if (
-					ItemIsEnabled(Wep_Ambassador) &&
+					GetItemVariant(Wep_Ambassador) == 0 &&
 					StrEqual(class, "tf_weapon_revolver") &&
 					(
 						(players[attacker].headshot_frame == GetGameTickCount())
@@ -4373,7 +4374,7 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 
-				// no headshot cooldown for ambassador
+				// pre-june 23, 2009 ambassador variants with no cooldown for full crit/mini crit headshots
 
 				if (
 					GetItemVariant(Wep_Ambassador) != 0 &&
@@ -4385,11 +4386,41 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
 					)
 				) {
-					damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
+					if (GetItemVariant(Wep_Ambassador) == 1) {
+						damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
+						PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
+					}
+					else if (
+						GetItemVariant(Wep_Ambassador) == 2
+					) {
+						// damage_type = (damage_type | DMG_USE_HITLOCATIONS);
+						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						PrintToChat(attacker, "rapid headshots; removed DMG_CRIT; addcond 48 (minicrit)");
+					}
 					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
-					PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
+					
 					return Plugin_Changed;
-				}					
+				}
+
+				// beyond 1200 hammer units, crit damage and minicrit damage disappears for the variants?? 
+				// turns into normal damage instead for the first shot beyond 1200 HU
+
+				// remove crits on headshot in release ambassador
+				if (
+					GetItemVariant(Wep_Ambassador) == 2 &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
+					(damage_type & DMG_CRIT != 0 || GetVectorDistance(pos1, pos2) >= 1200.0)
+				) {
+					damage_type ^= DMG_CRIT;
+					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+					
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+			
+
+					PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
+					return Plugin_Changed;
+				}
 			}
 
 			{
