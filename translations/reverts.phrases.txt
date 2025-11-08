@@ -524,6 +524,14 @@
 	{
 		"en"	"Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	}
+	"Ambassador_PreJune2009"
+	{
+		"en"	"Reverted to pre-June 23, 2009, deals full headshot damage (102) at all ranges, no headshot cooldown, penetrates targets"
+	}
+	"Ambassador_Release"
+	{
+		"en"	"Reverted to release, deals minicrit headshot damage at all ranges, no headshot cooldown, penetrates targets"
+	}
 	"Amputator_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage"

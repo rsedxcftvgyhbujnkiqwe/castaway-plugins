@@ -112,6 +112,7 @@ public Plugin myinfo = {
 #define DMG_MELEE DMG_BLAST_SURFACE
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
 #define TF_DMG_CUSTOM_NONE 0
+#define TF_DMG_CUSTOM_HEADSHOT 1
 #define TF_DMG_CUSTOM_BACKSTAB 2
 #define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
 #define TF_DMG_CUSTOM_BASEBALL 22
@@ -201,6 +202,7 @@ enum struct Player {
 	// gameplay vars
 	float resupply_time;
 	int headshot_frame;
+	bool is_rapid_headshot_ambassador;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
@@ -540,6 +542,8 @@ public void OnPluginStart() {
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
+	ItemVariant(Wep_Ambassador, "Ambassador_PreJune2009");
+	ItemVariant(Wep_Ambassador, "Ambassador_Release");
 	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
 	ItemVariant(Wep_Atomizer, "Atomizer_PreBM");
@@ -2328,8 +2332,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 	switch (index) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
+			switch (GetItemVariant(Wep_Ambassador)) {
+				case 0: { // Pre-Jungle Inferno
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
+				}
+				case 1: { // Pre-June 23, 2009
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
+					TF2Items_SetAttribute(itemNew, 1, 266, 1.0); // projectile_penetration; used by machina
+				}
+				case 2: { // Release
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
+					TF2Items_SetAttribute(itemNew, 1, 266, 1.0); // projectile_penetration; used by machina
+				}
+			}
+
 		}}
 		case 450: { if (ItemIsEnabled(Wep_Atomizer)) {
 			switch (GetItemVariant(Wep_Atomizer)) {
@@ -3297,7 +3316,18 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 				if (
 					GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
-					players[attacker].headshot_frame == GetGameTickCount()
+					(
+						(
+							GetItemVariant(Wep_Ambassador) == 0 &&
+							players[attacker].headshot_frame == GetGameTickCount() 
+						) ||
+						(
+							GetItemVariant(Wep_Ambassador) != 0 &&
+							players[attacker].headshot_frame <= GetGameTickCount() + 66 &&
+							players[attacker].is_rapid_headshot_ambassador
+						)
+					)
+						
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
@@ -4065,6 +4095,19 @@ Action SDKHookCB_TraceAttack(
 		) {
 			players[attacker].headshot_frame = GetGameTickCount();
 		}
+
+		if (
+			GetItemVariant(Wep_Ambassador) != 0 &&
+			hitgroup == 1 &&
+			(damage_type & DMG_USE_HITLOCATIONS) == 0 && // for ambassador no headshot cooldown variants
+			player_weapons[attacker][Wep_Ambassador]
+		) {
+			players[attacker].is_rapid_headshot_ambassador = true;
+			PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
+		} else {
+			players[attacker].is_rapid_headshot_ambassador = false;
+			PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
+		}
 	}
 
 	return Plugin_Continue;
@@ -4318,7 +4361,9 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Ambassador) &&
 					StrEqual(class, "tf_weapon_revolver") &&
-					players[attacker].headshot_frame == GetGameTickCount() &&
+					(
+						(players[attacker].headshot_frame == GetGameTickCount())
+					) &&
 					(
 						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
 						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
@@ -4327,6 +4372,24 @@ Action SDKHookCB_OnTakeDamage(
 					damage_type = (damage_type | DMG_CRIT);
 					return Plugin_Changed;
 				}
+
+				// no headshot cooldown for ambassador
+
+				if (
+					GetItemVariant(Wep_Ambassador) != 0 &&
+					players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
+					players[attacker].is_rapid_headshot_ambassador &&
+					StrEqual(class, "tf_weapon_revolver") &&
+					(
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
+					)
+				) {
+					damage_type = (damage_type | DMG_USE_HITLOCATIONS + DMG_CRIT);
+					damage_custom = TF_DMG_CUSTOM_HEADSHOT;
+					PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
+					return Plugin_Changed;
+				}					
 			}
 
 			{
