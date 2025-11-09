@@ -746,7 +746,7 @@
 	}
 	"DirectHit_PreDec2009"
 	{
-		"en"	"Reverted to pre-December 22, 2009; mini-crits all airborne and underwater targets regardless of cause, explosion jumps not needed for mini-crits"
+		"en"	"Reverted to pre-December 22, 2009; mini-crits all airborne and floating underwater targets regardless of cause; explosive jumps not needed for mini-crits"
 	}
 	"Disciplinary_PreMYM"
 	{
