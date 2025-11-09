@@ -426,6 +426,7 @@ enum
 	Wep_Darwin,
 	Wep_DeadRinger,	
 	Wep_Degreaser,
+	Wep_DirectHit,
 #if defined MEMORY_PATCHES
 	Wep_Disciplinary,
 #endif
@@ -568,7 +569,7 @@ public void OnPluginStart() {
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
-	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC, Wep_Blutsauger);
+	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Blutsauger);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
@@ -606,6 +607,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_Release");
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
+	ItemDefine("directhit", "DirectHit_PreDec2009", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_DirectHit);
 #if defined MEMORY_PATCHES
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
@@ -2554,8 +2556,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 36: { if (ItemIsEnabled(Wep_Blutsauger)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 881, 0.0); // health drain medic; add_health_regen
-			TF2Items_SetAttribute(itemNew, 0, 15, 0.0); // crit mod disabled; mult_crit_chance
-			// heal per hit handled elsewhere
+			TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled; mult_crit_chance
 		}}
 		case 405, 608: { if (ItemIsEnabled(Wep_Booties)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
@@ -3588,6 +3589,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
 #endif
 						case 215: player_weapons[client][Wep_Degreaser] = true;
+						case 127: player_weapons[client][Wep_DirectHit] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
@@ -4912,6 +4914,23 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 			}
+
+			{
+				// day 2 release (pre-december 22, 2009) direct hit minicrits
+				// force mini-crits if not touching ground
+				if (
+					ItemIsEnabled(Wep_DirectHit) &&
+					StrContains(class, "tf_weapon_rocketlauncher_directhit") == 0 &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 127
+				) {
+					if (
+						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
+						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+					) {
+						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+					}
+				}
+			}			
 
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));

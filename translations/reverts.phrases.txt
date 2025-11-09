@@ -266,6 +266,10 @@
 	{
 		"en"	"Degreaser"
 	}
+	"directhit"
+	{
+		"en"	"Direct Hit"
+	}
 	"disciplinary"
 	{
 		"en"	"Disciplinary Action"
@@ -739,6 +743,10 @@
 	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
+	}
+	"DirectHit_PreDec2009"
+	{
+		"en"	"Reverted to pre-December 22, 2009; mini-crits all airborne and underwater targets regardless of cause, explosion jumps not needed for mini-crits"
 	}
 	"Disciplinary_PreMYM"
 	{
