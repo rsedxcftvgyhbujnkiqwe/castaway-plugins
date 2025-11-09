@@ -190,6 +190,10 @@
 	{
 		"en"	"Black Box"
 	}
+	"blutsauger"
+	{
+		"en"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"en"	"Bonk! Atomic Punch"
@@ -600,6 +604,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
 	}
+	"Blutsauger_Release"
+	{
+		"en"	"Reverted to release, no passive health regen penalty, no random crits"
+	}
 	"Bonk_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no longer slows after the effect wears off"
@@ -719,6 +727,14 @@
 	"Ringer_PostRelease"
 	{
 		"en"	"Reverted to post-release, 90%% dmg resist for 6.5s, no speedboost, full drain on early decloak, no afterburn immunity after feign"
+	}
+	"Ringer_Release"
+	{
+		"en"	"Reverted to release, 90%% dmg resist for 6.5s, no speedboost, no drain on early decloak, no afterburn immunity after feign"
+	}
+	"Ringer_Pre2010"
+	{
+		"en"	"Reverted to pre-Jan 6, 2010; can fully pick up ammo, 90%% dmg resist for 6.5s, no speedboost, up to 40%% drain on early decloak, no afterburn immunity after feign"
 	}
 	"Degreaser_PreTB"
 	{

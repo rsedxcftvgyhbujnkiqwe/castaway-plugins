@@ -87,7 +87,7 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define MAX_VARIANTS 4 // not including base version
+#define MAX_VARIANTS 5 // not including base version
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.67
@@ -404,6 +404,7 @@ enum
 	Wep_BaseJumper,
 	Wep_Beggars,
 	Wep_BlackBox,
+	Wep_Blutsauger,
 	Wep_Bonk,
 	Wep_Booties,
 	Wep_BrassBeast,
@@ -567,6 +568,7 @@ public void OnPluginStart() {
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
+	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC, Wep_Blutsauger);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
@@ -601,6 +603,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
 	ItemVariant(Wep_DeadRinger, "Ringer_PreTB");
 	ItemVariant(Wep_DeadRinger, "Ringer_PostRelease");
+	ItemVariant(Wep_DeadRinger, "Ringer_Release");
+	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 #if defined MEMORY_PATCHES
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
@@ -1702,7 +1706,7 @@ public void OnGameFrame() {
 								players[idx].spy_is_feigning = true;
 								players[idx].damage_taken_during_feign = 0.0;
 								switch (GetItemVariant(Wep_DeadRinger)) {
-									case 0, 3: {
+									case 0, 3, 4, 5: {
 										players[idx].spy_under_feign_buffs = true;
 									}
 								}
@@ -1730,6 +1734,20 @@ public void OnGameFrame() {
 											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 0.0);
 										}
 									}
+									case 4: { // release
+										// do not drain meter when uncloaking early
+										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 0.0) {
+											float release_cloak_cur = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
+											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", release_cloak_cur);
+										}
+									}
+									case 5: { // pre-2010
+										// when uncloaking, cloak is drained up to 40% if the meter is at least 60% full
+										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") >= 60.0) {
+											float pre2010_cloak_cur = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
+											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", pre2010_cloak_cur - 40.0);
+										}
+									}									
 								}
 							}
 						}
@@ -2100,7 +2118,9 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 		if (
 			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) == 3) &&
+			GetItemVariant(Wep_DeadRinger) == 3 ||
+			GetItemVariant(Wep_DeadRinger) == 4 ||
+			GetItemVariant(Wep_DeadRinger) == 5) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			if (
@@ -2300,7 +2320,9 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		// "old-style" dead ringer stuff
 		if (
 			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) == 3) &&
+			GetItemVariant(Wep_DeadRinger) == 3 ||
+			GetItemVariant(Wep_DeadRinger) == 4 ||
+			GetItemVariant(Wep_DeadRinger) == 5) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			// prevent speed boost being applied on feign death
@@ -2526,6 +2548,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 228, 1085: { if (ItemIsEnabled(Wep_BlackBox)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 741, 0.0); // falloff-based heal
+			// heal per hit handled elsewhere
+		}}
+		case 36: { if (ItemIsEnabled(Wep_Blutsauger)) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 881, 0.0); // health drain medic; add_health_regen
+			TF2Items_SetAttribute(itemNew, 0, 15, 0.0); // crit mod disabled; mult_crit_chance
 			// heal per hit handled elsewhere
 		}}
 		case 405, 608: { if (ItemIsEnabled(Wep_Booties)) {
@@ -2980,7 +3008,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			switch (GetItemVariant(Wep_DeadRinger)) {
-				case 0: {
+				case 0, 5: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
@@ -2988,13 +3016,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
 					TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
 				}
-				case 3: {
+				case 3, 4: {
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 					TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
 					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
-				}
+				}			
 				default: {
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 728, 1.0); // No cloak meter from ammo boxes when invisible
@@ -3527,6 +3555,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 730: player_weapons[client][Wep_Beggars] = true;
 						case 442: player_weapons[client][Wep_Bison] = true;
 						case 228, 1085: player_weapons[client][Wep_BlackBox] = true;
+						case 36: player_weapons[client][Wep_Blutsauger] = true;
 						case 46, 1145: player_weapons[client][Wep_Bonk] = true;
 						case 312: player_weapons[client][Wep_BrassBeast] = true;
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
@@ -4260,7 +4289,7 @@ Action SDKHookCB_OnTakeDamage(
 						if (GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59) {
 
 							switch (GetItemVariant(Wep_DeadRinger)) {
-								case 0, 3: {
+								case 0, 3, 4, 5: {
 									// "Old-Style" Dead Ringer Stats
 									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
 									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
@@ -4294,7 +4323,9 @@ Action SDKHookCB_OnTakeDamage(
 				// "old-style" dead ringer track when feign begins
 				if (
 					GetItemVariant(Wep_DeadRinger) == 0 ||
-					GetItemVariant(Wep_DeadRinger) == 3
+					GetItemVariant(Wep_DeadRinger) == 3 ||
+					GetItemVariant(Wep_DeadRinger) == 4 ||
+					GetItemVariant(Wep_DeadRinger) == 5
 				) {
 					if (
 						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
