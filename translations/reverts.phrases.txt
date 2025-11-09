@@ -1132,6 +1132,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge"
 	}
+	"Turner_PreDec2014"
+	{
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge, 100%% charge on kill, no charge penalty when damaged"
+	}
 	"Tomislav_PrePyro"
 	{
 		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus"
