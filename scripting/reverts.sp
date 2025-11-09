@@ -203,6 +203,7 @@ enum struct Player {
 	float resupply_time;
 	int headshot_frame;
 	bool is_rapid_headshot_ambassador;
+	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
@@ -1766,6 +1767,29 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// cancel machina penetration sounds with pre-2009 ambassador variants
+						// why do i have to do it this way?? does not work for rapid fire headshots! should be good enough
+
+						if(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) {
+							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (
+									StrEqual(class, "tf_weapon_revolver") &&
+									(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006) &&
+									players[idx].ambassador_kill_frame == (GetGameTickCount() - 1)
+								) {
+									EmitGameSoundToAll("Game.PenetrationKill", idx, SND_STOP);
+										// PrintToChat(idx, "stopping machina sound...");
+								}
+							}							
+						}
+					}
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
@@ -3322,7 +3346,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							players[attacker].headshot_frame == GetGameTickCount() 
 						) ||
 						(
-							GetItemVariant(Wep_Ambassador) != 0 &&
+							(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
 							players[attacker].headshot_frame <= GetGameTickCount() + 66 &&
 							players[attacker].is_rapid_headshot_ambassador
 						)
@@ -3341,6 +3365,25 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							return Plugin_Changed;
 						}
 					}
+				}
+
+				// track ambassador kills for cancelling machina penetration sounds
+				// does not work with rapid fire headshots
+				if (
+					GetEventInt(event, "attacker") != -1 &&
+					GetEventInt(event, "playerpenetratecount") > 0 &&
+					(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2)
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (StrEqual(class, "tf_weapon_revolver")) {
+							players[attacker].ambassador_kill_frame = GetGameTickCount();
+								// PrintToChat(attacker, "ambassador_kill_frame set to GetGameTickCount()");
+						}
+					}					
 				}
 			}
 		}
@@ -4094,9 +4137,9 @@ Action SDKHookCB_TraceAttack(
 			players[attacker].headshot_frame = GetGameTickCount();
 		}
 
-		// for ambassador no headshot cooldown variants
+		// tracking for ambassador no headshot cooldown variants
 		if (
-			GetItemVariant(Wep_Ambassador) != 0 &&
+			(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
 			TF2_GetPlayerClass(attacker) == TFClass_Spy &&
 			hitgroup == 1 &&
 			(damage_type & DMG_USE_HITLOCATIONS) == 0 && 
@@ -4104,7 +4147,7 @@ Action SDKHookCB_TraceAttack(
 		) {
 			players[attacker].is_rapid_headshot_ambassador = true;
 				// PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
-		} else if (GetItemVariant(Wep_Ambassador) != 0) {
+		} else if ((GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2)) {
 			players[attacker].is_rapid_headshot_ambassador = false;
 				// PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
 		}
@@ -4373,7 +4416,7 @@ Action SDKHookCB_OnTakeDamage(
 
 					// No cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
 					if (
-						GetItemVariant(Wep_Ambassador) != 0 &&
+						(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
 						players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
 						players[attacker].is_rapid_headshot_ambassador
 					) {
