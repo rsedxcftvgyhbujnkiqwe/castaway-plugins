@@ -458,6 +458,10 @@
 	{
 		"en"	"Sydney Sleeper"
 	}
+	"thermal"
+	{
+		"en"	"Thermal Thruster"
+	}	
 	"turner"
 	{
 		"en"	"Tide Turner"
@@ -1091,6 +1095,14 @@
 	"Sleeper_Release"
 	{
 		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
+	}
+	// "ThermalThrust_Oct2025"
+	// {
+	// 	"en"	"Reverted to pre-May 1, 2025; able to keep jetpack passives after unequipping (turn off respawn on loadout change in adv. options); bunnyhops keeps passives"
+	// }
+	"ThermalThrust_May2025"
+	{
+		"en"	"Reverted to pre-May 1, 2025; all bunnyhops when using a charge keeps stomp passives"
 	}
 	"Turner_PreTB"
 	{
