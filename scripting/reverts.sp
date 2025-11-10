@@ -212,7 +212,6 @@ enum struct Player {
 	bool spy_is_feigning;
 	int ammo_grab_frame;
 	int bonk_cond_frame;
-	int bison_hit_frame;
 	int beggars_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
@@ -242,6 +241,10 @@ enum struct Player {
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
+	bool has_used_jetpack;
+	bool was_jump_key_pressed;
+	bool blast_jump_sound_loop;
+	int bunnyhop_frame;
 	int ammo_heal_amount;
 }
 
@@ -263,22 +266,22 @@ ConVar cvar_dropped_weapon_enable;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_ref_tf_airblast_cray;
-ConVar cvar_ref_tf_bison_tick_time;
+ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
 ConVar cvar_ref_tf_feign_death_damage_scale;
 ConVar cvar_ref_tf_feign_death_duration;
 ConVar cvar_ref_tf_feign_death_speed_duration;
 ConVar cvar_ref_tf_fireball_radius;
+ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_parachute_aircontrol;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
-ConVar cvar_ref_tf_gamemode_mvm;
-ConVar cvar_ref_tf_weapon_criticals;
+ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
-ConVar cvar_ref_tf_damage_disablespread;
+ConVar cvar_ref_tf_weapon_criticals;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -295,8 +298,10 @@ MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
 MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
+MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
+// MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
@@ -414,6 +419,7 @@ enum
 	Wep_CleanerCarbine,
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
+	Wep_Crossbow,
 	Wep_Dalokohs,
 #endif
 	Wep_Darwin,
@@ -471,8 +477,9 @@ enum
 	Wep_SplendidScreen,
 	Wep_Spycicle,
 	Wep_StickyJumper,
-	Wep_Tomislav,
+	Wep_ThermalThruster,
 	Wep_TideTurner,
+	Wep_Tomislav,	
 	Wep_TribalmansShiv,
 	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
@@ -577,6 +584,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
+	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
@@ -700,6 +708,11 @@ public void OnPluginStart() {
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
+// #if defined MEMORY_PATCHES
+// 	ItemDefine("thermal", "ThermalThrust_Oct2025", CLASSFLAG_PYRO, Wep_ThermalThruster, true);
+// #else
+	ItemDefine("thermal", "ThermalThrust_May2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
+// #endif
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -721,22 +734,22 @@ public void OnPluginStart() {
 	hudsync = CreateHudSynchronizer();
 
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
-	cvar_ref_tf_bison_tick_time = FindConVar("tf_bison_tick_time");
+	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
 	cvar_ref_tf_feign_death_damage_scale = FindConVar("tf_feign_death_damage_scale");
 	cvar_ref_tf_feign_death_duration = FindConVar("tf_feign_death_duration");
 	cvar_ref_tf_feign_death_speed_duration = FindConVar("tf_feign_death_speed_duration");
 	cvar_ref_tf_fireball_radius = FindConVar("tf_fireball_radius");
+	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
-	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
-	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
+	cvar_ref_tf_stealth_damage_reduction = FindConVar("tf_stealth_damage_reduction");
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
-	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
+	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -840,6 +853,9 @@ public void OnPluginStart() {
 		patch_RevertCozyCamper_FlinchNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition");
+		patch_RevertCrusaderCrossbow_UbergainNerf =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
 		patch_RevertQuickFix_Uber_CannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
@@ -860,7 +876,10 @@ public void OnPluginStart() {
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");			
+			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+		// patch_RevertThermalThruster_LoadoutChangePassive =
+		// 	MemoryPatch.CreateFromConf(conf,
+		// 	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -898,6 +917,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
 		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
 		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) SetFailState("Failed to create patch_RevertCozyCamper_FlinchNerf");
+		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) SetFailState("Failed to create patch_RevertCrusaderCrossbow_UbergainNerf");
 		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
 		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) SetFailState("Failed to create patch_RevertMadMilk_ChgFloatAddr");
 		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
@@ -905,6 +925,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
 		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
+		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
@@ -1007,10 +1028,12 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
+	// ToggleMemoryPatchReverts(ItemIsEnabled(Wep_ThermalThruster),Wep_ThermalThruster);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1101,6 +1124,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertCozyCamper_FlinchNerf.Disable();
 			}
 		}
+		case Wep_Crossbow: {
+			if (enable) {
+				patch_RevertCrusaderCrossbow_UbergainNerf.Enable();
+			} else {
+				patch_RevertCrusaderCrossbow_UbergainNerf.Disable();
+			}
+		}
 		case Wep_QuickFix: {
 			if (enable) {
 				patch_RevertQuickFix_Uber_CannotCapturePoint.Enable();
@@ -1135,7 +1165,14 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertIronBomber_PipeHitbox.Disable();
 			}
-		}		
+		}
+		// case Wep_ThermalThruster: {
+		// 	if (enable) {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Enable();
+		// 	} else {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Disable();
+		// 	}
+		// }
 	}
 }
 #endif
@@ -1144,9 +1181,12 @@ public void OnMapStart() {
 	PrecacheSound("items/ammo_pickup.wav");
 	PrecacheSound("items/gunpickup2.wav");
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
-	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
+	PrecacheParticleSystem("doublejump_puff_alt");
+	PrecacheParticleSystem("dxhr_arm_muzzleflash");
+	PrecacheParticleSystem("peejar_impact_small");
 }
 
 public void OnGameFrame() {
@@ -1891,9 +1931,9 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
-			SetConVarMaybe(cvar_ref_tf_bison_tick_time, "0.001", ItemIsEnabled(Wep_Bison));
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
 			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
@@ -3440,6 +3480,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
+					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
+						player_weapons[client][Wep_ThermalThruster] = true;
+					}
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
@@ -3500,6 +3543,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 354: player_weapons[client][Wep_Concheror] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
+#if defined MEMORY_PATCHES
+						case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
+#endif
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
@@ -3568,6 +3614,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
 #endif
+					case 1179: player_weapons[client][Wep_ThermalThruster] = true;
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
@@ -4208,32 +4255,38 @@ Action SDKHookCB_OnTakeDamage(
 				if (weapon1 > 0) {
 					GetEntityClassname(weapon1, class, sizeof(class));
 
-					if (
-						StrEqual(class, "tf_weapon_invis") &&
-						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59
-					) {
-						switch (GetItemVariant(Wep_DeadRinger)) {
-							case 0, 3: {
-								// "Old-Style" Dead Ringer Stats
-								cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
-								cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
-								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-								cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+					if (StrEqual(class, "tf_weapon_invis")) {
+
+						if (GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59) {
+
+							switch (GetItemVariant(Wep_DeadRinger)) {
+								case 0, 3: {
+									// "Old-Style" Dead Ringer Stats
+									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
+								}
+								case 2: {
+									// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+									cvar_ref_tf_feign_death_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
+									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+								}
+								case -1, 1: {
+									// Pre-Inferno and Vanilla Dead Ringer Stat reset
+									cvar_ref_tf_feign_death_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+								}
 							}
-							case 2: {
-								// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
-								cvar_ref_tf_feign_death_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-							}
-							case -1, 1: {
-								// Pre-Inferno and Vanilla Dead Ringer Stat reset
-								cvar_ref_tf_feign_death_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-								cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-								cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-							}
+						} else {
+							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 						}
 					}
 				}
@@ -4830,41 +4883,8 @@ Action SDKHookCB_OnTakeDamage(
 							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 						) {
-							if (
-								(players[victim].bison_hit_frame + 0) == GetGameTickCount() ||
-								(players[victim].bison_hit_frame + 1) == GetGameTickCount()
-							) {
-								// don't allow bison to hit more than once every other frame
-								return Plugin_Stop;
-							}
-
-							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							pos2[2] += PLAYER_CENTER_HEIGHT;
-
-							TR_TraceRayFilter(pos1, pos2, MASK_SOLID, RayType_EndPoint, TraceFilter_ExcludePlayers);
-
-							if (TR_DidHit()) {
-								// there's a wall between the projectile and the target, cancel the hit
-								return Plugin_Stop;
-							}
-
 							bool should_penetrate = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0;
 							
-							// this prevents energy projectiles from hitting the same enemy too much and killing them too quickly	
-							if (should_penetrate) {
-								pos1[2] = 0.0;
-								pos2[2] = 0.0;
-
-								if (GetVectorDistance(pos1, pos2) > 55.0) {
-									// target is too far from the projectile, cancel the hit
-									return Plugin_Stop;
-								}
-
-								players[victim].bison_hit_frame = GetGameTickCount();
-							}
-
 							// cloak/uber drain is done in OnTakeDamagePost
 
 							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
@@ -4873,19 +4893,17 @@ Action SDKHookCB_OnTakeDamage(
 								(GetItemVariant(Wep_Pomson) == 2 && !should_penetrate)
 							) {
 								// Do not use internal rampup/falloff.
-								if (damage_type & DMG_USEDISTANCEMOD != 0) damage_type ^= DMG_USEDISTANCEMOD;
+								damage_type &= ~DMG_USEDISTANCEMOD;
 								
 								// Deal damage with 125% rampup, 75% falloff.
 								float base_dmg = should_penetrate ? 16.00 : 48.00;
 								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
-							// Remove bullet damage flag so it's untyped damage
-							if (damage_type & DMG_BULLET != 0) damage_type ^= DMG_BULLET;
-							// Enable sonic damage flag so the Fists of Steel ranged resistance works correctly
-							if (damage_type & DMG_SONIC == 0) damage_type |= DMG_SONIC;
-							// Restore knockback
-							if (damage_type & DMG_PREVENT_PHYSICS_FORCE != 0) damage_type ^= DMG_PREVENT_PHYSICS_FORCE;
+							// Remove bullet damage type (untyped damage) and restore knockback
+							damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
+							// Enable sonic damage type so Fists of Steel ranged resist still works
+							damage_type |= DMG_SONIC;
 
 							return Plugin_Changed;
 						}
@@ -5061,7 +5079,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_GetPlayerClass(victim) == TFClass_Spy &&
 				resist_damage
 			) {
-				damage *= 0.125; // compensates for passive 20% resist of cloak, resulting in total resist being 90%
+				damage *= 0.10;
 				returnValue = Plugin_Changed;
 			}
 		}
@@ -5390,6 +5408,68 @@ public Action OnPlayerRunCmd(
 				}
 			}
 		}
+
+		case TFClass_Pyro:
+		{
+			if (
+				ItemIsEnabled(Wep_ThermalThruster) &&
+				player_weapons[client][Wep_ThermalThruster] &&
+				IsPlayerAlive(client)
+			) {
+				// Pre-May 1, 2025 Thermal Thruster Revert - keep stomp condition when bunnyhopping
+
+				// check if thermal thruster got used or not, simplest but hacky way to do it
+				if (TF2_IsPlayerInCondition(client, TFCond_RocketPack) && TF2_IsPlayerInCondition(client, TFCond_Dazed))
+					players[client].has_used_jetpack = true;
+				else if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack) && (GetEntityFlags(client) & FL_ONGROUND))
+					players[client].has_used_jetpack = false; // this should be good enough
+
+				// preserve stomp condition when bunnyhopping
+				if (players[client].has_used_jetpack) {
+					if (
+						!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
+						(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
+					) {
+						players[client].bunnyhop_frame = GetGameTickCount();
+						players[client].has_used_jetpack = true;
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Bunnyhop detected and used jetpack");
+					}
+
+					if (
+						players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
+						!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
+					) {
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Player is in air");
+						if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) { 
+							TF2_AddCondition(client, TFCond_RocketPack);
+							// Get rid of landing sound spam (somewhat) on a successful bunnyhop, replace it with air whistle sound
+							EmitGameSoundToAll("Weapon_RocketPack.Land", client, SND_STOP);
+							EmitGameSoundToAll("Weapon_RocketPack.BoostersShutdown", client, SND_STOP);
+							EmitGameSoundToAll("BlastJump.Whistle", client);
+							players[client].blast_jump_sound_loop = true;
+							// PrintToChat(client, "Valid bhop, added TFCond_RocketPack stomp attribute, removed & added sounds, reverted jetpack stomp bhop");
+						}
+					}
+					
+					// stop air whistling sound when bunnyhopping ends
+					if (
+						players[client].blast_jump_sound_loop && 
+						(GetEntityFlags(client) & FL_ONGROUND)
+					) {
+						players[client].blast_jump_sound_loop = false;
+						EmitGameSoundToAll("BlastJump.Whistle", client, SND_STOP);
+						// PrintToChat(client, "Removed air whistling loop sound");
+					}
+				}
+
+				// if jump key is currently not held, always set variable to false
+				if (!(buttons & IN_JUMP)) {
+					players[client].was_jump_key_pressed = false;
+				}
+			}
+		}
 	}
 	
 	return returnValue;
@@ -5461,9 +5541,9 @@ void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 // 	return (entity != data);
 // }
 
-bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
-	return (entity < 1 || entity > MaxClients);
-}
+// bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
+// 	return (entity < 1 || entity > MaxClients);
+// }
 
 bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	char class[64];
@@ -5496,132 +5576,6 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
 
 	return true;
-}
-
-int GetFeignBuffsEnd(int client)
-{
-	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
-	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
-}
-
-bool PlayerIsInvulnerable(int client) {
-	return (
-		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
-		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
-		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
-	);
-}
-
-/*
-TFCond critboosts[] =
-{
-	TFCond_Kritzkrieged,
-	TFCond_HalloweenCritCandy,
-	TFCond_CritCanteen,
-	TFCond_CritOnFirstBlood,
-	TFCond_CritOnWin,
-	TFCond_CritOnFlagCapture,
-	TFCond_CritOnKill,
-	TFCond_CritMmmph,
-	TFCond_CritOnDamage,
-	TFCond_CritRuneTemp
-};
-
-bool PlayerIsCritboosted(int client) {
-	for (int i = 0; i < sizeof(critboosts); ++i)
-	{
-		if (TF2_IsPlayerInCondition(client, critboosts[i]))
-			return true;
-	}
-
-	return false;
-}
-*/
-
-float ValveRemapVal(float val, float a, float b, float c, float d) {
-	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
-
-	float tmp;
-
-	if (a == b) {
-		return (val >= b ? d : c);
-	}
-
-	tmp = ((val - a) / (b - a));
-
-	if (tmp < 0.0) tmp = 0.0;
-	if (tmp > 1.0) tmp = 1.0;
-
-	return (c + ((d - c) * tmp));
-}
-
-void ParticleShowSimple(const char[] name, float position[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
-
-	if (particle >= 0) {
-		TE_Start("TFParticleEffect");
-		TE_WriteFloat("m_vecOrigin[0]", position[0]);
-		TE_WriteFloat("m_vecOrigin[1]", position[1]);
-		TE_WriteFloat("m_vecOrigin[2]", position[2]);
-		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(position, RangeType_Visibility, 0.0);
-	}
-}
-
-void ParticleShow(char[] name, float origin[3], float start[3], float angles[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
-
-	if (particle >= 0) {
-		TE_Start("TFParticleEffect");
-		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
-		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
-		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
-		TE_WriteFloat("m_vecStart[0]", start[0]);
-		TE_WriteFloat("m_vecStart[1]", start[1]);
-		TE_WriteFloat("m_vecStart[2]", start[2]);
-		TE_WriteVector("m_vecAngles", angles);
-		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
-	}
 }
 
 /**
@@ -5939,79 +5893,6 @@ int HealBuilding(int buildingIndex, int engineerIndex) {
 	return RepairAmount;
 }
 
-int GetEntityOwner(int entityIndex)
-{
-	if (!IsValidEntity(entityIndex))
-		return -1; // Invalid entity
-
-	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-
-	if (!IsFakeClient(owner) || IsFakeClient(owner))
-		return owner; // Returns the player (or bot) index of the owner
-
-	return -1; // Owner not found
-}
-
-bool AreEntitiesOnSameTeam(int entity1, int entity2)
-{
-	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
-		return false;
-
-	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
-	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
-
-	return (team1 == team2);
-}
-
-bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
-{
-	if (!IsValidEntity(buildingIndex))
-		return false;
-
-	char classname[64];
-	GetEntityClassname(buildingIndex, classname, sizeof(classname));
-
-	if (
-		!StrEqual(classname, "obj_sentrygun", false) &&
-		!StrEqual(classname, "obj_teleporter", false) &&
-		!StrEqual(classname, "obj_dispenser", false)
-	) {
-		//PrintToChatAll("Entity did not match buildings");
-		return false;
-	}
-
-	if (
-		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
-	) {
-		//PrintToChatAll("Big if statement about sappers etc triggered");
-		return false;
-	}
-
-	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
-		//PrintToChatAll("Entities were not on the same team");
-		return false;
-	}
-
-	return true;
-}
-
-void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
-{
-	if (!IsValidEntity(entityIndex))
-	return;
-
-	TE_Start("TFParticleEffect");
-
-	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
-	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
-	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
-
-	TE_SendToAll();
-}
-
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -6023,48 +5904,6 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
 
 	return true;
-}
-
-// Get the sentry of a specific engineer
-// WARNING: Do not use in MVM!
-int FindSentryGunOwnedByClient(int client)
-{
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
-		return -1;
-
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (owner == client)
-			return ent;
-	}
-
-	return -1;
-}
-
-// Get the built (construction finished) teleporter exit of a specific engineer
-int FindBuiltTeleporterExitOwnedByClient(int client)
-{
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (
-			owner == client &&
-			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
-			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
-		)
-			return ent;
-	}
-
-	return -1;
 }
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
@@ -6910,7 +6749,7 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 	return MRES_Ignored;
 }
 
-float CalcViewsOffset(float angle1[3], float angle2[3]) {
+stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
 
@@ -6922,8 +6761,289 @@ float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	return SquareRoot(Pow(v1, 2.0) + Pow(v2, 2.0));
 }
 
-float FixViewAngleY(float angle) {
+stock float FixViewAngleY(float angle) {
 	return (angle > 180.0 ? (angle - 360.0) : angle);
+}
+
+stock int GetFeignBuffsEnd(int client)
+{
+	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
+	return players[client].feign_ready_tick + RoundFloat(66 * 6.5) - reduction_by_dmg_taken;
+}
+
+stock bool PlayerIsInvulnerable(int client) {
+	return (
+		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
+		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
+		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
+	);
+}
+
+
+TFCond critboosts[] =
+{
+	TFCond_Kritzkrieged,
+	TFCond_HalloweenCritCandy,
+	TFCond_CritCanteen,
+	TFCond_CritOnFirstBlood,
+	TFCond_CritOnWin,
+	TFCond_CritOnFlagCapture,
+	TFCond_CritOnKill,
+	TFCond_CritMmmph,
+	TFCond_CritOnDamage,
+	TFCond_CritRuneTemp
+};
+
+stock bool PlayerIsCritboosted(int client) {
+	for (int i = 0; i < sizeof(critboosts); ++i)
+	{
+		if (TF2_IsPlayerInCondition(client, critboosts[i]))
+			return true;
+	}
+
+	return false;
+}
+
+
+stock float ValveRemapVal(float val, float a, float b, float c, float d) {
+	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
+
+	float tmp;
+
+	if (a == b) {
+		return (val >= b ? d : c);
+	}
+
+	tmp = ((val - a) / (b - a));
+
+	if (tmp < 0.0) tmp = 0.0;
+	if (tmp > 1.0) tmp = 1.0;
+
+	return (c + ((d - c) * tmp));
+}
+
+stock void ParticleShowSimple(const char[] name, float position[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", position[0]);
+		TE_WriteFloat("m_vecOrigin[1]", position[1]);
+		TE_WriteFloat("m_vecOrigin[2]", position[2]);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(position, RangeType_Visibility, 0.0);
+	}
+}
+
+stock void ParticleShow(const char[] name, float origin[3], float start[3], float angles[3]) {
+	int idx;
+	int table;
+	int strings;
+	int particle;
+	char tmp[64];
+
+	table = FindStringTable("ParticleEffectNames");
+	strings = GetStringTableNumStrings(table);
+
+	particle = -1;
+
+	for (idx = 0; idx < strings; idx++) {
+		ReadStringTable(table, idx, tmp, sizeof(tmp));
+
+		if (StrEqual(tmp, name)) {
+			particle = idx;
+			break;
+		}
+	}
+
+	if (particle >= 0) {
+		TE_Start("TFParticleEffect");
+		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
+		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
+		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
+		TE_WriteFloat("m_vecStart[0]", start[0]);
+		TE_WriteFloat("m_vecStart[1]", start[1]);
+		TE_WriteFloat("m_vecStart[2]", start[2]);
+		TE_WriteVector("m_vecAngles", angles);
+		TE_WriteNum("m_iParticleSystemIndex", particle);
+		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+	}
+}
+
+stock int PrecacheParticleSystem(const char[] particleSystem)
+{
+    static int particleEffectNames = INVALID_STRING_TABLE;
+
+    if (particleEffectNames == INVALID_STRING_TABLE) {
+        if ((particleEffectNames = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
+            return INVALID_STRING_INDEX;
+        }
+    }
+
+    int index = FindStringIndex2(particleEffectNames, particleSystem);
+    if (index == INVALID_STRING_INDEX) {
+        int numStrings = GetStringTableNumStrings(particleEffectNames);
+        if (numStrings >= GetStringTableMaxStrings(particleEffectNames)) {
+            return INVALID_STRING_INDEX;
+        }
+        
+        AddToStringTable(particleEffectNames, particleSystem);
+        index = numStrings;
+    }
+    
+    return index;
+}
+
+stock int FindStringIndex2(int tableidx, const char[] str)
+{
+    char buf[1024];
+    
+    int numStrings = GetStringTableNumStrings(tableidx);
+    for (int i=0; i < numStrings; i++) {
+        ReadStringTable(tableidx, i, buf, sizeof(buf));
+        
+        if (StrEqual(buf, str)) {
+            return i;
+        }
+    }
+    
+    return INVALID_STRING_INDEX;
+}
+
+stock int GetEntityOwner(int entityIndex)
+{
+	if (!IsValidEntity(entityIndex))
+		return -1; // Invalid entity
+
+	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
+
+	if (!IsFakeClient(owner) || IsFakeClient(owner))
+		return owner; // Returns the player (or bot) index of the owner
+
+	return -1; // Owner not found
+}
+
+stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
+{
+	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
+		return false;
+
+	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
+	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
+
+	return (team1 == team2);
+}
+
+stock bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
+{
+	if (!IsValidEntity(buildingIndex))
+		return false;
+
+	char classname[64];
+	GetEntityClassname(buildingIndex, classname, sizeof(classname));
+
+	if (
+		!StrEqual(classname, "obj_sentrygun", false) &&
+		!StrEqual(classname, "obj_teleporter", false) &&
+		!StrEqual(classname, "obj_dispenser", false)
+	) {
+		//PrintToChatAll("Entity did not match buildings");
+		return false;
+	}
+
+	if (
+		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
+		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
+	) {
+		//PrintToChatAll("Big if statement about sappers etc triggered");
+		return false;
+	}
+
+	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
+		//PrintToChatAll("Entities were not on the same team");
+		return false;
+	}
+
+	return true;
+}
+
+stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
+{
+	if (!IsValidEntity(entityIndex))
+	return;
+
+	TE_Start("TFParticleEffect");
+
+	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
+	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
+	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
+
+	TE_SendToAll();
+}
+
+// Get the sentry of a specific engineer
+// WARNING: Do not use in MVM!
+stock int FindSentryGunOwnedByClient(int client)
+{
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+		return -1;
+
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (owner == client)
+			return ent;
+	}
+
+	return -1;
+}
+
+// Get the built (construction finished) teleporter exit of a specific engineer
+stock int FindBuiltTeleporterExitOwnedByClient(int client)
+{
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (
+			owner == client &&
+			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
+			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
+		)
+			return ent;
+	}
+
+	return -1;
 }
 
 /** 
@@ -6932,7 +7052,7 @@ float FixViewAngleY(float angle) {
  * @param x		Integer.
  * @retrun		Absolute value of x.
  */
-int abs(int x)
+stock int abs(int x)
 {
 	int mask = x >> 31;
 	return (x + mask) ^ mask;
@@ -6945,7 +7065,7 @@ int abs(int x)
  * @param y		Integer y.
  * @return		The lesser integer between x and y.
  */
-int intMin(int x, int y)
+stock int intMin(int x, int y)
 {
 	return x > y ? y : x;
 }
@@ -6957,7 +7077,7 @@ int intMin(int x, int y)
  * @param y		Integer y.
  * @return		The greater integer between x and y.
  */
-int intMax(int x, int y)
+stock int intMax(int x, int y)
 {
 	return x > y ? x : y;
 }
@@ -6969,7 +7089,7 @@ int intMax(int x, int y)
  * @param y		Float y.
  * @return		The lesser float between x and y.
  */
-float floatMin(float x, float y)
+stock float floatMin(float x, float y)
 {
 	return x > y ? y : x;
 }
@@ -6981,7 +7101,7 @@ float floatMin(float x, float y)
  * @param y		Float y.
  * @return		The greater float between x and y.
  */
-float floatMax(float x, float y)
+stock float floatMax(float x, float y)
 {
     return x > y ? x : y;
 }

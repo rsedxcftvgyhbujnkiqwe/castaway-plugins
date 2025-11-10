@@ -238,6 +238,10 @@
 	{
 		"en"	"Crit-a-Cola"
 	}
+	"crossbow"
+	{
+		"en"	"Crusader's Crossbow"
+	}
 	"crocostyle"
 	{
 		"en"	"Croc-o-Style Kit"
@@ -454,6 +458,10 @@
 	{
 		"en"	"Sydney Sleeper"
 	}
+	"thermal"
+	{
+		"en"	"Thermal Thruster"
+	}	
 	"turner"
 	{
 		"en"	"Tide Turner"
@@ -676,6 +684,10 @@
 	{
 		"en"	"Reverted to release, damage taken mini-crits, buff lasts 6 seconds"
 	}
+	"CrusadersCrossbow_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, full uber gain on heal regardless if target recently took damage"
+	}
 	"CrocoStyle_Release"
 	{
 		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
@@ -882,15 +894,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size, passes through team, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Increased hitbox size, passes through team, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, penetrates targets, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no uber & cloak drain fall-off, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg, old dmg formula"
 	}
 	"Powerjack_PreGM"
 	{
@@ -958,11 +970,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Increased hitbox size (can hit same target many times), ignites friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Bison_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, increased hitbox size, can hit the same player more times, lights up friendly Huntsman arrows, deals untyped dmg, old dmg formula"
+		"en"	"Reverted to pre-toughbreak, increased hitbox size (can hit same target many times), ignites friendly Huntsman arrows, deals untyped dmg, old dmg formula"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -1091,6 +1103,14 @@
 	"Sleeper_Release"
 	{
 		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
+	}
+	// "ThermalThrust_Oct2025"
+	// {
+	// 	"en"	"Reverted to pre-May 1, 2025; able to keep jetpack passives after unequipping (turn off respawn on loadout change in adv. options); bunnyhops keeps passives"
+	// }
+	"ThermalThrust_May2025"
+	{
+		"en"	"Reverted to pre-May 1, 2025; all bunnyhops when using a charge keeps stomp passives"
 	}
 	"Turner_PreTB"
 	{

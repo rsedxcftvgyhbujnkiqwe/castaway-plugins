@@ -149,6 +149,19 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer" // search for string crossbow_heal to find the function
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x2A\x8B\xF1\x89\x75\x2A\x85\xFF\x0F\x84"
+				"linux"   "@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
+			}
+			//	Thermal Thruster bug fix has been officially reverted by Valve
+			//	"CTFPlayerShared::ConditionThink"
+			//	{
+			//		"library" "server"
+			//		"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
+			//		"linux"	  "@_ZN15CTFPlayerShared14ConditionThinkEv"
+			//	}
 		}
 
 		"Offsets"
@@ -293,6 +306,29 @@
 						"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
 					}
 				}
+
+				// ================================================
+				//	THERMAL THRUSTER BUG FIX HAS BEEN OFFICIALLY REVERTED BY Valve
+				//	SEE https://www.teamfortress.com/post.php?id=255953
+				//	
+				//  Revert Thermal Thruster October 27, 2025 bug fix
+				//	Reverts bug fix (https://github.com/ValveSoftware/source-sdk-2013/pull/1490) in the TF2 source code by preventing RemoveCond() from happening
+				//	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval"
+				//	{
+				//		"signature" "CTFPlayerShared::ConditionThink"
+				//		"linux"
+				//		{
+				//			"offset"	"1912"
+				//			"verify"	"\xE8\xC3\x80\x2A\x2A" // CALL, x2A wildcard twice
+				//			"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
+				//		}
+				//		"windows"
+				//		{
+				//			"offset"	"666"
+				//			"verify"	"\xE8\x71\xBB\x2A\x2A" // CALL, x2A wildcard twice
+				//			"patch"		"\x83\xC4\x08\x90\x90" // add esp, 0x8; undo pushes, pad rest with NOPs, prevent RemoveCond() from running
+				//		}
+				//	}
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                   Demoman                    ║
@@ -486,6 +522,28 @@
 						"offset"    "92"
 						"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
 						"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
+					}
+				}
+
+				// ================================================
+				//  Crusaders crossbow uses medigun ubercharge rates,
+				//  reverted. (Reverts jungle inferno change).
+				
+
+				"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24"
+				{
+					"signature" "CTFProjectile_HealingBolt::ImpactTeamPlayer"
+					"linux"
+					{
+						"offset"    "889"
+						"verify"    "\xF3\x0F\x5E\xC8" // DIVSS, XMM1, XMM0
+						"patch"     "\x90\x90\x90\x90" // NOP x4
+					}
+					"windows"
+					{
+						"offset"    "829"
+						"verify"    "\xE8\x7E\x75\xC6\xFF" // CALL RemapValClamped
+						"patch"     "\xD9\xE8\x90\x90\x90" // FLD1 ; NOP x3
 					}
 				}
 
