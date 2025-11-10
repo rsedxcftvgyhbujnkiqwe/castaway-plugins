@@ -239,6 +239,10 @@ enum struct Player {
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
+	bool has_used_jetpack;
+	bool was_jump_key_pressed;
+	bool blast_jump_sound_loop;
+	int bunnyhop_frame;
 	int ammo_heal_amount;
 }
 
@@ -294,6 +298,7 @@ MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
+// MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
@@ -468,8 +473,9 @@ enum
 	Wep_SplendidScreen,
 	Wep_Spycicle,
 	Wep_StickyJumper,
-	Wep_Tomislav,
+	Wep_ThermalThruster,
 	Wep_TideTurner,
+	Wep_Tomislav,	
 	Wep_TribalmansShiv,
 	Wep_Caber, // Ullapool Caber
 	Wep_VitaSaw,
@@ -695,6 +701,11 @@ public void OnPluginStart() {
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
+// #if defined MEMORY_PATCHES
+// 	ItemDefine("thermal", "ThermalThrust_Oct2025", CLASSFLAG_PYRO, Wep_ThermalThruster, true);
+// #else
+	ItemDefine("thermal", "ThermalThrust_May2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
+// #endif
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
@@ -855,7 +866,10 @@ public void OnPluginStart() {
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");			
+			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+		// patch_RevertThermalThruster_LoadoutChangePassive =
+		// 	MemoryPatch.CreateFromConf(conf,
+		// 	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -900,6 +914,7 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
 		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
+		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
@@ -1006,6 +1021,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
+	// ToggleMemoryPatchReverts(ItemIsEnabled(Wep_ThermalThruster),Wep_ThermalThruster);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1130,7 +1146,14 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertIronBomber_PipeHitbox.Disable();
 			}
-		}		
+		}
+		// case Wep_ThermalThruster: {
+		// 	if (enable) {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Enable();
+		// 	} else {
+		// 		patch_RevertThermalThruster_LoadoutChangePassive.Disable();
+		// 	}
+		// }
 	}
 }
 #endif
@@ -3369,6 +3392,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
+					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
+						player_weapons[client][Wep_ThermalThruster] = true;
+					}
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
@@ -3497,6 +3523,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
 #endif
+					case 1179: player_weapons[client][Wep_ThermalThruster] = true;
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
@@ -5262,6 +5289,68 @@ public Action OnPlayerRunCmd(
 				else
 				{
 					players[client].holding_jump = false;
+				}
+			}
+		}
+
+		case TFClass_Pyro:
+		{
+			if (
+				ItemIsEnabled(Wep_ThermalThruster) &&
+				player_weapons[client][Wep_ThermalThruster] &&
+				IsPlayerAlive(client)
+			) {
+				// Pre-May 1, 2025 Thermal Thruster Revert - keep stomp condition when bunnyhopping
+
+				// check if thermal thruster got used or not, simplest but hacky way to do it
+				if (TF2_IsPlayerInCondition(client, TFCond_RocketPack) && TF2_IsPlayerInCondition(client, TFCond_Dazed))
+					players[client].has_used_jetpack = true;
+				else if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack) && (GetEntityFlags(client) & FL_ONGROUND))
+					players[client].has_used_jetpack = false; // this should be good enough
+
+				// preserve stomp condition when bunnyhopping
+				if (players[client].has_used_jetpack) {
+					if (
+						!players[client].was_jump_key_pressed && // check if jump key was pressed, NOT held. prevents command spam and lag
+						(buttons & IN_JUMP) && (GetEntityFlags(client) & FL_ONGROUND) // the check for bunnyhopping, game thinks player is in the air and on ground at the same time
+					) {
+						players[client].bunnyhop_frame = GetGameTickCount();
+						players[client].has_used_jetpack = true;
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Bunnyhop detected and used jetpack");
+					}
+
+					if (
+						players[client].bunnyhop_frame + 1 == GetGameTickCount() &&
+						!(GetEntityFlags(client) & FL_ONGROUND) // check if player is in the air
+					) {
+						players[client].was_jump_key_pressed = true;
+						// PrintToChat(client, "Player is in air");
+						if (!TF2_IsPlayerInCondition(client, TFCond_RocketPack)) { 
+							TF2_AddCondition(client, TFCond_RocketPack);
+							// Get rid of landing sound spam (somewhat) on a successful bunnyhop, replace it with air whistle sound
+							EmitGameSoundToAll("Weapon_RocketPack.Land", client, SND_STOP);
+							EmitGameSoundToAll("Weapon_RocketPack.BoostersShutdown", client, SND_STOP);
+							EmitGameSoundToAll("BlastJump.Whistle", client);
+							players[client].blast_jump_sound_loop = true;
+							// PrintToChat(client, "Valid bhop, added TFCond_RocketPack stomp attribute, removed & added sounds, reverted jetpack stomp bhop");
+						}
+					}
+					
+					// stop air whistling sound when bunnyhopping ends
+					if (
+						players[client].blast_jump_sound_loop && 
+						(GetEntityFlags(client) & FL_ONGROUND)
+					) {
+						players[client].blast_jump_sound_loop = false;
+						EmitGameSoundToAll("BlastJump.Whistle", client, SND_STOP);
+						// PrintToChat(client, "Removed air whistling loop sound");
+					}
+				}
+
+				// if jump key is currently not held, always set variable to false
+				if (!(buttons & IN_JUMP)) {
+					players[client].was_jump_key_pressed = false;
 				}
 			}
 		}
