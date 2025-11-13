@@ -948,6 +948,10 @@
 	{
 		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
 	}
+	"RescueRanger_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, heals +75 flat for no metal cost"
+	}
 	"Reserve_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits all airborne targets for 5 sec after deploying, 15%% faster weapon switch"
