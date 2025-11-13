@@ -226,7 +226,6 @@ enum struct Player {
 	bool is_under_hype;
 	int charge_tick;
 	int fall_dmg_tick;
-	int ticks_since_switch;
 	bool holding_jump;
 	int drain_victim;
 	float drain_time;
@@ -242,7 +241,7 @@ enum struct Player {
 	bool was_jump_key_pressed;
 	bool blast_jump_sound_loop;
 	int bunnyhop_frame;
-	int ammo_heal_amount;
+	float weapon_switch_time;
 }
 
 enum struct Entity {
@@ -1228,11 +1227,6 @@ public void OnGameFrame() {
 				}
 
 				{
-					// used for reserve shooter
-					++players[idx].ticks_since_switch;
-				}
-
-				{
 					// reset medigun info
 					// if player is medic, this will be set again this frame
 
@@ -1564,27 +1558,6 @@ public void OnGameFrame() {
 					}
 				}
 
-				if (TF2_GetPlayerClass(idx) == TFClass_DemoMan) {
-					{
-						if (
-							ItemIsEnabled(Wep_Persian) &&
-							players[idx].ammo_heal_amount > 0
-						) {
-							// Fire heal event for persuader
-							Event event = CreateEvent("player_healonhit", true);
-							event.SetInt("amount", players[idx].ammo_heal_amount);
-							event.SetInt("entindex", idx);
-							event.Fire();
-
-							// Reset variable
-							players[idx].ammo_heal_amount = 0;
-						}
-					}
-				} else {
-					// reset if player isn't demoman
-					players[idx].ammo_heal_amount = 0;
-				}
-
 #if !defined MEMORY_PATCHES
 				if (TF2_GetPlayerClass(idx) == TFClass_Heavy) {
 					{
@@ -1859,7 +1832,6 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].cloak_gain_capped = false;
-				players[idx].ammo_heal_amount = 0;
 			}
 		}
 	}
@@ -2926,17 +2898,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 415: { if (ItemIsEnabled(Wep_ReserveShooter)) {
 			switch (GetItemVariant(Wep_ReserveShooter)) {
 				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 114, 0.0); // mod mini-crit airborne
 					TF2Items_SetAttribute(itemNew, 1, 178, 0.85); // 15% faster weapon switch
-					TF2Items_SetAttribute(itemNew, 2, 547, 1.0); // This weapon deploys 0% faster
+					TF2Items_SetAttribute(itemNew, 2, 265, 5.0); // mod mini-crit airborne deploy
+					TF2Items_SetAttribute(itemNew, 3, 547, 1.0); // This weapon deploys 0% faster
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 3, 0.50); // -50% clip size
 					TF2Items_SetAttribute(itemNew, 1, 114, 0.0); // mod mini-crit airborne
 					TF2Items_SetAttribute(itemNew, 2, 178, 0.85); // 15% faster weapon switch
-					TF2Items_SetAttribute(itemNew, 3, 547, 1.0); // This weapon deploys 0% faster
+					TF2Items_SetAttribute(itemNew, 3, 265, 3.0); // mod mini-crit airborne deploy
+					TF2Items_SetAttribute(itemNew, 4, 547, 1.0); // This weapon deploys 0% faster
 				}
 			}
 		}}
@@ -3190,7 +3164,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 	if (StrEqual(name, "player_spawn")) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
-		players[client].ticks_since_switch = 0;
+		players[client].weapon_switch_time = GetGameTime();
 
 		{
 			// vitasaw charge apply
@@ -4406,13 +4380,11 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
 						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 					) {
+						float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 						if (
-							(GetItemVariant(Wep_ReserveShooter) == 0 &&
-							(players[attacker].ticks_since_switch < 66 * 5)) ||
+							(GetGameTime() - players[attacker].weapon_switch_time <= time_to_minicrit) ||
 							(GetItemVariant(Wep_ReserveShooter) == 1 &&
-							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true) ||
-							(GetItemVariant(Wep_ReserveShooter) == 2 &&
-							(players[attacker].ticks_since_switch < 66 * 3))
+							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
 						) {
 							// seems to be the best way to force a minicrit
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -5224,7 +5196,7 @@ void SDKHookCB_OnTakeDamagePost(
 
 void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 {
-	players[client].ticks_since_switch = 0;
+	players[client].weapon_switch_time = GetGameTime();
 }
 
 public Action OnPlayerRunCmd(
@@ -6582,9 +6554,11 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 						EmitGameSoundToAll("BaseCombatCharacter.AmmoPickup", client);
 					}
 
-					// Accumulate heal amount for the heal event to be fired later.
-					// Fixes the messy visuals that were present on the pre-TB persuader
-					players[client].ammo_heal_amount += iTakenHealth;
+					// Fire heal event
+					Event event = CreateEvent("player_healonhit", true);
+					event.SetInt("amount", iTakenHealth);
+					event.SetInt("entindex", client);
+					event.Fire();
 
 					// remove afterburn and bleed debuffs on heal
 					TF2_RemoveCondition(client, TFCond_OnFire);
