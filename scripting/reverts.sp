@@ -226,7 +226,6 @@ enum struct Player {
 	bool is_under_hype;
 	int charge_tick;
 	int fall_dmg_tick;
-	int ticks_since_switch;
 	bool holding_jump;
 	int drain_victim;
 	float drain_time;
@@ -242,7 +241,7 @@ enum struct Player {
 	bool was_jump_key_pressed;
 	bool blast_jump_sound_loop;
 	int bunnyhop_frame;
-	int ammo_heal_amount;
+	float weapon_switch_time;
 }
 
 enum struct Entity {
@@ -669,6 +668,7 @@ public void OnPluginStart() {
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemVariant(Wep_RescueRanger, "RescueRanger_Release");
+	ItemVariant(Wep_RescueRanger, "RescueRanger_PreTB");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemVariant(Wep_ReserveShooter, "Reserve_Release");
@@ -1227,11 +1227,6 @@ public void OnGameFrame() {
 				}
 
 				{
-					// used for reserve shooter
-					++players[idx].ticks_since_switch;
-				}
-
-				{
 					// reset medigun info
 					// if player is medic, this will be set again this frame
 
@@ -1387,14 +1382,6 @@ public void OnGameFrame() {
 						// sodapopper stuff
 
 						if (ItemIsEnabled(Wep_SodaPopper)) {
-							if (
-								GetItemVariant(Wep_SodaPopper) == 0 &&
-								players[idx].is_under_hype
-							) {
-								// allow mini-crit buff to last indefinitely
-								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
-							}
-
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
@@ -1407,12 +1394,9 @@ public void OnGameFrame() {
 								) {
 									if (
 										GetItemVariant(Wep_SodaPopper) == 0 &&
-										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0
+										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5
 									) {
-										// Fall back to hype condition if the player has a drink item
-										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
-										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
-										players[idx].is_under_hype = has_lunchbox ? false : true;
+										players[idx].is_under_hype = true;
 									}
 
 									if (
@@ -1444,12 +1428,29 @@ public void OnGameFrame() {
 									if (hype <= 0.0)
 									{
 										players[idx].is_under_hype = false;
-										TF2_RemoveCondition(idx, TFCond_CritCola);
 									}
 									else
 									{
-										hype -= 9.375 * GetTickInterval(); // m_fEnergyDrinkConsumeRate*0.75f
-										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
+										// Apply minicrit condition
+										bool has_lunchbox = false;
+										weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+										if (weapon > 0) {
+											GetEntityClassname(weapon, class, sizeof(class));
+											if (StrEqual(class, "tf_weapon_lunchbox_drink")) {
+												has_lunchbox = true;
+											}	
+										}
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 0.100, 0);
+
+										if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+											// allow mini-crit buff to last indefinitely
+											SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+										}
+
+										if (TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false) {
+											hype -= GetTickInterval() * 0.75 * 12.5; // m_fEnergyDrinkConsumeRate = 12.5
+											SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
+										}
 									}
 								}
 							}
@@ -1555,27 +1556,6 @@ public void OnGameFrame() {
 							}
 						}
 					}
-				}
-
-				if (TF2_GetPlayerClass(idx) == TFClass_DemoMan) {
-					{
-						if (
-							ItemIsEnabled(Wep_Persian) &&
-							players[idx].ammo_heal_amount > 0
-						) {
-							// Fire heal event for persuader
-							Event event = CreateEvent("player_healonhit", true);
-							event.SetInt("amount", players[idx].ammo_heal_amount);
-							event.SetInt("entindex", idx);
-							event.Fire();
-
-							// Reset variable
-							players[idx].ammo_heal_amount = 0;
-						}
-					}
-				} else {
-					// reset if player isn't demoman
-					players[idx].ammo_heal_amount = 0;
 				}
 
 #if !defined MEMORY_PATCHES
@@ -1852,7 +1832,6 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].cloak_gain_capped = false;
-				players[idx].ammo_heal_amount = 0;
 			}
 		}
 	}
@@ -2187,21 +2166,8 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
-		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
-		if (
-			GetItemVariant(Wep_SodaPopper) == 0 &&
-			condition == TFCond_CritCola &&
-			players[client].is_under_hype == true &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
-		}
-	}
-
-	{
 		// buffalo steak sandvich marked-for-death effect removal
 		if (
-			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			(condition == TFCond_CritCola || condition == TFCond_RestrictToMelee) &&
@@ -2223,7 +2189,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 	{
 		if (
-			ItemIsEnabled(Wep_EurekaEffect) &&
 			TF2_GetPlayerClass(client) == TFClass_Engineer &&
 			condition == TFCond_Taunting &&
 			players[client].is_eureka_teleporting == true
@@ -2231,9 +2196,10 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			players[client].is_eureka_teleporting = false;
 
 			if (
-				players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
+				ItemIsEnabled(Wep_EurekaEffect) &&
+				(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
 				players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
-				FindBuiltTeleporterExitOwnedByClient(client) == -1
+				FindBuiltTeleporterExitOwnedByClient(client) == -1)
 			) {
 				// Refill player health and ammo
 				TF2_RegeneratePlayer(client);
@@ -2906,32 +2872,45 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 997: { if (ItemIsEnabled(Wep_RescueRanger)) {
 			switch (GetItemVariant(Wep_RescueRanger)) {
 				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
 					TF2Items_SetAttribute(itemNew, 1, 474, 75.0); // repair bolt healing amount
+					TF2Items_SetAttribute(itemNew, 2, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
 					TF2Items_SetAttribute(itemNew, 1, 474, 50.0); // repair bolt healing amount
 					TF2Items_SetAttribute(itemNew, 2, 476, 0.875); // -12.5% damage penalty (hidden, for 35 base damage)
+					TF2Items_SetAttribute(itemNew, 3, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
+				}
+				case 3: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 474, 75.0); // repair bolt healing amount
+					TF2Items_SetAttribute(itemNew, 1, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
 				}
 			}
 		}}
 		case 415: { if (ItemIsEnabled(Wep_ReserveShooter)) {
 			switch (GetItemVariant(Wep_ReserveShooter)) {
 				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 114, 0.0); // mod mini-crit airborne
 					TF2Items_SetAttribute(itemNew, 1, 178, 0.85); // 15% faster weapon switch
-					TF2Items_SetAttribute(itemNew, 2, 547, 1.0); // This weapon deploys 0% faster
+					TF2Items_SetAttribute(itemNew, 2, 265, 5.0); // mod mini-crit airborne deploy
+					TF2Items_SetAttribute(itemNew, 3, 547, 1.0); // This weapon deploys 0% faster
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 3, 0.50); // -50% clip size
 					TF2Items_SetAttribute(itemNew, 1, 114, 0.0); // mod mini-crit airborne
 					TF2Items_SetAttribute(itemNew, 2, 178, 0.85); // 15% faster weapon switch
-					TF2Items_SetAttribute(itemNew, 3, 547, 1.0); // This weapon deploys 0% faster
+					TF2Items_SetAttribute(itemNew, 3, 265, 3.0); // mod mini-crit airborne deploy
+					TF2Items_SetAttribute(itemNew, 4, 547, 1.0); // This weapon deploys 0% faster
 				}
 			}
 		}}
@@ -3185,7 +3164,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 	if (StrEqual(name, "player_spawn")) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
-		players[client].ticks_since_switch = 0;
+		players[client].weapon_switch_time = GetGameTime();
 
 		{
 			// vitasaw charge apply
@@ -3732,27 +3711,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			// if player has a drink item, end minicrits and apply hype
-
-			if (
-				GetItemVariant(Wep_SodaPopper) == 0 &&
-				players[client].is_under_hype
-			) {
-				if (player_weapons[client][Wep_SodaPopper]) {
-					if (
-						player_weapons[client][Wep_Bonk] ||
-						player_weapons[client][Wep_CritCola]
-					){
-						players[client].is_under_hype = false;
-						TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
-					}
-				} else {
-					players[client].is_under_hype = false;
-				}
-			}
-		}
-
-		{
 			//honestly this is kind of a silly way of doing it
 			//but it works!
 			for (int i = 0; i < NUM_ITEMS; i++) {
@@ -3819,7 +3777,6 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 		return Plugin_Continue;
 
 	if (
-		ItemIsEnabled(Wep_EurekaEffect) &&
 		client >= 1 &&
 		client <= MaxClients
 	) {
@@ -3940,9 +3897,7 @@ Action SDKHookCB_Spawn(int entity) {
 				owner >= 1 &&
 				owner <= MaxClients
 			) {
-				if (ItemIsEnabled(Wep_EurekaEffect)) {
-					players[owner].is_eureka_teleporting = true;
-				}
+				players[owner].is_eureka_teleporting = true;
 			}
 		}
 	}
@@ -4425,13 +4380,11 @@ Action SDKHookCB_OnTakeDamage(
 						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
 						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
 					) {
+						float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 						if (
-							(GetItemVariant(Wep_ReserveShooter) == 0 &&
-							(players[attacker].ticks_since_switch < 66 * 5)) ||
+							(GetGameTime() - players[attacker].weapon_switch_time <= time_to_minicrit) ||
 							(GetItemVariant(Wep_ReserveShooter) == 1 &&
-							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true) ||
-							(GetItemVariant(Wep_ReserveShooter) == 2 &&
-							(players[attacker].ticks_since_switch < 66 * 3))
+							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
 						) {
 							// seems to be the best way to force a minicrit
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -5243,7 +5196,7 @@ void SDKHookCB_OnTakeDamagePost(
 
 void SDKHookCB_WeaponSwitchPost(int client, int weapon)
 {
-	players[client].ticks_since_switch = 0;
+	players[client].weapon_switch_time = GetGameTime();
 }
 
 public Action OnPlayerRunCmd(
@@ -6601,9 +6554,11 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 						EmitGameSoundToAll("BaseCombatCharacter.AmmoPickup", client);
 					}
 
-					// Accumulate heal amount for the heal event to be fired later.
-					// Fixes the messy visuals that were present on the pre-TB persuader
-					players[client].ammo_heal_amount += iTakenHealth;
+					// Fire heal event
+					Event event = CreateEvent("player_healonhit", true);
+					event.SetInt("amount", iTakenHealth);
+					event.SetInt("entindex", client);
+					event.Fire();
 
 					// remove afterburn and bleed debuffs on heal
 					TF2_RemoveCondition(client, TFCond_OnFire);

@@ -246,6 +246,10 @@
 	{
 		"fi"	"Krokotyyli-pakkaus"
 	}
+	"crossbow"
+	{
+		"fi"	"Vapahtajan varsijousi"
+	}
 	"dalokohsbar"
 	{
 		"fi"	"Suklaalevy"
@@ -676,6 +680,10 @@
 	{
 		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun."
 	}
+	"CrusadersCrossbow_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: täysi ylilatauksen saanti parantaessa riippumatta siitä, ottiko kohde viime aikana vahinkoa"
+	}
 	"DalokohsBar_PreMYM"
 	{
 		"fi"	"Gun Mettle versio: kykenee taas yliparantamaan 400 HP asti"
@@ -714,7 +722,7 @@
 	}
 	"DragonFury_Release"
 	{
-		"fi"	"Julkaisuversio: suurempi projektiilin koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
+		"fi"	"Julkaisuversio: suurempi ammuksen koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
 	}
 	"DragonFury_Release_Patchless"
 	{
@@ -878,15 +886,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko, läpäisee tiimikaverit, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_Release"
 	{
-		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee kohteet, voi osua monta kertaa, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Julkaisuversio: suurempi ammuksen koko, läpäisee kohteet, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, läpäisee tiimin rakennukset, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Ennen Gun Mettleä: suurempi ammuksen koko, läpäisee tiimin rakennukset, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -940,6 +948,10 @@
 	{
 		"fi"	"Julkaisuversio: parantaa tasan +50 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia, 35 perusvahinkoa (40:stä)"
 	}
+	"RescueRanger_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: parantaa tasan +75 metallia kuluttamatta"
+	}
 	"Reserve_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: antaa minikriittisiä osumia ilmassa oleville 5s ajan esilleoton jälkeen, 15%% nopeampi aseen vaihto"
@@ -954,11 +966,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Bison_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}
 	"RocketJmp_Pre2013"
 	{
