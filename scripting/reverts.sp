@@ -1388,14 +1388,6 @@ public void OnGameFrame() {
 						// sodapopper stuff
 
 						if (ItemIsEnabled(Wep_SodaPopper)) {
-							if (
-								GetItemVariant(Wep_SodaPopper) == 0 &&
-								players[idx].is_under_hype
-							) {
-								// allow mini-crit buff to last indefinitely
-								SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
-							}
-
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
@@ -1408,12 +1400,9 @@ public void OnGameFrame() {
 								) {
 									if (
 										GetItemVariant(Wep_SodaPopper) == 0 &&
-										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 100.0
+										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5
 									) {
-										// Fall back to hype condition if the player has a drink item
-										bool has_lunchbox = (player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola]);
-										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 11.0, 0);
-										players[idx].is_under_hype = has_lunchbox ? false : true;
+										players[idx].is_under_hype = true;
 									}
 
 									if (
@@ -1445,12 +1434,29 @@ public void OnGameFrame() {
 									if (hype <= 0.0)
 									{
 										players[idx].is_under_hype = false;
-										TF2_RemoveCondition(idx, TFCond_CritCola);
 									}
 									else
 									{
-										hype -= 9.375 * GetTickInterval(); // m_fEnergyDrinkConsumeRate*0.75f
-										SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
+										// Apply minicrit condition
+										bool has_lunchbox = false;
+										weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+										if (weapon > 0) {
+											GetEntityClassname(weapon, class, sizeof(class));
+											if (StrEqual(class, "tf_weapon_lunchbox_drink")) {
+												has_lunchbox = true;
+											}	
+										}
+										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 0.100, 0);
+
+										if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+											// allow mini-crit buff to last indefinitely
+											SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
+										}
+
+										if (TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false) {
+											hype -= GetTickInterval() * 0.75 * 12.5; // m_fEnergyDrinkConsumeRate = 12.5
+											SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
+										}
 									}
 								}
 							}
@@ -2188,21 +2194,8 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
-		// if player is under minicrits but the cond was removed (e.g. via resupply), re-add it
-		if (
-			GetItemVariant(Wep_SodaPopper) == 0 &&
-			condition == TFCond_CritCola &&
-			players[client].is_under_hype == true &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			TF2_AddCondition(client, TFCond_CritCola, 11.0, 0);
-		}
-	}
-
-	{
 		// buffalo steak sandvich marked-for-death effect removal
 		if (
-			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			(condition == TFCond_CritCola || condition == TFCond_RestrictToMelee) &&
@@ -2224,7 +2217,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 	{
 		if (
-			ItemIsEnabled(Wep_EurekaEffect) &&
 			TF2_GetPlayerClass(client) == TFClass_Engineer &&
 			condition == TFCond_Taunting &&
 			players[client].is_eureka_teleporting == true
@@ -2232,9 +2224,10 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			players[client].is_eureka_teleporting = false;
 
 			if (
-				players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
+				ItemIsEnabled(Wep_EurekaEffect) &&
+				(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
 				players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
-				FindBuiltTeleporterExitOwnedByClient(client) == -1
+				FindBuiltTeleporterExitOwnedByClient(client) == -1)
 			) {
 				// Refill player health and ammo
 				TF2_RegeneratePlayer(client);
@@ -3744,27 +3737,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		}
 
 		{
-			// if player has a drink item, end minicrits and apply hype
-
-			if (
-				GetItemVariant(Wep_SodaPopper) == 0 &&
-				players[client].is_under_hype
-			) {
-				if (player_weapons[client][Wep_SodaPopper]) {
-					if (
-						player_weapons[client][Wep_Bonk] ||
-						player_weapons[client][Wep_CritCola]
-					){
-						players[client].is_under_hype = false;
-						TF2_AddCondition(client, TFCond_CritHype, 11.0, 0);
-					}
-				} else {
-					players[client].is_under_hype = false;
-				}
-			}
-		}
-
-		{
 			//honestly this is kind of a silly way of doing it
 			//but it works!
 			for (int i = 0; i < NUM_ITEMS; i++) {
@@ -3831,7 +3803,6 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 		return Plugin_Continue;
 
 	if (
-		ItemIsEnabled(Wep_EurekaEffect) &&
 		client >= 1 &&
 		client <= MaxClients
 	) {
@@ -3952,9 +3923,7 @@ Action SDKHookCB_Spawn(int entity) {
 				owner >= 1 &&
 				owner <= MaxClients
 			) {
-				if (ItemIsEnabled(Wep_EurekaEffect)) {
-					players[owner].is_eureka_teleporting = true;
-				}
+				players[owner].is_eureka_teleporting = true;
 			}
 		}
 	}
