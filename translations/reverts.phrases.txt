@@ -774,11 +774,11 @@
 	}
 	"Equalizer_PreHat"
 	{
-		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP"
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP, 256 taunt self-damage"
 	}
 	"Equalizer_Release"
 	{
-		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP"
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
 	}
 	"Eureka_SpawnRefill"
 	{
@@ -830,7 +830,7 @@
 	}
 	"Gunboats_Release"
 	{
-		"en"	"Reverted to release, -75%% blast damage from rocket jumps"
+		"en"	"Reverted to release, -75%% blast damage from rocket jumps, grenade kamikaze taunt deals only 64 self-damage"
 	}
 	"Gunslinger_PreGM"
 	{
