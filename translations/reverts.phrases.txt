@@ -214,6 +214,10 @@
 	{
 		"en"	"Buffalo Steak Sandvich"
 	}
+	"buffbanner"
+	{
+		"en"	"Buff Banner"
+	}
 	"targe"
 	{
 		"en"	"Chargin' Targe"
@@ -643,6 +647,10 @@
 	"BuffaloSteak_Pre2013"
 	{
 		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
+	}
+	"BuffBanner_Release"
+	{
+		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600 dmg)"
 	}
 	"Targe_PreTB"
 	{

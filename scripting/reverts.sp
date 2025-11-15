@@ -238,6 +238,7 @@ enum struct Player {
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
 	float pyro_rage_meter;
+	float soldier_buffbanner_meter;
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
@@ -410,6 +411,7 @@ enum
 	Wep_Booties,
 	Wep_BrassBeast,
 	Wep_BuffaloSteak,
+	Wep_BuffBanner,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
 	Wep_Concheror,
@@ -438,11 +440,7 @@ enum
 	Wep_Eviction,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
-#if defined MEMORY_PATCHES
-	Wep_MadMilk,
-#endif
-	Wep_MarketGardener,
-	Wep_GRU,
+	Wep_GRU, // Gloves of Running Urgently
 	Wep_Gunboats,
 #if defined MEMORY_PATCHES
 	Wep_Gunslinger,
@@ -455,6 +453,10 @@ enum
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
 	Wep_LooseCannon,
+#if defined MEMORY_PATCHES
+	Wep_MadMilk,
+#endif
+	Wep_MarketGardener,
 	Wep_Natascha,
 	Wep_PanicAttack,
 	Wep_Persian,
@@ -579,6 +581,7 @@ public void OnPluginStart() {
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2013");
+	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
@@ -1515,6 +1518,35 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// Release Buff Banner rage takes 1000 damage to fully fill (from 600)
+
+						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+
+						if (weapon > 0) {
+
+							if (
+								ItemIsEnabled(Wep_BuffBanner) &&
+								(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 129 ||
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1001)
+							) {
+								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
+								float delta = hype - players[idx].soldier_buffbanner_meter;
+
+								if (
+									delta > 0.0 && 
+									hype < 100.0 // esoteric fix to allow buff banner to be usable when full. i have no idea why that happens.
+								) {
+									delta *= 0.6; // 600.0 / 1000.0
+									hype = floatMin(players[idx].soldier_buffbanner_meter + delta, 100.0);
+									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
+								}
+
+								players[idx].soldier_buffbanner_meter = hype;
+							}
+						}
+					}					
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Pyro) {
@@ -2582,6 +2614,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 798, GetItemVariant(Wep_BuffaloSteak) > 0 ? 1.00 : 1.10);
 			// mini-crits on damage taken handled elsewhere in TF2_OnConditionAdded and TF2_OnConditionRemoved
 		}}
+		case 129, 1001: { if (ItemIsEnabled(Wep_BuffBanner)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 357, 1.40); // +40% buff duration (hidden) (from 10 seconds to 14 seconds)
+		}}		
 		case 232: { if (ItemIsEnabled(Wep_Bushwacka)) {
 			switch (GetItemVariant(Wep_Bushwacka)) {
 				case 1: {
@@ -3589,6 +3625,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 46, 1145: player_weapons[client][Wep_Bonk] = true;
 						case 312: player_weapons[client][Wep_BrassBeast] = true;
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
+						case 129, 1001: player_weapons[client][Wep_BuffBanner] = true;
 						case 232: player_weapons[client][Wep_Bushwacka] = true;
 						case 307: player_weapons[client][Wep_Caber] = true;
 						case 159, 433: player_weapons[client][Wep_Dalokohs] = true;
