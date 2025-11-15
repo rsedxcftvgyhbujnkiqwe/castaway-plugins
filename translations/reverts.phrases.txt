@@ -708,6 +708,14 @@
 	{
 		"en"	"Reverted to Gun Mettle update, can now overheal to 400 HP again"
 	}
+	"DalokohsBar_PreMYM_Patchless"
+	{
+		"en"	"Memory patches turned off! Gun Mettle Dalokohs Bar is not reverted!"
+	}
+	"DalokohsBar_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, instantly recharge after eating, cannot be dropped for health pick-ups via alt-fire"
+	}	
 	"Darwin_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"		

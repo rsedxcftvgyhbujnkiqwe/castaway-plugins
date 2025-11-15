@@ -354,6 +354,7 @@ DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
+DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -421,8 +422,8 @@ enum
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
 	Wep_Crossbow,
-	Wep_Dalokohs,
 #endif
+	Wep_Dalokohs,
 	Wep_Darwin,
 	Wep_DeadRinger,	
 	Wep_Degreaser,
@@ -597,7 +598,10 @@ public void OnPluginStart() {
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
 #if defined MEMORY_PATCHES
 	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
+#else
+	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM_Patchless", CLASSFLAG_HEAVY, Wep_Dalokohs); // Default variant does nothing with disabled mempatches
 #endif
+	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreGM");
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
@@ -823,6 +827,7 @@ public void OnPluginStart() {
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
+		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
 
 		delete conf;
 	}
@@ -975,6 +980,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
+	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -984,6 +990,7 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
+	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1146,7 +1153,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			}
 		}
 		case Wep_Dalokohs: {
-			if (enable) {
+			if (enable && (GetItemVariant(Wep_Dalokohs) == 0)) {
 				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
 				patch_RevertDalokohsBar_ChgTo400.Enable();
 
@@ -2051,6 +2058,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
+	if (StrEqual(class, "tf_weapon_lunchbox")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+
 	if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
 	}
@@ -2684,6 +2695,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+	// In case the DHook for preventing ammo usage for pre-Gun Mettle Dalokohs Bar doesn't work, uncomment this attribute based workaround
+	// Note that the player can pick up medpacks if they stand on top of one while eating.
+		// case 159, 433: { if (GetItemVariant(Wep_Dalokohs) == 1) {
+		// 	TF2Items_SetNumAttributes(itemNew, 1);
+		// 	TF2Items_SetAttribute(itemNew, 0, 874, 0.002); // mult_item_meter_charge_rate
+		// }}		
 		case 215: { if (ItemIsEnabled(Wep_Degreaser)) {
 			TF2Items_SetNumAttributes(itemNew, 6);
 			TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // damage penalty
@@ -3574,8 +3591,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 311: player_weapons[client][Wep_BuffaloSteak] = true;
 						case 232: player_weapons[client][Wep_Bushwacka] = true;
 						case 307: player_weapons[client][Wep_Caber] = true;
-#if defined MEMORY_PATCHES
 						case 159, 433: player_weapons[client][Wep_Dalokohs] = true;
+#if defined MEMORY_PATCHES
 						case 447: player_weapons[client][Wep_Disciplinary] = true;
 #endif
 						case 1178: player_weapons[client][Wep_DragonFury] = true;
@@ -5293,7 +5310,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 						(GetItemVariant(Wep_Pickaxe) == 1 ||
 						GetItemVariant(Wep_Pickaxe) == 2) &&
 						player_weapons[victim][Wep_Pickaxe] &&
-						!player_weapons[victim][Wep_Gunboats]					
+						!player_weapons[victim][Wep_Gunboats]
 					) {
 						damage *= 0.80;
 						returnValue = Plugin_Changed;
@@ -6032,8 +6049,9 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	GetEntityClassname(entity, class, sizeof(class));
 
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-
+	
 	if (owner > 0) {
+		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");		
 		if (
 			StrEqual(class, "tf_weapon_flamethrower") ||
 			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
@@ -6090,6 +6108,39 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			// shortstop shove removal
 			return MRES_Supercede;
 		}
+
+		if (
+			GetItemVariant(Wep_Dalokohs) == 1 &&
+			player_weapons[owner][Wep_Dalokohs] &&
+			StrEqual(class, "tf_weapon_lunchbox") &&
+			(index == 159 || index == 433) // dalokohs and fishcake
+		) {
+			// pre-gun mettle dalokohs bar alt-fire drop prevention
+				//PrintToChat(owner, "Cannot drop pre-Gun Mettle Dalokohs Bar!");
+			return MRES_Supercede;
+		}		
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
+	int owner;
+	char class[64];
+
+	GetEntityClassname(entity, class, sizeof(class));
+
+	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	
+	if (owner > 0) {
+		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+		if (
+			GetItemVariant(Wep_Dalokohs) == 1 &&
+			player_weapons[owner][Wep_Dalokohs] &&
+			StrEqual(class, "tf_weapon_lunchbox") &&
+			(index == 159 || index == 433) // dalokohs and fishcake
+		) {
+			return MRES_Supercede;
+		}		
 	}
 	return MRES_Ignored;
 }

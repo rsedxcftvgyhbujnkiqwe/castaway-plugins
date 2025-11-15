@@ -66,6 +66,12 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
 				"linux"   "@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
 			}
+			"CTFLunchBox::DrainAmmo" // xref to ??_R0?AVCTFLunchBox@@@8, find function that doesn't have a bunch of strings following, and just get lucky i guess?
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
+				"linux"   "@_ZN11CTFLunchBox9DrainAmmoEb"
+			}
 		}
 
 		"Offsets"
@@ -324,6 +330,21 @@
 					}
 				}
 			}
+			
+			"CTFLunchBox::DrainAmmo"
+			{
+				"signature" "CTFLunchBox::DrainAmmo"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"bForceCooldown"
+					{
+						"type" "bool"
+					}
+				}
+			}			
 		}
 	}
 }
