@@ -2414,7 +2414,9 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
 		if (
 			ItemIsEnabled(Wep_Phlogistinator) && GetItemVariant(Wep_Phlogistinator) != 1 &&
-			TF2_GetPlayerClass(client) == TFClass_Pyro
+			TF2_GetPlayerClass(client) == TFClass_Pyro &&
+			TF2_IsPlayerInCondition(client, TFCond_CritMmmph) && // these two condition checks are necessary to prevent sound loop spam
+			TF2_IsPlayerInCondition(client, TFCond_Taunting) // whenever the pyro is ubered by a quick fix medic
 		) {
 			// Prevent Uber effect (should also prevent debuff removal)
 			if (condition == TFCond_UberchargedCanteen) {
