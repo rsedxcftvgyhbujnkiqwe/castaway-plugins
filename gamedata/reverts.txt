@@ -72,6 +72,12 @@
 				"windows" "\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
 				"linux"   "@_ZN11CTFLunchBox9DrainAmmoEb"
 			}
+			"CTFPlayer::Taunt" // offset aCosmeticTauntS ; "cosmetic_taunt_sound"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x56\x57\x8B\xF9\xE8"
+				"linux"   "@_ZN9CTFPlayer5TauntE8taunts_ti"
+			}			
 		}
 
 		"Offsets"
@@ -344,7 +350,27 @@
 						"type" "bool"
 					}
 				}
-			}			
+			}
+
+			// https://github.com/ValveSoftware/source-sdk-2013/blob/b2705ba55b3b802b86ef2b2dbf97939c9d4fb685/src/game/server/tf/tf_player.cpp#L17800
+			"CTFPlayer::Taunt"
+			{
+				"signature" "CTFPlayer::Taunt"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"taunts_t"
+					{
+						"type" "int"
+					}
+					"iTauntConcept"
+					{
+						"type" "int"
+					}
+				}
+			}
 		}
 	}
 }

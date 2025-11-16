@@ -239,6 +239,7 @@ enum struct Player {
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
 	float pyro_rage_meter;
+	int pyro_ticks_since_mmmph_use;
 	float soldier_buffbanner_meter;
 	bool cloak_gain_capped;
 	float damage_received_time;
@@ -357,6 +358,7 @@ DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
+DynamicDetour dhook_CTFPlayer_Taunt;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -832,6 +834,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
+		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
 
 		delete conf;
 	}
@@ -985,6 +988,7 @@ public void OnPluginStart() {
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
+	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -995,6 +999,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
+	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2416,8 +2421,10 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			ItemIsEnabled(Wep_Phlogistinator) && GetItemVariant(Wep_Phlogistinator) != 1 &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro &&
 			TF2_IsPlayerInCondition(client, TFCond_CritMmmph) && // these two condition checks are necessary to prevent sound loop spam
-			TF2_IsPlayerInCondition(client, TFCond_Taunting) // whenever the pyro is ubered by a quick fix medic
+			TF2_IsPlayerInCondition(client, TFCond_Taunting) && // whenever the pyro is ubered by a quick fix medic
+			players[client].pyro_ticks_since_mmmph_use == GetGameTickCount() // if ever CTFPlayer::Taunt DHook breaks, comment this line
 		) {
+				// PrintToChat(client, "Uber removal executed, GetGameTickCount() = %i", GetGameTickCount());
 			// Prevent Uber effect (should also prevent debuff removal)
 			if (condition == TFCond_UberchargedCanteen) {
 				return Plugin_Handled;	
@@ -6200,6 +6207,21 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		) {
 			return MRES_Supercede;
 		}		
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
+	if (
+		GetItemVariant(Wep_Phlogistinator) != 1 &&
+		player_weapons[entity][Wep_Phlogistinator] &&
+		GetEntPropFloat(entity, Prop_Send, "m_flRageMeter") == 100
+	) {
+		// hook imported from NotnHeavy's
+		// i really do not want to use this since the dhook's signature may change when tf2 updates especially with taunts
+		// this here is necessary to prevent the quick fix uber sound spam bug once and for all
+		players[entity].pyro_ticks_since_mmmph_use = GetGameTickCount();
+			// PrintToChat(entity, "Set pyro_ticks_since_mmmph_use to: %i", GetGameTickCount());
 	}
 	return MRES_Ignored;
 }
