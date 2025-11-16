@@ -203,6 +203,7 @@ enum struct Player {
 	float resupply_time;
 	int headshot_frame;
 	bool is_rapid_headshot_ambassador;
+	bool is_victim_hit_by_headshot_ambassador;
 	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
@@ -4295,6 +4296,22 @@ Action SDKHookCB_TraceAttack(
 			players[attacker].is_rapid_headshot_ambassador = false;
 				// PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
 		}
+
+		// victim headshot and bodyshot penetration tracking for reverted ambassador variants
+		if (
+			(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
+			TF2_GetPlayerClass(attacker) == TFClass_Spy &&
+			hitgroup == 1 &&
+			player_weapons[attacker][Wep_Ambassador]
+		) {
+			players[victim].is_victim_hit_by_headshot_ambassador = true;
+				// PrintToChat(attacker, "players[victim=%i].is_victim_hit_by_headshot_ambassador = %b", victim, players[victim].is_victim_hit_by_headshot_ambassador);
+				// PrintToChat(attacker, "int victim = %i", victim);
+		} else {
+			players[victim].is_victim_hit_by_headshot_ambassador = false;
+				// PrintToChat(attacker, "players[victim=%i].is_victim_hit_by_headshot_ambassador = %b", victim, players[victim].is_victim_hit_by_headshot_ambassador);
+				// PrintToChat(attacker, "int victim = %i", victim);
+		}		
 	}
 
 	return Plugin_Continue;
@@ -4560,7 +4577,8 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// Always deal full crits at any range
 					if (
-						(GetItemVariant(Wep_Ambassador) == 0 || GetItemVariant(Wep_Ambassador) == 1) &&
+						(GetItemVariant(Wep_Ambassador) == 0 || 
+						(GetItemVariant(Wep_Ambassador) == 1 && players[victim].is_victim_hit_by_headshot_ambassador)) &&
 						(players[attacker].headshot_frame == GetGameTickCount())
 					) {
 						damage_type = (damage_type | DMG_CRIT);
@@ -4570,7 +4588,8 @@ Action SDKHookCB_OnTakeDamage(
 					if (
 						(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
 						players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
-						players[attacker].is_rapid_headshot_ambassador
+						players[attacker].is_rapid_headshot_ambassador &&
+						players[victim].is_victim_hit_by_headshot_ambassador
 					) {
 						if (GetItemVariant(Wep_Ambassador) == 1) { // Pre-June 23, 2009 variant
 							damage_type |= (DMG_USE_HITLOCATIONS | DMG_CRIT);
@@ -4586,7 +4605,8 @@ Action SDKHookCB_OnTakeDamage(
 					// also prevents not dealing mini-crit headshots from beyond 1200 hammer units
 					if (
 						GetItemVariant(Wep_Ambassador) == 2 &&
-						players[attacker].headshot_frame == GetGameTickCount()
+						players[attacker].headshot_frame == GetGameTickCount() &&
+						players[victim].is_victim_hit_by_headshot_ambassador
 					) {
 						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
