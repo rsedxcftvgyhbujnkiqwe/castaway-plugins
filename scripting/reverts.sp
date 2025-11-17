@@ -3087,7 +3087,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 					TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
 					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
-				}			
+				}
 				default: {
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 728, 1.0); // No cloak meter from ammo boxes when invisible
