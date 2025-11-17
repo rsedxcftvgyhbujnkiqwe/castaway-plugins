@@ -238,9 +238,8 @@ enum struct Player {
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
-	float pyro_rage_meter;
+	float rage_meter;
 	int pyro_ticks_since_mmmph_use;
-	float soldier_buffbanner_meter;
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
@@ -1538,18 +1537,18 @@ public void OnGameFrame() {
 								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1001)
 							) {
 								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
-								float delta = hype - players[idx].soldier_buffbanner_meter;
+								float delta = hype - players[idx].rage_meter;
 
 								if (
 									delta > 0.0 && 
 									hype < 100.0 // esoteric fix to allow buff banner to be usable when full. i have no idea why that happens.
 								) {
 									delta *= 0.6; // 600.0 / 1000.0
-									hype = floatMin(players[idx].soldier_buffbanner_meter + delta, 100.0);
+									hype = floatMin(players[idx].rage_meter + delta, 100.0);
 									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
 								}
 
-								players[idx].soldier_buffbanner_meter = hype;
+								players[idx].rage_meter = hype;
 							}
 						}
 					}					
@@ -1600,15 +1599,15 @@ public void OnGameFrame() {
 								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594
 							) {
 								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
-								float delta = hype - players[idx].pyro_rage_meter;
+								float delta = hype - players[idx].rage_meter;
 
 								if (delta > 0.0) {
 									delta *= 1.33333333; // 300.0 / 225.0
-									hype = floatMin(players[idx].pyro_rage_meter + delta, 100.0);
+									hype = floatMin(players[idx].rage_meter + delta, 100.0);
 									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
 								}
 
-								players[idx].pyro_rage_meter = hype;
+								players[idx].rage_meter = hype;
 							}
 						}
 					}
