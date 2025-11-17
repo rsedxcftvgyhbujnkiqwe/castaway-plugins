@@ -3975,72 +3975,61 @@ Action SDKHookCB_Touch(int entity, int other) {
 	}
 
 	{
-		// pomson pass thru team
+		// energy ring stuff
 
 		if (StrEqual(class, "tf_projectile_energy_ring")) {
 			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 
 			if (
-				other >= 1 &&
-				other <= MaxClients
-			) {
-				
-
-				if (
-					owner > 0 &&
-					weapon > 0
-				) {
-					// Bison and Pomson lighting up friendly Huntsman arrows
-					GetEntityClassname(weapon, class, sizeof(class));
-
-					if (
-						(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
-						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")) &&
-						TF2_GetClientTeam(other) == TF2_GetClientTeam(owner)
-					) {
-						weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
-						if (weapon > 0) {
-							GetEntityClassname(weapon, class, sizeof(class));
-							if (StrEqual(class, "tf_weapon_compound_bow") && weapon == GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon")) 
-								SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
-						}
-						
-						// Pomson pass through teammates, unless pre-Gun Mettle variant is used
-						if (
-							ItemIsEnabled(Wep_Pomson) &&
-							GetItemVariant(Wep_Pomson) != 2
-						) {
-							return Plugin_Handled;
-						}
-					}
-				}
-			} else if (
-				other > MaxClients &&
 				owner > 0 &&
 				weapon > 0
 			) {
 				GetEntityClassname(weapon, class, sizeof(class));
-				
-				if (
-					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) || 
-					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-				) {
-					GetEntityClassname(other, class, sizeof(class));
 
-					// Pomson pass through teammate buildings
+				if (
+					ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
+					ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
+				) {
 					if (
-						(StrEqual(class, "obj_sentrygun") ||
-						StrEqual(class, "obj_dispenser") ||
-						StrEqual(class, "obj_teleporter")) &&
-						AreEntitiesOnSameTeam(entity, other)
+						other >= 1 &&
+						other <= MaxClients
 					) {
-						return Plugin_Handled;
-					}
-					
-					// Don't collide with projectiles
-					if (StrContains(class, "tf_projectile_") == 0) {
-						return Plugin_Handled;
+						if (AreEntitiesOnSameTeam(entity, other)) {
+
+							// Bison and Pomson lighting up friendly Huntsman arrows
+							weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+								if (StrEqual(class, "tf_weapon_compound_bow")) {
+									SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
+								}
+							}
+							
+							// Pomson pass through teammates, unless pre-Gun Mettle variant is used
+							if (
+								ItemIsEnabled(Wep_Pomson) &&
+								GetItemVariant(Wep_Pomson) != 2
+							) {
+								return Plugin_Handled;
+							}
+						}
+					} else if (other > MaxClients) {
+						
+						GetEntityClassname(other, class, sizeof(class));
+
+						// Pomson pass through teammate buildings
+						if (
+							StrContains(class, "obj_") == 0 &&
+							AreEntitiesOnSameTeam(entity, other)
+						) {
+							return Plugin_Handled;
+						}
+						
+						// Don't collide with projectiles
+						if (StrContains(class, "tf_projectile_") == 0) {
+							return Plugin_Handled;
+						}
 					}
 				}
 			}
