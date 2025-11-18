@@ -1781,13 +1781,6 @@ public void OnGameFrame() {
 											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 0.0);
 										}
 									}
-									case 4: { // release
-										// do not drain meter when uncloaking early
-										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 0.0) {
-											float release_cloak_cur = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", release_cloak_cur);
-										}
-									}
 									case 5: { // pre-2010
 										// when uncloaking, cloak is drained up to 40% if the meter is at least 60% full
 										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") >= 60.0) {
