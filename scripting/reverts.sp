@@ -1784,10 +1784,7 @@ public void OnGameFrame() {
 									case 5: { // pre-2010
 										// when uncloaking, cloak is drained up to 40% if the meter is at least 60% full
 										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") >= 60.0) {
-												// PrintToChat(idx, "Cloak before = %f", GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter"));
-											float pre2010_cloak_cur = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", pre2010_cloak_cur - (pre2010_cloak_cur - 60.0));
-												// PrintToChat(idx, "Cloak after = %f", GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter"));
+											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 60.0);
 										}
 									}
 								}
