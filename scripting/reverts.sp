@@ -475,6 +475,7 @@ enum
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
 	Wep_Sandman,
+	Wep_ScorchShot,
 	Wep_Scottish,
 	Wep_ShortCircuit,
 	Wep_Shortstop,
@@ -702,6 +703,7 @@ public void OnPluginStart() {
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
+	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO, Wep_ScorchShot);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -3100,6 +3102,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 740: { if (ItemIsEnabled(Wep_ScorchShot)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 59, 1.00); // 0% self damage force
+		}}		
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 6, 1.0); // fire rate bonus
@@ -3678,6 +3684,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
 						case 44: player_weapons[client][Wep_Sandman] = true;
+						case 740: player_weapons[client][Wep_ScorchShot] = true;
 						case 130: player_weapons[client][Wep_Scottish] = true;
 						case 230: player_weapons[client][Wep_SydneySleeper] = true;
 						case 448: player_weapons[client][Wep_SodaPopper] = true;
