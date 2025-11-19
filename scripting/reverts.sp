@@ -601,12 +601,12 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
+	ItemDefine("dalokohsbar", "DalokohsBar_PreGM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
 #if defined MEMORY_PATCHES
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
+	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreMYM");
 #else
-	ItemDefine("dalokohsbar", "DalokohsBar_PreMYM_Patchless", CLASSFLAG_HEAVY, Wep_Dalokohs); // Default variant does nothing with disabled mempatches
+	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreMYM_Patchless"); // Variant does nothing with disabled mempatches
 #endif
-	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreGM");
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
@@ -1161,7 +1161,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			}
 		}
 		case Wep_Dalokohs: {
-			if (enable && (GetItemVariant(Wep_Dalokohs) == 0)) {
+			if (enable && (GetItemVariant(Wep_Dalokohs) == 1)) {
 				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
 				patch_RevertDalokohsBar_ChgTo400.Enable();
 
@@ -2734,7 +2734,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 	// In case the DHook for preventing ammo usage for pre-Gun Mettle Dalokohs Bar doesn't work, uncomment this attribute based workaround
 	// Note that the player can pick up medpacks if they stand on top of one while eating.
-		// case 159, 433: { if (GetItemVariant(Wep_Dalokohs) == 1) {
+		// case 159, 433: { if (GetItemVariant(Wep_Dalokohs) == 0) {
 		// 	TF2Items_SetNumAttributes(itemNew, 1);
 		// 	TF2Items_SetAttribute(itemNew, 0, 874, 0.002); // mult_item_meter_charge_rate
 		// }}		
@@ -6167,7 +6167,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		}
 
 		if (
-			GetItemVariant(Wep_Dalokohs) == 1 &&
+			GetItemVariant(Wep_Dalokohs) == 0 &&
 			player_weapons[owner][Wep_Dalokohs] &&
 			StrEqual(class, "tf_weapon_lunchbox") &&
 			(index == 159 || index == 433) // dalokohs and fishcake
@@ -6191,7 +6191,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	if (owner > 0) {
 		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 		if (
-			GetItemVariant(Wep_Dalokohs) == 1 &&
+			GetItemVariant(Wep_Dalokohs) == 0 &&
 			player_weapons[owner][Wep_Dalokohs] &&
 			StrEqual(class, "tf_weapon_lunchbox") &&
 			(index == 159 || index == 433) // dalokohs and fishcake
