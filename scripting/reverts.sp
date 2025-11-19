@@ -703,7 +703,7 @@ public void OnPluginStart() {
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
-	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO, Wep_ScorchShot);
+	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
