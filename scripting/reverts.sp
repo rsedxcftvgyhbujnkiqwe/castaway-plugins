@@ -475,6 +475,7 @@ enum
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
 	Wep_Sandman,
+	Wep_Sandvich,
 	Wep_Scottish,
 	Wep_ShortCircuit,
 	Wep_Shortstop,
@@ -702,6 +703,7 @@ public void OnPluginStart() {
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
+	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -2104,6 +2106,107 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 #endif
 	}
+
+	// Check if it's a medium healthkit. When we figure out (and if we should depending on historical accuracy)
+	// how to allow candy cane healthkits and medivial healthkits we can add item_healthkit_small later
+	if (
+		StrEqual(class, "item_healthkit_medium") &&
+		ItemIsEnabled(Wep_Sandvich)
+	) {
+		// It's a medium healthkit! Hook it with a SpawnPost.
+		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown); // OnSandvichThrown is not a sourcemod provided forward or event etc. It's named as such so we know what it's for.	
+	}
+}
+
+
+// While named OnSandvichThrown, there is actually no such forward/event whatever. It's just so we understand the intention/usage of this entity hook.
+public void OnSandvichThrown(int entity){ 
+	// Convert to EntRef incase the healthkit somehow dies before the frame RequestFrame provides can run.
+	int ref = EntIndexToEntRef(entity);
+	// We need to do RequestFrame to give CTFLunchbox::SecondaryAttack the time to fill out the modelname of the healthkit as SDKHook_SpawnPost runs before 
+	// the function has had a chance to set the model name, something we NEED in order to improve accuracy in who created the healthkit entity.
+	RequestFrame(OnSandvichThrown_NextFrame, ref);
+	SDKUnhook(entity, SDKHook_SpawnPost, OnSandvichThrown); // Unhook to be tidy and not waste RAM
+} 
+
+// If other sandvich types should be hooked, add them here (and make sure to remove them from IsNotSandvichEligibleDropModel).
+bool IsSandvichRevertEligibleDropModel(const char[] model_name)
+{
+    return StrEqual(model_name, LUNCHBOX_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_ROBOT_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_FESTIVE_DROP_MODEL, false);
+}
+
+// If other sandvich types should NOT be hooked, add them here (and make sure to remove them from IsSandvichRevertEligibleDropModel).
+// Commented for now, might be usefull later for candycane and medivial mode healthkits.
+//bool IsNotSandvichRevertEligibleDropModel(const char[] model_name)
+//{
+//    return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false)
+//        || StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false)
+//        || StrEqual(model_name, LUNCHBOX_BANANA_DROP_MODEL, false)
+//	|| StrEqual(model_name, LUNCHBOX_FISHCAKE_DROP_MODEL, false);
+//}
+
+
+// The next frame after OnSandvichThrown (as in this should run 1 frame after OnSandvichThrown's SDKHook_SpawnPost which should be enough to get model populated correctly.
+public void OnSandvichThrown_NextFrame(int entity_ref)
+{
+        int entity = EntRefToEntIndex(entity_ref);
+        if (entity <= 0 || !IsValidEntity(entity)) {
+                return;
+        }
+
+        if (!ItemIsEnabled(Wep_Sandvich)) {
+		return;
+        }
+
+        char model_name[PLATFORM_MAX_PATH];
+        GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
+
+        bool isSandvichDrop = IsSandvichRevertEligibleDropModel(model_name);
+
+        // If model does NOT match any lunchbox plate → it's always a normal medium or small kit.
+        if (isSandvichDrop) {
+                // Plate-style drop. Only proceed if the owner is a valid client.
+                int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+
+                if (
+                        client > 0 &&
+                        client <= MaxClients &&
+                        IsClientInGame(client)
+                ) {
+                        // Owner is a real player, check class + sandvich cache.
+                        if (
+                                TF2_GetPlayerClass(client) == TFClass_Heavy &&
+                                player_weapons[client][Wep_Sandvich]
+                        ) {
+                                int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                                if (weapon != -1) {
+                                        char className[64];
+                                        GetEntityClassname(weapon, className, sizeof(className));
+                                        int ItemDefIndex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+
+                                        if (
+                                                StrEqual(className, "tf_weapon_lunchbox", false) &&
+                                                (ItemDefIndex == 42 || ItemDefIndex == 863 || ItemDefIndex == 1002)
+                                        ) {
+                                                // Fully verified thrown Sandvich.
+                                                players[client].has_thrown_sandvich = true;
+                                                players[client].thrown_sandvich_ent_ref = EntIndexToEntRef(entity);
+                                                entities[entity].is_a_sandvich_healthkit = true;
+
+                                                dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_Sandvich_MyTouch);
+                                                return;
+                                        }
+                                }
+                        }
+                }
+        }
+        else {
+                // Normal medium healthkit.
+                dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_MyTouch);
+                return;
+        }
 }
 
 public void OnEntityDestroyed(int entity) {
@@ -3529,6 +3632,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
+
+		// If player has touched a respawn cabinet (or respawned), then
+		// clear their stale references if they are NOT a heavy but
+		// has_thrown_sandvich is true OR Sandvich revert is off.
+
+		if ( 
+			(TF2_GetPlayerClass(client) != TFClass_Heavy &&
+			players[client].has_thrown_sandvich) ||
+			!ItemIsEnabled(Wep_Sandvich)
+		) {
+			players[client].has_thrown_sandvich = false;
+			players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
+		}
 
 		// apply pre-toughbreak weapon switch if cvar is enabled
 		if (cvar_pre_toughbreak_switch.BoolValue)
@@ -6197,7 +6313,17 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 			(index == 159 || index == 433) // dalokohs and fishcake
 		) {
 			return MRES_Supercede;
-		}		
+		}
+
+		if (
+			ItemIsEnabled(Wep_Sandvich) &&
+			player_weapons[owner][Wep_Sandvich] &&
+			StrEqual(class, "tf_weapon_lunchbox") && 
+			(index == 42 || index == 863 || index == 1002) && // Sandvich, Robo-Sandvich, Festive Sandvich
+			!players[owner].has_thrown_sandvich
+		) {
+			return MRES_Supercede;
+		}
 	}
 	return MRES_Ignored;
 }
@@ -6955,6 +7081,97 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 				return MRES_Supercede;
 			}
 		}
+	}
+
+	return MRES_Ignored;
+}
+
+// Sandvich revert specific MyTouch hook.
+MRESReturn DHookCallback_CHealthKit_Sandvich_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	// Entity is the entity_index of the healthkit
+	int owner_of_sandvich = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+	// parameters.Get(1) get's the touching player.
+	int client = parameters.Get(1);
+	
+	if (	
+		TF2_GetPlayerClass(client) == TFClass_Heavy && 
+		players[client].has_thrown_sandvich
+	) {
+		int eIdxFromEntRef = EntRefToEntIndex(players[client].thrown_sandvich_ent_ref);
+		if (
+			eIdxFromEntRef != INVALID_ENT_REFERENCE &&
+			entity == eIdxFromEntRef &&
+			owner_of_sandvich == client
+		) {
+			int res = GetPlayerResourceEntity();
+			if (res == -1 || !IsValidEntity(res))
+			{
+				// Something is wrong with the resource manager, default to MRES_Ignored.
+				PrintToServer("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
+				PrintToServer("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not being obtained as expected!");
+				return MRES_Ignored;
+			}
+
+			int hp = GetClientHealth(client);
+			// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
+			// If we went for the m_iMaxHealth in Prop_Data, we would simply get 300 no matter what.
+			int maxhealth = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
+			if ( hp == maxhealth) {
+				// If at full health, do not allow the sandvich to recharge by denying pickup.
+				// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
+				returnValue.Value = false;
+				return MRES_Supercede;
+			} else if ( hp < maxhealth) {
+				// Change the owner of the healthkit sandvich to be 0 aka the world in Prehook.
+				// This prevents the Sandvich from recharging the heavy's meter but still makes him get health from it.
+				// Sometimes the simplest of solutions are not so obvious when tunnel vision is involved. :)
+				SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", 0);
+				// Pickup will cause stale references, so clean them out.
+				// players[client].has_thrown_sandvich = false;
+				players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
+			}
+		}
+	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	// Entity is the entity_index of the healthkit
+	// parameters.Get(1) get's the touching player.
+	char classname[64];
+	GetEntityClassname(entity, classname, sizeof(classname));
+
+	int client = parameters.Get(1);
+	if (	
+		TF2_GetPlayerClass(client) == TFClass_Heavy && 
+		players[client].has_thrown_sandvich
+	) {
+		int res = GetPlayerResourceEntity();
+		if (res == -1 || !IsValidEntity(res))
+		{
+			// Something is wrong with the resource manager, default to MRES_Ignored.
+			PrintToServer("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
+			PrintToServer("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not working out!");
+			return MRES_Ignored;
+		}
+
+		int hp = GetClientHealth(client);
+		// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
+		// If we went for the m_iMaxHealth in Prop_Data, we would simply get the base 300 no matter what.
+		int maxhealth = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
+		int owner_of_healthkit = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
+		// Make sure that the healthkit is owned by world before we reset tracking.
+		// This is because we want to avoid letting other heavys sandviches charge the touching heavys chargemeter.
+		// If we want heavy to be able to recharge of things like the candy cane healthkit or healthkits dropped
+		// in Medivial mode, we need to change this to account for that. But this will do for now.
+		if ( hp == maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
+			// It's a normal map placed healthkit, allow the recharge.
+			players[client].has_thrown_sandvich = false;
+		}	
 	}
 
 	return MRES_Ignored;
