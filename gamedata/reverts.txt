@@ -66,6 +66,18 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
 				"linux"   "@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
 			}
+			"CTFLunchBox::DrainAmmo" // xref to ??_R0?AVCTFLunchBox@@@8, find function that doesn't have a bunch of strings following, and just get lucky i guess?
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
+				"linux"   "@_ZN11CTFLunchBox9DrainAmmoEb"
+			}
+			"CTFPlayer::Taunt" // offset aCosmeticTauntS ; "cosmetic_taunt_sound"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x56\x57\x8B\xF9\xE8"
+				"linux"   "@_ZN9CTFPlayer5TauntE8taunts_ti"
+			}			
 		}
 
 		"Offsets"
@@ -319,6 +331,41 @@
 						"type" "bool"
 					}
 					"eAmmoSource"
+					{
+						"type" "int"
+					}
+				}
+			}
+			
+			"CTFLunchBox::DrainAmmo"
+			{
+				"signature" "CTFLunchBox::DrainAmmo"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"bForceCooldown"
+					{
+						"type" "bool"
+					}
+				}
+			}
+
+			// https://github.com/ValveSoftware/source-sdk-2013/blob/b2705ba55b3b802b86ef2b2dbf97939c9d4fb685/src/game/server/tf/tf_player.cpp#L17800
+			"CTFPlayer::Taunt"
+			{
+				"signature" "CTFPlayer::Taunt"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+				"arguments"
+				{
+					"taunts_t"
+					{
+						"type" "int"
+					}
+					"iTauntConcept"
 					{
 						"type" "int"
 					}

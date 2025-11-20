@@ -190,6 +190,10 @@
 	{
 		"en"	"Black Box"
 	}
+	"blutsauger"
+	{
+		"en"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"en"	"Bonk! Atomic Punch"
@@ -209,6 +213,10 @@
 	"buffalosteak"
 	{
 		"en"	"Buffalo Steak Sandvich"
+	}
+	"buffbanner"
+	{
+		"en"	"Buff Banner"
 	}
 	"targe"
 	{
@@ -261,6 +269,10 @@
 	"degreaser"
 	{
 		"en"	"Degreaser"
+	}
+	"directhit"
+	{
+		"en"	"Direct Hit"
 	}
 	"disciplinary"
 	{
@@ -418,6 +430,10 @@
 	{
 		"en"	"Sandman"
 	}
+	"scorchshot"
+	{
+		"en"	"Scorch Shot"
+	}
 	"scottish"
 	{
 		"en"	"Scottish Resistance"
@@ -532,6 +548,14 @@
 	{
 		"en"	"Reverted to pre-inferno, deals full headshot damage (102) at all ranges"
 	}
+	"Ambassador_PreJune2009"
+	{
+		"en"	"Reverted to pre-June 23, 2009, deals full headshot damage (102) at all ranges, no headshot cooldown, penetrates targets"
+	}
+	"Ambassador_Release"
+	{
+		"en"	"Reverted to release, deals minicrit headshot damage at all ranges, no headshot cooldown, penetrates targets"
+	}
 	"Amputator_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage"
@@ -592,6 +616,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
 	}
+	"Blutsauger_Release"
+	{
+		"en"	"Reverted to release, no passive health regen penalty, no random crits"
+	}
 	"Bonk_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no longer slows after the effect wears off"
@@ -623,6 +651,10 @@
 	"BuffaloSteak_Pre2013"
 	{
 		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
+	}
+	"BuffBanner_Release"
+	{
+		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600 dmg)"
 	}
 	"Targe_PreTB"
 	{
@@ -688,6 +720,14 @@
 	{
 		"en"	"Reverted to Gun Mettle update, can now overheal to 400 HP again"
 	}
+	"DalokohsBar_PreMYM_Patchless"
+	{
+		"en"	"Memory patches turned off! Gun Mettle Dalokohs Bar is not reverted!"
+	}
+	"DalokohsBar_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, instantly recharge after eating, cannot be dropped for health pick-ups via alt-fire"
+	}	
 	"Darwin_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"		
@@ -712,9 +752,21 @@
 	{
 		"en"	"Reverted to post-release, 90%% dmg resist for 6.5s, no speedboost, full drain on early decloak, no afterburn immunity after feign"
 	}
+	"Ringer_Release"
+	{
+		"en"	"Reverted to release, 90%% dmg resist for 6.5s, no speedboost, no drain on early decloak, no afterburn immunity after feign"
+	}
+	"Ringer_Pre2010"
+	{
+		"en"	"Reverted to pre-Jan 6, 2010; can fully pick up ammo, 90%% dmg resist for 6.5s, no speedboost, up to 40%% drain on early decloak, no afterburn immunity after feign"
+	}
 	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
+	}
+	"DirectHit_PreDec2009"
+	{
+		"en"	"Reverted to pre-December 22, 2009; mini-crits all airborne and floating underwater targets regardless of cause; explosive jumps not needed for mini-crits"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -742,11 +794,11 @@
 	}
 	"Equalizer_PreHat"
 	{
-		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP"
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP, 256 taunt self-damage"
 	}
 	"Equalizer_Release"
 	{
-		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP"
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
 	}
 	"Eureka_SpawnRefill"
 	{
@@ -798,7 +850,7 @@
 	}
 	"Gunboats_Release"
 	{
-		"en"	"Reverted to release, -75%% blast damage from rocket jumps"
+		"en"	"Reverted to release, -75%% blast damage from rocket jumps, grenade kamikaze taunt deals only 64 self-damage"
 	}
 	"Gunslinger_PreGM"
 	{
@@ -1000,6 +1052,10 @@
 	{
 		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"
 	}
+	"ScorchShot_July2015"
+	{
+		"en"	"Reverted to pre-July 6, 2015 patch; no -35%% self damage force penalty (higher blast jumping)"
+	}
 	"Scottish_Release"
 	{
 		"en"	"Reverted to release, 0.4 arm time penalty (from 0.8), no fire rate bonus"
@@ -1107,6 +1163,10 @@
 	"Turner_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge"
+	}
+	"Turner_PreDec2014"
+	{
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge, 100%% charge on kill, no charge penalty when damaged"
 	}
 	"Tomislav_PrePyro"
 	{
