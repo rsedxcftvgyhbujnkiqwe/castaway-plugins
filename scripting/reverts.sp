@@ -614,7 +614,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_Release");
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
-	ItemDefine("directhit", "DirectHit_PreDec2009", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_DirectHit);
+	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
+	ItemVariant(Wep_DirectHit, "DirectHit_PreDec2009");
 #if defined MEMORY_PATCHES
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
@@ -4534,8 +4535,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					if (
 						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
-						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0
 					) {
 						float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 						if (
@@ -4555,8 +4555,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					GetItemVariant(Wep_SodaPopper) == 0 &&
-					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true &&
-					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
@@ -4570,8 +4569,7 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_bat") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450 &&
 					(GetEntityFlags(attacker) & FL_ONGROUND) == 0 &&
-					GetEntProp(attacker, Prop_Data, "m_nWaterLevel") == 0 &&
-					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+					GetEntProp(attacker, Prop_Data, "m_nWaterLevel") == 0
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
@@ -4856,16 +4854,15 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// day 2 release (pre-december 22, 2009) direct hit minicrits
-				// force mini-crits if not touching ground
+				// direct hit minicrits
 				if (
 					ItemIsEnabled(Wep_DirectHit) &&
-					StrContains(class, "tf_weapon_rocketlauncher_directhit") == 0 &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 127
+					StrEqual(class, "tf_weapon_rocketlauncher_directhit")
 				) {
 					if (
-						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeathSilent) == false
+						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true ||
+						(GetItemVariant(Wep_DirectHit) == 1 &&
+						GetEntityFlags(victim) & FL_ONGROUND == 0)
 					) {
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
@@ -5057,7 +5054,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			// pre-WAR! sandman victims take 75% of damage dealt
+			// pre-WAR! sandman victims receive 75% of damage dealt
 
 			if (
 				GetItemVariant(Wep_Sandman) == 1 &&
@@ -5201,8 +5198,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 						// The Soldier does not always survive this due to explosive damage jankiness
 						// Historically, this was also the case, this old bug in particular did not work 100% of the time.
 						// This is because this bug relies on the old taunt-switch bug (get healed by a Medic, taunt with pickaxe, then quickswitch to get healed)
-						(GetItemVariant(Wep_Pickaxe) == 1 ||
-						GetItemVariant(Wep_Pickaxe) == 2) &&
+						GetItemVariant(Wep_Pickaxe) >= 1 &&
 						player_weapons[victim][Wep_Pickaxe] &&
 						!player_weapons[victim][Wep_Gunboats]
 					) {
