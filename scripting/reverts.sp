@@ -1879,7 +1879,6 @@ public void OnGameFrame() {
 
 					{
 						// cancel machina penetration sounds with 2009 ambassador variants
-						// why do i have to do it this way?? does not work for rapid fire headshots! should be good enough
 
 						if (GetItemVariant(Wep_Ambassador) >= 1) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
@@ -3478,38 +3477,27 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			}
 
 			{
-				// track ambassador kills for cancelling machina penetration sounds
-				if (
-					GetEventInt(event, "attacker") != -1 &&
-					GetEventInt(event, "playerpenetratecount") > 0
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+				// ambassador stuff
+				weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
+				if (weapon > 0) {
+					GetEntityClassname(weapon, class, sizeof(class));
 
+					if (StrEqual(class, "tf_weapon_revolver")) {
+						// track ambassador kills for cancelling machina penetration sounds
 						if (
 							GetItemVariant(Wep_Ambassador) >= 1 &&
-							StrEqual(class, "tf_weapon_revolver")
+							GetEventInt(event, "attacker") != -1 &&
+							GetEventInt(event, "playerpenetratecount") > 0
 						) {
 							players[attacker].ambassador_kill_frame = GetGameTickCount();
 						}
-					}					
-				}
 
-				// ambassador headshot kill icon
-				if (
-					GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
-					players[attacker].headshot_frame == GetGameTickCount() 
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
+						// ambassador headshot kill icon
 						if (
 							ItemIsEnabled(Wep_Ambassador) &&
-							StrEqual(class, "tf_weapon_revolver")
+							GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
+							players[attacker].headshot_frame == GetGameTickCount() 
 						) {
 							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
 							return Plugin_Changed;
@@ -4867,7 +4855,7 @@ Action SDKHookCB_OnTakeDamage(
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
 				}
-			}			
+			}
 
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
