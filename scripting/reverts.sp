@@ -202,8 +202,6 @@ enum struct Player {
 	// gameplay vars
 	float resupply_time;
 	int headshot_frame;
-	bool is_rapid_headshot_ambassador;
-	bool is_victim_hit_by_headshot_ambassador;
 	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
@@ -1230,6 +1228,9 @@ public void OnGameFrame() {
 	int airdash_value;
 	int airdash_limit_old;
 	int airdash_limit_new;
+	int max_overheal;
+	int health_cur;
+	int health_max;
 
 	frame++;
 
@@ -1554,7 +1555,35 @@ public void OnGameFrame() {
 								players[idx].rage_meter = hype;
 							}
 						}
-					}					
+					}
+
+					{
+						// equalizer damage bonus
+
+						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
+
+						if (weapon > 0) {
+							if (
+								ItemIsEnabled(Wep_Pickaxe) &&
+								(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 ||
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775)
+							) {
+								health_cur = GetClientHealth(idx);
+								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+
+								float multiplier = 1.0;
+
+								switch (GetItemVariant(Wep_Pickaxe))
+								{
+									case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
+									case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
+									case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
+								}
+
+								TF2Attrib_SetByDefIndex(weapon, 476, ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
+							}
+						}
+					}
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Pyro) {
@@ -1570,9 +1599,9 @@ public void OnGameFrame() {
 								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214 &&
 								players[idx].powerjack_kill_tick + 1 == GetGameTickCount()
 							) {
-								int max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
-								int health_cur = GetClientHealth(idx);
-								int health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+								max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
+								health_cur = GetClientHealth(idx);
+								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
 
 								int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
 								if (health_max - health_cur >= heal_amt)
@@ -1848,23 +1877,20 @@ public void OnGameFrame() {
 					}
 
 					{
-						// cancel machina penetration sounds with pre-2009 ambassador variants
+						// cancel machina penetration sounds with 2009 ambassador variants
 						// why do i have to do it this way?? does not work for rapid fire headshots! should be good enough
 
-						if(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) {
+						if (GetItemVariant(Wep_Ambassador) >= 1) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (
-									StrEqual(class, "tf_weapon_revolver") &&
 									(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
 									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006) &&
-									players[idx].ambassador_kill_frame == (GetGameTickCount() - 1)
+									players[idx].ambassador_kill_frame + 1 == GetGameTickCount()
 								) {
 									EmitGameSoundToAll("Game.PenetrationKill", idx, SND_STOP);
-										// PrintToChat(idx, "stopping machina sound...");
 								}
 							}							
 						}
@@ -2438,15 +2464,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
 				}
-				case 1: { // Pre-June 23, 2009
+				default: { // 2009 variants
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
-					TF2Items_SetAttribute(itemNew, 1, 266, 1.0); // projectile_penetration; used by machina
-				}
-				case 2: { // Release
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
-					TF2Items_SetAttribute(itemNew, 1, 266, 1.0); // projectile_penetration; used by machina
+					TF2Items_SetAttribute(itemNew, 0, 266, 1.0); // projectile_penetration
+					TF2Items_SetAttribute(itemNew, 1, 868, 0.0); // crit dmg falloff
 				}
 			}
 
@@ -3456,21 +3477,29 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			}
 
 			{
-				// ambassador headshot kill icon
+				// track ambassador kills for cancelling machina penetration sounds
+				if (
+					GetEventInt(event, "attacker") != -1 &&
+					GetEventInt(event, "playerpenetratecount") > 0
+				) {
+					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
+					if (weapon > 0) {
+						GetEntityClassname(weapon, class, sizeof(class));
+
+						if (
+							GetItemVariant(Wep_Ambassador) >= 1 &&
+							StrEqual(class, "tf_weapon_revolver")
+						) {
+							players[attacker].ambassador_kill_frame = GetGameTickCount();
+						}
+					}					
+				}
+
+				// ambassador headshot kill icon
 				if (
 					GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
-					(
-						(
-							GetItemVariant(Wep_Ambassador) == 0 &&
-							players[attacker].headshot_frame == GetGameTickCount() 
-						) ||
-						(
-							(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
-							players[attacker].headshot_frame <= GetGameTickCount() + 66 &&
-							players[attacker].is_rapid_headshot_ambassador
-						)
-					)	
+					players[attacker].headshot_frame == GetGameTickCount() 
 				) {
 					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
@@ -3485,25 +3514,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							return Plugin_Changed;
 						}
 					}
-				}
-
-				// track ambassador kills for cancelling machina penetration sounds
-				// does not work with rapid fire headshots
-				if (
-					GetEventInt(event, "attacker") != -1 &&
-					GetEventInt(event, "playerpenetratecount") > 0 &&
-					(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2)
-				) {
-					weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (StrEqual(class, "tf_weapon_revolver")) {
-							players[attacker].ambassador_kill_frame = GetGameTickCount();
-								// PrintToChat(attacker, "ambassador_kill_frame set to GetGameTickCount()");
-						}
-					}					
 				}
 			}
 		}
@@ -3595,8 +3605,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					switch (index) {
 						case 1104: player_weapons[client][Wep_Airstrike] = true;
-						case 61: player_weapons[client][Wep_Ambassador] = true;
-						case 1006: player_weapons[client][Wep_Ambassador] = true;
+						case 61, 1006: player_weapons[client][Wep_Ambassador] = true;
 						case 304: player_weapons[client][Wep_Amputator] = true;
 						case 450: player_weapons[client][Wep_Atomizer] = true;
 						case 38, 47, 1000: player_weapons[client][Wep_Axtinguisher] = true;
@@ -4173,11 +4182,10 @@ Action SDKHookCB_Touch(int entity, int other) {
 					) {
 						if (AreEntitiesOnSameTeam(entity, other)) {
 
-							// Bison and Pomson lighting up friendly Huntsman arrows
+							// Bison and Pomson igniting friendly Huntsman arrows
 							weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-								if (StrEqual(class, "tf_weapon_compound_bow")) {
+								if (HasEntProp(weapon, Prop_Send, "m_bArrowAlight")) {
 									SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 								}
 							}
@@ -4223,46 +4231,18 @@ Action SDKHookCB_TraceAttack(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
-		if (
-			hitgroup == 1 &&
-			(
-				(damage_type & DMG_USE_HITLOCATIONS) != 0 || // for ambassador
+		if (hitgroup == 1) {
+			if (
+				( // for ambassador
+					damage_type & DMG_USE_HITLOCATIONS != 0 ||
+					GetItemVariant(Wep_Ambassador) >= 1 &&
+					player_weapons[attacker][Wep_Ambassador]
+				) ||
 				TF2_GetPlayerClass(attacker) == TFClass_Sniper // for sydney sleeper
-			)
-		) {
-			players[attacker].headshot_frame = GetGameTickCount();
+			) {
+				players[attacker].headshot_frame = GetGameTickCount();
+			}
 		}
-
-		// tracking for ambassador no headshot cooldown variants
-		if (
-			(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
-			TF2_GetPlayerClass(attacker) == TFClass_Spy &&
-			hitgroup == 1 &&
-			(damage_type & DMG_USE_HITLOCATIONS) == 0 && 
-			player_weapons[attacker][Wep_Ambassador]
-		) {
-			players[attacker].is_rapid_headshot_ambassador = true;
-				// PrintToChat(attacker, "is_rapid_headshot_ambassador = true");
-		} else if ((GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2)) {
-			players[attacker].is_rapid_headshot_ambassador = false;
-				// PrintToChat(attacker, "is_rapid_headshot_ambassador = false");
-		}
-
-		// victim headshot and bodyshot penetration tracking for reverted ambassador variants
-		if (
-			(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
-			TF2_GetPlayerClass(attacker) == TFClass_Spy &&
-			hitgroup == 1 &&
-			player_weapons[attacker][Wep_Ambassador]
-		) {
-			players[victim].is_victim_hit_by_headshot_ambassador = true;
-				// PrintToChat(attacker, "players[victim=%i].is_victim_hit_by_headshot_ambassador = %b", victim, players[victim].is_victim_hit_by_headshot_ambassador);
-				// PrintToChat(attacker, "int victim = %i", victim);
-		} else {
-			players[victim].is_victim_hit_by_headshot_ambassador = false;
-				// PrintToChat(attacker, "players[victim=%i].is_victim_hit_by_headshot_ambassador = %b", victim, players[victim].is_victim_hit_by_headshot_ambassador);
-				// PrintToChat(attacker, "int victim = %i", victim);
-		}		
 	}
 
 	return Plugin_Continue;
@@ -4281,8 +4261,8 @@ Action SDKHookCB_OnTakeDamage(
 	int stun_fls;
 	float charge;
 	float damage1;
-	int health_cur;
-	int health_max;
+	//int health_cur;
+	//int health_max;
 	int weapon1;
 
 	// bool resist_damage = false;
@@ -4522,86 +4502,23 @@ Action SDKHookCB_OnTakeDamage(
 				// ambassador headshot crits
 
 				if (
-					StrEqual(class, "tf_weapon_revolver") &&				
-					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006)
-				) {
-					// Always deal full crits at any range
-					if (
-						(GetItemVariant(Wep_Ambassador) == 0 || 
-						(GetItemVariant(Wep_Ambassador) == 1 && players[victim].is_victim_hit_by_headshot_ambassador)) &&
-						(players[attacker].headshot_frame == GetGameTickCount())
-					) {
-						damage_type = (damage_type | DMG_CRIT);
-					}
-
-					// No cooldown rapid fire headshots for pre-june 23, 2009 ambassador variants
-					if (
-						(GetItemVariant(Wep_Ambassador) == 1 || GetItemVariant(Wep_Ambassador) == 2) &&
-						players[attacker].headshot_frame <= (GetGameTickCount() + 66) &&
-						players[attacker].is_rapid_headshot_ambassador &&
-						players[victim].is_victim_hit_by_headshot_ambassador
-					) {
-						if (GetItemVariant(Wep_Ambassador) == 1) { // Pre-June 23, 2009 variant
-							damage_type |= (DMG_USE_HITLOCATIONS | DMG_CRIT);
-								// PrintToChat(attacker, "DMG_USE_HITLOCATIONS + DMG_CRIT executed");
-						}
-						else if (GetItemVariant(Wep_Ambassador) == 2) { // Release variant
-							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								// PrintToChat(attacker, "Rapid headshots; addcond 48 (minicrit)");
-						}
-					}
-
-					// remove 1st shot crits on headshot in release ambassador and replace with minicrit
-					// also prevents not dealing mini-crit headshots from beyond 1200 hammer units
-					if (
-						GetItemVariant(Wep_Ambassador) == 2 &&
-						players[attacker].headshot_frame == GetGameTickCount() &&
-						players[victim].is_victim_hit_by_headshot_ambassador
-					) {
-						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-						if (damage_type & DMG_CRIT != 0) { 
-							// Under 1200 HU, remove crit damage and deal mini-crits on 1st headshot.
-							damage_type ^= DMG_CRIT;
-							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								// PrintToChat(attacker, "1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-						} else if (GetVectorDistance(pos1, pos2) >= 1200.0) { 
-							// Beyond 1200 HU, amby deals normal damage on 1st headshots. Adds mini-crit condition to prevent that.
-							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-								// PrintToChat(attacker, "beyond 1200 HU 1st shot; removed DMG_CRIT; addcond 48 (minicrit)");
-						}
-					}
-					return Plugin_Changed;					
-				}
-			}
-
-			{
-				// equalizer damage bonus
-
-				if (
-					ItemIsEnabled(Wep_Pickaxe) &&
-					damage_custom == TF_DMG_CUSTOM_PICKAXE &&
-					StrEqual(class, "tf_weapon_shovel") &&
+					ItemIsEnabled(Wep_Ambassador) &&
+					StrEqual(class, "tf_weapon_revolver") &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
 					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
 					)
 				) {
-					health_cur = GetClientHealth(attacker);
-					health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-					float multiplier = 1.0;
-
-					switch (GetItemVariant(Wep_Pickaxe))
-					{
-						case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
-						case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
-						case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
+					if (GetItemVariant(Wep_Ambassador) <= 1) {
+						// full crits
+						damage_type |= DMG_CRIT;
+					} else if (!PlayerIsCritboosted(attacker)) {
+						// mini-crits
+						damage_type &= ~DMG_CRIT;
+						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
-
-					damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
 
 					return Plugin_Changed;
 				}
@@ -5034,8 +4951,8 @@ Action SDKHookCB_OnTakeDamage_Building(
 ) {
 	//int idx;
 	char class[64];
-	int health_cur;
-	int health_max;
+	//int health_cur;
+	//int health_max;
 	//float damage1;
 	//int weapon1;
 
@@ -5077,35 +4994,6 @@ Action SDKHookCB_OnTakeDamage_Building(
 				damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
 			) {
 				damage = 60.0;
-				return Plugin_Changed;
-			}
-		}
-		{
-			// equalizer damage bonus
-
-			if (
-				ItemIsEnabled(Wep_Pickaxe) &&
-				damage_custom == TF_DMG_CUSTOM_PICKAXE &&
-				StrEqual(class, "tf_weapon_shovel") &&
-				(
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 ||
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775
-				)
-			) {
-				health_cur = GetClientHealth(attacker);
-				health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
-
-				float multiplier = 1.0;
-
-				switch (GetItemVariant(Wep_Pickaxe))
-				{
-					case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
-					case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
-					case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
-				}
-
-				damage = (damage * ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
-
 				return Plugin_Changed;
 			}
 		}
