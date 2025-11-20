@@ -942,7 +942,7 @@
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, same dmg as Bison, bigger hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
 	}
 	"Pomson_PreGM_Historical"
 	{
@@ -999,6 +999,10 @@
 	"RescueRanger_Release"
 	{
 		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
+	}
+	"RescueRanger_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, heals +75 flat for no metal cost"
 	}
 	"Reserve_PreTB"
 	{
