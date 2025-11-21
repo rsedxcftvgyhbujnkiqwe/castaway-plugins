@@ -176,16 +176,6 @@
 				"windows" "350"
 				"linux"   "352"
 			}
-			"CEconItemView::IterateAttributes" // look for CBaseObject::Construct in CObjectSentrygun
-			{
-				"windows" "18"
-				"linux"   "19"
-			}
-			"CTFLunchBox::SecondaryAttack"
-			{
-				"windows" "288"
-				"linux"   "294"
-			}
 		}
 
 		"MemPatches"
@@ -744,13 +734,6 @@
 						"size" "12"
 					}
 				}
-			}
-			"CTFLunchBox::SecondaryAttack"
-			{
-				"offset" "CTFLunchBox::SecondaryAttack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
 			}
 		}
 	}
