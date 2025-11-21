@@ -1062,7 +1062,7 @@
 	}
 	"Sandvich_PreEngineer"
 	{
-		"en"	"Reverted to pre-Engineer Update, heal yourself by eating/throwing the Sandvich, can be eaten forever unless thrown which must then be recharged, can recharge via resupply cabinet or health kits"
+		"en"	"Reverted to pre-Engineer Update, heal yourself by eating/throwing the Sandvich, can be eaten forever unless thrown which must then be recharged via resupply or health kits"
 	}
 	"ScorchShot_July2015"
 	{
