@@ -129,6 +129,13 @@ public Plugin myinfo = {
 #define TF_MINIGUN_PENALTY_PERIOD 1.0
 #define SENTRYGUN_ADD_SHELLS 40
 #define SENTRYGUN_MAX_SHELLS_1 150
+#define LUNCHBOX_DROP_MODEL  "models/items/plate.mdl"
+#define LUNCHBOX_STEAK_DROP_MODEL  "models/workshop/weapons/c_models/c_buffalo_steak/plate_buffalo_steak.mdl"
+#define LUNCHBOX_ROBOT_DROP_MODEL  "models/items/plate_robo_sandwich.mdl"
+#define LUNCHBOX_FESTIVE_DROP_MODEL  "models/items/plate_sandwich_xmas.mdl"
+#define LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL		"models/workshop/weapons/c_models/c_chocolate/plate_chocolate.mdl"
+#define LUNCHBOX_BANANA_DROP_MODEL  "models/items/banana/plate_banana.mdl"
+#define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
 
 enum
 {
@@ -247,6 +254,8 @@ enum struct Player {
 	bool blast_jump_sound_loop;
 	int bunnyhop_frame;
 	float weapon_switch_time;
+	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
+	bool has_thrown_sandvich;
 }
 
 enum struct Entity {
@@ -347,6 +356,7 @@ DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
+DynamicHook dhook_CHealthKit_MyTouch;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -474,6 +484,7 @@ enum
 	Wep_Bison, // Righteous Bison
 	Wep_RocketJumper,
 	Wep_Sandman,
+	Wep_Sandvich,
 	Wep_ScorchShot,
 	Wep_Scottish,
 	Wep_ShortCircuit,
@@ -703,6 +714,7 @@ public void OnPluginStart() {
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
+	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
 	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
@@ -836,6 +848,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
 		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
+		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 
 		delete conf;
 	}
@@ -987,6 +1000,7 @@ public void OnPluginStart() {
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
+	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
@@ -1616,8 +1630,8 @@ public void OnGameFrame() {
 					}
 				}
 
-#if !defined MEMORY_PATCHES
 				if (TF2_GetPlayerClass(idx) == TFClass_Heavy) {
+#if !defined MEMORY_PATCHES
 					{
 						// Patchless minigun rampup revert
 
@@ -1652,8 +1666,52 @@ public void OnGameFrame() {
 							}
 						}
 					}
-				}
 #endif
+					{
+						if (
+								// This if statement is prepared for handling more than just the Sandvich if there's a desire for it
+								// hence the weird comments inside the if statement.
+							(
+								(ItemIsEnabled(Wep_Sandvich) && 
+								player_weapons[idx][Wep_Sandvich])
+//								||
+//								()
+							)
+						) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+							int item_def_idx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+							// Only the normal sandvich should be preventing recharge for heavy. Never the others like Steak, banana, fishcake etc.
+							// If you add others like the steak to the first if statement, then make sure to add their DefIndex to this if statement below.
+							if (	
+								item_def_idx == 42 || // Sandvich
+								item_def_idx == 863 || // Robo-Sandvich
+								item_def_idx == 1002 // Festive Sandvich
+							) {
+								timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
+								// Before every gameframe when has_thrown_sandvich is true on this heavy.							
+								if (players[idx].has_thrown_sandvich) {
+									// If the timer is below 100.0 then force
+									// m_flItemChargeMeter down to 0. It must be a float do NOT change 100.0 to 100 !!!
+									if (timer < 100.0)
+									{
+										// Prevent the meter from recharging itself. Instead we control when the meter is allowed
+										// to be full by setting has_thrown_sandvich to false (for example when the heavy at full hp picks up healthkit).
+										// It should only be set to false from these cases:
+										// It's already true AND:
+										// If you pickup a normal healthkit while at full health. (Handled in DHookCallback_CHealthKit_MyTouch)
+										// If you switch off the class or the revert is turned off (Handled in post_inventory_application)
+										// NOTE: If revert is turned off, the player needs to touch a resupply cabinet or respawn for
+										// recharge meter to work as normal again unless their m_flItemChargeMeter already is at 100.0
+										// and they have their has_thrown_sandvich at false
+										// If someone else connects and takes the heavys entity index. (Sandviches dissappear if 
+										// the heavy disconnects, so OnEntityDestruction handles setting that client index has_thrown_sandvich to false.)
+										SetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", 0.0, LOADOUT_POSITION_SECONDARY);
+									}
+								}
+							}
+						}
+					}
+				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
 					{
@@ -2085,6 +2143,110 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 #endif
 	}
+
+	// Check if it's a healthkit.
+	if (
+		(StrEqual(class, "item_healthkit_small", false) ||
+		StrEqual(class, "item_healthkit_medium", false) ||
+		StrEqual(class, "item_healthkit_full", false)) &&
+		ItemIsEnabled(Wep_Sandvich)
+	) {
+			// It's a healthkit! Hook it with a SpawnPost.
+			SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown); // OnSandvichThrown is not a sourcemod provided forward or event etc. It's named as such so we know what it's for.	
+	}
+}
+
+
+// While named OnSandvichThrown, there is actually no such forward/event whatever. It's just so we understand the intention/usage of this entity hook.
+public void OnSandvichThrown(int entity){ 
+	// Convert to EntRef incase the healthkit somehow dies before the frame RequestFrame provides can run.
+	int ref = EntIndexToEntRef(entity);
+	// We need to do RequestFrame to give CTFLunchbox::SecondaryAttack the time to fill out the modelname of the healthkit as SDKHook_SpawnPost runs before 
+	// the function has had a chance to set the model name, something we NEED in order to improve accuracy in who created the healthkit entity.
+	RequestFrame(OnSandvichThrown_NextFrame, ref);
+	SDKUnhook(entity, SDKHook_SpawnPost, OnSandvichThrown); // Unhook to be tidy and not waste RAM
+} 
+
+// Sandvich-type lunchbox drops handled by the Sandvich revert logic.
+// Keep this mutually exclusive with IsNonSandvichLunchboxDropModel.
+bool IsSandvichDropModel(const char[] model_name)
+{
+    return StrEqual(model_name, LUNCHBOX_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_ROBOT_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_FESTIVE_DROP_MODEL, false);
+}
+
+// Non-Sandvich lunchbox drops that should NOT go through the normal healthkit hook.
+// These should never allow Heavy to recharge IF they have the Sandvich and revert is ON.
+bool IsNonSandvichLunchboxDropModel(const char[] model_name)
+{
+    return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_BANANA_DROP_MODEL, false)
+        || StrEqual(model_name, LUNCHBOX_FISHCAKE_DROP_MODEL, false);
+}
+
+// The next frame after OnSandvichThrown (as in this should run 1 frame after OnSandvichThrown's SDKHook_SpawnPost which should be enough to get model populated correctly.
+public void OnSandvichThrown_NextFrame(int entity_ref)
+{
+        int entity = EntRefToEntIndex(entity_ref);
+        if (entity <= 0 || !IsValidEntity(entity)) {
+                return;
+        }
+
+        if (!ItemIsEnabled(Wep_Sandvich)) {
+		return;
+        }
+
+        char model_name[PLATFORM_MAX_PATH];
+        GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
+
+        // If model matches Sandvich, Robo-Sandvich or Festive Sandvich.
+        if (IsSandvichDropModel(model_name)) {
+                // Check so client is real and is ingame.
+                int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+                if (
+                        client > 0 &&
+                        client <= MaxClients &&
+                        IsClientInGame(client)
+                ) {
+                        // Owner is a real player, check class + sandvich cache.
+                        if (
+                                TF2_GetPlayerClass(client) == TFClass_Heavy &&
+                                player_weapons[client][Wep_Sandvich]
+                        ) {
+				// Last guard, check that they have the Sandvich on them.
+                                int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                                if (weapon != -1) {
+                                        char className[64];
+                                        GetEntityClassname(weapon, className, sizeof(className));
+                                        int ItemDefIndex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+
+                                        if (
+                                                StrEqual(className, "tf_weapon_lunchbox", false) &&
+                                                (ItemDefIndex == 42 || ItemDefIndex == 863 || ItemDefIndex == 1002)
+                                        ) {
+                                                // Fully verified thrown Sandvich.
+						// Healthkit is owned by the heavy, is a eligble Sandvich model, and heavy has the Sandvich equipped.
+                                                players[client].has_thrown_sandvich = true;
+                                                players[client].thrown_sandvich_ent_ref = EntIndexToEntRef(entity);
+						// Hook this entity with the special DHookCallback_CHealthKit_Sandvich_MyTouch callback.
+                                                dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_Sandvich_MyTouch);
+                                        }
+                                }
+                        }
+                }
+        }
+        else {
+		int owner_of_healthkit = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		// If it's NOT another sandvich type (for example steak) and it's NOT owned by a player, then it's a normal healthkit.
+		// This will need changing later once we figure out how to support (depending on history research) recharging
+		// from Candycane and Medivial Mode healthkit drops. This will have to do in the meanwhile.
+		if (!IsNonSandvichLunchboxDropModel(model_name) && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
+		// Normal map entity placed healthkit. Hook it!
+                dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_MyTouch);
+		}
+        }
 }
 
 public void OnEntityDestroyed(int entity) {
@@ -3515,6 +3677,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		// keep track of resupply time
 		players[client].resupply_time = GetGameTime();
 
+		// If player has touched a respawn cabinet (or respawned), then
+		// clear their stale references if they are NOT a heavy but
+		// has_thrown_sandvich is true OR Sandvich revert is off.
+
+		if ( 
+			(TF2_GetPlayerClass(client) != TFClass_Heavy &&
+			players[client].has_thrown_sandvich) ||
+			!ItemIsEnabled(Wep_Sandvich)
+		) {
+			players[client].has_thrown_sandvich = false;
+			players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
+		}
+
 		// apply pre-toughbreak weapon switch if cvar is enabled
 		if (cvar_pre_toughbreak_switch.BoolValue)
 			TF2Attrib_SetByDefIndex(client, 177, 1.34); // 34% longer weapon switch
@@ -3663,6 +3838,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 415: player_weapons[client][Wep_ReserveShooter] = true;
 						case 59: player_weapons[client][Wep_DeadRinger] = true;
 						case 44: player_weapons[client][Wep_Sandman] = true;
+						case 42, 863, 1002: player_weapons[client][Wep_Sandvich] = true;
 						case 740: player_weapons[client][Wep_ScorchShot] = true;
 						case 130: player_weapons[client][Wep_Scottish] = true;
 						case 230: player_weapons[client][Wep_SydneySleeper] = true;
@@ -6146,7 +6322,16 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 			(index == 159 || index == 433) // dalokohs and fishcake
 		) {
 			return MRES_Supercede;
-		}		
+		}
+
+		if (
+			ItemIsEnabled(Wep_Sandvich) &&
+			player_weapons[owner][Wep_Sandvich] &&
+			StrEqual(class, "tf_weapon_lunchbox") && 
+			(index == 42 || index == 863 || index == 1002) //&& // Sandvich, Robo-Sandvich, Festive Sandvich
+		) {
+			return MRES_Supercede;
+		}
 	}
 	return MRES_Ignored;
 }
@@ -6906,6 +7091,96 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 				return MRES_Supercede;
 			}
 		}
+	}
+
+	return MRES_Ignored;
+}
+
+// Sandvich revert specific MyTouch hook.
+MRESReturn DHookCallback_CHealthKit_Sandvich_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	// Entity is the entity_index of the healthkit
+	int owner_of_sandvich = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+	// parameters.Get(1) get's the touching player.
+	int client = parameters.Get(1);
+	
+	if (	
+		TF2_GetPlayerClass(client) == TFClass_Heavy
+	) {
+		int eIdxFromEntRef = EntRefToEntIndex(players[client].thrown_sandvich_ent_ref);
+		if (
+			eIdxFromEntRef != INVALID_ENT_REFERENCE &&
+			entity == eIdxFromEntRef &&
+			owner_of_sandvich == client
+		) {
+			int res = GetPlayerResourceEntity();
+			if (res == -1 || !IsValidEntity(res))
+			{
+				// Something is wrong with the resource manager, default to MRES_Ignored.
+				PrintToServer("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
+				PrintToServer("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not being obtained as expected!");
+				return MRES_Ignored;
+			}
+
+			int hp = GetClientHealth(client);
+			// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
+			// If we went for the m_iMaxHealth in Prop_Data, we would simply get 300 no matter what.
+			int maxhealth = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
+			if ( hp == maxhealth) {
+				// If at full health, do not allow the sandvich to recharge by denying pickup.
+				// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
+				returnValue.Value = false;
+				return MRES_Supercede;
+			} else if ( hp < maxhealth) {
+				// Change the owner of the healthkit sandvich to be 0 aka the world in Prehook.
+				// This prevents the Sandvich from recharging the heavy's meter but still makes him get health from it.
+				// Sometimes the simplest of solutions are not so obvious when tunnel vision is involved. :)
+				SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", 0);
+				// Pickup will cause stale references, so clean them out.
+				// players[client].has_thrown_sandvich = false;
+				players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
+			}
+		}
+	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	// Entity is the entity_index of the healthkit
+	// parameters.Get(1) get's the touching player.
+	char classname[64];
+	GetEntityClassname(entity, classname, sizeof(classname));
+
+	int client = parameters.Get(1);
+	if (	
+		TF2_GetPlayerClass(client) == TFClass_Heavy && 
+		players[client].has_thrown_sandvich
+	) {
+		int res = GetPlayerResourceEntity();
+		if (res == -1 || !IsValidEntity(res))
+		{
+			// Something is wrong with the resource manager, default to MRES_Ignored.
+			PrintToServer("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
+			PrintToServer("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not working out!");
+			return MRES_Ignored;
+		}
+
+		int hp = GetClientHealth(client);
+		// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
+		// If we went for the m_iMaxHealth in Prop_Data, we would simply get the base 300 no matter what.
+		int maxhealth = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
+		int owner_of_healthkit = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
+		// Make sure that the healthkit is owned by world before we reset tracking.
+		// This is because we want to avoid letting other heavys sandviches charge the touching heavys chargemeter.
+		// If we want heavy to be able to recharge of things like the candy cane healthkit or healthkits dropped
+		// in Medivial mode, we need to figure it out. This will have to do in the meanwhile.
+		if ( hp == maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
+			// It's a normal map placed healthkit, allow the recharge.
+			players[client].has_thrown_sandvich = false;
+		}	
 	}
 
 	return MRES_Ignored;

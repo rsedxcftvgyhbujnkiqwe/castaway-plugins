@@ -430,6 +430,10 @@
 	{
 		"en"	"Sandman"
 	}
+	"sandvich"
+	{
+		"en"	"Sandvich"
+	}
 	"scorchshot"
 	{
 		"en"	"Scorch Shot"
@@ -1055,6 +1059,10 @@
 	"Sandman_PreWAR"
 	{
 		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"
+	}
+	"Sandvich_PreEngineer"
+	{
+		"en"	"Reverted to pre-Engineer Update, heal yourself by eating/throwing the Sandvich, can be eaten forever unless thrown which must then be recharged via resupply or health kits"
 	}
 	"ScorchShot_July2015"
 	{

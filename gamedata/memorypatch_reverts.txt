@@ -618,7 +618,7 @@
 				// ║                     Spy                      ║
 				// ╚══════════════════════════════════════════════╝
 
-				//  Demoman related MemoryPatches go here.
+				//  Spy related MemoryPatches go here.
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Misc                      ║

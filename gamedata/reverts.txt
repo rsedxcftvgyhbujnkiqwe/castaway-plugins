@@ -77,7 +77,13 @@
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x56\x57\x8B\xF9\xE8"
 				"linux"   "@_ZN9CTFPlayer5TauntE8taunts_ti"
-			}			
+			}
+			"CHealthKit::MyTouch" 
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x3C\x8B\x01"
+				"linux"   "@_ZN10CHealthKit7MyTouchEP11CBasePlayer"
+			}		
 		}
 
 		"Offsets"
@@ -128,6 +134,11 @@
 			{
 				"linux" "367"
 				"windows" "365"
+			}
+			"CHealthKit::MyTouch"
+			{
+				"windows" "229"
+				"linux"   "230"
 			}
 		}
 
@@ -368,6 +379,20 @@
 					"iTauntConcept"
 					{
 						"type" "int"
+					}
+				}
+			}
+			"CHealthKit::MyTouch"
+			{
+				"offset" "CHealthKit::MyTouch"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type" "cbaseentity"
 					}
 				}
 			}
