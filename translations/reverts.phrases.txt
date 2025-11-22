@@ -646,11 +646,11 @@
 	}
 	"BuffaloSteak_Release"
 	{
-		"en"	"Reverted to release, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed stacks with GRU (run a bit faster than Scout)"
+		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU)"
 	}
 	"BuffaloSteak_Pre2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
+		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, damage taken minicrits"
 	}
 	"BuffBanner_Release"
 	{
@@ -763,6 +763,10 @@
 	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
+	}
+	"DirectHit_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
 	}
 	"DirectHit_PreDec2009"
 	{
