@@ -3234,9 +3234,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
 				}				
 				case 3: { // SOUND PITCH REVERT ONLY Pre-Love & War Tomislav; essentially Vanilla Tomislav but higher pitched sounds
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 1, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
+					TF2Items_SetNumAttributes(itemNew, 4); // first 2 attributes are there to prevent any jank from happening
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.80); // 20% faster spin up time (default)
+					TF2Items_SetAttribute(itemNew, 1, 106, 0.80); // 20% more accurate (default)
+					TF2Items_SetAttribute(itemNew, 2, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
 				}
 				default: { // Pre-Pyromania Tomislav (case 0)
 					TF2Items_SetNumAttributes(itemNew, 4);
