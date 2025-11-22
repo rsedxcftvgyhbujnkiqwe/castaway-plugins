@@ -3220,32 +3220,36 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			switch (GetItemVariant(Wep_Tomislav)) {
 				case 1: { // Release Tomislav
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 87, 0.25); // 75% faster spin up time
-					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 87, 0.25); // 75% faster spin up time
+					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 3, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
 				}
 				case 2: { // Pre-Love & War Tomislav
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
-					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 87, 0.90); // 10% faster spin up time
+					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 3, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
 				}				
 				case 3: { // SOUND PITCH REVERT ONLY Pre-Love & War Tomislav; essentially Vanilla Tomislav but higher pitched sounds
-					TF2Items_SetNumAttributes(itemNew, 4); // first 2 attributes are there to prevent any jank from happening
-					TF2Items_SetAttribute(itemNew, 0, 87, 0.80); // 20% faster spin up time (default)
-					TF2Items_SetAttribute(itemNew, 1, 106, 0.80); // 20% more accurate (default)
-					TF2Items_SetAttribute(itemNew, 2, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
+					TF2Items_SetNumAttributes(itemNew, 5); // first 2 attributes are there to prevent any jank from happening
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 87, 0.80); // 20% faster spin up time (default)
+					TF2Items_SetAttribute(itemNew, 2, 106, 0.80); // 20% more accurate (default)
+					TF2Items_SetAttribute(itemNew, 3, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate
 				}
 				default: { // Pre-Pyromania Tomislav (case 0)
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 87, 0.60); // 40% faster spin up time
-					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 3, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 87, 0.60); // 40% faster spin up time
+					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 3, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 					// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
 				}
 			}
