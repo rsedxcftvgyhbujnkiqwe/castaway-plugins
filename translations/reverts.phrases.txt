@@ -646,11 +646,11 @@
 	}
 	"BuffaloSteak_Release"
 	{
-		"en"	"Reverted to release, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed stacks with GRU (run a bit faster than Scout)"
+		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU)"
 	}
 	"BuffaloSteak_Pre2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, mini-crits on dmg taken by wearer, speed does not stack with GRU"
+		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, damage taken minicrits"
 	}
 	"BuffBanner_Release"
 	{

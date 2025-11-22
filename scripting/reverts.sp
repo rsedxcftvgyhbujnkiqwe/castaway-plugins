@@ -281,6 +281,7 @@ ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
+ConVar cvar_ref_tf_whip_speed_increase;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -767,6 +768,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
+	cvar_ref_tf_whip_speed_increase = FindConVar("tf_whip_speed_increase");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -2226,7 +2228,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// buffalo steak sandvich minicrit on damage taken
 		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
 		if (
-			ItemIsEnabled(Wep_BuffaloSteak) &&
 			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			condition == TFCond_RestrictToMelee &&
@@ -6185,8 +6186,8 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		IsValidEntity(entity) &&
 		IsClientInGame(entity)
 	) {
+		float multiplier = 1.0;
 		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
-			float multiplier = 1.0;
 			if (
 				ItemIsEnabled(Wep_CritCola) &&
 				GetItemVariant(Wep_CritCola) != 4 &&
@@ -6206,61 +6207,54 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				float boost = GetEntPropFloat(entity, Prop_Send, "m_flHypeMeter");
 				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
 			}
-
-			if (multiplier != 1.0)
-			{
-				returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
-				return MRES_Override;
-			}
 		}
 
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
-			TF2_GetPlayerClass(entity) == TFClass_Heavy &&
-			player_weapons[entity][Wep_BuffaloSteak]
-		)
-		{
-			// Buffalo Steak Sandvich Pre-MyM Speed boost Revert.
-			// Detect if the player is equipping the GRU or Eviction Notice, if true, then do not adjust the speed
-			int weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Melee);
+			TF2_GetPlayerClass(entity) == TFClass_Heavy
+		) {
+			// Buffalo Steak Sandvich Pre-JI speed boost revert.
 
-			if (weapon > 0)
-			{
-				int index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+			const float heavy_base_speed = 230.0;
+			float steak_boost_cap = heavy_base_speed * 1.35;
 
-				// Release steak + GRU move speed stacking imitation code
-				// resulting speed should be 403.65 HU/s since old GRU + Buffalo Steak speed stack was 403.65 HU/s (230*1.30*1.35)
-				// note: whip speedboost doesn't stack with old steak + GRU speed stacking. the same behavior also exists for vanilla steak + GRU.
-				if(GetItemVariant(Wep_BuffaloSteak) == 1 && (index == 239 || index == 1084 || index == 1100)) {				
-					returnValue.Value = view_as<float>(returnValue.Value) * 1.30; 
-					// it rounds to 403.50 HU/s for some reason via cl_showpos 1, i gave up trying to get it to the exact value but this should be good enough
-					// technically 403.50 HU/s isn't historically accurate, but i have no idea why i can't get it to 403.65 HU/s despite setting it to exactly that value before
-					return MRES_Override;	
-				}
+			float new_speed = heavy_base_speed;
 
-				if (!(index == 239 || index == 1084 || index == 1100 || (index == 426 && GetItemVariant(Wep_Eviction) == 0)))
-				{
-					// Change the speed to 310.5 HU/s when Buffalo Steak Sandvich is used.
-					// Note: The speedboost for the Eviction Notice gets capped at 310.5 HU/s whenever the reverted Steak buff is in effect. This happpens too with Vanilla.	
-					// initial returnValue.Value = ~299 HU/s
-					if ((index == 426) && (GetItemVariant(Wep_Eviction) == 1) && TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
-						// Cap speed to 310.5 HU/s when speedboost on hit is active while under reverted Steak buff for the Gun Mettle variant of the Eviction Notice
-						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
-						return MRES_Override;
-					}
-					else if ((index == 426) && (GetItemVariant(Wep_Eviction) == -1)) {
-						// Cap speed to 310.5 HU/s while under reverted Steak buff when using the vanilla Eviction Notice
-						returnValue.Value = view_as<float>(returnValue.Value) * 1.00;
-						return MRES_Override;
-					}				
-					// increase speed to 310.5 HU/s
-					else returnValue.Value = view_as<float>(returnValue.Value) * 1.038;
-					return MRES_Override;
-				}
-				
-			
+			// apply various movespeed modifications (from SDK code)
+
+			if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+				new_speed += floatMin(new_speed * 0.4, cvar_ref_tf_whip_speed_increase.FloatValue);
 			}
+
+			multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed", entity);
+
+			int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+			if (weapon > 0) {
+				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed_active", weapon);
+			}
+
+			new_speed *= multiplier;
+
+			// apply the steak speed boost
+			new_speed *= 1.35;
+
+			// Movespeed cap if not using release steak
+			if (
+				GetItemVariant(Wep_BuffaloSteak) != 1 &&
+				new_speed > steak_boost_cap
+			) {
+				new_speed = steak_boost_cap;
+			}
+
+			returnValue.Value = new_speed;
+			return MRES_Override;
+		}
+
+		if (multiplier != 1.0)
+		{
+			returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
+			return MRES_Override;
 		}
 	}
 	return MRES_Ignored;
