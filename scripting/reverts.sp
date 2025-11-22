@@ -236,7 +236,7 @@ enum struct Player {
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
 	float rage_meter;
-	int pyro_ticks_since_mmmph_use;
+	int mmmph_use_tick;
 	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
@@ -355,7 +355,6 @@ DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
-DynamicDetour dhook_CTFPlayer_Taunt;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -836,7 +835,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
-		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
 
 		delete conf;
 	}
@@ -990,7 +988,6 @@ public void OnPluginStart() {
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
-	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1001,7 +998,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
-	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2136,8 +2132,6 @@ public void OnEntityDestroyed(int entity) {
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
 	float cloak;
-	int health_cur;
-	int health_max;
 
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
@@ -2245,34 +2239,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			player_weapons[client][Wep_CritCola] == true
 		) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
-		}
-	}
-	{
-		// Phlogistinator reverts (uber and knockback immunity removal handled in OnAddCond)
-		if (
-			ItemIsEnabled(Wep_Phlogistinator) &&
-			TF2_GetPlayerClass(client) == TFClass_Pyro &&
-			condition == TFCond_Taunting &&
-			TF2_IsPlayerInCondition(client, TFCond_CritMmmph)
-		) {
-			// Instantly restore to max health on mmmph activation
-			health_cur = GetClientHealth(client);
-			health_max = SDKCall(sdkcall_GetMaxHealth, client);
-			if (health_cur < health_max) {
-				SetEntProp(client, Prop_Send, "m_iHealth", health_max);
-			}
-
-			switch (GetItemVariant(Wep_Phlogistinator)) {
-				case 0, 2, 3: { // Pyromania, Release and March 15, 2012 Phlog
-					TF2_AddCondition(client, TFCond_InHealRadius, 3.0, 0); // re-add healing circle visual effect
-					TF2_AddCondition(client, TFCond_DefenseBuffMmmph, 3.0, 0);
-					// 90% damage reduction for release and march variants handled in OnTakeDamageAlive
-				}
-				case 1: { // Tough Break Phlog
-					// a bit of Uber left over when taunt ends for historical accuracy. i am not sure how exactly long it was, this is just a guess.
-					TF2_AddCondition(client, TFCond_UberchargedCanteen, 3.5, 0);
-				}
-			}
 		}
 	}
 	{
@@ -2398,23 +2364,47 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		}
 	}
 	{
-		// prevent Phlog uber and knockback immunity for Release, Pyromania, and March 2012 variants
-		// also prevents removal of debuffs when taunting (e.g. jarate gets removed because of the uber effect)
+		// phlog stuff
+
 		if (
-			ItemIsEnabled(Wep_Phlogistinator) && GetItemVariant(Wep_Phlogistinator) != 1 &&
+			ItemIsEnabled(Wep_Phlogistinator) &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro &&
-			TF2_IsPlayerInCondition(client, TFCond_CritMmmph) && // these two condition checks are necessary to prevent sound loop spam
-			TF2_IsPlayerInCondition(client, TFCond_Taunting) && // whenever the pyro is ubered by a quick fix medic
-			players[client].pyro_ticks_since_mmmph_use == GetGameTickCount() // if ever CTFPlayer::Taunt DHook breaks, comment this line
+			TF2_IsPlayerInCondition(client, TFCond_Taunting)
 		) {
-				// PrintToChat(client, "Uber removal executed, GetGameTickCount() = %i", GetGameTickCount());
-			// Prevent Uber effect (should also prevent debuff removal)
-			if (condition == TFCond_UberchargedCanteen) {
-				return Plugin_Handled;	
+			if (
+				condition == TFCond_CritMmmph &&
+				TF2_IsPlayerInCondition(client, TFCond_CritMmmph) == false
+			) {
+				players[client].mmmph_use_tick = GetGameTickCount();
+
+				// Refill health on mmmph activation
+				int health_cur = GetClientHealth(client);
+				int health_max = SDKCall(sdkcall_GetMaxHealth, client);
+				if (health_cur < health_max) {
+					SetEntProp(client, Prop_Send, "m_iHealth", health_max);
+				}
 			}
-			// Prevent knockback immunity (this removes the healing circle visual effect! visual effect must be readded via addcond 20)
-			if (condition == TFCond_MegaHeal) {
-				return Plugin_Handled;
+
+			if (
+				TF2_IsPlayerInCondition(client, TFCond_CritMmmph) &&
+				players[client].mmmph_use_tick == GetGameTickCount() &&
+				FloatAbs(2.6 - time) < 0.01
+			) {
+				// increase condition time to 3s, TF2 normally applies 2.6s
+				time = 3.0;
+
+				if (GetItemVariant(Wep_Phlogistinator) != 1) {
+					// replace invuln with 75% damage resist
+					if (condition == TFCond_UberchargedCanteen) {
+						condition = TFCond_DefenseBuffMmmph;
+						// 90% damage reduction for release and march variants handled in OnTakeDamageAlive
+					}
+					// Prevent knockback immunity
+					if (condition == TFCond_MegaHeal) {
+						condition = TFCond_InHealRadius; // re-add healing circle visual effect
+					}
+				}
+				return Plugin_Changed;
 			}
 		}
 	}
@@ -4062,13 +4052,13 @@ Action SDKHookCB_Spawn(int entity) {
 	if (StrEqual(class, "instanced_scripted_scene")) {
 
 		GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
-		if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
-			owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+		owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
 
-			if (
-				owner >= 1 &&
-				owner <= MaxClients
-			) {
+		if (
+			owner >= 1 &&
+			owner <= MaxClients
+		) {
+			if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
 				players[owner].is_eureka_teleporting = true;
 			}
 		}
@@ -6015,21 +6005,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		) {
 			return MRES_Supercede;
 		}		
-	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
-	if (
-		GetItemVariant(Wep_Phlogistinator) != 1 &&
-		player_weapons[entity][Wep_Phlogistinator] &&
-		GetEntPropFloat(entity, Prop_Send, "m_flRageMeter") == 100
-	) {
-		// hook imported from NotnHeavy's
-		// i really do not want to use this since the dhook's signature may change when tf2 updates especially with taunts
-		// this here is necessary to prevent the quick fix uber sound spam bug once and for all
-		players[entity].pyro_ticks_since_mmmph_use = GetGameTickCount();
-			// PrintToChat(entity, "Set pyro_ticks_since_mmmph_use to: %i", GetGameTickCount());
 	}
 	return MRES_Ignored;
 }
