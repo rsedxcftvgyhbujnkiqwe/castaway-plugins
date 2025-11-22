@@ -1764,10 +1764,11 @@ public void OnGameFrame() {
 							) {
 								players[idx].spy_is_feigning = true;
 								players[idx].damage_taken_during_feign = 0.0;
-								switch (GetItemVariant(Wep_DeadRinger)) {
-									case 0, 3, 4, 5: {
-										players[idx].spy_under_feign_buffs = true;
-									}
+								if (
+									GetItemVariant(Wep_DeadRinger) == 0 ||
+									GetItemVariant(Wep_DeadRinger) >= 3
+								) {
+									players[idx].spy_under_feign_buffs = true;
 								}
 							}
 						} else {
@@ -1794,7 +1795,7 @@ public void OnGameFrame() {
 										}
 									}
 									case 5: { // pre-2010
-										// when uncloaking, cloak is drained up to 40% if the meter is at least 60% full
+										// when uncloaking, cloak is drained to 60%
 										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") >= 60.0) {
 											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 60.0);
 										}
@@ -2168,9 +2169,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 
 		if (
 			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) == 3 ||
-			GetItemVariant(Wep_DeadRinger) == 4 ||
-			GetItemVariant(Wep_DeadRinger) == 5) &&
+			GetItemVariant(Wep_DeadRinger) >= 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			if (
@@ -2357,9 +2356,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		// "old-style" dead ringer stuff
 		if (
 			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) == 3 ||
-			GetItemVariant(Wep_DeadRinger) == 4 ||
-			GetItemVariant(Wep_DeadRinger) == 5) &&
+			GetItemVariant(Wep_DeadRinger) >= 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
 			// prevent speed boost being applied on feign death
@@ -4294,29 +4291,29 @@ Action SDKHookCB_OnTakeDamage(
 						if (GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59) {
 
 							switch (GetItemVariant(Wep_DeadRinger)) {
-								case 0, 3, 4, 5: {
-									// "Old-Style" Dead Ringer Stats
-									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
-									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
-									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
-									cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
+								case -1, 1: {
+									// Pre-Inferno and Vanilla Dead Ringer
+									cvar_ref_tf_feign_death_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+									cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 								}
 								case 2: {
-									// Pre-Tough Break Dead Ringer Initial Damage Resist Stat
+									// Pre-Tough Break Dead Ringer
 									cvar_ref_tf_feign_death_duration.RestoreDefault();
 									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
 									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 								}
-								case -1, 1: {
-									// Pre-Inferno and Vanilla Dead Ringer Stat reset
-									cvar_ref_tf_feign_death_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+								default: {
+									// "Old-Style" Dead Ringer
+									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
+									cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
 								}
 							}
 						} else {
@@ -4328,9 +4325,7 @@ Action SDKHookCB_OnTakeDamage(
 				// "old-style" dead ringer track when feign begins
 				if (
 					GetItemVariant(Wep_DeadRinger) == 0 ||
-					GetItemVariant(Wep_DeadRinger) == 3 ||
-					GetItemVariant(Wep_DeadRinger) == 4 ||
-					GetItemVariant(Wep_DeadRinger) == 5
+					GetItemVariant(Wep_DeadRinger) >= 3
 				) {
 					if (
 						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
@@ -7084,7 +7079,7 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
  * Get an absolute value of an integer.
  * 
  * @param x		Integer.
- * @retrun		Absolute value of x.
+ * @return		Absolute value of x.
  */
 stock int abs(int x)
 {
