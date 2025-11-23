@@ -2377,7 +2377,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		) {
 			if (
 				condition == TFCond_CritMmmph &&
-				TF2_IsPlayerInCondition(client, TFCond_CritMmmph) == false
+				GetEntPropFloat(client, Prop_Send, "m_flRageMeter") == 100.0
 			) {
 				players[client].mmmph_use_tick = GetGameTickCount();
 
