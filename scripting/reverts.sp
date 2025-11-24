@@ -252,7 +252,6 @@ enum struct Player {
 enum struct Entity {
 	bool exists;
 	float spawn_time;
-	bool is_demo_shield;
 	int old_shield;
 	float minisentry_health;
 }
@@ -2049,13 +2048,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	entities[entity].exists = true;
 	entities[entity].spawn_time = 0.0;
-	entities[entity].is_demo_shield = false;
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
-
-	if (StrEqual(class, "tf_wearable_demoshield")) {
-		entities[entity].is_demo_shield = true;
-	}
 
 	if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
@@ -3954,8 +3948,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			GetEventInt(event, "objecttype") == OBJ_ATTACHMENT_SAPPER
 		) {
 			int sapper = GetEventInt(event, "index");
-			int building = GetEntPropEnt(sapper, Prop_Send, "m_hBuiltOnEntity");
-			SetEntProp(building, Prop_Send, "m_bPlasmaDisable", 0);
+			if (sapper > 0) {
+
+				int building = GetEntPropEnt(sapper, Prop_Send, "m_hBuiltOnEntity");
+				if (building > 0) {
+					SetEntProp(building, Prop_Send, "m_bPlasmaDisable", 0);
+				}
+			}
 		}
 	}
 
@@ -4367,32 +4366,15 @@ Action SDKHookCB_OnTakeDamage(
 				victim != attacker &&
 				(damage_type & DMG_FALL) == 0 &&
 				TF2_GetPlayerClass(victim) == TFClass_DemoMan &&
-				TF2_IsPlayerInCondition(victim, TFCond_Charging)
+				TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
+				player_weapons[victim][Wep_TideTurner]
 			) {
-				for (idx = (MaxClients + 1); idx < 2048; idx++) {
-					if (
-						entities[idx].exists &&
-						entities[idx].is_demo_shield &&
-						IsValidEntity(idx)
-					) {
-						GetEntityClassname(idx, class, sizeof(class));
+				charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
 
-						if (
-							StrEqual(class, "tf_wearable_demoshield") &&
-							GetEntPropEnt(idx, Prop_Send, "m_hOwnerEntity") == victim &&
-							GetEntProp(idx, Prop_Send, "m_iItemDefinitionIndex") == 1099
-						) {
-							charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
+				charge = (charge - damage);
+				charge = (charge < 0.0 ? 0.0 : charge);
 
-							charge = (charge - damage);
-							charge = (charge < 0.0 ? 0.0 : charge);
-
-							SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
-
-							break;
-						}
-					}
-				}
+				SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
 			}
 		}
 
