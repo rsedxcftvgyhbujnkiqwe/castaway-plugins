@@ -202,6 +202,7 @@ enum struct Player {
 	// gameplay vars
 	float resupply_time;
 	int headshot_frame;
+	bool hit_by_headshot;
 	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
@@ -3489,7 +3490,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						if (
 							ItemIsEnabled(Wep_Ambassador) &&
 							GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
-							players[attacker].headshot_frame == GetGameTickCount() 
+							players[attacker].headshot_frame == GetGameTickCount() &&
+							players[client].hit_by_headshot
 						) {
 							event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
 							return Plugin_Changed;
@@ -4222,7 +4224,10 @@ Action SDKHookCB_TraceAttack(
 				TF2_GetPlayerClass(attacker) == TFClass_Sniper // for sydney sleeper
 			) {
 				players[attacker].headshot_frame = GetGameTickCount();
+				players[victim].hit_by_headshot = true;
 			}
+		} else {
+			players[victim].hit_by_headshot = false;
 		}
 	}
 
@@ -4484,6 +4489,7 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled(Wep_Ambassador) &&
 					StrEqual(class, "tf_weapon_revolver") &&
 					players[attacker].headshot_frame == GetGameTickCount() &&
+					players[victim].hit_by_headshot &&
 					(
 						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
 						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
