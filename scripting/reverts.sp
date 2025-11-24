@@ -129,6 +129,7 @@ public Plugin myinfo = {
 #define TF_MINIGUN_PENALTY_PERIOD 1.0
 #define SENTRYGUN_ADD_SHELLS 40
 #define SENTRYGUN_MAX_SHELLS_1 150
+#define OBJ_ATTACHMENT_SAPPER 3
 
 enum
 {
@@ -382,6 +383,7 @@ enum
 #endif
 	Feat_Grenade, // All Grenade Launchers
 	Feat_Minigun, // All Miniguns
+	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
@@ -549,6 +551,9 @@ public void OnPluginStart() {
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
 #if defined MEMORY_PATCHES
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
+#endif
+	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
+#if defined MEMORY_PATCHES
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #else
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
@@ -787,6 +792,7 @@ public void OnPluginStart() {
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
+	HookEvent("object_destroyed", OnGameEvent, EventHookMode_Post);
 
 	AddCommandListener(CommandListener_EurekaTeleport, "eureka_teleport");
 
@@ -3579,6 +3585,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						}
 					}
 
+					else if (StrEqual(class, "tf_weapon_pda_engineer_build")) {
+						player_weapons[client][Feat_Sentry] = true;
+					}
+
 					else if (
 						StrEqual(class, "tf_weapon_sword") ||
 						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana"))
@@ -3934,6 +3944,18 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			StrContains(class, "tf_ammo_") == 0 // ammo dropped on death
 		) {
 			players[client].ammo_grab_frame = GetGameTickCount();
+		}
+	}
+
+	if (StrEqual(name, "object_destroyed")) {
+
+		if (
+			ItemIsEnabled(Feat_Sentry) &&
+			GetEventInt(event, "objecttype") == OBJ_ATTACHMENT_SAPPER
+		) {
+			int sapper = GetEventInt(event, "index");
+			int building = GetEntPropEnt(sapper, Prop_Send, "m_hBuiltOnEntity");
+			SetEntProp(building, Prop_Send, "m_bPlasmaDisable", 0);
 		}
 	}
 

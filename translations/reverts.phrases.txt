@@ -142,6 +142,10 @@
 	{
 		"en"	"All Miniguns"
 	}
+	"sentry"
+	{
+		"en"	"All Sentry Guns"
+	}
 	"sniperrifles"
 	{
 		"en"	"All Sniper Rifles"
@@ -531,6 +535,10 @@
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
+	}
+	"Sentry_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, sentry is active immediately after being unsapped"
 	}
 	"SniperRifle_PreLW"
 	{
