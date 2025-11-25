@@ -263,6 +263,7 @@ ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
+ConVar cvar_allow_cloak_taunt_bug;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
@@ -302,6 +303,8 @@ MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
+MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
+MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck;
 // MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
 
@@ -532,6 +535,7 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "0", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
+	cvar_allow_cloak_taunt_bug = CreateConVar("sm_reverts__enable_allow_cloak_taunt_bug", "0", (PLUGIN_NAME ... " - Revert cloak behaviour so spy can taunt and cloak (i.e old fence taunt cloak bug)"), _, true, 0.0, true, 1.0);
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
@@ -897,6 +901,12 @@ public void OnPluginStart() {
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFPlayer::OnTakeDamage_RemoveInCondStealthCheck");
 		// patch_RevertThermalThruster_LoadoutChangePassive =
 		// 	MemoryPatch.CreateFromConf(conf,
 		// 	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");
@@ -1011,6 +1021,15 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	// weapon pickups are disabled to ensure attribute consistency
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
+	if (convar.BoolValue) {
+		patch_DroppedWeapon.Enable();
+	} else {
+		patch_DroppedWeapon.Disable();
+	}
+}
+public void OnAllowCloakBugCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	// weapon pickups are disabled to ensure attribute consistency
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
 	if (convar.BoolValue) {
