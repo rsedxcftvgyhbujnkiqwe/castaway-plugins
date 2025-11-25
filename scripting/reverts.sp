@@ -5827,55 +5827,6 @@ void ToggleMoonshotMessage(int client) {
 	}
 }
 
-int HealBuilding(int buildingIndex, int engineerIndex) {
-	// It's Sigafoo save time BABY!
-
-	// Hook attribute class to get repair amount
-	float RepairAmountFloat = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", engineerIndex);
-
-	// Reduce healing amount if wrangled sentry.
-	// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
-	if (HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")) {
-		if (GetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
-			RepairAmountFloat *= SHIELD_NORMAL_VALUE;
-		}
-	}
-
-	RepairAmountFloat = floatMin(RepairAmountFloat,float(GetEntProp(buildingIndex, Prop_Data, "m_iMaxHealth") - GetEntProp(buildingIndex, Prop_Data, "m_iHealth")));
-
-	int currentHealth = GetEntProp(buildingIndex, Prop_Data, "m_iHealth");
-	int RepairAmount = RoundToNearest(RepairAmountFloat);
-	if (RepairAmountFloat > 0.0) {
-
-		SetVariantInt(RepairAmount);
-		AcceptEntityInput(buildingIndex, "AddHealth", engineerIndex);
-		int newHealth = GetEntProp(buildingIndex, Prop_Send, "m_iHealth");
-		Event event = CreateEvent("building_healed");
-
-		if (event != null)
-		{
-			event.SetInt("priority", 1); // HLTV event priority, not transmitted
-			event.SetInt("building", buildingIndex); // self-explanatory.
-			event.SetInt("healer", engineerIndex); // Index of the engineer who healed the building.
-			event.SetInt("amount", newHealth - currentHealth); // Repair amount to display.
-
-			event.Fire(); // FIRE IN THE HOLE!!!!!!!
-		}
-
-		// Check if building owner and the engineer who shot the bolt
-		// are the same person, if not. Give them progress on
-		// the "Circle the Wagons" achivement.
-		int buildingOwner = GetEntPropEnt(buildingIndex,Prop_Send,"m_hBuilder");
-		if (buildingOwner != engineerIndex) {
-			AddProgressOnAchievement(engineerIndex,1836,RepairAmount);
-		}
-	} else {
-		RepairAmount = 0;
-	}
-
-	return RepairAmount;
-}
-
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -6359,116 +6310,119 @@ MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int arrowEntity, DHookParam parameters) {
-	MRESReturn returnValue = MRES_Ignored;
-	int engineerIndex = GetEntityOwner(arrowEntity); // Get attacking entity.
-	int sentry = parameters.Get(1);
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity, DHookParam parameters) {
+	int attacker = GetEntityOwner(entity);
+	int building = parameters.Get(1);
+
+	// Fake the sentry being unshielded to allow for maximum healing potential.
+	if (
+		ItemIsEnabled(Wep_Wrangler) &&
+		IsValidEntity(building) &&
+		HasEntProp(building, Prop_Send, "m_nShieldLevel")
+	) {
+		entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
+		SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+	}
 
 #if defined MEMORY_PATCHES
-	// Do not allow healing on mini sentries.
+	char class[64];
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(sentry, Prop_Send, "m_bMiniBuilding")
+		GetEntProp(building, Prop_Send, "m_bMiniBuilding")
 	) {
-		return MRES_Supercede;
+		GetEntityClassname(building, class, sizeof(class));
+
+		if (StrEqual(class, "obj_sentrygun")) {
+			// Do not allow healing on mini sentries.
+			return MRES_Supercede;
+		}
 	}
 #endif
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int weapon;
-		char class[64];
-		// Grab weapon.
-		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
+		// It's Sigafoo save time BABY!
 
-		if (weapon > 0) {
-			GetEntityClassname(weapon, class, sizeof(class));
+		// Hook attribute class to get repair amount
+		float repair_amount_float = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker);
 
-			if (
-				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997
-			) {
-				returnValue = MRES_Supercede; // Weapon is a Rescue Ranger, so we cancel pre to handle building healing in post.
+		// Now we can proceed with healing the building etc.
+		// Sentry and Engineer must be on the same team for heal to happen.
+		if (
+			repair_amount_float != 0.0 &&
+			IsBuildingValidHealTarget(building, attacker)
+		) {
+			// Reduce healing amount if wrangled sentry.
+			// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
+			if (HasEntProp(building, Prop_Send, "m_nShieldLevel")) {
+				if (GetEntProp(building, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
+					repair_amount_float *= SHIELD_NORMAL_VALUE;
+				}
 			}
+
+			int health_cur = GetEntProp(building, Prop_Data, "m_iHealth");
+			repair_amount_float = floatMin(repair_amount_float, float(GetEntProp(building, Prop_Data, "m_iMaxHealth") - health_cur));
+
+			int repair_amount = RoundToNearest(repair_amount_float);
+			if (repair_amount_float > 0.0) {
+
+				SetVariantInt(repair_amount);
+				AcceptEntityInput(building, "AddHealth", attacker);
+				int health_new = GetEntProp(building, Prop_Send, "m_iHealth");
+				Event event = CreateEvent("building_healed");
+
+				if (event != null)
+				{
+					event.SetInt("priority", 1); // HLTV event priority, not transmitted
+					event.SetInt("building", building); // self-explanatory.
+					event.SetInt("healer", attacker); // Index of the engineer who healed the building.
+					event.SetInt("amount", health_new - health_cur); // Repair amount to display.
+
+					event.Fire(); // FIRE IN THE HOLE!!!!!!!
+				}
+
+				// Check if building owner and the engineer who shot the bolt
+				// are the same person. If not, give them progress on
+				// the "Circle the Wagons" achievement.
+				if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
+					AddProgressOnAchievement(attacker, 1836, repair_amount);
+				}
+			} else {
+				repair_amount = 0;
+			}
+
+			// Spawn some particles if healing occured.
+			if (repair_amount > 0) {
+
+				// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
+				if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 2) {
+					// [1699] repair_claw_heal_red
+					// PATTACH_ABSORIGIN_FOLLOW
+					AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
+				} else {
+					// [1696] repair_claw_heal_blue
+					AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
+				}
+			}
+			return MRES_Supercede;
 		}
 	}
-	
-	// Fake the sentry being unshielded to allow for maximum healing potential.
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int arrowEntity, DHookParam parameters) {
+	int sentry = parameters.Get(1);
+
+	// Revert the sentry's shield.
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
 		IsValidEntity(sentry) &&
 		HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
 	) {
-		entities[sentry].old_shield = GetEntProp(sentry, Prop_Send, "m_nShieldLevel");
-		SetEntProp(sentry, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+		SetEntProp(sentry, Prop_Send, "m_nShieldLevel", entities[sentry].old_shield);
 	}
 
-	return returnValue;
-}
-
-MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int arrowEntity, DHookParam parameters) {
-	MRESReturn returnValue = MRES_Ignored;
-	int buildingIndex = parameters.Get(1);
-	int engineerIndex = GetEntityOwner(arrowEntity);
-
-#if defined MEMORY_PATCHES
-	// Do not allow healing on mini sentries.
-	if (
-		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(buildingIndex, Prop_Send, "m_bMiniBuilding")
-	) {
-		return MRES_Supercede;
-	}
-#endif
-
-	if (ItemIsEnabled(Wep_RescueRanger)) {
-		int weapon;
-		char class[64];
-
-		// Grab weapon.
-		weapon = GetPlayerWeaponSlot(engineerIndex, TFWeaponSlot_Primary);
-
-		if (weapon > 0) {
-			GetEntityClassname(weapon, class, sizeof(class));
-
-			if (
-				StrEqual(class, "tf_weapon_shotgun_building_rescue") &&
-				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 997
-			) {
-				// Now we can proceed with healing the building etc.
-				// Sentry and Engineer must be on the same team for heal to happen.
-				if (IsBuildingValidHealTarget(buildingIndex, engineerIndex)) {
-					int RepairAmount = HealBuilding(buildingIndex, engineerIndex);
-
-					// Spawn some particles if healing occured.
-					if (RepairAmount > 0) {
-
-						// HERE WE CALL FUNCTION TO SPAWN TE PARTICLES
-						int teamNum = GetEntProp(arrowEntity,Prop_Data,"m_iTeamNum");
-						if (teamNum == 2) {
-							// [1699] repair_claw_heal_red
-							// PATTACH_ABSORIGIN_FOLLOW
-							AttachTEParticleToEntityAndSend(arrowEntity, 1699, 1); // Red
-						} else {
-							// [1696] repair_claw_heal_blue
-							AttachTEParticleToEntityAndSend(arrowEntity, 1696, 1); // Blue
-						}
-					}
-				}
-				returnValue = MRES_Supercede;
-			}
-		}
-	}
-
-	// Revert the sentry's shield.
-	if (
-		ItemIsEnabled(Wep_Wrangler) &&
-		IsValidEntity(buildingIndex) &&
-		HasEntProp(buildingIndex, Prop_Send, "m_nShieldLevel")
-	) {
-		SetEntProp(buildingIndex, Prop_Send, "m_nShieldLevel", entities[buildingIndex].old_shield);
-	}
-
-	return returnValue;
+	return MRES_Ignored;
 }
 
 #if defined MEMORY_PATCHES
