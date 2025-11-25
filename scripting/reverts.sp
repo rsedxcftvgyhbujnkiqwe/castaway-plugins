@@ -303,10 +303,10 @@ MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
-MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
-MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck;
 // MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
+MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
+MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -543,6 +543,7 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
+	cvar_allow_cloak_taunt_bug.AddChangeHook(OnAllowCloakTauntBugChange);
 #endif
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
 
@@ -956,6 +957,8 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
 		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
 		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
+		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) SetFailState("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
+		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck)) SetFailState("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck");
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
@@ -1029,13 +1032,13 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		patch_DroppedWeapon.Disable();
 	}
 }
-public void OnAllowCloakBugCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-	// weapon pickups are disabled to ensure attribute consistency
-	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
+public void OnAllowCloakTauntBugChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	if (convar.BoolValue) {
-		patch_DroppedWeapon.Enable();
+		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Enable();
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck.Enable();
 	} else {
-		patch_DroppedWeapon.Disable();
+		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Disable();
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck.Disable();
 	}
 }
 #else
@@ -1078,6 +1081,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	// ToggleMemoryPatchReverts(ItemIsEnabled(Wep_ThermalThruster),Wep_ThermalThruster);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+	OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
 #endif
