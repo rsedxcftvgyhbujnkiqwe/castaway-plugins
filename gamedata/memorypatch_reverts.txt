@@ -630,6 +630,7 @@
 				// ║                     Spy                      ║
 				// ╚══════════════════════════════════════════════╝
 
+				//  Spy related MemoryPatches go here.
 				// ================================================
 				//  Spy cannot taunt and cloak check, removal.
 				//  Basically restores so the Spy can do this:
