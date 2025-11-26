@@ -1182,11 +1182,19 @@
 	}
 	"Tomislav_PrePyro"
 	{
-		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus"
+		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
 	}
 	"Tomislav_Release"
 	{
-		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus"
+		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+	}
+	"Tomislav_PreLW"
+	{
+		"en"	"Reverted to pre-love&war, 10%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"en"	"Reverted only the firing sounds to pre-love&war, 20%% higher pitched weapon sounds"
 	}
 	"TribalShiv_Release"
 	{
