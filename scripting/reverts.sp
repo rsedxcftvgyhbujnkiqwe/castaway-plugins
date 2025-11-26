@@ -6982,8 +6982,8 @@ MRESReturn DHookCallback_CHealthKit_Sandvich_MyTouch(int entity, DHookReturn ret
 			// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
 			// If we went for the m_iMaxHealth in Prop_Data, we would simply get 300 no matter what.
 			int maxhealth = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
-			if ( hp == maxhealth) {
-				// If at full health, do not allow the sandvich to recharge by denying pickup.
+			if ( hp >= maxhealth) {
+				// If currenthealth above or at max health, do not allow the sandvich to recharge by denying pickup.
 				// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
 				returnValue.Value = false;
 				return MRES_Supercede;
@@ -7030,10 +7030,10 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 		int owner_of_healthkit = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
 		// Make sure that the healthkit is owned by world before we reset tracking.
-		// This is because we want to avoid letting other heavys sandviches charge the touching heavys chargemeter.
+		// This is because we want to avoid letting other heavys sandviches that have not been hooked charge the touching heavys chargemeter.
 		// If we want heavy to be able to recharge of things like the candy cane healthkit or healthkits dropped
-		// in Medivial mode, we need to figure it out. This will have to do in the meanwhile.
-		if ( hp == maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
+		// in Medivial mode, we need to figure out how to do that later. This will have to do in the meanwhile.
+		if ( hp >= maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
 			// It's a normal map placed healthkit, allow the recharge.
 			players[client].has_thrown_sandvich = false;
 		}	
