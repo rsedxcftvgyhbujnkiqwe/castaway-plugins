@@ -434,6 +434,10 @@
 	{
 		"en"	"Sandman"
 	}
+	"sandvich"
+	{
+		"en"	"Sandvich"
+	}
 	"scorchshot"
 	{
 		"en"	"Scorch Shot"
@@ -1068,6 +1072,10 @@
 	{
 		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"
 	}
+	"Sandvich_PreEngineer"
+	{
+		"en"	"Reverted to pre-Engineer Update, heal yourself by eating/throwing the Sandvich, can be eaten forever unless thrown which must then be recharged via resupply or health kits"
+	}
 	"ScorchShot_July2015"
 	{
 		"en"	"Reverted to pre-July 6, 2015 patch; no -35%% self damage force penalty (higher blast jumping)"
@@ -1186,11 +1194,19 @@
 	}
 	"Tomislav_PrePyro"
 	{
-		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus"
+		"en"	"Reverted to pre-pyromania, 40%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
 	}
 	"Tomislav_Release"
 	{
-		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus"
+		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+	}
+	"Tomislav_PreLW"
+	{
+		"en"	"Reverted to pre-love&war, 10%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"en"	"Reverted only the firing sounds to pre-love&war, 20%% higher pitched weapon sounds"
 	}
 	"TribalShiv_Release"
 	{
