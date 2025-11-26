@@ -2634,7 +2634,40 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 }
 
 public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Handle& itemTarget) {
-	Handle itemNew = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES);
+	Handle itemNew;
+	// TF2Items_OnGiveNamedItem defaults to setting bForce to false for CTFPlayer::GiveNamedItem in tf_player.cpp when using it to change weapon attributes.
+	// this causes issues when a disguised spy (say, using a soldier disguise) disguises as enemy spy, leading to T-posing since the target enemy spies
+	// weapons are not properly copied into the m_hDisguiseWeaponList list since the disguised spy already "owns" the weapon types.
+	// When the game later uses DetermineDisguiseWeapon, it fails to do so since the list does not have the appropiate weapon 
+	// for your current selection (ex: Ambassador) and falls back to using last disguise weapon, which in this example would be whatever you had on your soldier disguise.
+	// It also traverses the m_hDisguiseWeaponList from first to last (primary, secondary and so on). That's why touching only knife with changes
+	// does not lead to t-pose but cannot switch to knife, but touching revolvers does.
+	// See here: https://github.com/ValveSoftware/source-sdk-2013/blob/2d3a6efb50bba856a44e73d4f0098ed4a726699c/src/game/server/tf/tf_player.cpp#L22629
+	// and here: https://github.com/ValveSoftware/source-sdk-2013/blob/2d3a6efb50bba856a44e73d4f0098ed4a726699c/src/game/server/tf/tf_player.cpp#L5540
+	// When it runs CreateDisguiseWeaponList, notice how bForce is set to true. I.e GiveNamedItem( pWeapon->GetClassname(), iSubType, pItem, true )
+	// We need to make sure that when GiveNamedItem is about to give a spy weapon to a disguised spys m_hDisguiseWeaponList, we set bForce to true ourself.
+	// While we cannot directly check if GiveNamedItem is being called in the context of filling out the m_hDisguiseWeaponList, we can be pretty
+	// sure that it is being called in that Context by doing the following:
+	// First check: is GiveNamedItem trying to give a spy weapon to client?
+	bool isGivingSpyWeapon = (
+		(index == 61 || index == 1006) || (index == 460) || // (Ambassador) OR (Enforcer) OR
+		(index == 810 || index == 831) || (index == 225 || index == 574) || (index == 649) // (Red-Tape Recorder) OR (Your Eternal Reward) OR (Spy-Cicle)
+	);
+
+	// Second check: Is GiveNamedItem trying to give to a: Living (i.e not DEAD) client who's Spy, that is already disguised AND isGivingSpyWeapon was true.
+	bool needForce =
+	IsPlayerAlive(client) &&
+	TF2_GetPlayerClass(client) == TFClass_Spy &&
+	TF2_IsPlayerInCondition(client, TFCond_Disguised) &&
+	isGivingSpyWeapon;
+
+	// IF needForce is true, we need add the FORCE_GENERATION flag to TF2Items_CreateItem so that TF2Items sets bForce to True for CTFPlayer::GiveNamedItem
+	// IF needForce is false, it's a non-spy class being given a item with GiveNamedItem, do not give FORCE_GENERATION flag or server will eventually crash from to many networked entities.
+	// ClearDisguiseWeaponList is run in OnRemoveDisguised and in CTFPlayerShared::ConditionGameRulesThink whenever player is not disguised. With our needForce check, we also ensure
+	// we only give bForce to items that would have ended up in m_hDisguiseWeaponList so we know this won't grow out of control.
+	itemNew = TF2Items_CreateItem( needForce ? (OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | FORCE_GENERATION)
+	: (OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES));
+	
 	bool sword_reverted = false;
 
 	switch (index) {
