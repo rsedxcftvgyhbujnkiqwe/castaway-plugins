@@ -1,6 +1,7 @@
 #include <sourcemod>
 #include <regex>
 #include <sourcescramble>
+#include <sdktools>
 
 #define PLUGIN_NAME "Force Stalemate"
 
@@ -37,12 +38,50 @@ public void OnPluginStart() {
 	AutoExecConfig();
 }
 
+public void OnMapStart() {
+	bool should_patch = ShouldPatchMap();
+	if (should_patch) {
+		patch_ForceAlways_StalemateOrOvertime.Enable();
+	} else {
+		patch_ForceAlways_StalemateOrOvertime.Disable();
+	}
+}
+
+bool ShouldPatchMap() {
+
+	// Control Points
+	int ent = -1;
+	if ((ent = FindEntityByClassname(ent, "team_control_point_master")) != -1) {
+		if (
+			(GetEntProp(ent,Prop_Send,"m_iInvalidCapWinner") == 0) || // Attack/Defend
+			(FindEntityByClassname(-1,"tf_logic_koth") == -1) // KOTH
+		) {
+			return true; // Symmetric control points (3cp/5cp)
+		}
+	}
+
+	// Flags
+	ent = -1;
+	int team = -1;
+	while ((ent = FindEntityByClassname(ent, "item_teamflag")) != -1) {
+		int current_team = GetEntProp(ent,Prop_Send,"m_iTeamNum");
+		if (team != -1) {
+			if (current_team != team) {
+				return true; // Capture the Flag
+			} else {
+				team = current_team;
+			}
+		}
+	}
+	return false;
+}
+
 bool ValidateAndNullCheck(MemoryPatch patch) {
 	return (patch.Validate() && patch != null);
 }
 
 public void OnConfigsExecuted() {
-	ApplyBlackList();
+	//ApplyBlackList();
 }
 
 void ApplyBlackList() {
