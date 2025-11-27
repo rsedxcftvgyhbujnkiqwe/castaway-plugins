@@ -2650,23 +2650,26 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	// sure that it is being called in that Context by doing the following:
 	// First check: is GiveNamedItem trying to give a spy weapon to client?
 	bool isGivingSpyWeapon = (
-		(index == 61 || index == 1006) || (index == 460) || // (Ambassador) OR (Enforcer) OR
-		(index == 810 || index == 831) || (index == 225 || index == 574) || (index == 649) // (Red-Tape Recorder) OR (Your Eternal Reward) OR (Spy-Cicle)
+		(index == 61 || index == 1006) || // Ambassador
+		(index == 460) || // (Enforcer) 
+		(index == 810 || index == 831) || // Red-Tape Recorder
+		(index == 225 || index == 574) || // Your Eternal Reward
+		(index == 649) // (Spy-Cicle)
 	);
 
 	// Second check: Is GiveNamedItem trying to give to a: Living (i.e not DEAD) client who's Spy, that is already disguised AND isGivingSpyWeapon was true.
-	bool needForce =
-	IsPlayerAlive(client) &&
-	TF2_GetPlayerClass(client) == TFClass_Spy &&
-	TF2_IsPlayerInCondition(client, TFCond_Disguised) &&
-	isGivingSpyWeapon;
+	bool needForce = (
+		isGivingSpyWeapon &&
+		IsPlayerAlive(client) &&
+		TF2_GetPlayerClass(client) == TFClass_Spy &&
+		TF2_IsPlayerInCondition(client, TFCond_Disguised)
+	);
 
 	// IF needForce is true, we need add the FORCE_GENERATION flag to TF2Items_CreateItem so that TF2Items sets bForce to True for CTFPlayer::GiveNamedItem
 	// IF needForce is false, it's a non-spy class being given a item with GiveNamedItem, do not give FORCE_GENERATION flag or server will eventually crash from to many networked entities.
 	// ClearDisguiseWeaponList is run in OnRemoveDisguised and in CTFPlayerShared::ConditionGameRulesThink whenever player is not disguised. With our needForce check, we also ensure
 	// we only give bForce to items that would have ended up in m_hDisguiseWeaponList so we know this won't grow out of control.
-	itemNew = TF2Items_CreateItem( needForce ? (OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | FORCE_GENERATION)
-	: (OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES));
+	itemNew = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | ( needForce ? FORCE_GENERATION : 0) );
 	
 	bool sword_reverted = false;
 
