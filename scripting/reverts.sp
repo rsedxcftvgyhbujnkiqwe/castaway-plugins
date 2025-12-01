@@ -284,7 +284,7 @@ ConVar cvar_ref_tf_feign_death_duration;
 ConVar cvar_ref_tf_feign_death_speed_duration;
 ConVar cvar_ref_tf_fireball_radius;
 ConVar cvar_ref_tf_gamemode_mvm;
-ConVar cvar_ref_tf_parachute_aircontrol;
+ConVar cvar_ref_tf_parachute_maxspeed_xy;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
@@ -784,7 +784,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_feign_death_speed_duration = FindConVar("tf_feign_death_speed_duration");
 	cvar_ref_tf_fireball_radius = FindConVar("tf_fireball_radius");
 	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
-	cvar_ref_tf_parachute_aircontrol = FindConVar("tf_parachute_aircontrol");
+	cvar_ref_tf_parachute_maxspeed_xy = FindConVar("tf_parachute_maxspeed_xy");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
@@ -2091,7 +2091,7 @@ public void OnGameFrame() {
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
-			SetConVarMaybe(cvar_ref_tf_parachute_aircontrol, "5", ItemIsEnabled(Wep_BaseJumper));
+			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_xy, "400.0", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
 
