@@ -1138,11 +1138,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full bash dmg at any range"
+		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash dmg at any range"
 	}
 	"Splendid_Release"
 	{
-		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal, full bash dmg at any range"
+		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash dmg at any range"
 	}
 	"SpyCicle_PreGM"
 	{
