@@ -22,13 +22,19 @@ argument_parser.add_argument("--format-tasklist", help="Print in GitHub tasklist
 
 args = argument_parser.parse_args()
 
+target_phrases: str = args.phrases
+BASE_TRANSLATION_PATH = f"translations/{target_phrases}.phrases.txt"
+
+if not os.path.isfile(BASE_TRANSLATION_PATH):
+    print(f"Translation phrases \"{target_phrases}\" doesn't exist.", file=sys.stderr)
+    sys.exit(1)
+
 output_file = None
 if args.out:
     output_file = open(args.out, "w")
     sys.stdout = output_file
 
 format_markdown: bool = args.format_markdown
-target_phrases: str = args.phrases
 languages = [i for i in os.listdir("translations")
              if os.path.isdir(os.path.join("translations", i))]
 
@@ -67,12 +73,6 @@ ALL_LANGUAGES = {
     "vi": "Vietnamese",
     "zho": "Chinese (Traditional)"
 }
-
-BASE_TRANSLATION_PATH = f"translations/{target_phrases}.phrases.txt"
-
-if not os.path.isfile(BASE_TRANSLATION_PATH):
-    print(f"Translation phrases \"{target_phrases}\" doesn't exist.", file=sys.stderr)
-    sys.exit(1)
 
 with open(BASE_TRANSLATION_PATH, encoding="utf-8") as f:
     all_phrases: dict[str, dict[str, str]] = vdf.loads(f.read()).get("Phrases")
