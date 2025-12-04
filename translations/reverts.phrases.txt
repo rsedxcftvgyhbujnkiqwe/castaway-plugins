@@ -1076,6 +1076,10 @@
 	{
 		"en"	"Reverted to pre-Engineer Update, heal yourself by eating/throwing the Sandvich, can be eaten forever unless thrown which must then be recharged via resupply or health kits"
 	}
+	"Sandvich_Pre2012"
+	{
+		"en"	"Reverted to pre-2012, can heal self by throwing the Sandvich"
+	}
 	"ScorchShot_July2015"
 	{
 		"en"	"Reverted to pre-July 6, 2015 patch; no -35%% self damage force penalty (higher blast jumping)"
