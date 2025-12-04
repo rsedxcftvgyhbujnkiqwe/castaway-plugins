@@ -132,9 +132,29 @@
 	{
 		"pl"	"Atak Powietrzny"
 	}
+	"flamethrower"
+	{
+		"pl"	"Wszystkie Miotacze ognia"
+	}
+	"grenade"
+	{
+		"pl"	"Wszystkie Granatniki"
+	}
 	"miniramp"
 	{
 		"pl"	"Wszystkie Miniguny"
+	}
+	"sentry"
+	{
+		"pl"	"Wszystkie Działka strażnicze"
+	}
+	"sniperrifles"
+	{
+		"pl"	"Wszystkie Snajperki"
+	}
+	"stickybomb"
+	{
+		"pl"	"Wszystkie Bomby samoprzylepne"
 	}
 	"swords"
 	{
@@ -172,6 +192,10 @@
 	{
 		"pl"	"Czarna Skrzynka"
 	}
+	"blutsauger"
+	{
+		"pl"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"pl"	"Bonk! Atomowy Kop"
@@ -192,6 +216,10 @@
 	{
 		"pl"	"Stek z Bizona"
 	}
+	"buffbanner"
+	{
+		"pl"	"Sztandar Chwały"
+	}
 	"targe"
 	{
 		"pl"	"Tarcza Szarży"
@@ -204,6 +232,10 @@
 	{
 		"pl"	"Spluwa Sprzątacza"
 	}
+	"concheror"
+	{
+		"pl"	"Sashimono straceńca"
+	}
 	"cowmangler"
 	{
 		"pl"	"Wyżymaczka Krów 5000"
@@ -215,6 +247,10 @@
 	"critcola"
 	{
 		"pl"	"Kryt-o-Cola"
+	}
+	"crossbow"
+	{
+		"pl"	"Kusza Krzyżowca"
 	}
 	"crocostyle"
 	{
@@ -236,6 +272,10 @@
 	{
 		"pl"	"Odtłuszczacz"
 	}
+	"directhit"
+	{
+		"pl"	"Celny strzał"
+	}
 	"disciplinary"
 	{
 		"pl"	"Postępowanie Dyscyplinarne"
@@ -251,6 +291,10 @@
 	"equalizer"
 	{
 		"pl"	"Wyrównywacz i Plan Ucieczki"
+	}
+	"eureka"
+	{
+		"pl"	"Efekt Eureki"
 	}
 	"eviction"
 	{
@@ -280,6 +324,10 @@
 	{
 		"pl"	"Kanonierki"
 	}
+	"gunslinger"
+	{
+		"pl"	"Jednoręki Bandyta"
+	}
 	"zatoichi"
 	{
 		"pl"	"Prawie-Zatoichi"
@@ -287,6 +335,10 @@
 	"hibernate"
 	{
 		"pl"	"Hibernujący Niedźwiedź (zestaw)"
+	}
+	"ironbomber"
+	{
+		"pl"	"Żelazny Bombardier"
 	}
 	"jag"
 	{
@@ -324,6 +376,10 @@
 	{
 		"pl"	"Perska Perswazja"
 	}
+	"phlog"
+	{
+		"pl"	"Flogistynator"
+	}
 	"pomson"
 	{
 		"pl"	"Pomson 6000"
@@ -348,6 +404,10 @@
 	{
 		"pl"	"Antyklinga"
 	}
+	"redtape"
+	{
+		"pl"	"Magnetofon Urzędasa"
+	}
 	"rescueranger"
 	{
 		"pl"	"Ryzykowny Ratunek"
@@ -371,6 +431,14 @@
 	"sandman"
 	{
 		"pl"	"Piaskun"
+	}
+	"sandvich"
+	{
+		"pl"	"Kanapka"
+	}
+	"scorchshot"
+	{
+		"pl"	"Piekąca Palba"
 	}
 	"scottish"
 	{
@@ -411,6 +479,10 @@
 	"sleeper"
 	{
 		"pl"	"Sydnejski Usypiacz"
+	}
+	"thermal"
+	{
+		"pl"	"Cieplny Ciąg"
 	}
 	"turner"
 	{
@@ -454,9 +526,29 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak dodatkowej redukcji pola rażenia podczas rakietowych skoków"
 	}
+	"Flamethrower_PreBM"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue Moon), pełne obrażenia ognia bez wzrostu, (około +30%% obrażeń ogółem)"
+	}
+	"Grenade_Pre2014"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2014, +9%% pola rażenia, wariacja obrażeń w zależności od miejsca trafienia granatu (więcej obrażeń przy trafieniu w nogi)"
+	}
 	"Minigun_ramp_PreLW"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), pełna celność oraz obrażenia natychmiast po rozkręceniu"
+	}
+	"Sentry_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), działko aktywuje się od razu po usunięciu sapera"
+	}
+	"SniperRifle_PreLW"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 27 sierpnia 2014 roku, Snajper może podskoczyć od razu po oddaniu przybliżonego strzału"
+	}
+	"Stickybomb_PreLW"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), +9%% pola rażenia, bomby detonowane w powietrzu mają pełny zasięg rażenia"
 	}
 	"Swords_PreTB"
 	{
@@ -465,6 +557,18 @@
 	"Ambassador_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje pełne obrażenia krytyczne przy trafieniu w głowę niezależnie od dystansu"
+	}
+	"Ambassador_PreJune2009"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 23 czerwca 2009 roku, zadaje 102 pkt. obrażeń przy trafieniu w głowę niezależnie od dystansu oraz bez czasu odnawiania, pociski penetrują przeciwników"
+	}
+	"Ambassador_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2009), zadaje obrażenia minikrytyczne po trafieniu w głowę niezależnie od dystansu oraz bez czasu odnawiania, pociski penetrują przeciwników"
+	}
+	"Amputator_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje dodatkowe 3HP/s"
 	}
 	"Atomizer_PreJI"
 	{
@@ -481,6 +585,10 @@
 	"Axtinguisher_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zadaje trafienia krytyczne od tyłu, minikrytyczne od przodu, brak premii do szybkości"
+	}
+	"Axtinguisher_PreBM"
+	{
+		"pl"	"Przywrócono do stanu sprzed ak. Błękitnego Księżyca (Blue Moon), krytyczne obrażenia przeciwko płonącym graczom, +75%% do czasu wyciągania, -20%% częstotliwości ataku, brak premii do prędkości"
 	}
 	"Backburner_PreHat"
 	{
@@ -510,9 +618,17 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, brak redukcji pola rażenia, niewypały nie usuwają rakiet z magazynka"
 	}
+	"Beggars_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), standardowe pole rażenia rakiet"
+	}
 	"BlackBox_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), +15 HP za każdą trafioną osobę niezależnie od zadanych obrażeń"
+	}
+	"Blutsauger_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2008), standardowa pasywna regeneracja HP, brak losowych trafień krytycznych"
 	}
 	"Bonk_PreJI"
 	{
@@ -530,6 +646,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), zawsze przyznaje 20%% podatności na obrażenia od ognia, możliwość zadania losowych trafień krytycznych"
 	}
+	"Bushwacka_PreGM"
+	{
+		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru (Gun Mettle), +20%% podatności na obrażenia od ognia kiedykolwiek"
+	}
 	"BuffaloSteak_PreMYM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), przyznaje +35%% prędkości poruszania się oraz +10%% podatności na obrażenia, gdy efekt jest aktywny"
@@ -542,6 +662,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, przyznaje +35%% prędkości poruszania się, piętno śmierci, prędkość poruszania się nie kumuluje się z GRU"
 	}
+	"BuffBanner_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2009), +40%% do czasu trwania efektu (14s. zamiast 10s.), wymaga 1000 pkt. obrażeń do naładowania (zamiast 600)"
+	}
 	"Targe_PreTB"
 	{
 		"pl"	"+40%% odporności na obrażenia od wybuchów, +50%% odporności na obrażenia od ognia, odporność na obrażenia po podpaleniu, trafienie krytyczne po uderzeniu, nie usuwa negatywnych efektów"
@@ -553,6 +677,14 @@
 	"Carbine_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2012), 3 sekundy trafień krytycznych po zabójstwie, -35%% częstotliwości ataku"
+	}
+	"Carbine_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), trafienia minikrytyczne na 8s. po zabójstwie, -35%% częstotliwości ataku (zamiast 25%%)"
+	}
+	"Concheror_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje +2HP/s"
 	}
 	"CowMangler_Release"
 	{
@@ -586,13 +718,25 @@
 	{
 		"pl"	"Przywrócono do momentu wydania (2010), piętno śmierci podczas efektu, który trwa 6 sekund"
 	}
+	"CrusadersCrossbow_PreJI"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak redukcji do tempa budowania Ubercharge"
+	}
 	"CrocoStyle_Release"
 	{
 		"pl"	"Przywrócono stary bonus zestawu: Użytkownik może przeżyć jeden strzał w głowę. Załóż Sydnejski Usypiacz, Darwińską Tarczę Ochronną oraz Bandytę z Buszu, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
 	"DalokohsBar_PreMYM"
 	{
-		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru, (Gun Mettle), tabliczka może nadleczyć do 400 HP"
+		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru (Gun Mettle), tabliczka może nadleczyć do 400 HP"
+	}
+	"DalokohsBar_PreMYM_Patchless"
+	{
+		"pl"	"Tablicza Ladyczeko nie jest przywrócona"
+	}
+	"DalokohsBar_PreGM"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), tabliczka odnawia się natychmiast po zjedzeniu, nie może być rzucona na ziemię"
 	}
 	"Darwin_Pre2013"
 	{
@@ -614,9 +758,29 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), atak aktywujący zegarek zredukowany o 50%%, możliwość podnoszenia paczek, gdy nie jest się niewidzialnym, -35%% energii z paczek"
 	}
+	"Ringer_PostRelease"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 26 maja 2009 roku, 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, całkowite zużycie energii po wyłączeniu zegarka, brak odporności na podpalenie"
+	}
+	"Ringer_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2009), 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, brak odporności na podpalenie"
+	}
+	"Ringer_Pre2010"
+	{
+		"pl"	"Maks. +35%% do energii po podniesieniu paczki z amunicją, 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, brak odporności na podpalenie, maks. 40%% zużytej energii po wyłączeniu zegarka"
+	}
 	"Degreaser_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% obrażeń, -25%% obrażeń po podpaleniu, standardowy koszt sprężonego powietrza"
+	}
+	"DirectHit_PreJI"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje obrażenia minikrytyczne przeciwko graczom odepchniętym przez sprężone powietrze"
+	}
+	"DirectHit_PreDec2009"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 22 grudnia 2009 roku, zadaje obrażenia minikrytyczne przeciwko graczom w powietrzu niezależnie od przyczyny (pływanie pod wodą, skok, rocket jump itd.)"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -649,6 +813,10 @@
 	"Equalizer_Release"
 	{
 		"pl"	"Przywrócono do stanu z ak. WOJNA!, Plan Ucieczki i Wyrównywacz połączone w jedno; blokuje lecznie od Medyków, blokuje możliwość zawołania Medyka, brak piętna śmierci, zadaje 162 obr. przy 1 HP"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"pl"	"Odnawia zdrowie i amunicję po teleportacji na spawna"
 	}
 	"Eviction_PreJI"
 	{
@@ -686,6 +854,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak zmniejszania maks. HP oraz szybkości chowania broni, piętno śmierci, -25%% zadawanych obrażeń"
 	}
+	"GlovesRU_PreJI"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak zmniejszania maks. HP, piętno śmierci, -25%% zadawanych obrażeń"
+	}
 	"GlovesRU_PrePyro"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, brak zmniejszania maks. HP oraz szybkości chowania broni, -6 punktów HP na sekundę, -50%% zadawanych obrażeń"
@@ -694,6 +866,14 @@
 	{
 		"pl"	"Przywrócono do momentu wydania (2009), -75%% otrzymywanych obrażeń od skoków rakietowych"
 	}
+	"Gunslinger_PreGM"
+	{
+		"pl"	"Mini działka mają 100HP od razu po rozpoczęciu budowy, budują się szybciej, ale nie mogą być przyspieszone lub naprawione, resztki odnawiają metal"
+	}
+	"Gunslinger_Release"
+	{
+		"pl"	"Mini działka mają 100HP od razu po rozpoczęciu budowy, budują się szybciej i naprawiają się podczas budowy, ale nie mogą być przyspieszone lub naprawione, resztki odnawiają metal"
+	}
 	"Zatoichi_PreTB"
 	{
 		"pl"	"Standardowa prędkość zmiany broni, losowe trafienia krytyczne, mniej zasięgu, brak możliwości schowania broni, dopóki nie zdobędziesz zabójstwa, leczy 100%% HP po zabójstwie, ale nie nadlecza"
@@ -701,6 +881,10 @@
 	"Hibernate_Release"
 	{
 		"pl"	"Przywrócono stary bonus zestawu: 5%% odporności na trafienia krytyczne. Załóż Mosiężną Bestię, Stek z Bizona oraz Duszę Wojownika, aby uzyskać bonus. Czapka nie jest wymagana"
+	}
+	"IronBomber_Pre2022"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 7 lipca 2022 roku, ~2x większy rozmiar hitboxu granatu"
 	}
 	"Jag_PreTB"
 	{
@@ -750,6 +934,22 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), paczki z amunicją odnawiają punkty zdrowia, +100%% do prędkości odnawiania szarży, brak redukcji maks. zapasu amunicji"
 	}
+	"Phlog_Pyro"
+	{
+		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, zadaje -10%% obrażeń, odnawia zdrowie do pełna oraz przyznaje 75%% odporności na obrażenia na czas aktywacji"
+	}
+	"Phlog_TB"
+	{
+		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, odnawia zdrowie do pełna oraz przyznaje Ubercharge na czas aktywacji oraz chwilę po"
+	}
+	"Phlog_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2012), aktywowanie MMMPH wymaga 225 pkt. obrażeń, odnawia zdrowie do pełna oraz przyznaje 90%% odporności na obrażenia na czas aktywacji. Efekt trwa 13 sekund"
+	}
+	"Phlog_March2012"
+	{
+		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, zadaje -10%% obrażeń, odnawia zdrowie do pełna oraz przyznaje 90%% odporności na obrażenia na czas aktywacji"
+	}
 	"Pomson_PreGM"
 	{
 		"pl"	"Zwiększony rozmiar pocisku (taki sam jak Prawy Bizon), wyczerpywanie Ubercharge oraz niewidzialności nie zależy od dystansu, pocisk przelatuje przez sojuszników, podpala strzały, ignoruje odporności"
@@ -798,9 +998,25 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), tarcza nie odnawia się po dźgnięciu, możliwość nadleczenia do 185 HP"
 	}
+	"RedTapeRecorder_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2012), szybsza prędkość odwracania budowy ulepszonych budynków (1.6s)"
+	}
 	"RescueRanger_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), pocisk odnawia 75 HP budynków, brak kosztu przy naprawie, podnoszenie budynków z dystansu kosztuje 130 metalu"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), pocisk odnawia 75HP budynków bez użycia metalu, podnoszenie budynków z daleka kosztuje 130 metalu"
+	}
+	"RescueRanger_PreJI"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), naprawianie budynków nie używa metalu"
+	}
+	"RescueRanger_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2012), pocisk odnawia 75HP budynków bez użycia metalu, podnoszenie budynków z daleka kosztuje 130 metalu, zadaje 35 pkt. bazowych obrażeń (zamiast 40)"
+	}
+	"RescueRanger_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), pocisk odnawia 75HP budynków bez użycia metalu"
 	}
 	"Reserve_PreTB"
 	{
@@ -809,6 +1025,10 @@
 	"Reserve_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje obrażenia minikrytyczne celom wyrzuconym w powietrze przez strumień sprężonego powietrza"
+	}
+	"Reserve_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2011), zadaje obrażenia minikrytyczne graczom znajdującym się w powietrzu przez 3s. po wyciągnieciu, +15%% do ogólnej prędkości zmiany broni, -50%% pojemności magazynka"
 	}
 	"Bison_PreMYM"
 	{
@@ -832,7 +1052,7 @@
 	}
 	"RocketJmp_Oct2010"
 	{
-		"pl"	"Przywrócono do stanu z dnia 27.10.2010: Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, -100 maks. HP"
+		"pl"	"Przywrócono do stanu z dnia 27.10.10r., Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, -100 maks. HP"
 	}	
 	"Saharan_Release"
 	{
@@ -845,6 +1065,18 @@
 	"Sandman_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), ogłusza graczy po trafieniu, piłka regeneruje się 15 sekund"
+	}
+	"Sandman_PreWAR"
+	{
+		"pl"	"Przywrócono do stanu z ak. WOJNA!, -30 maks. HP, czas odnowienia piłki wynosi 15s., piłka zawsze ogłusza w pełni niezależnie od dystansu, ogłuszony cel otrzymuje tylko 75%% obrażeń"
+	}
+	"Sandvich_PreEngineer"
+	{
+		"pl"	"Kanapka może być jedzona w nieskończoność, dopóki nie zostanie rzucona na ziemię, po czym musi być zregenerowana apteczką lub szafką z amunicją. Kanapka rzucona na ziemię leczy grubego za 50%% maks. HP"
+	}
+	"ScorchShot_July2015"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 6 lipca 2015 roku, brak -35%% siły obrażeń własnych (wyższe skoki na flarze)"
 	}
 	"Scottish_Release"
 	{
@@ -878,6 +1110,14 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Siła charakteru (Gun Mettle), +40%% podatności do permanentnej siły odrzutu, +20%% leczenia, gdy broń jest aktywna, dzieli amunicję z pistoletem, brak ataku alt."
 	}
+	"Shortstop_Release_Shove"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), trafiony cel jest spowolniony o 40%% na 0.5s., szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, atak alt. popycha wroga"
+	}
+	"Shortstop_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), trafiony cel jest spowolniony o 40%% na 0.5s., szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, brak ataku alt."
+	}
 	"Sodapop_Pre2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2013, bieganie ładuje odlot, który przyznaje trafienia minikrytyczne oraz aktywuje się automatycznie po zapełnieniu"
@@ -897,6 +1137,10 @@
 	"Splendid_PreTB"
 	{
 		"pl"	"+15%% odporności ana obrażenia wybuchów oraz ognia, brak szybszej regeneracji, trafienie krytyczne po uderzeniu, pełne obrażenia na każdym dystansie, nie usuwa negatywnych efektów"
+	}
+	"Splendid_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2011), 25%% odpor. na ogień, brak szybszego odnawiania szarży, trafienie krytyczny po uderzeniu, nie usuwa negatywnych efektów, zadaje 85 obr. na każdym dystansie"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -929,10 +1173,22 @@
 	"Sleeper_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2010), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę, penetracja pocisków, losowe trafienia krytyczne, brak szybszego ładowania"
-	}	
+	}
+	// "ThermalThrust_Oct2025"
+	// {
+	// 	"pl"	"Przywrócono do stanu sprzed Aktualizacji z 1 maja 2025 roku, pozwala na utrzymanie efektów pasywnych Miażdżycieli po zmianie na inną broń oraz przy bunnyhoppach"
+	// }
+	"ThermalThrust_May2025"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 1 maja 2025 roku, wszystkie bunnyhoppy po użyciu utrzymują efekty pasywne Miażdżycieli"
+	}
 	"Turner_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odporności na wybuchy i ogień, nie usuwa negatywnych efektów"
+	}
+	"Turner_PreDec2014"
+	{
+		"pl"	"Trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odpor. na wybuchy i ogień, nie usuwa negatywnych efektów, odnawia 100%% szarży po zabójstwie, brak redukcji szarży po trafieniu"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -941,6 +1197,14 @@
 	"Tomislav_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2011), -75%% czasu rozkręcenia, brak premii do celności"
+	}
+	"Tomislav_PreLW"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), 10%% szybszy czas rozkręcania, brak premii do celności, wyższy dźwięk strzelania"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), wyższy dźwięk strzelania"
 	}
 	"TribalShiv_Release"
 	{
