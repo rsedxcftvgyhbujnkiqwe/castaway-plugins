@@ -144,6 +144,10 @@
 	{
 		"fr"	"Ambassadeur"
 	}
+	"amputator"
+	{
+		"fr"	"Amputateur"
+	}
 	"atomizer"
 	{
 		"fr"	"Atomiseur"
@@ -204,6 +208,10 @@
 	{
 		"fr"	"Carabine du Nettoyeur"
 	}
+	"concheror"
+	{
+		"fr"	"Conque-érant"
+	}
 	"cowmangler"
 	{
 		"fr"	"Broyeur Bovin 5000"
@@ -251,6 +259,10 @@
 	"equalizer"
 	{
 		"fr"	"Equalizer & Plan d'Évasion"
+	}
+	"eureka"
+	{
+		"fr"	"Effet Eurêka"
 	}
 	"eviction"
 	{
@@ -347,6 +359,10 @@
 	"razorback"
 	{
 		"fr"	"Razorback"
+	}
+	"redtape"
+	{
+		"fr"	"Enregistreur de formalités"
 	}
 	"rescueranger"
 	{
@@ -466,6 +482,10 @@
 	{
 		"fr"	"Réversion à pré-Inferno, dégâts de tir en pleine tête maximaux (102) à n'importe quelle portée"
 	}
+	"Amputator_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, regénère toujours +3 santé/s quand actif peut-importe si l'utilisateur a récemment prit des dégâts"
+	}
 	"Atomizer_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, triple saut à tout moment, infligant 10 dégâts au porteur à chaque fois"
@@ -481,6 +501,10 @@
 	"Axtinguisher_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, crits par derrière, mini-crits par devant, pas de bonus de vitesse en tuant"
+	}
+	"Axtinguisher_PreBM"
+	{
+		"fr"	"Réversion à pré-Blue Moon, crits sur les cibles en feu, déploiement 75%% plus lent, cadence 20%% plus lente, pas de bonus de vitesse en tuant"
 	}
 	"Backburner_PreHat"
 	{
@@ -509,6 +533,10 @@
 	"Beggars_Pre2013"
 	{
 		"fr"	"Réversion à pré-2013, pas de pénalité de rayon d'explosion, surcharges n'enlèvent pas de munitions du chargeur"
+	}
+	"Beggars_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, pas de pénalité de rayon d'explosion"
 	}
 	"BlackBox_PreGM"
 	{
@@ -544,7 +572,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, 40%% de résistance aux explosions, immunité à la postcombustion, crit après impact, pas de suppression de debuffs"
+		"fr"	"Réversion à pré-Tough Break, 40%% de résistance aux explosions, immunité à la postcombustion, crit après impact, pas de suppression de debuffs, dégâts d'impact à 60%% de charge consommée"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -553,6 +581,14 @@
 	"Carbine_Release"
 	{
 		"fr"	"Réversion à la version d'origine, crits pendant 3s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
+	}
+	"Carbine_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, minicrits pendant 8s après avoir tué, cadence 35%% plus lente (au lieu de 25%%)"
+	}
+	"Concheror_PreTB"
+	{
+		"fr"	"Réversion à pré-Tough Break, regénère toujours +2 santé/s peut-importe si l'utilisateur a récemment prit des dégâts"
 	}
 	"CowMangler_Release"
 	{
@@ -604,7 +640,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse"
+		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse, pas d'immunité à la postcombustion après activation"
 	}
 	"Ringer_PreJI"
 	{
@@ -614,9 +650,13 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, même stats modernes mais 50%% initial de resistance aux dégâts, peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
 	}
+	"Ringer_PostRelease"
+	{
+		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6.5s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
+	}
 	"Degreaser_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion"
+		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion, pas de pénalité de coût de tir d'air comprimé"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -650,6 +690,10 @@
 	{
 		"fr"	"Refusionné à la version d'origine, pas de soins par Medic et impossible d'appeler un Medic quand actif, pas de marquage à mort, (si santé max 200) 125 dégâts à 58 PV, 150 dégâts à 20 PV, 162 dégâts à 1 PV"
 	}
+	"Eureka_SpawnRefill"
+	{
+		"fr"	"Se téléporter à la salle de réapparition restaure la santé et les munitions automatiquement"
+	}
 	"Eviction_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, pas de drain de santé, +20%% de vulnérabilité aux dégâts"
@@ -668,7 +712,7 @@
 	}
 	"FistSteel_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, déploiement de l'arme 20%% plus lent, pas de pénalité de soin, pas de pénalité de rangement de l'arme"
+		"fr"	"Réversion à pré-Tough Break, déploiement 20%% plus lent, pas de pénalité de soin, pas de pénalité de rangement de l'arme"
 	}
 	"FistSteel_Release"
 	{
@@ -685,6 +729,10 @@
 	"GlovesRU_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, pas de drain de santé, pas de pénalité de rangement de l'arme, marquage à mort, -25%% de dégâts"
+	}
+	"GlovesRU_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de drain de santé, marquage à mort, -25%% de dégâts"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -798,9 +846,17 @@
 	{
 		"fr"	"Réversion à pré-Inferno, peut recevoir un bonus d'extra-santé, bouclier ne se régénère pas"
 	}
+	"RedTapeRecorder_Release"
+	{
+		"fr"	"Réversion à la version d'origine, 1.6s de vitesse de déconstruction sur les bâtiments améliorés (au lieu de 3s)"
+	}
 	"RescueRanger_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, soigne +75 fixe sans coût de métal, récupérations à distance coûtent 130"
+	}
+	"RescueRanger_PreJI"
+	{
+		"fr"	"Réversion à pré-Inferno, pas de coût de métal pour réparer des bâtiments"
 	}
 	"Reserve_PreTB"
 	{
@@ -844,7 +900,11 @@
 	}
 	"Sandman_PreJI"
 	{
-		"fr"	"Réversion à pré-Inferno, étourdit de nouveau les joueurs, rechargement de balle de 15s"
+		"fr"	"Réversion à pré-Inferno, étourdit la cible, 15s de rechargement de balle"
+	}
+	"Sandman_PreWAR"
+	{
+		"fr"	"Réversion à pré-WAR!, étourdissement complet, joueurs étourdits ne subissent que 75%% des dégâts infligés, santé max -30, 15s de rechargement de balle"
 	}
 	"Scottish_Release"
 	{
@@ -878,6 +938,14 @@
 	{
 		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, pas de bousculade"
 	}
+	"Shortstop_Release_Shove"
+	{
+		"fr"	"Réversion à la version d'origine, ralentit la cible de 40%% pendant 0.5s, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, bousculade est conservée"
+	}
+	"Shortstop_Release"
+	{
+		"fr"	"Réversion à la version d'origine, ralentit la cible de 40%% pendant 0.5s, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, pas de bousculade"
+	}
 	"Sodapop_Pre2013"
 	{
 		"fr"	"Réversion à pré-Smissmas 2013, jauge d'excitation se remplit en courant, mode excité s'active automatiquement et donne des mini-crits"
@@ -896,7 +964,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact à n'importe quelle portée"
+		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
+	}
+	"Splendid_Release"
+	{
+		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -932,7 +1004,7 @@
 	}	
 	"Turner_PreTB"
 	{
-		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff"
+		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff, dégâts d'impact à 60%% de charge consommée"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -960,7 +1032,11 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, pas de réduction de réparations et de munitions données quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'Engineer"
+		"fr"	"Réversion à pré-Gun Mettle, pas de pénalité de réparation quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'utilisateur"
+	}
+	"Wrangler_PreLW"
+	{
+		"fr"	"Réversion à pré-Love & War, pas de pénalité de réparation quand le bouclier est actif, mitrailleuse redevient active 1s après la mort de l'utilisateur, pas de baisse de dégâts en-dehors du périmètre de détection, dégâts calculés par rapport à la position de l'utilisateur"
 	}
 	"Eternal_PreJI"
 	{

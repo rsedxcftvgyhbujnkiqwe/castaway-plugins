@@ -134,9 +134,25 @@
 	{
 		"fi"	"Ilmatuki"
 	}
+	"flamethrower"
+	{
+		"fi"	"Kaikki liekinheittimet"
+	}
+	"grenade"
+	{
+		"fi"	"Kaikki kranaatinheittimet"
+	}
 	"miniramp"
 	{
 		"fi"	"Kaikki konekiväärit"
+	}
+	"sniperrifles"
+	{
+		"fi"	"Kaikki tarkkuuskiväärit"
+	}
+	"stickybomb"
+	{
+		"fi"	"Kaikki tahmapomminheittimet"
 	}
 	"swords"
 	{
@@ -145,6 +161,10 @@
 	"ambassador"
 	{
 		"fi"	"Suurlähettiläs"
+	}
+	"amputator"
+	{
+		"fi"	"Amputoija"
 	}
 	"atomizer"
 	{
@@ -206,6 +226,10 @@
 	{
 		"fi"	"Sarjatulisiivoaja"
 	}
+	"concheror"
+	{
+		"fi"	"Näkinkeisari"
+	}
 	"cowmangler"
 	{
 		"fi"	"Karjankäristin 5000"
@@ -221,6 +245,10 @@
 	"crocostyle"
 	{
 		"fi"	"Krokotyyli-pakkaus"
+	}
+	"crossbow"
+	{
+		"fi"	"Vapahtajan varsijousi"
 	}
 	"dalokohsbar"
 	{
@@ -254,6 +282,10 @@
 	{
 		"fi"	"Tasoittaja & Pakosuunnitelma"
 	}
+	"eureka"
+	{
+		"fi"	"Ahaa-elämys"
+	}
 	"eviction"
 	{
 		"fi"	"Häätöilmoitus"
@@ -282,6 +314,10 @@
 	{
 		"fi"	"Terässaappaat"
 	}
+	"gunslinger"
+	{
+		"fi"	"Karjakoura"
+	}
 	"zatoichi"
 	{
 		"fi"	"Puolisokea samurai"
@@ -289,6 +325,10 @@
 	"hibernate"
 	{
 		"fi"	"Nukkuva karhu"
+	}
+	"ironbomber"
+	{
+		"fi"	"Rautapommittaja"
 	}
 	"jag"
 	{
@@ -326,6 +366,10 @@
 	{
 		"fi"	"Persialainen pieksentä"
 	}
+	"phlog"
+	{
+		"fi"	"Flogistonaattori"
+	}
 	"pomson"
 	{
 		"fi"	"Pomson 6000"
@@ -349,6 +393,10 @@
 	"razorback"
 	{
 		"fi"	"Selkäsuoja"
+	}
+	"redtape"
+	{
+		"fi"	"Punaisen nauhan nauhuri"
 	}
 	"rescueranger"
 	{
@@ -456,17 +504,37 @@
 	{
 		"fi"	"Ennen Tough Breakiä: räjähdysalue ei pienene rakettihypyn aikana"
 	}
+	"Flamethrower_PreBM"
+	{
+		"fi"	"Ennen Blue Moonia: täysi vahinko liekkien tiheydestä riippumatta"
+	}
+	"Grenade_Pre2014"
+	{
+		"fi"	"Ennen 2014 joulua: +9%% räjähdysalue, vahinko vaihtelee paikasta riippuen (enemmän vahinkoa lähellä kohteen jalkoja)"
+	}
 	"Minigun_ramp_PreLW"
 	{
 		"fi"	"Ennen Love&Waria: heti pyörittäessä täysi vahinko ja tarkkuus"
 	}
+	"SniperRifle_PreLW"
+	{
+		"fi"	"Ennen 27. maaliskuuta 2014: voi hypätä heti kiikaroidun laukauksen jälkeen"
+	}
+	"Stickybomb_PreLW"
+	{
+		"fi"	"Ennen Love&Waria: +9%% perusräjähdysalue, ilmassa räjäytetyillä pommeilla on täysi räjähdysalue"
+	}
 	"Swords_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: ei aseenvaihtoheikkoutta"
+		"fi"	"Ennen Tough Breakiä: ei esiinveto- tai poislaittoheikkoutta"
 	}
 	"Ambassador_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: täysi pääosumavahinko (102) kaikilla etäisyyksillä"
+	}
+	"Amputator_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: palauttaa tasan +3 HP/s käytössä riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
 	}
 	"Atomizer_PreJI"
 	{
@@ -514,7 +582,7 @@
 	}
 	"Beggars_Pre2013"
 	{
-		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta"
+		"fi"	"Ennen vuotta 2013: ei räjähdysalueheikkoutta, liialliset lataukset eivät vähennä lipasta, ei voi lainkaan saada ammuksia apulaitteista"
 	}
 	"Beggars_PreTB"
 	{
@@ -534,11 +602,15 @@
 	}
 	"BrassBeast_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta (6.7%% kriittisiä osumia vastaan)"
 	}
 	"Bushwacka_PreLW"
 	{
 		"fi"	"Ennen Love&Waria: 20%% passiivinen tulialttius, voi tehdä satunnaisia kriittisiä osumia"
+	}
+	"Bushwacka_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: 20%% passiivinen tulialttius aktiivisen vahinkoalittuden sijaan"
 	}
 	"BuffaloSteak_PreMYM"
 	{
@@ -554,7 +626,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
+		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -567,6 +639,10 @@
 	"Carbine_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: tapot antavat minikriittisiä 8 sekunniksi, 35%% hitaampi tulitusnopeus (25%%:sta)"
+	}
+	"Concheror_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: palauttaa tasan +2 HP/s riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
 	}
 	"CowMangler_Release"
 	{
@@ -604,6 +680,10 @@
 	{
 		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun."
 	}
+	"CrusadersCrossbow_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: täysi ylilatauksen saanti parantaessa riippumatta siitä, ottiko kohde viime aikana vahinkoa"
+	}
 	"DalokohsBar_PreMYM"
 	{
 		"fi"	"Gun Mettle versio: kykenee taas yliparantamaan 400 HP asti"
@@ -618,7 +698,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä"
 	}
 	"Ringer_PreJI"
 	{
@@ -630,11 +710,11 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
+		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
 	}
 	"Degreaser_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa"
+		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa, ei lisättyä ilmapuhalluksen kustannusta"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -642,7 +722,7 @@
 	}
 	"DragonFury_Release"
 	{
-		"fi"	"Julkaisuversio: suurempi projektiilin koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
+		"fi"	"Julkaisuversio: suurempi ammuksen koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
 	}
 	"DragonFury_Release_Patchless"
 	{
@@ -667,6 +747,10 @@
 	"Equalizer_Release"
 	{
 		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"fi"	"Teleporttaaminen aloituspaikkaan täyttää terveyden ja ammukset taas"
 	}
 	"Eviction_PreJI"
 	{
@@ -716,6 +800,14 @@
 	{
 		"fi"	"Julkaisuversio: -75%% räjähdysvahinkoa rakettihypyistä"
 	}
+	"Gunslinger_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: minivartiotykit aloittavat täydellä terveydellä, rakentuvat nopeasti, tykkejä ei voi parantaa tai nopeuttaa jakoavaimella, pirstaleet antavat metallia"
+	}
+	"Gunslinger_Release"
+	{
+		"fi"	"Julkaisuversio: minivartiotykit aloittavat täydellä terveydellä, rakentuvat nopeasti, parantuvat rakennuksen aikana, tykkejä ei voi parantaa tai nopeuttaa jakoavaimella, pirstaleet antavat metallia"
+	}
 	"Zatoichi_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: nopea vaihto, lyhyempi kantama, ei voi vaihtaa ellei tee tappoa, täysi parannus, satunnaiset kriittiset osumat"
@@ -723,6 +815,10 @@
 	"Hibernate_Release"
 	{
 		"fi"	"Palautettu esinejoukkoetu, +5%% kriittisen osuman sieto. Varusta Messinkipeto, Puhvelinpihvipurilainen ja Soturin sielu saadaksesi edun."
+	}
+	"IronBomber_Pre2022"
+	{
+		"fi"	"Ennen 7. heinäkuuta 2022: ~2x suurempi ammuksen koko"
 	}
 	"Jag_PreTB"
 	{
@@ -742,7 +838,7 @@
 	}
 	"LochLoad_2013"
 	{
-		"fi"	"Ennen vuotta 2014: +20%% vahinkoa (vaihtelee 15%%), -50%% lipas, +25%% vahinkoa itselle, ei räjähdysalueheikkoutta, kranaatit pyörivät"
+		"fi"	"Ennen 2014 joulua: +20%% vahinkoa, -50%% lippaan koko, +25%% vahinkoa itselle, ei räjähdysalueheikkoutta, kranaatit pyörivät"
 	}
 	"Cannon_PreTB"
 	{
@@ -758,7 +854,7 @@
 	}
 	"Natascha_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta (6.7%% kriittisiä osumia vastaan)"
 	}
 	"Natascha_PreGM"
 	{
@@ -770,19 +866,35 @@
 	}
 	"Persuader_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: kerää ammuksia terveytenä, +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+		"fi"	"Ennen Tough Breakiä: kerää ammuksia terveytenä, +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää, ei ammuksia apulaitteista tai kärryistä"
+	}
+	"Phlog_Pyro"
+	{
+		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
+	}
+	"Phlog_TB"
+	{
+		"fi"	"Tough Break versio: MMMPHin aktivointi täyttää elinmittarin, haavoittumaton hieman pilkan jälkeen, MMMPH vaatii 225 tulivahinkoa"
+	}
+	"Phlog_Release"
+	{
+		"fi"	"Julkaisuversio: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, vaikutus kestää 13 sekuntia"
+	}
+	"Phlog_March2012"
+	{
+		"fi"	"15. maaliskuta 2012: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
 	}
 	"Pomson_PreGM"
 	{
-		"fi"	"Suurennettu ammuksen koko, läpäisee tiimikaverit, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko, läpäisee tiimikaverit, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_Release"
 	{
-		"fi"	"Julkaisuversio: suurennettu ammuksen koko, läpäisee kohteet, voi osua monta kertaa, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Julkaisuversio: suurempi ammuksen koko, läpäisee kohteet, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"fi"	"Ennen Gun Mettleä: suurennettu ammuksen koko, läpäisee tiimin rakennukset, ylilat. ja verh. lasku ei putoa etäisyydellä, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Ennen Gun Mettleä: suurempi ammuksen koko, läpäisee tiimin rakennukset, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}	
 	"Powerjack_PreGM"
 	{
@@ -820,25 +932,45 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: voi saada yliparannusta, suoja ei uudistu"
 	}
+	"RedTapeRecorder_Release"
+	{
+		"fi"	"Julkaisuversio: nopeampi rakennustason kumoutuminen (1.6 s)"
+	}
 	"RescueRanger_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: parantaa tasan +75, ei kuluta metallia, kaukonostot kuluttavat 130 metallia"
+		"fi"	"Ennen Gun Mettleä: parantaa tasan +75 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia"
+	}
+	"RescueRanger_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: rakennusten parantaminen ei kuluta metallia"
+	}
+	"RescueRanger_Release"
+	{
+		"fi"	"Julkaisuversio: parantaa tasan +50 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia, 35 perusvahinkoa (40:stä)"
+	}
+	"RescueRanger_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: parantaa tasan +75 metallia kuluttamatta"
 	}
 	"Reserve_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: minikriittisiä osumia ilmassa oleville 5s ajan esilleoton jälkeen, 15%% nopeampi aseen vaihto"
+		"fi"	"Ennen Tough Breakiä: antaa minikriittisiä osumia ilmassa oleville 5s ajan esilleoton jälkeen, 15%% nopeampi aseen vaihto"
 	}
 	"Reserve_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: antaa minikriittisiä ilmapuhalletuille kohteille taas"
+		"fi"	"Ennen Jungle Infernoa: antaa minikriittisiä osumia ilmapuhalletuille kohteille taas"
+	}
+	"Reserve_Release"
+	{
+		"fi"	"Julkaisuversio: antaa minikriittisiä osumia ilmassa oleville 3s ajan esilleoton jälkeen, 15%% nopeampi aseen vaihto, -50%% lippaan koko"
 	}
 	"Bison_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
 	}
 	"Bison_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko, voi osua monta kertaa, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -930,11 +1062,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
 	}
 	"Splendid_Release"
 	{
-		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -970,7 +1102,7 @@
 	}
 	"Turner_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
+		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Tomislav_PrePyro"
 	{

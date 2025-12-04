@@ -9,6 +9,10 @@ scripting/*
 !scripting/nativevotes_rockthevote.sp
 !scripting/nativevotes-basecommands.sp
 !scripting/nativevotes.sp
+!scripting/nativevotes/
+scripting/nativevotes/*
+!scripting/nativevotes/game.sp
+!scripting/nativevotes/data-keyvalues.sp
 !scripting/nextmap.sp
 !scripting/reverts.sp
 !scripting/chat-adverts.sp
@@ -21,11 +25,14 @@ scripting/*
 !scripting/forcestalemate.sp
 !scripting/arena-autoscramble.sp
 !scripting/webshortcuts.sp
+!scripting/supersprayhandler.sp
 
 #includes
 !scripting/include/
 scripting/include/*
 !scripting/include/morecolors.inc
+!scripting/include/nativevotes.inc
+!scripting/include/implodeexplode.inc
 !scripting/include/tf2items.inc
 !scripting/include/tf2attributes.inc
 !scripting/include/tf2utils.inc
@@ -44,10 +51,13 @@ gamedata/*
 translations/*
 !translations/reverts.phrases.txt
 !translations/votescramble.phrases.txt
+!translations/chatadverts.phrases.txt
+!translations/ssh.phrases.txt
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
 !translations/chi/votescramble.phrases.txt
+!translations/chi/chatadverts.phrases.txt
 !translations/zho/
 translations/zho/*
 !translations/zho/reverts.phrases.txt
@@ -67,6 +77,7 @@ translations/fr/*
 !translations/ru/
 translations/ru/*
 !translations/ru/reverts.phrases.txt
+!translations/ru/ssh.phrases.txt
 
 !cfg/
 !cfg/*
@@ -79,6 +90,7 @@ translations/ru/*
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/build.yml
+!.github/workflows/snapshot.yml
 
 !reverts-git-commit.sh
 !check-translations.py

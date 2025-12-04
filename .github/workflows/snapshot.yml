@@ -1,0 +1,81 @@
+name: snapshot
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    name: Make snapshot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Make snapshot
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+            const temp = "${{ runner.temp }}/artifacts";
+            if (!fs.existsSync(temp)) {
+              fs.mkdirSync(temp);
+            }
+
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            if (!(releases.data[0] && releases.data[0].target_commitish === context.sha)) {
+              const dateStr = new Date().toISOString().split("T")[0];
+
+              const allWorkflowRuns = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: "build.yml",
+                branch: "master",
+                event: "push",
+                status: "success",
+              });
+              const workflowRun = allWorkflowRuns.data.workflow_runs[0];
+              const workflowRunArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: workflowRun.id,
+              });
+              for (const artifact of workflowRunArtifacts.data.artifacts) {
+                const download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                  archive_format: 'zip',
+                });
+                fs.writeFileSync(path.join(temp, `${artifact.name}.zip`), Buffer.from(download.data));
+              }
+
+              const newRelease = await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: dateStr,
+                target_commitish: context.sha,
+                name: `Build ${dateStr}`,
+                prerelease: true,
+                generate_release_notes: true,
+                draft: true,
+              });
+              for (const file of fs.readdirSync(temp)) {
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: newRelease.data.id,
+                  name: file,
+                  data: fs.readFileSync(path.join(temp, file)),
+                });
+              }
+              await github.rest.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: newRelease.data.id,
+                draft: false,
+              });
+            }

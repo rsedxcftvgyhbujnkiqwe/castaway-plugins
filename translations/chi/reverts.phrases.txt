@@ -133,6 +133,11 @@
 		// https://wiki.teamfortress.com/wiki/Ambassador/zh-hans
 		"chi"	"大使手枪"
 	}
+	"amputator"
+	{
+		// https://wiki.teamfortress.com/wiki/Amputator/zh-hans
+		"chi"	"器官切割器"
+	}
 	"atomizer"
 	{
 		// https://wiki.teamfortress.com/wiki/Atomizer/zh-hans
@@ -209,6 +214,16 @@
 		// https://wiki.teamfortress.com/wiki/Cleaner%27s_Carbine/zh-hans
 		"chi"	"扫荡者卡宾"
 	}
+	"concheror"
+	{
+		// https://wiki.teamfortress.com/wiki/Concheror/zh-hans
+		"chi"	"征服者战旗"
+	}
+	"cowmangler"
+	{
+		// https://wiki.teamfortress.com/wiki/Cow_Mangler_5000/zh-hans
+		"chi"	"绞牛机 5000"
+	}
 	"cozycamper"
 	{
 		// https://wiki.teamfortress.com/wiki/Cozy_Camper/zh-hans
@@ -264,6 +279,11 @@
 		// https://wiki.teamfortress.com/wiki/Equalizer/zh-hans
 		// https://wiki.teamfortress.com/wiki/Escape_Plan/zh-hans
 		"chi"	"十字镐和逃生计划镐"
+	}
+	"eureka"
+	{
+		// https://wiki.teamfortress.com/wiki/Eureka_Effect/zh-hans
+		"chi"	"传送扳手"
 	}
 	"eviction"
 	{
@@ -384,6 +404,11 @@
 	{
 		// https://wiki.teamfortress.com/wiki/Razorback/zh-hans
 		"chi"	"电击背脊盾"
+	}
+	"redtape"
+	{
+		// https://wiki.teamfortress.com/wiki/Red-Tape_Recorder/zh-hans
+		"chi"	"官僚式录音机"
 	}
 	"rescueranger"
 	{
@@ -516,6 +541,8 @@
 	// mym update: https://wiki.teamfortress.com/wiki/Meet_Your_Match_Update/zh-hans
 	// pyromania update: https://wiki.teamfortress.com/wiki/Pyromania_Update/zh-hans
 	// manniversary: https://wiki.teamfortress.com/wiki/Manniversary_Update_%26_Sale/zh-hans
+	// blue moon: https://wiki.teamfortress.com/wiki/Blue_Moon_Pack/zh-hans
+	// war: https://wiki.teamfortress.com/wiki/WAR!_Update/zh-hans
 	"Airblast_PreJI"
 	{
 		"chi"	"所有火焰喷射器压缩空气机制回调到丛林炼狱更新前"
@@ -536,9 +563,17 @@
 	{
 		"chi"	"回调到丛林炼狱更新前，在所有距离都能做完整的爆头伤害（102）"
 	}
+	"Amputator_PreTB"
+	{
+		"chi"	"回调到艰难假日更新前，手持武器时 +3 生命值/秒，无论用户最近是否受到伤害"
+	}
 	"Atomizer_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，任何时候都能进行三连跳，每次三连跳会受到 10 点伤害"
+	}
+	"Atomizer_PreBM"
+	{
+		"chi"	"回调到蓝月更新前，武器没有完全拿出时可以进行三连跳"
 	}
 	"Axtinguisher_PreLW"
 	{
@@ -547,6 +582,10 @@
 	"Axtinguisher_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，从背后攻击时会产生爆击，从身前攻击时会产生迷你爆击，击杀着火敌人不会提高移动速度"
+	}
+	"Axtinguisher_PreBM"
+	{
+		"chi"	"回调到蓝月更新前，对着火敌人造成全爆击，切出速度 -75%%，开火速度 -20%%，杀敌后不会获得速度加成"
 	}
 	"Backburner_PreHat"
 	{
@@ -575,6 +614,10 @@
 	"Beggars_Pre2013"
 	{
 		"chi"	"回调到 2013 年以前，没有爆炸半径减少，装填过多弹药不会导致炸膛"
+	}
+	"Beggars_PreTB"
+	{
+		"chi"	"回调到艰难假日更新前，没有爆炸半径的减少"
 	}
 	"BlackBox_PreGM"
 	{
@@ -610,7 +653,7 @@
 	}
 	"Targe_PreTB"
 	{
-		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +40%%，对余焰免疫，冲锋后获得暴击，没有负面效果移除"
+		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +40%%，对余焰免疫，冲锋后获得暴击，没有负面效果移除，消耗 60%% 冲锋条会获得冲锋伤害"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -619,6 +662,22 @@
 	"Carbine_Release"
 	{
 		"chi"	"回调到发布，击杀敌人后获得持续 3 秒的暴击，开火速度 -35%%（原 25%%）"
+	}
+	"Carbine_PreTB"
+	{
+		"chi"	"回调到艰难假日更新前，杀敌后可以获得 8 秒的迷你爆击，开火速度 -35%%（原 25%%）"
+	}
+	"Concheror_PreTB"
+	{
+		"chi"	"回调到艰难假日更新前，+2 生命值/秒，无论用户最近是否受到伤害"
+	}
+	"CowMangler_Release"
+	{
+		"chi"	"回调到发布，5 发子弹，没有蓄力攻击能量"
+	}
+	"CowMangler_Pre2013"
+	{
+		"chi"	"回调到 2013 年夏季前，5 发子弹，没有蓄力攻击能量，-10%% 伤害，-5%% 装弹速度"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -662,7 +721,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"chi"	"回调到枪魂更新前，能捡起弹药包补充隐形能量，6.5 秒内受到的获得 90%% 的伤害抗性（由受到的伤害减少），没有速度加成"
+		"chi"	"回调到枪魂更新前，能捡起弹药包补充隐形能量，6.5 秒内受到的获得 90%% 的伤害抗性（由受到的伤害减少），没有速度加成，假死后没有余焰免疫"
 	}
 	"Ringer_PreJI"
 	{
@@ -671,10 +730,14 @@
 	"Ringer_PreTB"
 	{
 		"chi"	"回调到枪魂更新，和目前的数据一样但是最初受到的伤害 -50%%，结束隐形状态后可以使用弹药箱，弹药箱内隐形能量 -35%%"
- 	}
+	}
+	"Ringer_PostRelease"
+	{
+		"chi"	"回调到发布后，6.5 秒内伤害 -90%%，早期解除隐形会消耗所有能量，假死后没有余焰抗性"
+	}
 	"Degreaser_PreTB"
 	{
-		"chi"	"回调到艰难假日更新前，部署速度 +65%%，伤害 -10%%，余焰伤害 -25%%"
+		"chi"	"回调到艰难假日更新前，部署速度 +65%%，伤害 -10%%，余焰伤害 -25%%，没有气爆弹药消耗量增加"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -707,6 +770,10 @@
 	"Equalizer_Release"
 	{
 		"chi"	"合并并回调到发布；手持武器时：无法得到治疗，无法呼叫医生，不会打上死亡标记；最高 200 生命值时：在 58 生命值下造成 125 伤害，在 20 生命值下造成 150 伤害，在 1 生命值下造成 162 伤害"
+	}
+	"Eureka_SpawnRefill"
+	{
+		"chi"	"传送到出生点可以补给生命值和弹药"
 	}
 	"Eviction_PreJI"
 	{
@@ -743,6 +810,10 @@
 	"GlovesRU_PreTB"
 	{
 		"chi"	"回调到艰难假日更新前，没有生命值上限和收回速度减少，有死亡标记，伤害 -25%%"
+	}
+	"GlovesRU_PreJI"
+	{
+		"chi"	"回调到丛林炼狱更新前，手持时不会扣除生命值上限，手持时打上死亡标记，伤害 -25%%"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -795,6 +866,10 @@
 	"Natascha_PreMYM"
 	{
 		"chi"	"回调到棋逢对手更新前，在任何生命值下转动时伤害 -20%%（对抗暴击伤害 -6.7%%）"
+	}
+	"Natascha_PreGM"
+	{
+		"chi"	"回调到枪魂更新前，在任何距离可以降低目标的移动速度，300 发子弹，预热时没有伤害抗性"
 	}
 	"Panic_PreJI"
 	{
@@ -852,9 +927,17 @@
 	{
 		"chi"	"回调到丛林炼狱更新前，可以超量治疗，不能重新充能"
 	}
+	"RedTapeRecorder_Release"
+	{
+		"chi"	"回调到发布，对升级后的敌方建筑降级更快（1.6 秒）"
+	}
 	"RescueRanger_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，一发能量弹有 75 建筑治疗量，没有金属消耗，远距离搬运建筑消耗金属 130"
+	}
+	"RescueRanger_PreJI"
+	{
+		"chi"	"回调到丛林炼狱更新前，修复建筑不会消耗金属"
 	}
 	"Reserve_PreTB"
 	{
@@ -880,6 +963,14 @@
 	{
 		"chi"	"回调到发布，对手雷自爆嘲讽自杀效果免疫，穿戴者可以捡起情报，有随机暴击"
 	}
+	"RocketJmp_Pre2011"
+	{
+		"chi"	"回调到 2011 年 12 月 22 日：不会受到自身爆炸伤害，包括十字镐/逃生计划镐的嘲讽，+100%% 从子弹、爆炸和火焰受到的伤害，穿戴者可以捡起情报，有随机暴击"
+	}
+	"RocketJmp_Oct2010"
+	{
+		"chi"	"回调到 2010 年 10 月 27 日：不会受到自身爆炸伤害，包括十字镐/逃生计划镐的嘲讽，-100 最大生命值，穿戴者可以捡起情报，有随机暴击"
+	}
 	"Saharan_Release"
 	{
 		"chi"	"还原发布时套装的效果加成，减小解除隐形声音，增加 0.5 秒额外隐形时间；佩戴陌生人（移除隐身持续时间 +40%%）和永生的回报来获得套装的效果加成，不需要帽子"
@@ -892,6 +983,10 @@
 	{
 		"chi"	"回调到丛林炼狱更新前，远距离棒球使玩家失去反击能力，15 秒重新充能时间"
 	}
+	"Sandman_PreWAR"
+	{
+		"chi"	"回调到战争！更新前，在所有距离能击晕目标，击晕的目标受到 75%% 伤害，-30 最大生命值，15 秒球重新充能时间"
+	}
 	"Scottish_Release"
 	{
 		"chi"	"回调到发布，炸弹就绪时间减慢 0.4 秒（原 0.8 秒），无开火速度加成"
@@ -903,6 +998,10 @@
 	"Circuit_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，开火能摧毁飞行物（花费 5 金属 + 15 每摧毁的发射物），手持武器时从补给器无法获取金属"
+	}
+	"Circuit_Dec2013"
+	{
+		"chi"	"回调到圣诞节 2013，主要开火可以摧毁飞行物（攻击速度增加，花费 5 金属）"
 	}
 	"Shortstop_PreMnvy_Shove"
 	{
@@ -919,6 +1018,14 @@
 	"Shortstop_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，手持武器时受治疗效果 +20%%，所有情况下受到的击退力度 +40%%，使用副武器弹药，不能推开敌人"
+	}
+	"Shortstop_Release_Shove"
+	{
+		"chi"	"回调到发布，0.5 秒内目标速度 -40%%，快速换弹，没有击退力度减少，使用副武器弹药；可以推开敌人"
+	}
+	"Shortstop_Release"
+	{
+		"chi"	"回调到发布，0.5 秒内目标速度 -40%%，快速换弹，没有击退力度减少，使用副武器弹药，不能推开敌人"
 	}
 	"Sodapop_Pre2013"
 	{
@@ -938,7 +1045,11 @@
 	}
 	"Splendid_PreTB"
 	{
-		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +15%%，没有冷却速率加成，冲锋后获得暴击，没有负面效果移除，在任何距离获得冲锋伤害"
+		"chi"	"回调到艰难假日更新前，爆炸伤害抗性 +15%%，没有冷却速率加成，冲锋后获得暴击，没有负面效果移除，在任何距离获得全冲锋伤害"
+	}
+	"Splendid_Release"
+	{
+		"chi"	"回调到发布，火焰伤害抗性 +25%%，没有冷却速率加成，冲锋后获得暴击，没有负面效果移除，在任何距离获得全冲锋伤害"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -952,13 +1063,29 @@
 	{
 		"chi"	"回调到纵火狂更新，最多可以有 8 个黏性炸弹，穿戴者可以捡起情报"
 	}
+	"StkJumper_Pre2011"
+	{
+		"chi"	"回调到 2010 年 12 月 22 日：最多可以有 8 个黏性炸弹，穿戴者可以捡起情报，+100%% 从子弹、爆炸和火焰受到的伤害，不会受到自身爆炸伤害，有随机暴击"
+	}
+	"StkJumper_ReleaseDay2"
+	{
+		"chi"	"回调到 2010 年 10 月 28 日：最多可以有 8 个黏性炸弹，穿戴者可以捡起情报，-75 最大生命值，不会受到自身爆炸伤害，有随机暴击"
+	}
 	"Sleeper_PreBM"
 	{
 		"chi"	"回调到 2018 年以前，开镜爆头并且完整蓄能可以射出让目标周围的玩家浇灌的瓶手道，没有瓶手道冷却时间缩短"
 	}
+	"Sleeper_PreGM"
+	{
+		"chi"	"回调到枪魂更新前，开镜后大于 50%% 蓄能作用 8 秒的瓶手道效果，没有爆头加成"
+	}
+	"Sleeper_Release"
+	{
+		"chi"	"回调到发布，开镜后大于 50%% 蓄能作用 8 秒的瓶手道效果（即使目标有抗性），没有爆头加成，在能量满时能穿透目标，有随机暴击，没有蓄能速度加成"
+	}
 	"Turner_PreTB"
 	{
-		"chi"	"回调到艰难假日更新前，可以做出全暴击，爆炸伤害抗性和火焰伤害抗性 +25%%，冲锋和获得暴击，没有负面效果移除"
+		"chi"	"回调到艰难假日更新前，可以做出全暴击，爆炸伤害抗性和火焰伤害抗性 +25%%，冲锋后获得暴击，没有负面效果移除，消耗 60%% 冲锋条会获得冲锋伤害"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -987,6 +1114,10 @@
 	"Wrangler_PreGM"
 	{
 		"chi"	"回调到枪魂更新前，护盾保护下可以没有伤害和维修效果减少，工程师死亡后只会瘫痪 1 秒"
+	}
+	"Wrangler_PreLW"
+	{
+		"chi"	"回调到爱情与战争更新，护盾保护下可以没有伤害和维修效果减少，工程师死亡后只会瘫痪 1 秒，射程之外的目标会有距离衰减，子弹伤害根据工程师的位置计算距离衰减"
 	}
 	"Eternal_PreJI"
 	{
