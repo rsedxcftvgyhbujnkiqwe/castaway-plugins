@@ -725,6 +725,7 @@ public void OnPluginStart() {
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
 	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
+	ItemVariant(Wep_Sandvich, "Sandvich_EngineerUpdate");
 	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
@@ -1735,7 +1736,7 @@ public void OnGameFrame() {
 								// This if statement is prepared for handling more than just the Sandvich if there's a desire for it
 								// hence the weird comments inside the if statement.
 							(
-								(ItemIsEnabled(Wep_Sandvich) && 
+								(GetItemVariant(Wep_Sandvich) == 0 && 
 								player_weapons[idx][Wep_Sandvich])
 //								||
 //								()
@@ -6232,7 +6233,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		}
 
 		if (
-			ItemIsEnabled(Wep_Sandvich) &&
+			GetItemVariant(Wep_Sandvich) == 0 &&
 			player_weapons[owner][Wep_Sandvich] &&
 			StrEqual(class, "tf_weapon_lunchbox") && 
 			(index == 42 || index == 863 || index == 1002) //&& // Sandvich, Robo-Sandvich, Festive Sandvich
