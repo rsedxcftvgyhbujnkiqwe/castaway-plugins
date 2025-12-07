@@ -640,7 +640,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6.5s (réduit par dégâts reçus), pas de bonus de vitesse, pas d'immunité à la postcombustion après activation"
+		"fr"	"Réversion à pré-Gun Mettle, peut ramasser des munitions, 90%% de résistance aux dégâts jusqu'à 6s (réduit par dégâts reçus), pas de bonus de vitesse, pas d'immunité à la postcombustion après activation"
 	}
 	"Ringer_PreJI"
 	{
@@ -652,7 +652,7 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6.5s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
+		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
 	}
 	"Degreaser_PreTB"
 	{

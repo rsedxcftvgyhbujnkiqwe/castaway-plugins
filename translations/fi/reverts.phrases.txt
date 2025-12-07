@@ -698,7 +698,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6,5 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä"
 	}
 	"Ringer_PreJI"
 	{
@@ -710,7 +710,7 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6,5 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
+		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
 	}
 	"Degreaser_PreTB"
 	{

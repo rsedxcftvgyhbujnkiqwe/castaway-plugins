@@ -601,7 +601,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"ru"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6.5s (reduced by dmg taken), no speedboost"
+		"ru"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6s (reduced by dmg taken), no speedboost"
 	}
 	"Ringer_PreJI"
 	{
