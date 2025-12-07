@@ -275,6 +275,7 @@ ConVar cvar_allow_cloak_taunt_bug;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
+ConVar cvar_enable_huntsman_staring_contest;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -370,6 +371,7 @@ DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 //DynamicDetour dhook_CTFPlayer_Taunt;
+DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -378,6 +380,13 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+
+// OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
+// (as in they cannot be found in datamaps/netprop).
+// These offsets are discovered using tools such as IDA and Ghidra.
+// It's recommended that you name the int the same as the member.
+// We later load these with GameConfGetOffset(Handle gc, const char[] key)
+int m_flTauntNextStartTime;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -552,6 +561,7 @@ public void OnPluginStart() {
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
+	cvar_enable_huntsman_staring_contest = CreateConVar("sm_reverts__enable_huntsman_staring_contest", "0", (PLUGIN_NAME ... " - Enable the huntsman staring contest bug, let the best huntsman taunt spammer win"), _, true, 0.0, true, 1.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -864,6 +874,12 @@ public void OnPluginStart() {
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
 		//dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
+		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
+
+		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
+		m_flTauntNextStartTime = -1;
+		m_flTauntNextStartTime = GameConfGetOffset(conf, "m_flTauntNextStartTime");
+		if (m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
 
 		delete conf;
 	}
@@ -1027,6 +1043,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	//if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
+	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1038,6 +1055,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 	//dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
+	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -6240,6 +6258,23 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		) {
 			return MRES_Supercede;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
+	char pszSceneName[PLATFORM_MAX_PATH];
+	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
+	int iTauntIndex = parameters.Get(2);
+
+	if (
+		cvar_enable_huntsman_staring_contest.BoolValue && 
+		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
+		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
+		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
+	) {
+		// Set the players m_flTauntNextStartTime to CurrentTime.
+		SetEntDataFloat(entity, m_flTauntNextStartTime, GetGameTime(), true);
 	}
 	return MRES_Ignored;
 }
