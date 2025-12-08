@@ -572,6 +572,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage"
 	}
+	"Amputator_PreTB_Historical"
+	{
+		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage, no uber gain when taunting"
+	}
 	"Atomizer_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can always triple jump, taking 10 damage each time"
