@@ -1917,10 +1917,9 @@ public void OnGameFrame() {
 									TF2_IsPlayerInCondition(idx, TFCond_Taunting)
 								) {
 									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_current_uber);
-									PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_current_uber);
+										// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_current_uber);
 								}
-								
-								// GetEntPropFloat setting the value of players[idx].medic_current_uber is in DHookCallback_CTFPlayer_Taunt
+								// Note: Uber tracking upon taunting via medic_current_uber is done in DHookCallback_CTFPlayer_Taunt
 							}	
 						}
 					}
