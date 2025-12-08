@@ -1,0 +1,17 @@
+"Phrases"
+{
+	"CHAT_ADVERTS_TOGGLE_NOT_ALLOWED"
+	{
+		"pl"	"Nie możesz włączyć/wyłączyć reklam na chacie."
+	}
+
+	"CHAT_ADVERTS_DISABLED"
+	{
+		"pl"	"Reklamy na chacie wyłączone."
+	}
+
+	"CHAT_ADVERTS_ENABLED"
+	{
+		"pl"	"Reklamy na chacie włączone."
+	}
+}
