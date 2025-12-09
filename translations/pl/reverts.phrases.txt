@@ -748,7 +748,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6.5s, brak premii do prędkości oraz odpor. na podpalenie"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6s, brak premii do prędkości oraz odpor. na podpalenie"
 	}
 	"Ringer_PreJI"
 	{
@@ -760,15 +760,15 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 26 maja 2009 roku, 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, całkowite zużycie energii po wyłączeniu zegarka, brak odporności na podpalenie"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 26 maja 2009 roku, 90%% odp. na obrażenia na 6s, brak premii do prędkości, całkowite zużycie energii po wyłączeniu zegarka, brak odporności na podpalenie"
 	}
 	"Ringer_Release"
 	{
-		"pl"	"Przywrócono do momentu wydania (2009), 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, brak odporności na podpalenie"
+		"pl"	"Przywrócono do momentu wydania (2009), 90%% odp. na obrażenia na 6s, brak premii do prędkości, brak odporności na podpalenie"
 	}
 	"Ringer_Pre2010"
 	{
-		"pl"	"Maks. +35%% do energii po podniesieniu paczki z amunicją, 90%% odp. na obrażenia na 6.5s, brak premii do prędkości, brak odporności na podpalenie, maks. 40%% zużytej energii po wyłączeniu zegarka"
+		"pl"	"Maks. +35%% do energii po podniesieniu paczki z amunicją, 90%% odp. na obrażenia na 6s, brak premii do prędkości, brak odporności na podpalenie, maks. 40%% zużytej energii po wyłączeniu zegarka"
 	}
 	"Degreaser_PreTB"
 	{
