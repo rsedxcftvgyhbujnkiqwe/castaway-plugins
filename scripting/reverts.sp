@@ -969,39 +969,127 @@ public void OnPluginStart() {
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
-		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
-		if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
-		if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
-		if (dhook_CTFAmmoPack_MakeHolidayPack == null) SetFailState("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
-		if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
-		if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
+		// this is done this way so all failures are logged simultaneously rather than one by one
+		// helps for fixing update breakage
+		bool hook_fail = false;
 
-		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
-		dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
-		dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
+		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) {
+			hook_fail=true;
+			LogError("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
+		}
+		if (dhook_CObjectSentrygun_StartBuilding == null) {
+			hook_fail=true;
+			LogError("Failed to create dhook_CObjectSentrygun_StartBuilding");
+		}
+		if (dhook_CObjectSentrygun_Construct == null) {
+			hook_fail=true;
+			LogError("Failed to create dhook_CObjectSentrygun_Construct");
+		}
+		if (dhook_CTFAmmoPack_MakeHolidayPack == null) {
+			hook_fail=true;
+			LogError("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
+		} else {
+			dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+		}
+		if (dhook_CBaseObject_OnConstructionHit == null) {
+			hook_fail=true;
+			LogError("Failed to create dhook_CBaseObject_OnConstructionHit");
+		} else {
+			dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
+		}
+		if (dhook_CBaseObject_CreateAmmoPack == null) {
+			hook_fail=true;
+			LogError("Failed to create dhook_CBaseObject_CreateAmmoPack");
+		} else {
+			dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
+		}
 
-		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) SetFailState("Failed to create patch_RevertDisciplinaryAction");
-		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) SetFailState("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
-		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_DmgScale)) SetFailState("Failed to create patch_RevertFlamethrowers_Density_DmgScale");
-		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) SetFailState("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
-		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
-		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) SetFailState("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
-		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) SetFailState("Failed to create patch_RevertCozyCamper_FlinchNerf");
-		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) SetFailState("Failed to create patch_RevertCrusaderCrossbow_UbergainNerf");
-		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) SetFailState("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
-		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) SetFailState("Failed to create patch_RevertMadMilk_ChgFloatAddr");
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) SetFailState("Failed to create patch_RevertDalokohsBar_ChgTo400");
-		if (!ValidateAndNullCheck(patch_DroppedWeapon)) SetFailState("Failed to create patch_DroppedWeapon");
-		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump");
-		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) SetFailState("Failed to create patch_RevertIronBomber_PipeHitbox");
-		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) SetFailState("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
-		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) SetFailState("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
-		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck)) SetFailState("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck");
+
+		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertDisciplinaryAction");
+		}
+		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
+		}
+		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_DmgScale)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertFlamethrowers_Density_DmgScale");
+		}
+		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
+		}
+		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
+		}
+		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
+		}
+		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertCozyCamper_FlinchNerf");
+		}
+		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertCrusaderCrossbow_UbergainNerf");
+		}
+		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
+		}
+		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertMadMilk_ChgFloatAddr");
+		}
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
+		}
+		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertDalokohsBar_ChgTo400");
+		}
+		if (!ValidateAndNullCheck(patch_DroppedWeapon)) {
+			hook_fail=true;
+			LogError("Failed to create patch_DroppedWeapon");
+		}
+		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSniperRifles_ScopeJump");
+		}
+		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertIronBomber_PipeHitbox");
+		}
+		// if (!ValidateAndNullCheck(patch_RevertThermalThruster_LoadoutChangePassive)) {
+		//	hook_fail=true;
+		//	LogError("Failed to create patch_RevertThermalThruster_LoadoutChangePassive");
+		//}
+		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
+		}
+		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck");
+		}
 #if !defined WIN32
-		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) SetFailState("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
-		PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
+		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
+		} else {
+			PrintToServer("Nullchecked and validates sniperscope jump linux extra!");
+		}
 #endif
+
+		if (hook_fail) {
+			SetFailState("Failed to load dhooks/memory patches");
+		}
+
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
