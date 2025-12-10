@@ -316,7 +316,7 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 // MemoryPatch patch_RevertThermalThruster_LoadoutChangePassive;
 MemoryPatch patch_DroppedWeapon;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
-MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck;
+MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -944,9 +944,9 @@ public void OnPluginStart() {
 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck =
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
 			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::OnTakeDamage_RemoveInCondStealthCheck");
+			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 		// patch_RevertThermalThruster_LoadoutChangePassive =
 		// 	MemoryPatch.CreateFromConf(conf,
 		// 	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval");
@@ -1073,9 +1073,9 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
 		}
-		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck)) {
+		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer)) {
 			hook_fail=true;
-			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck");
+			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 		}
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
@@ -1165,10 +1165,10 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 public void OnAllowCloakTauntBugChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	if (convar.BoolValue) {
 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Enable();
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck.Enable();
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Enable();
 	} else {
 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Disable();
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondStealthCheck.Disable();
+		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Disable();
 	}
 }
 #else
