@@ -554,7 +554,7 @@
 					"windows"
 					{
 						"offset"    "829"
-						"verify"    "\xE8\x7E\x75\xC6\xFF" // CALL RemapValClamped
+						"verify"    "\xE8\x2A\x2A\x2A\x2A" // CALL RemapValClamped
 						"patch"     "\xD9\xE8\x90\x90\x90" // FLD1 ; NOP x3
 					}
 				}
@@ -663,7 +663,7 @@
 					}
 					"windows"
 					{
-						"offset"    "9407" // As of 9th december 2025 might be 9621 UNTESTED/UNCONFIRMED!!!
+						"offset"    "9621"
 						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
 						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
 					}	
