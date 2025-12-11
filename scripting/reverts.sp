@@ -226,7 +226,6 @@ enum struct Player {
 	bool sleeper_piss_explode;
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
-	float medic_current_uber;
 	float cleaver_regen_time;
 	float icicle_regen_time;
 	int scout_airdash_value;
@@ -1887,21 +1886,6 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
 					{
-						// vitasaw charge store
-
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
-
-						if (weapon > 0) {
-							GetEntityClassname(weapon, class, sizeof(class));
-
-							if (StrEqual(class, "tf_weapon_medigun")) {
-								players[idx].medic_medigun_defidx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-								players[idx].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-							}
-						}
-					}
-
-					{
 						// amputator prevent uber on taunt
 						if (
 							GetItemVariant(Wep_Amputator) == 1 && 
@@ -1916,11 +1900,26 @@ public void OnGameFrame() {
 									StrEqual(class, "tf_weapon_medigun") && 
 									TF2_IsPlayerInCondition(idx, TFCond_Taunting)
 								) {
-									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_current_uber);
-										// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_current_uber);
+									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_medigun_charge);
+										// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_medigun_charge);
 								}
-								// Note: Uber tracking upon taunting via medic_current_uber is done in DHookCallback_CTFPlayer_Taunt
+								// Note: Uber tracking upon taunting via medic_medigun_charge is done in DHookCallback_CTFPlayer_Taunt
 							}	
+						}
+					}
+										
+					{
+						// vitasaw charge store
+
+						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
+
+						if (weapon > 0) {
+							GetEntityClassname(weapon, class, sizeof(class));
+
+							if (StrEqual(class, "tf_weapon_medigun")) {
+								players[idx].medic_medigun_defidx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+								players[idx].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+							}
 						}
 					}
 				}
@@ -6396,7 +6395,7 @@ MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
 	int weapon;
 	char class[64];
 
-	// amputator track uber level right upon taunting
+	// amputator track uber level right upon taunting, this is done to track uber for amputator only when needed
 	if (
 		GetItemVariant(Wep_Amputator) == 1 && 
 		player_weapons[entity][Wep_Amputator]							
@@ -6409,8 +6408,8 @@ MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
 			if (
 				StrEqual(class, "tf_weapon_medigun")
 			) {
-				players[entity].medic_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_current_uber);
+				players[entity].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_medigun_charge);
 					// use the above PrintToChat to check if GetEntPropFloat occurs only when needed
 			}
 		}	

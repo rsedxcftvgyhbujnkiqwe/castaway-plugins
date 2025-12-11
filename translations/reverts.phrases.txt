@@ -1082,7 +1082,7 @@
 	}
 	"Sandvich_Pre2012"
 	{
-		"en"	"Reverted to pre-2012, can heal self by throwing the Sandvich"
+		"en"	"Reverted to pre-February 14, 2012: can heal yourself by picking up your own thrown Sandviches"
 	}
 	"ScorchShot_July2015"
 	{
@@ -1222,7 +1222,7 @@
 	}
 	"Caber_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion"
+		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no firing speed and deploy penalties"
 	}
 	"VitaSaw_PreJI"
 	{
