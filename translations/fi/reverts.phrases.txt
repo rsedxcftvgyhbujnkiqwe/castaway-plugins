@@ -1,5 +1,5 @@
 // Finnish translation done by:
-// huutti	https://steamcommunity.com/id/reactos/
+// haaksirikko
 
 "Phrases"
 {
@@ -146,6 +146,10 @@
 	{
 		"fi"	"Kaikki konekiväärit"
 	}
+	"sentry"
+	{
+		"fi"	"Kaikki vartiotykit"
+	}
 	"sniperrifles"
 	{
 		"fi"	"Kaikki tarkkuuskiväärit"
@@ -194,6 +198,10 @@
 	{
 		"fi"	"Musta laatikko"
 	}
+	"blutsauger"
+	{
+		"fi"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"fi"	"Bonk-atomijuoma"
@@ -213,6 +221,10 @@
 	"buffalosteak"
 	{
 		"fi"	"Puhvelinpihvipurilainen"
+	}
+	"buffbanner"
+	{
+		"fi"	"Sotalippu"
 	}
 	"targe"
 	{
@@ -265,6 +277,10 @@
 	"degreaser"
 	{
 		"fi"	"Rasvanpolttaja"
+	}
+	"directhit"
+	{
+		"fi"	"Täysosuma"
 	}
 	"disciplinary"
 	{
@@ -422,6 +438,10 @@
 	{
 		"fi"	"Nukkumatti"
 	}
+	"sandvich"
+	{
+		"fi"	"Toveri voileipä"
+	}
 	"scottish"
 	{
 		"fi"	"Skotlannin vastarinta"
@@ -516,6 +536,10 @@
 	{
 		"fi"	"Ennen Love&Waria: heti pyörittäessä täysi vahinko ja tarkkuus"
 	}
+	"Sentry_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: vartiotykki on aktiivisena heti tyhjentäjän poiston jälkeen"
+	}
 	"SniperRifle_PreLW"
 	{
 		"fi"	"Ennen 27. maaliskuuta 2014: voi hypätä heti kiikaroidun laukauksen jälkeen"
@@ -592,6 +616,10 @@
 	{
 		"fi"	"Ennen Gun Mettleä: rajoittamaton +15 terveyslisä etäisyydestä riippumatta"
 	}
+	"Blutsauger_Release"
+	{
+		"fi"	"Julkaisuversio: ei passiivista parannusvähennystä, ei kriittisiä osumia"
+	}
 	"Bonk_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: ei hidasta vaikutuksen päätyttyä"
@@ -618,15 +646,19 @@
 	}
 	"BuffaloSteak_Release"
 	{
-		"fi"	"Julkaisuversio: +35%% nopeusbonus, vahinko otettu on minikriittisenä, nopeus pinoaa Pikajuoksuhanskoilla"
+		"fi"	"Julkaisuversio: +35%% nopeusbonus, vahinko otettu on minikriittisenä, ei nopeusrajoitusta"
 	}
 	"BuffaloSteak_Pre2013"
 	{
 		"fi"	"Ennen 2013 kesää: +35%% nopeusbonus, vahinko otettu on minikriittisenä"
 	}
+	"BuffBanner_Release"
+	{
+		"fi"	"Julkaisuversio: +40%% pidempi tehosteen kesto (14 sekuntia, 10:stä), vaatii 1000 vahinkopistettä (600:sta)"
+	}
 	"Targe_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko vain ryntäyksen lopussa"
+		"fi"	"Ennen Tough Breakiä: 40%% räjähdyssietoa, jälkipolttoimmuniteetti, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -715,6 +747,10 @@
 	"Degreaser_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa, ei lisättyä ilmapuhalluksen kustannusta"
+	}
+	"DirectHit_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: antaa minikriittisiä osumia ilmapuhalletuille kohteille taas"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -1004,6 +1040,14 @@
 	{
 		"fi"	"Ennen WAR!-päivitystä: pallo-osumat tainnuttavat pelaajat täysin, tainnutusuhrit saavat 75%% vahinkoa, -30 maksimiterveys, 15 sekunnin latausaika"
 	}
+	"Sandvich_PreEngineer"
+	{
+		"fi"	"Ennen Engineer-päivitystä: paranna itseäsi syömällä tai heittämällä voileivän, voi syödä leipää lopullisesti ellei sitä heitetä, uuden leivän saa varustelokerikosta tai terveyspakkauksesta"
+	}
+	"Sandvich_Pre2012"
+	{
+		"fi"	"Ennen helmikuuta 2012: voi parantaa itseään heittämällä voileivän"
+	}
 	"Scottish_Release"
 	{
 		"fi"	"Julkaisuversio: 0,4s hitaampi viritysaika (0,8:sta), ei tulitusnopeusbonusta"
@@ -1102,15 +1146,15 @@
 	}
 	"Turner_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko vain ryntäyksen lopussa"
+		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
 	}
 	"Tomislav_PrePyro"
 	{
-		"fi"	"Ennen Pyromaniaa: 40%% nopeampi pyörimisaika, ei tarkkuusbonusta"
+		"fi"	"Ennen Pyromaniaa: 40%% nopeampi pyörimisaika, ei tarkkuusbonusta, korkeammat aseen äänet"
 	}
 	"Tomislav_Release"
 	{
-		"fi"	"Julkaisuversio: 75%% nopeampi pyörimisaika, ei tarkkuusbonusta"
+		"fi"	"Julkaisuversio: 75%% nopeampi pyörimisaika, ei tarkkuusbonusta, korkeammat aseen äänet"
 	}
 	"TribalShiv_Release"
 	{
