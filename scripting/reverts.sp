@@ -1907,8 +1907,21 @@ public void OnGameFrame() {
 							ItemIsEnabled(Wep_Razorback) &&
 							player_weapons[idx][Wep_Razorback]
 						) {
-							if (GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) < 100.0) {
-								SetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", 0.0, LOADOUT_POSITION_SECONDARY);
+							for (int i = 0; i < TF2Util_GetPlayerWearableCount(idx); i++)
+							{
+								weapon = TF2Util_GetPlayerWearable(idx, i);
+
+								if (weapon > 0) {
+
+									if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 57) {
+	
+										timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
+										if (timer < 1.0) {
+											RemoveEntity(weapon);
+											player_weapons[idx][Wep_Razorback] = false;
+										}
+									}
+								}
 							}
 						}
 					}
