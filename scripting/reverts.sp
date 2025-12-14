@@ -276,7 +276,6 @@ ConVar cvar_allow_cloak_taunt_bug;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
-ConVar cvar_enable_huntsman_staring_contest;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -470,6 +469,7 @@ enum
 	Wep_Gunslinger,
 #endif
 	Wep_Zatoichi, // Half-Zatoichi
+	Wep_Huntsman,
 #if defined MEMORY_PATCHES	
 	Wep_IronBomber,
 #endif
@@ -561,7 +561,6 @@ public void OnPluginStart() {
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
-	cvar_enable_huntsman_staring_contest = CreateConVar("sm_reverts__enable_huntsman_staring_contest", "0", (PLUGIN_NAME ... " - Enable the huntsman staring contest bug, let the best huntsman taunt spammer win"), _, true, 0.0, true, 1.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -687,6 +686,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
 #endif
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES	
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_IronBomber, true);
 #endif
@@ -3994,6 +3994,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
+						case 56, 1005, 1092: player_weapons[client][Wep_Huntsman] = true;
 #if defined MEMORY_PATCHES
 						case 142: player_weapons[client][Wep_Gunslinger] = true;
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
@@ -6336,7 +6337,7 @@ MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam 
 	int iTauntIndex = parameters.Get(2);
 
 	if (
-		cvar_enable_huntsman_staring_contest.BoolValue && 
+		ItemIsEnabled(Wep_Huntsman) &&
 		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
 		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
 		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
