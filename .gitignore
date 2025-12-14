@@ -26,6 +26,7 @@ scripting/nativevotes/*
 !scripting/arena-autoscramble.sp
 !scripting/webshortcuts.sp
 !scripting/supersprayhandler.sp
+!scripting/afkmanager.sp
 
 #includes
 !scripting/include/
@@ -53,6 +54,7 @@ translations/*
 !translations/votescramble.phrases.txt
 !translations/chatadverts.phrases.txt
 !translations/ssh.phrases.txt
+!translations/afk_manager.phrases.txt
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
