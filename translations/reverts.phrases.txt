@@ -894,7 +894,7 @@
 	}
 	"Huntsman_Pre2013"
 	{
-		"en"	"Restored taunt attack bug to pre-December 20, 2013; when repeatedly and rapidly pressing the taunt attack button with another Huntsman Sniper, two Snipers can stun each other forever as humanly as possible"
+		"en"	"Restored taunt bug to pre-December 20, 2013; repeatedly and rapidly press taunt attack with an enemy Huntsman Sniper to stun each other forever as humanly as possible"
 	}
 	"IronBomber_Pre2022"
 	{
