@@ -2833,17 +2833,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Backburner)) {
 				case 0: {
 					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // +10% damage bonus; mult_dmg
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.1); // +10% damage bonus
 				}
 				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 2, 1.2); // +20% damage bonus
-					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
+					TF2Items_SetAttribute(itemNew, 1, 170, 1.0); // +0% airblast cost
+					TF2Items_SetAttribute(itemNew, 2, 356, 1.0); // No airblast
+					TF2Items_SetAttribute(itemNew, 3, 783, 0.0); // Extinguishing teammates restores 0 health
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 26, 50.0); // +50 max health on wearer; add_maxhealth
-					TF2Items_SetAttribute(itemNew, 1, 356, 1.0); // no airblast; airblast_disabled
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 26, 50.0); // +50 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 170, 1.0); // +0% airblast cost
+					TF2Items_SetAttribute(itemNew, 2, 356, 1.0); // No airblast
+					TF2Items_SetAttribute(itemNew, 3, 783, 0.0); // Extinguishing teammates restores 0 health
 				}
 			}
 		}}
