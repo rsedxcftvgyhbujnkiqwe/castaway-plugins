@@ -7457,22 +7457,28 @@ stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int 
 	TE_SendToAll();
 }
 
-// Get the sentry of a specific engineer
-// WARNING: Do not use in MVM!
+/**
+ * Find the non-disposable (normal) sentry gun owned by a client.
+ *
+ * @param client    Client owning the sentry gun.
+ * @return          Entity index of the normal sentry, or -1 if none found.
+ */
 stock int FindSentryGunOwnedByClient(int client)
 {
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
-		return -1;
-
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
 		return -1;
 
 	int ent = -1;
 	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
 	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (owner == client)
-			return ent;
+		if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") != client)
+			continue;
+
+		// Ignore disposable sentries.
+		if (GetEntProp(ent, Prop_Send, "m_bDisposableBuilding") != 0)
+			continue;
+
+		return ent;
 	}
 
 	return -1;
