@@ -73,15 +73,19 @@ void AfkManage() {
 	int idx;
 	TFTeam team;
 
-	// early exit on low player counts
-	if (GetClientCount(true) < min_count) {
-		return;
-	}
+	bool low_count = GetClientCount(true) < min_count;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (
 			IsClientInGame(idx)
 		) {
+			// reset this var on low counts constantly
+			// so that counting only "begins" when threshold reached
+			if (low_count) {
+				g_iLastPressTime[idx] = g_iCurrentTime;
+				continue;
+			}
+
 			client_time = g_iLastPressTime[idx];
 
 			if (client_time == 0) {
