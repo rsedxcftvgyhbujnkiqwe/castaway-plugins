@@ -338,6 +338,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"huntsman"
+	{
+		"en"	"Huntsman"
+	}
 	"ironbomber"
 	{
 		"en"	"Iron Bomber"
@@ -887,6 +891,10 @@
 	"Hibernate_Release"
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
+	}
+	"Huntsman_Pre2013"
+	{
+		"en"	"Restored taunt bug to pre-December 20, 2013; repeatedly and rapidly press taunt attack with an enemy Huntsman Sniper to stun each other forever as humanly as possible"
 	}
 	"IronBomber_Pre2022"
 	{
