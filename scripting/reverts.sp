@@ -1875,24 +1875,19 @@ public void OnGameFrame() {
 								StrEqual(class, "tf_weapon_medigun") &&
 								GetItemVariant(Wep_Amputator) == 1 &&
 								player_weapons[idx][Wep_Amputator] &&
-								TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
-								!players[idx].medic_crossbow_heal
+								TF2_IsPlayerInCondition(idx, TFCond_Taunting)							
 							) {
-								SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
-									// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
-								// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
-							} else if (
-								StrEqual(class, "tf_weapon_medigun") &&
-								GetItemVariant(Wep_Amputator) == 1 &&
-								player_weapons[idx][Wep_Amputator] &&
-								TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
-								players[idx].medic_crossbow_heal
-							) {
-								players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-									// PrintToChat(idx, "CROSSBOW HEAL DETECTED! SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
-								players[idx].medic_crossbow_heal = false;
-							}					
-
+								if (!players[idx].medic_crossbow_heal) {
+									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
+										// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
+									// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
+								} else if (players[idx].medic_crossbow_heal) {
+									players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+										// PrintToChat(idx, "CROSSBOW HEAL DETECTED! SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
+									players[idx].medic_crossbow_heal = false;
+								}
+							}
+				
 							// vitasaw charge store
 							if (
 								StrEqual(class, "tf_weapon_medigun") &&
