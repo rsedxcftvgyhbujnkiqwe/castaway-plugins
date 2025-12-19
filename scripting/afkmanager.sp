@@ -46,9 +46,11 @@ Action AfkDaemon(Handle timer, any data) {
 
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float angles[3], int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2])
 {
-	// for efficiency just store precision to the second using the daemon's stored time
-	g_iLastPressTime[client] = g_iCurrentTime;
-	g_bMovedToSpec[client] = false;
+	if (buttons > 0) {
+		// for efficiency just store precision to the second using the daemon's stored time
+		g_iLastPressTime[client] = g_iCurrentTime;
+		g_bMovedToSpec[client] = false;
+	}
 	return Plugin_Continue;
 }
 
