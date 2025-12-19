@@ -55,6 +55,7 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 public void OnClientConnected(int client) {
 	// store a client's first press immediately upon joining to start the clock
 	g_iLastPressTime[client] = g_iCurrentTime;
+	g_bMovedToSpec[client] = false;
 }
 
 void Kick(int client) {
