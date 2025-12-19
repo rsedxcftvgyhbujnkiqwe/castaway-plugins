@@ -71,6 +71,7 @@ void AfkManage() {
 	int client_time;
 	int elapsed;
 	int idx;
+	TFTeam team;
 
 	// early exit on low player counts
 	if (GetClientCount(true) < min_count) {
@@ -89,39 +90,43 @@ void AfkManage() {
 
 			elapsed = g_iCurrentTime - client_time;
 
-			switch (TF2_GetClientTeam(idx)) {
-				case TFTeam_Unassigned, TFTeam_Spectator: {
-					switch (action) {
-						case 0: {
-							if (elapsed > spec_time) {
-								Kick(idx);
-							}
-						}
-						case 1: {
-							if (
-								(g_bMovedToSpec[idx] && elapsed > spec_moved_time) ||
-								(!g_bMovedToSpec[idx] && elapsed > spec_time)
-							) {
-								Kick(idx);
-							}
-						}
+			team = TF2_GetClientTeam(idx);
+			
+			if (
+				team == TFTeam_Unassigned ||
+				team == TFTeam_Spectator 
+			) {
+				if (action==0) {
+					if (elapsed > spec_time) {
+						Kick(idx);
+					}
+				} else if (action==1) {
+					if (
+						(g_bMovedToSpec[idx] && elapsed > spec_moved_time) ||
+						(!g_bMovedToSpec[idx] && elapsed > spec_time)
+					) {
+						Kick(idx);
 					}
 				}
-				case TFTeam_Red, TFTeam_Blue: {
-					if (elapsed > alive_time && IsPlayerAlive(idx)) {
-						switch (action) {
-							case 0: {
-								Kick(idx);
-							}
-							case 1: {
-								TF2_ChangeClientTeam(idx, TFTeam_Spectator);
-								g_iLastPressTime[idx] = g_iCurrentTime;
-								g_bMovedToSpec[idx] = true;
-							}
-							case 2: {
-								TF2_ChangeClientTeam(idx, TFTeam_Spectator);
-							}
-						}
+
+			} else if (
+				team == TFTeam_Red ||
+				team == TFTeam_Blue
+			) {
+				if (!IsPlayerAlive(idx)) {
+					// don't count time spent dead
+					g_iLastPressTime[idx]++;
+					continue;
+				}
+				if (elapsed > alive_time) {
+					if (action==0) {
+						Kick(idx);
+					} else if (action==1) {
+						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
+						g_iLastPressTime[idx] = g_iCurrentTime;
+						g_bMovedToSpec[idx] = true;
+					} else if (action==2) {
+						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
 					}
 				}
 			}
