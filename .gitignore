@@ -26,6 +26,7 @@ scripting/nativevotes/*
 !scripting/arena-autoscramble.sp
 !scripting/webshortcuts.sp
 !scripting/supersprayhandler.sp
+!scripting/afkmanager.sp
 
 #includes
 !scripting/include/
