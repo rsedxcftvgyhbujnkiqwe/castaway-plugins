@@ -530,7 +530,7 @@
 	}
 	"Flamethrower_PreBM"
 	{
-		"en"	"Reverted to pre-bluemoon, full dmg with no density ramp up (around +30%% more flame dmg per sec)"
+		"en"	"Reverted to pre-bluemoon, full damage with no density ramp up (around +30%% more flame DPS)"
 	}
 	"Grenade_Pre2014"
 	{
@@ -610,15 +610,15 @@
 	}
 	"BaseJumper_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, can redeploy, more air control, while deployed float mid-air when on fire"
+		"en"	"Reverted to pre-toughbreak, can redeploy, more air speed, while deployed float mid-air when on fire"
 	}
 	"BabyFace_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, no boost loss on damage, only -25%% on air jump"
+		"en"	"Reverted to pre-gunmettle, no boost loss on damage, only -25%% boost loss on air jumps"
 	}
 	"BabyFace_Release"
 	{
-		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, -100%% on any jump"
+		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, boost resets on any jump"
 	}
 	"Beggars_Pre2013"
 	{
@@ -674,11 +674,11 @@
 	}
 	"Targe_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, full bash dmg at end of charge"
+		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, bash dmg at end of charge"
 	}
 	"Claidheamh_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, -15 health, no damage vuln, longer charge is passive"
+		"en"	"Reverted to pre-toughbreak, -15 max health, no damage vuln, longer charge is passive"
 	}
 	"Carbine_Release"
 	{
@@ -742,7 +742,7 @@
 	}
 	"DalokohsBar_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, instantly recharge after eating, cannot be dropped for health pick-ups via alt-fire"
+		"en"	"Reverted to pre-gunmettle, no cooldown, cannot be dropped via alt-fire"
 	}	
 	"Darwin_Pre2013"
 	{
@@ -794,7 +794,7 @@
 	}
 	"DragonFury_Release"
 	{
-		"en"	"Reverted to release, increased projectile size and no center-hit requirement for bonus damage"
+		"en"	"Reverted to pre-bluemoon, increased projectile size and no center-hit requirement for bonus damage"
 	}
 	"DragonFury_Release_Patchless"
 	{
@@ -1184,21 +1184,17 @@
 	{
 		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
 	}
-	// "ThermalThrust_Oct2025"
-	// {
-	// 	"en"	"Reverted to pre-May 1, 2025; able to keep jetpack passives after unequipping (turn off respawn on loadout change in adv. options); bunnyhops keeps passives"
-	// }
 	"ThermalThrust_May2025"
 	{
 		"en"	"Reverted to pre-May 1, 2025; all bunnyhops when using a charge keeps stomp passives"
 	}
 	"Turner_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge"
+		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge"
 	}
 	"Turner_PreDec2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, full bash dmg at end of charge, 100%% charge on kill, no charge penalty when damaged"
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge, 100%% charge on kill, no charge loss on hit"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -1206,15 +1202,15 @@
 	}
 	"Tomislav_Release"
 	{
-		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
 	}
 	"Tomislav_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, 10%% faster spinup, no accuracy bonus, 20%% higher pitched weapon sounds"
+		"en"	"Reverted to pre-love&war, 10%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
 	}
 	"Tomislav_PreLWSoundOnly"
 	{
-		"en"	"Reverted only the firing sounds to pre-love&war, 20%% higher pitched weapon sounds"
+		"en"	"Reverted the firing sounds to pre-love&war, higher pitched weapon sounds"
 	}
 	"TribalShiv_Release"
 	{
