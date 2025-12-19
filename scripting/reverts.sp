@@ -227,6 +227,7 @@ enum struct Player {
 	int medic_medigun_defidx;
 	float medic_medigun_charge;
 	float medic_amputator_current_uber;
+	bool medic_crossbow_heal;
 	float cleaver_regen_time;
 	float icicle_regen_time;
 	int scout_airdash_value;
@@ -822,6 +823,7 @@ public void OnPluginStart() {
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
 	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
 	HookEvent("object_destroyed", OnGameEvent, EventHookMode_Post);
+	HookEvent("crossbow_heal", OnGameEvent, EventHookMode_Pre);
 
 	AddCommandListener(CommandListener_EurekaTeleport, "eureka_teleport");
 
@@ -1873,12 +1875,23 @@ public void OnGameFrame() {
 								StrEqual(class, "tf_weapon_medigun") &&
 								GetItemVariant(Wep_Amputator) == 1 &&
 								player_weapons[idx][Wep_Amputator] &&
-								TF2_IsPlayerInCondition(idx, TFCond_Taunting)
+								TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
+								!players[idx].medic_crossbow_heal
 							) {
 								SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
 									// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
 								// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
-							}							
+							} else if (
+								StrEqual(class, "tf_weapon_medigun") &&
+								GetItemVariant(Wep_Amputator) == 1 &&
+								player_weapons[idx][Wep_Amputator] &&
+								TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
+								players[idx].medic_crossbow_heal
+							) {
+								players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+									// PrintToChat(idx, "CROSSBOW HEAL DETECTED! SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
+								players[idx].medic_crossbow_heal = false;
+							}					
 
 							// vitasaw charge store
 							if (
@@ -4315,6 +4328,19 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					SetEntProp(building, Prop_Send, "m_bPlasmaDisable", 0);
 				}
 			}
+		}
+	}
+
+	if (StrEqual(name, "crossbow_heal")) {
+		client = GetClientOfUserId(GetEventInt(event, "healer"));
+
+		if (
+			GetItemVariant(Wep_Amputator) == 1 &&
+			player_weapons[client][Wep_Amputator] &&
+			TF2_IsPlayerInCondition(client, TFCond_Taunting)
+		) {
+			players[client].medic_crossbow_heal = true;
+				// PrintToChat(client, "Set medic_crossbow_heal to TRUE, detected crossbow heal while taunting!");
 		}
 	}
 
