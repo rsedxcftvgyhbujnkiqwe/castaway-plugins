@@ -1875,7 +1875,7 @@ public void OnGameFrame() {
 								StrEqual(class, "tf_weapon_medigun") &&
 								GetItemVariant(Wep_Amputator) == 1 &&
 								player_weapons[idx][Wep_Amputator] &&
-								TF2_IsPlayerInCondition(idx, TFCond_Taunting)							
+								TF2_IsPlayerInCondition(idx, TFCond_Taunting)
 							) {
 								if (!players[idx].medic_crossbow_heal) {
 									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
