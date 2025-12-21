@@ -9,6 +9,9 @@ public Plugin myinfo =
 
 #include <tf2_stocks>
 
+// only look for relevant buttons when performing button checks
+#define ACTION_BUTTONS 12191
+
 int g_iLastPressTime[MAXPLAYERS+1];
 bool g_bMovedToSpec[MAXPLAYERS+1];
 int g_iCurrentTime = 0;
@@ -23,13 +26,15 @@ ConVar g_cvMinPlayerCount;
 public void OnPluginStart()
 {
 	g_cvEnabled = CreateConVar("sm_afkmanager_enabled","1","Enable AFK Manager", _, true, 0.0, true, 1.0);
-    g_cvAfkAction = CreateConVar("sm_afkmanager_afk_action", "1", "What action to take upon AFK players.\n0 = Kick immediately\n1 = Move to spectator, and kick AFK specators\n2 = Move to spectator, but don't kick spectators", _, true, 60.0);
+    g_cvAfkAction = CreateConVar("sm_afkmanager_afk_action", "1", "What action to take upon AFK players.\n0 = Kick immediately\n1 = Move to spectator, and kick AFK specators\n2 = Move to spectator, but don't kick spectators");
     g_cvAfkAliveTime = CreateConVar("sm_afkmanager_alive_time", "180", "How long a player must be AFK for for action to be taken upon them, in seconds.", _, true, 60.0);
     g_cvAfkSpecTime = CreateConVar("sm_afkmanager_spec_time", "300", "How long a player must be AFK in spectator before they are kicked, in seconds.", _, true, 60.0);
     g_cvAfkSpecMovedTime = CreateConVar("sm_afkmanager_spec_moved_time", "60", "How long a player must be AFK in spectator for, after being moved to it due to being afk, before they are kicked, in seconds.", _, true, 60.0);
-    g_cvMinPlayerCount = CreateConVar("sm_afkmanager_min_player_count", "16", "Minimum number of players on the server before the AFK manager starts taking action on players.");
+    g_cvMinPlayerCount = CreateConVar("sm_afkmanager_min_player_count", "12", "Minimum number of players on the server before the AFK manager starts taking action on players.");
 
 	AutoExecConfig(true, "afkmanager", "sourcemod");
+
+	FindConVar("mp_idledealmethod").SetInt(0);
 
     CreateTimer(1.0, AfkDaemon,_,TIMER_REPEAT);
 }
@@ -46,14 +51,17 @@ Action AfkDaemon(Handle timer, any data) {
 
 public void OnGameFrame() {
 	int idx;
+	int buttons;
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (
-			IsClientInGame(idx) &&
-			(GetClientButtons(idx) > 0)
+			IsClientInGame(idx)
 		) {
-			// for efficiency just store precision to the second using the daemon's stored time
-			g_iLastPressTime[idx] = g_iCurrentTime;
-			g_bMovedToSpec[idx] = false;
+			buttons = GetClientButtons(idx);
+			if (buttons & ACTION_BUTTONS > 0) {
+				// for efficiency just store precision to the second using the daemon's stored time
+				g_iLastPressTime[idx] = g_iCurrentTime;
+				g_bMovedToSpec[idx] = false;
+			}
 		}
 	}
 }
@@ -65,15 +73,15 @@ public void OnClientConnected(int client) {
 }
 
 void Kick(int client) {
-	KickClient(client,"Disconnected due to inactivity");
+	KickClient(client,"#TF_Idle_kicked");
 }
 
 void AfkManage() {
 	int action = g_cvAfkAction.IntValue;
 	int alive_time = g_cvAfkAliveTime.IntValue;
-	int spec_time = g_cvAfkSpecTime;
-	int spec_moved_time = g_cvAfkSpecMovedTime;
-	int min_count = g_cvMinPlayerCount;
+	int spec_time = g_cvAfkSpecTime.IntValue;
+	int spec_moved_time = g_cvAfkSpecMovedTime.IntValue;
+	int min_count = g_cvMinPlayerCount.IntValue;
 	int client_time;
 	int elapsed;
 	int idx;
@@ -83,7 +91,8 @@ void AfkManage() {
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (
-			IsClientInGame(idx)
+			IsClientInGame(idx) &&
+			!IsFakeClient(idx)
 		) {
 			// reset this var on low counts constantly
 			// so that counting only "begins" when threshold reached
@@ -118,13 +127,13 @@ void AfkManage() {
 						Kick(idx);
 					}
 				}
-
 			} else if (
 				team == TFTeam_Red ||
 				team == TFTeam_Blue
 			) {
-				if (!IsPlayerAlive(idx)) {
+				if (!IsPlayerAlive(idx) && TF2_GetPlayerClass(idx) != TFClass_Unknown) {
 					// don't count time spent dead
+					// but do count class select time
 					g_iLastPressTime[idx]++;
 					continue;
 				}
