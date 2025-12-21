@@ -240,6 +240,7 @@ enum struct Player {
 	int charge_tick;
 	int fall_dmg_tick;
 	bool holding_jump;
+	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
 	bool spy_under_feign_buffs;
@@ -1624,6 +1625,25 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// shortstop shove removal from NotnHeavy's plugin; mostly prevents animation glitch when holding down mouse2 at lower pings
+						if (
+							ItemIsEnabled(Wep_Shortstop) &&
+							cvar_enable_shortstop_shove.BoolValue == false &&
+							StrEqual(class, "tf_weapon_handgun_scout_primary") &&
+							players[idx].holding_attack2 // only run this when attack2 is pressed and/or held
+						) {
+							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+								SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
+									// PrintToChat(idx, "m_flNextSecondaryAttack = %f", GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack"));
+							}
+						}
+					}
+
 				} else {
 					// reset if player isn't scout
 					players[idx].is_under_hype = false;
@@ -5764,6 +5784,42 @@ public Action OnPlayerRunCmd(
 					players[client].holding_jump = false;
 				}
 			}
+
+			if (
+				ItemIsEnabled(Wep_Shortstop) &&
+				player_weapons[client][Wep_Shortstop] &&
+				cvar_enable_shortstop_shove.BoolValue == false &&
+				IsPlayerAlive(client)
+			) {
+				// Buggy fix for shortstop autoreload bug
+				// A solution I thought of for the shortstop shoveless reload bug is to force the client to reload when autoreload is detected
+				// However I do not know how to detect if auto-reload is enabled. This here just simply forces a reload whenever ATTACK2 is pressed or held down.
+				// Bug: When autoreload is turned off, and the player alt-fires, it reloads the weapon.
+				// However when autoreload is turned on, and the player alt-fires after firing, it reloads the weapon, fixing the old bug.
+				if (
+					(buttons & IN_ATTACK2 != 0) && 
+					(buttons & IN_RELOAD == 0)
+				) {
+					buttons |= IN_RELOAD;
+						// PrintToChat(client, "IN_ATTACK2 != 0 && IN_RELOAD == 0, running IN_RELOAD");
+				}
+
+				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
+				if (
+					(buttons & IN_ATTACK2 != 0)
+				) {
+					if (!players[client].holding_attack2)
+					{
+						players[client].holding_attack2 = true;
+							// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
+					}
+				}
+				else 
+				{
+					players[client].holding_attack2 = false;
+						// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
+				}
+			}			
 		}
 
 		case TFClass_Pyro:
@@ -6254,7 +6310,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	
 	if (owner > 0) {
-		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");		
+		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 		if (
 			StrEqual(class, "tf_weapon_flamethrower") ||
 			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
