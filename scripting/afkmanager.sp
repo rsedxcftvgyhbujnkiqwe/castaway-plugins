@@ -44,14 +44,18 @@ Action AfkDaemon(Handle timer, any data) {
     return Plugin_Continue;
 }
 
-public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float angles[3], int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2])
-{
-	if (buttons > 0) {
-		// for efficiency just store precision to the second using the daemon's stored time
-		g_iLastPressTime[client] = g_iCurrentTime;
-		g_bMovedToSpec[client] = false;
+public void OnGameFrame() {
+	int idx;
+	for (idx = 1; idx <= MaxClients; idx++) {
+		if (
+			IsClientInGame(idx) &&
+			(GetClientButtons(idx) > 0)
+		) {
+			// for efficiency just store precision to the second using the daemon's stored time
+			g_iLastPressTime[idx] = g_iCurrentTime;
+			g_bMovedToSpec[idx] = false;
+		}
 	}
-	return Plugin_Continue;
 }
 
 public void OnClientConnected(int client) {
