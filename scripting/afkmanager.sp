@@ -34,9 +34,46 @@ public void OnPluginStart()
 
 	AutoExecConfig(true, "afkmanager", "sourcemod");
 
+	HookEvent("player_team", OnGameEvent, EventHookMode_Post);
+	HookEvent("player_changeclass", OnGameEvent, EventHookMode_Post);
+
 	FindConVar("mp_idledealmethod").SetInt(0);
 
     CreateTimer(1.0, AfkDaemon,_,TIMER_REPEAT);
+}
+
+public void OnMapStart() {
+	for (int idx = 1; idx <= MaxClients; idx++) {
+		ClientPressedButton(idx);
+	}
+}
+
+
+public void OnGameFrame() {
+	int idx;
+	int buttons;
+	for (idx = 1; idx <= MaxClients; idx++) {
+		if (
+			IsClientInGame(idx)
+		) {
+			buttons = GetClientButtons(idx);
+			if (buttons & ACTION_BUTTONS > 0) {
+				// for efficiency just store precision to the second using the daemon's stored time
+				ClientPressedButton(idx);
+			}
+		}
+	}
+}
+
+public void OnClientConnected(int client) {
+	// store a client's first press immediately upon joining to start the clock
+	ClientPressedButton(client);
+}
+
+Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
+	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	ClientPressedButton(client);
+	return Plugin_Continue;
 }
 
 Action AfkDaemon(Handle timer, any data) {
@@ -49,25 +86,7 @@ Action AfkDaemon(Handle timer, any data) {
     return Plugin_Continue;
 }
 
-public void OnGameFrame() {
-	int idx;
-	int buttons;
-	for (idx = 1; idx <= MaxClients; idx++) {
-		if (
-			IsClientInGame(idx)
-		) {
-			buttons = GetClientButtons(idx);
-			if (buttons & ACTION_BUTTONS > 0) {
-				// for efficiency just store precision to the second using the daemon's stored time
-				g_iLastPressTime[idx] = g_iCurrentTime;
-				g_bMovedToSpec[idx] = false;
-			}
-		}
-	}
-}
-
-public void OnClientConnected(int client) {
-	// store a client's first press immediately upon joining to start the clock
+void ClientPressedButton(int client) {
 	g_iLastPressTime[client] = g_iCurrentTime;
 	g_bMovedToSpec[client] = false;
 }
@@ -97,7 +116,7 @@ void AfkManage() {
 			// reset this var on low counts constantly
 			// so that counting only "begins" when threshold reached
 			if (low_count) {
-				g_iLastPressTime[idx] = g_iCurrentTime;
+				ClientPressedButton(idx);
 				continue;
 			}
 
@@ -142,7 +161,7 @@ void AfkManage() {
 						Kick(idx);
 					} else if (action==1) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
-						g_iLastPressTime[idx] = g_iCurrentTime;
+						ClientPressedButton(idx);
 						g_bMovedToSpec[idx] = true;
 					} else if (action==2) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
