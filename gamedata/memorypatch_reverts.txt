@@ -525,9 +525,9 @@
 					"signature" "CTFWeaponBase::ApplyPostHitEffects"
 					"windows"
 					{
-						"offset"	"631"
-						"verify"	"\xE8\x64\xF5\x2A\x2A"	// CALL, 2x wildcard
-						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
+						"offset"	"588"
+						"verify"	"\x76\x3B"	// JBE
+						"patch"		"\xEB\x3B"	// JMP short
 					}
 				}
 				"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Uber" // search string "subtract_victim_medigun_charge_onhit"
@@ -535,9 +535,9 @@
 					"signature" "CTFWeaponBase::ApplyPostHitEffects"
 					"windows"
 					{
-						"offset"	"410"
-						"verify"	"\xE8\x41\xF6\x2A\x2A"	// CALL, 2x wildcard
-						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
+						"offset"	"367"
+						"verify"	"\x76\x3B"	// JBE
+						"patch"		"\xEB\x3B"	// JMP short
 					}
 				}				
 				
