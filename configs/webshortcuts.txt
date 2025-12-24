@@ -6,6 +6,8 @@
 "!rules" "Castaway.tf Rules" https://castaway.tf/rules.html
 "!forums" "Castaway.tf Steam Group Forums" https://steamcommunity.com/groups/castawaytf/discussions/
 "!github" "GitHub" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins
+"!wiki" "Castaway.tf Wiki Page" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki
+"!wikireverts" "Extended Weapon Reverts Full List" https://github.com/rsedxcftvgyhbujnkiqwe/castaway-plugins/wiki/Weapon-Revert-List
 
 "!revertslist" "HTML Reverts List" https://castaway.tf/reverts.html
 "!revertlist" "HTML Reverts List" https://castaway.tf/reverts.html
