@@ -711,7 +711,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
+#if defined MEMORY_PATCHES
+	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson, true);
+#else
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
+#endif
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
@@ -5677,74 +5681,75 @@ void SDKHookCB_OnTakeDamagePost(
 				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 			}
 		}
+#if !defined MEMORY_PATCHES
+		if (inflictor > MaxClients) {
+			GetEntityClassname(inflictor, class, sizeof(class));
 
-		// if (inflictor > MaxClients) {
-		// 	GetEntityClassname(inflictor, class, sizeof(class));
+			// pomson cloak/uber drain
 
-		// 	// pomson cloak/uber drain
+			if (StrEqual(class, "tf_projectile_energy_ring")) {
+				GetEntityClassname(weapon, class, sizeof(class));
 
-		// 	if (StrEqual(class, "tf_projectile_energy_ring")) {
-		// 		GetEntityClassname(weapon, class, sizeof(class));
+				if (
+					ItemIsEnabled(Wep_Pomson) &&
+					StrEqual(class, "tf_weapon_drg_pomson") &&
+					PlayerIsInvulnerable(victim) == false &&
+					(players[attacker].drain_victim != victim ||
+					GetGameTime() - players[attacker].drain_time > 0.3)
+				) {
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-		// 		if (
-		// 			ItemIsEnabled(Wep_Pomson) &&
-		// 			StrEqual(class, "tf_weapon_drg_pomson") &&
-		// 			PlayerIsInvulnerable(victim) == false &&
-		// 			(players[attacker].drain_victim != victim ||
-		// 			GetGameTime() - players[attacker].drain_time > 0.3)
-		// 		) {
-		// 			GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-		// 			GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
 
-		// 			damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+					if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
+						weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
 
-		// 			if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
-		// 				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
+						if (weapon1 > 0) {
+							GetEntityClassname(weapon1, class, sizeof(class));
 
-		// 				if (weapon1 > 0) {
-		// 					GetEntityClassname(weapon1, class, sizeof(class));
+							if (StrEqual(class, "tf_weapon_medigun")) {
+								if (
+									GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
+									GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
+								) {
+									damage1 = (10.0 * (1.0 - damage1));
+									damage1 = float(RoundToCeil(damage1));
 
-		// 					if (StrEqual(class, "tf_weapon_medigun")) {
-		// 						if (
-		// 							GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
-		// 							GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
-		// 						) {
-		// 							damage1 = (10.0 * (1.0 - damage1));
-		// 							damage1 = float(RoundToCeil(damage1));
+									charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
 
-		// 							charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
+									charge = (charge - (damage1 / 100.0));
+									charge = (charge < 0.0 ? 0.0 : charge);
 
-		// 							charge = (charge - (damage1 / 100.0));
-		// 							charge = (charge < 0.0 ? 0.0 : charge);
+									if (charge > 0.1) {
+										// fix 0.89999999 values
+										charge = (charge += 0.001);
+									}
 
-		// 							if (charge > 0.1) {
-		// 								// fix 0.89999999 values
-		// 								charge = (charge += 0.001);
-		// 							}
+									SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
+								}
+							}
+						}
+					}
 
-		// 							SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
-		// 						}
-		// 					}
-		// 				}
-		// 			}
-
-		// 			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
-		// 				damage1 = (20.0 * (1.0 - damage1));
-		// 				damage1 = float(RoundToCeil(damage1));
+					if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
+						damage1 = (20.0 * (1.0 - damage1));
+						damage1 = float(RoundToCeil(damage1));
 						
-		// 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+						charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
 						
-		// 				charge = (charge - damage1);
-		// 				charge = (charge < 0.0 ? 0.0 : charge);
+						charge = (charge - damage1);
+						charge = (charge < 0.0 ? 0.0 : charge);
 						
-		// 				SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
-		// 			}
+						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
+					}
 
-		// 			players[attacker].drain_victim = victim;
-		// 			players[attacker].drain_time = GetGameTime();
-		// 		}
-		// 	}
-		// }
+					players[attacker].drain_victim = victim;
+					players[attacker].drain_time = GetGameTime();
+				}
+			}
+		}
+#endif		
 	}
 }
 

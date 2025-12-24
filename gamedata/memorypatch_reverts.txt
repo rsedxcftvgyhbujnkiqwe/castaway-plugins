@@ -526,7 +526,7 @@
 					"windows"
 					{
 						"offset"	"631"
-						"verify"	"\xE8\x74\xFA\x2A\x2A"	// CALL, 2x wildcard
+						"verify"	"\xE8\x64\xF5\x2A\x2A"	// CALL, 2x wildcard
 						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
 					}
 				}
@@ -536,7 +536,7 @@
 					"windows"
 					{
 						"offset"	"410"
-						"verify"	"\xE8\x51\xFB\x2A\x2A"	// CALL, 2x wildcard
+						"verify"	"\xE8\x41\xF6\x2A\x2A"	// CALL, 2x wildcard
 						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
 					}
 				}				
