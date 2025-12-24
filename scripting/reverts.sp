@@ -317,6 +317,8 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
+MemoryPatch patch_RevertPomsonDrainScaling_Cloak;
+MemoryPatch patch_RevertPomsonDrainScaling_Uber;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -949,6 +951,12 @@ public void OnPluginStart() {
 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
+		patch_RevertPomsonDrainScaling_Cloak =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Cloak");
+		patch_RevertPomsonDrainScaling_Uber =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Uber");			
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1071,6 +1079,14 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 		}
+		if (!ValidateAndNullCheck(patch_RevertPomsonDrainScaling_Cloak)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertPomsonDrainScaling_Cloak");
+		}
+		if (!ValidateAndNullCheck(patch_RevertPomsonDrainScaling_Uber)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertPomsonDrainScaling_Uber");
+		}				
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
 			hook_fail=true;
@@ -1333,6 +1349,15 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Disable();
 			}
 		}
+		case Wep_Pomson: {
+			if (enable) {
+				patch_RevertPomsonDrainScaling_Cloak.Enable();
+				patch_RevertPomsonDrainScaling_Uber.Enable();
+			} else {
+				patch_RevertPomsonDrainScaling_Cloak.Disable();
+				patch_RevertPomsonDrainScaling_Uber.Disable();
+			}
+		}		
 	}
 }
 #endif
@@ -5653,73 +5678,73 @@ void SDKHookCB_OnTakeDamagePost(
 			}
 		}
 
-		if (inflictor > MaxClients) {
-			GetEntityClassname(inflictor, class, sizeof(class));
+		// if (inflictor > MaxClients) {
+		// 	GetEntityClassname(inflictor, class, sizeof(class));
 
-			// pomson cloak/uber drain
+		// 	// pomson cloak/uber drain
 
-			if (StrEqual(class, "tf_projectile_energy_ring")) {
-				GetEntityClassname(weapon, class, sizeof(class));
+		// 	if (StrEqual(class, "tf_projectile_energy_ring")) {
+		// 		GetEntityClassname(weapon, class, sizeof(class));
 
-				if (
-					ItemIsEnabled(Wep_Pomson) &&
-					StrEqual(class, "tf_weapon_drg_pomson") &&
-					PlayerIsInvulnerable(victim) == false &&
-					(players[attacker].drain_victim != victim ||
-					GetGameTime() - players[attacker].drain_time > 0.3)
-				) {
-					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+		// 		if (
+		// 			ItemIsEnabled(Wep_Pomson) &&
+		// 			StrEqual(class, "tf_weapon_drg_pomson") &&
+		// 			PlayerIsInvulnerable(victim) == false &&
+		// 			(players[attacker].drain_victim != victim ||
+		// 			GetGameTime() - players[attacker].drain_time > 0.3)
+		// 		) {
+		// 			GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+		// 			GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-					damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+		// 			damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
 
-					if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
-						weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
+		// 			if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
+		// 				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
 
-						if (weapon1 > 0) {
-							GetEntityClassname(weapon1, class, sizeof(class));
+		// 				if (weapon1 > 0) {
+		// 					GetEntityClassname(weapon1, class, sizeof(class));
 
-							if (StrEqual(class, "tf_weapon_medigun")) {
-								if (
-									GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
-									GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
-								) {
-									damage1 = (10.0 * (1.0 - damage1));
-									damage1 = float(RoundToCeil(damage1));
+		// 					if (StrEqual(class, "tf_weapon_medigun")) {
+		// 						if (
+		// 							GetEntProp(weapon1, Prop_Send, "m_bChargeRelease") == 0 ||
+		// 							GetEntProp(weapon1, Prop_Send, "m_bHolstered") == 1
+		// 						) {
+		// 							damage1 = (10.0 * (1.0 - damage1));
+		// 							damage1 = float(RoundToCeil(damage1));
 
-									charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
+		// 							charge = GetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel");
 
-									charge = (charge - (damage1 / 100.0));
-									charge = (charge < 0.0 ? 0.0 : charge);
+		// 							charge = (charge - (damage1 / 100.0));
+		// 							charge = (charge < 0.0 ? 0.0 : charge);
 
-									if (charge > 0.1) {
-										// fix 0.89999999 values
-										charge = (charge += 0.001);
-									}
+		// 							if (charge > 0.1) {
+		// 								// fix 0.89999999 values
+		// 								charge = (charge += 0.001);
+		// 							}
 
-									SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
-								}
-							}
-						}
-					}
+		// 							SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
+		// 						}
+		// 					}
+		// 				}
+		// 			}
 
-					if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
-						damage1 = (20.0 * (1.0 - damage1));
-						damage1 = float(RoundToCeil(damage1));
+		// 			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
+		// 				damage1 = (20.0 * (1.0 - damage1));
+		// 				damage1 = float(RoundToCeil(damage1));
 						
-						charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+		// 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
 						
-						charge = (charge - damage1);
-						charge = (charge < 0.0 ? 0.0 : charge);
+		// 				charge = (charge - damage1);
+		// 				charge = (charge < 0.0 ? 0.0 : charge);
 						
-						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
-					}
+		// 				SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
+		// 			}
 
-					players[attacker].drain_victim = victim;
-					players[attacker].drain_time = GetGameTime();
-				}
-			}
-		}
+		// 			players[attacker].drain_victim = victim;
+		// 			players[attacker].drain_time = GetGameTime();
+		// 		}
+		// 	}
+		// }
 	}
 }
 

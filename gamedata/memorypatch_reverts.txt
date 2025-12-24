@@ -174,6 +174,11 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\xD8\x05\x00\x00"
 				"linux"   "@_ZN9CTFPlayer12OnTakeDamageERK15CTakeDamageInfo"
 			}
+			"CTFWeaponBase::ApplyPostHitEffects" // For Pomson Variants Uber Drain and Cloak Drain Reverts
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\xB0\x00\x00\x00\x8B\x45\x2A\x53"
+			}
 		}
 
 		"Offsets"
@@ -510,6 +515,31 @@
 						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90" // NOP x8 — disable rocket refill nerf
 					}	
 				}
+
+				// ================================================
+				//	Pomson 6000 Drain Scaling Revert
+				//  Removes Cloak and Uber drain scaling based on distance for Pomson revert variants
+
+				"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Cloak" // search string "subtract_victim_cloak_on_hit"
+				{
+					"signature" "CTFWeaponBase::ApplyPostHitEffects"
+					"windows"
+					{
+						"offset"	"631"
+						"verify"	"\xE8\x74\xFA\x2A\x2A"	// CALL, 2x wildcard
+						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
+					}
+				}
+				"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Uber" // search string "subtract_victim_medigun_charge_onhit"
+				{
+					"signature" "CTFWeaponBase::ApplyPostHitEffects"
+					"windows"
+					{
+						"offset"	"410"
+						"verify"	"\xE8\x51\xFB\x2A\x2A"	// CALL, 2x wildcard
+						"patch"		"\x90\x90\x90\x90\x90"	// NOP everything
+					}
+				}				
 				
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Medic                     ║
