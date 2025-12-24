@@ -3564,15 +3564,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Tomislav)) {
 				case 0: { // Pre-Pyromania
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty; mult_postfiredelay; changes fire rate AND sound pitch
+					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
 					TF2Items_SetAttribute(itemNew, 1, 87, 0.60); // 40% faster spin up time
 					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active: (necessary for attrib 549)
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 				}
 				case 1: { // Release
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 1, 87, 0.25); // 75% faster spin up time
 					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
 					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
@@ -3580,7 +3580,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 				case 2: { // Pre-Love & War
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 1, 87, 0.90); // 10% faster spin up time
 					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
 					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
@@ -3588,7 +3588,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}				
 				case 3: { // SOUND PITCH REVERT ONLY; essentially Vanilla Tomislav but higher pitched sounds
 					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
+					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 1, 128, 1.0); // When weapon is active:
 					TF2Items_SetAttribute(itemNew, 2, 549, 1.2); // halloween fire rate bonus
 				}
@@ -6259,6 +6259,17 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_flamethrower") ||
 			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 		) {
+			if (
+				(GetItemVariant(Wep_Backburner) == 1 || GetItemVariant(Wep_Backburner) == 2) &&
+				player_weapons[owner][Wep_Backburner] &&
+				StrEqual(class, "tf_weapon_flamethrower") &&
+				IsPlayerAlive(owner) &&
+				(index == 40 || index == 1146) // backburner and festive backburner
+			) {
+				// fix airblast bug with no airblast backburner variants (after respawn, press M1 then M2 quickly for phantom airblast that can only be seen by other players)
+				return MRES_Supercede;
+			}
+
 			// airblast set type cvar
 
 			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Feat_Airblast));
@@ -6321,7 +6332,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			// pre-gun mettle dalokohs bar alt-fire drop prevention
 				//PrintToChat(owner, "Cannot drop pre-Gun Mettle Dalokohs Bar!");
 			return MRES_Supercede;
-		}		
+		}
 	}
 	return MRES_Ignored;
 }
