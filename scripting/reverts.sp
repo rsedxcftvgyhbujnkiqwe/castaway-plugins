@@ -317,7 +317,6 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
-MemoryPatch patch_RevertAmbassadorRemoveHeadshotDistanceCheck;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -950,9 +949,6 @@ public void OnPluginStart() {
 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
-		patch_RevertAmbassadorRemoveHeadshotDistanceCheck =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFRevolver::CanFireCriticalShot_AmbassadorRemoveHeadshotDistanceCheck");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1074,10 +1070,6 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
-		}
-		if (!ValidateAndNullCheck(patch_RevertAmbassadorRemoveHeadshotDistanceCheck)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertAmbassadorRemoveHeadshotDistanceCheck");
 		}
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
@@ -1339,13 +1331,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Enable();
 			} else {
 				patch_RevertIronBomber_PipeHitbox.Disable();
-			}
-		}
-		case Wep_Ambassador: {
-			if (enable) {
-				patch_RevertAmbassadorRemoveHeadshotDistanceCheck.Enable();
-			} else {
-				patch_RevertAmbassadorRemoveHeadshotDistanceCheck.Disable();
 			}
 		}
 	}

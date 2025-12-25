@@ -174,11 +174,6 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\xD8\x05\x00\x00"
 				"linux"   "@_ZN9CTFPlayer12OnTakeDamageERK15CTakeDamageInfo"
 			}
-			"CTFRevolver::CanFireCriticalShot"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x56\xFF\x75"
-			}
 		}
 
 		"Offsets"
@@ -672,20 +667,6 @@
 						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
 						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
 					}	
-				}
-
-				// ================================================
-				//  Ambassador headshot distance revert
-				
-				"CTFRevolver::CanFireCriticalShot_AmbassadorRemoveHeadshotDistanceCheck"
-				{
-					"signature"	"CTFRevolver::CanFireCriticalShot"
-					"windows"
-					{
-						"offset"	"207"
-						"verify"	"\x32\xC0"	// XOR
-						"patch"		"\xB0\x01"	// MOV AL,0x1
-					}
 				}
 
 				// ╔══════════════════════════════════════════════╗
