@@ -317,6 +317,8 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
+MemoryPatch patch_RevertPomsonDrainScaling_Cloak;
+MemoryPatch patch_RevertPomsonDrainScaling_Uber;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -709,7 +711,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
+#if defined MEMORY_PATCHES
+	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson, true);
+#else
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
+#endif
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
@@ -949,6 +955,12 @@ public void OnPluginStart() {
 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
+		patch_RevertPomsonDrainScaling_Cloak =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Cloak");
+		patch_RevertPomsonDrainScaling_Uber =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Uber");			
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1071,6 +1083,14 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 		}
+		if (!ValidateAndNullCheck(patch_RevertPomsonDrainScaling_Cloak)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertPomsonDrainScaling_Cloak");
+		}
+		if (!ValidateAndNullCheck(patch_RevertPomsonDrainScaling_Uber)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertPomsonDrainScaling_Uber");
+		}				
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
 			hook_fail=true;
@@ -1333,6 +1353,15 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Disable();
 			}
 		}
+		case Wep_Pomson: {
+			if (enable) {
+				patch_RevertPomsonDrainScaling_Cloak.Enable();
+				patch_RevertPomsonDrainScaling_Uber.Enable();
+			} else {
+				patch_RevertPomsonDrainScaling_Cloak.Disable();
+				patch_RevertPomsonDrainScaling_Uber.Disable();
+			}
+		}		
 	}
 }
 #endif
@@ -5595,12 +5624,14 @@ void SDKHookCB_OnTakeDamagePost(
 	int weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
 	//int idx;
+#if !defined MEMORY_PATCHES // these 6 variables are only used for the patchless pomson cloak/uber drain for the moment.
 	char class[64];
 	float pos1[3];
 	float pos2[3];
 	float charge;
 	float damage1;
 	int weapon1;
+#endif
 
 	if (
 		victim >= 1 &&
@@ -5652,7 +5683,7 @@ void SDKHookCB_OnTakeDamagePost(
 				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 			}
 		}
-
+#if !defined MEMORY_PATCHES
 		if (inflictor > MaxClients) {
 			GetEntityClassname(inflictor, class, sizeof(class));
 
@@ -5720,6 +5751,7 @@ void SDKHookCB_OnTakeDamagePost(
 				}
 			}
 		}
+#endif
 	}
 }
 

@@ -970,7 +970,7 @@
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg, drains more than 20%% cloak against disguised or cloaked Spies"
 	}
 	"Pomson_PreGM_Historical"
 	{
