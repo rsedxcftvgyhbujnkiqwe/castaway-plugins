@@ -178,6 +178,7 @@
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x81\xEC\xB0\x00\x00\x00\x8B\x45\x2A\x53"
+				"linux"   "_ZN13CTFWeaponBase19ApplyPostHitEffectsERK15CTakeDamageInfoP9CTFPlayer"
 			}
 		}
 
@@ -523,6 +524,12 @@
 				"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Cloak" // search string "subtract_victim_cloak_on_hit"
 				{
 					"signature" "CTFWeaponBase::ApplyPostHitEffects"
+					"linux"
+					{
+						"offset"	"715"
+						"verify"	"\x76\x47"	// JBE
+						"patch"		"\xEB\x47"	// JMP short
+					}
 					"windows"
 					{
 						"offset"	"588"
@@ -533,6 +540,12 @@
 				"CTFWeaponBase::ApplyPostHitEffects_PomsonRemoveDrainScaling_Uber" // search string "subtract_victim_medigun_charge_onhit"
 				{
 					"signature" "CTFWeaponBase::ApplyPostHitEffects"
+					"linux"
+					{
+						"offset"	"443"
+						"verify"	"\x76\x47"	// JBE
+						"patch"		"\xEB\x47"	// JMP short
+					}					
 					"windows"
 					{
 						"offset"	"367"
