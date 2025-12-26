@@ -372,6 +372,7 @@ DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 DynamicDetour dhook_CTFPlayer_Taunt;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
+DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -877,6 +878,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
+		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1124,6 +1126,7 @@ public void OnPluginStart() {
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
+	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1136,6 +1139,7 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
+	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -7224,6 +7228,26 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 			players[client].has_thrown_sandvich = false;
 		}	
 	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	int client = parameters.Get(1);
+
+	// ambassador long range headshot score bug fix, return true so the game thinks a headshot happened and adds a point for a headshot
+	// this also makes the ambassador headshot from any range
+
+	if (
+		ItemIsEnabled(Wep_Ambassador) && 
+		!returnValue.Value && 
+		player_weapons[client][Wep_Ambassador]
+	) {
+			returnValue.Value = true;
+				// PrintToChat(client, "return TRUE for CanFireCriticalShot");
+			return MRES_Override;
+	}	
 
 	return MRES_Ignored;
 }
