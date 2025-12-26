@@ -211,7 +211,6 @@ enum struct Player {
 	float resupply_time;
 	int headshot_frame;
 	bool hit_by_headshot;
-	bool ambassador_beyond_1200hu;
 	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
@@ -4890,18 +4889,6 @@ Action SDKHookCB_OnTakeDamage(
 					if (GetItemVariant(Wep_Ambassador) <= 1) {
 						// full crits
 						damage_type |= DMG_CRIT;
-
-						// Check if beyond 1200 HU to allow for headshot scoring
-						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-						if (GetVectorDistance(pos1, pos2) > 1200.0) {
-							players[attacker].ambassador_beyond_1200hu = true;
-								// PrintToChat(attacker, "ambassador_beyond_1200hu = %b", players[attacker].ambassador_beyond_1200hu);
-						} else if (GetVectorDistance(pos1, pos2) <= 1200.0) {
-							players[attacker].ambassador_beyond_1200hu = false;
-								// PrintToChat(attacker, "ambassador_beyond_1200hu = %b", players[attacker].ambassador_beyond_1200hu);
-						}
 					} else if (!PlayerIsCritboosted(attacker)) {
 						// mini-crits
 						damage_type &= ~DMG_CRIT;
@@ -7258,7 +7245,7 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 		player_weapons[client][Wep_Ambassador]
 	) {
 			returnValue.Value = true;
-				// PrintToChat(client, "return TRUE forCanFireCriticalShot");
+				// PrintToChat(client, "return TRUE for CanFireCriticalShot");
 			return MRES_Override;
 	}	
 
