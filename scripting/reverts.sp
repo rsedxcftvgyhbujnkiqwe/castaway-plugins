@@ -317,6 +317,7 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
 MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
+MemoryPatch patch_RevertSniperQuickscopeDelay;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -407,6 +408,7 @@ enum
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
 	Feat_SniperRifle, // All Sniper Rifles
+	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 #endif
 	Feat_Stickybomb, // All Stickybomb Launchers
 	Feat_Sword, // All Swords
@@ -583,6 +585,7 @@ public void OnPluginStart() {
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
+	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER, Feat_SniperQuickscope, true);
 #endif
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
@@ -949,6 +952,9 @@ public void OnPluginStart() {
 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
+		patch_RevertSniperQuickscopeDelay =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFSniperRifle::CanFireCriticalShot_SniperNo200msQuickscopeDelay");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1071,6 +1077,10 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 		}
+		if (!ValidateAndNullCheck(patch_RevertSniperQuickscopeDelay)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSniperQuickscopeDelay");
+		}		
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
 			hook_fail=true;
@@ -1195,6 +1205,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperQuickscope),Feat_SniperQuickscope);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
@@ -1282,6 +1293,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #if !defined WIN32
 				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
 #endif
+			}
+		}
+		case Feat_SniperQuickscope: {
+			if (enable) {
+				patch_RevertSniperQuickscopeDelay.Enable();
+			} else {
+				patch_RevertSniperQuickscopeDelay.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
@@ -3918,6 +3936,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						!(StrEqual(class, "tf_weapon_compound_bow"))
 					) {
 						player_weapons[client][Feat_SniperRifle] = true;
+						player_weapons[client][Feat_SniperQuickscope] = true;
 					}
 #endif
 					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
