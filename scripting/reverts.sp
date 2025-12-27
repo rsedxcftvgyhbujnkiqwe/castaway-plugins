@@ -5079,12 +5079,17 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_BlackBox) &&
 					StrEqual(class,"tf_weapon_rocketlauncher") &&
-					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085) &&
+					(
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085
+					) &&
 					attacker != victim &&
-					TF2_GetClientTeam(attacker) != TF2_GetClientTeam(victim) &&
+					!AreEntitiesOnSameTeam(attacker, victim) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Ubercharged)
+					(
+						!PlayerIsInvulnerable(victim) ||
+						TF2_IsPlayerInCondition(victim, TFCond_Bonked)
+					)
 				) {
 					// Show that attacker got healed.
 					Event event = CreateEvent("player_healonhit", true);
