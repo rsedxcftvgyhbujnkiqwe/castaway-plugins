@@ -5674,8 +5674,13 @@ void SDKHookCB_OnTakeDamagePost(
 						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 					}
 
-					players[attacker].drain_victim = victim;
-					players[attacker].drain_time = GetGameTime();
+					if (
+						!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
+						!TF2_IsPlayerInCondition(victim, TFCond_Cloaked)
+					) {
+						players[attacker].drain_victim = victim;
+						players[attacker].drain_time = GetGameTime();
+					}
 				}
 			}
 		}
