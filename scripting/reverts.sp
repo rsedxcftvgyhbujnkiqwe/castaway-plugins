@@ -5219,33 +5219,6 @@ Action SDKHookCB_OnTakeDamage(
 						}
 					}
 				}
-
-				/*
-				{
-					// Release Cow Mangler 5000 old damage rampup
-					// Doesn't work.
-
-					if (StrEqual(class, "tf_projectile_energy_ball")) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							ItemIsEnabled(Wep_CowMangler) &&
-							GetItemVariant(Wep_CowMangler) == 0 &&
-							StrEqual(class, "tf_weapon_particle_cannon")
-						) {
-							GetEntPropVector(inflictor, Prop_Send, "m_vecOrigin", pos1);
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							// Supposed to deal 81 base damage with 150% rampup (121 dmg), 52.8% falloff (43 dmg) against players.
-							damage = 81.00 * ValveRemapVal(GetVectorDistance(pos1, pos2), 512.0, 1024.0, 1.50, 0.528);
-
-							return Plugin_Changed;
-						}
-
-						return Plugin_Continue;
-					}
-				}
-				*/
 			}
 		}
 	}
@@ -5305,23 +5278,6 @@ Action SDKHookCB_OnTakeDamage_Building(
 				return Plugin_Changed;
 			}
 		}
-		/*
-		{
-			// Release Cow Mangler 5000 building damage
-			// Commenting this because I can't figure out how to revert the old damage falloff against players
-
-			if (
-				ItemIsEnabled(Wep_CowMangler) &&
-				GetItemVariant(Wep_CowMangler) == 0 &&
-				StrEqual(class, "tf_weapon_particle_cannon")
-			) {
-				// Building base damage should be 16 dmg
-				damage = 81.0;
-
-				return Plugin_Changed;
-			}
-		}
-		*/
 	}
 
 	return Plugin_Continue;
@@ -5441,7 +5397,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 				players[attacker].sleeper_piss_frame == GetGameTickCount()
 			) {
 				// condition must be added in OnTakeDamageAlive, otherwise initial shot will crit
-				TF2_AddCondition(victim, TFCond_Jarated, players[attacker].sleeper_piss_duration, 0);
+				TF2_AddCondition(victim, TFCond_Jarated, players[attacker].sleeper_piss_duration, attacker);
 
 				if (players[attacker].sleeper_piss_explode) {
 					// call into game code to cause a jarate explosion on the target
@@ -6224,23 +6180,20 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 		) {
 			if (
-				(GetItemVariant(Wep_Backburner) == 1 || GetItemVariant(Wep_Backburner) == 2) &&
-				player_weapons[owner][Wep_Backburner] &&
-				StrEqual(class, "tf_weapon_flamethrower") &&
+				ItemIsEnabled(Wep_Backburner) &&
+				TF2Attrib_HookValueInt(0, "airblast_disabled", entity) &&
 				IsPlayerAlive(owner) &&
 				(index == 40 || index == 1146) // backburner and festive backburner
 			) {
-				// fix airblast bug with no airblast backburner variants (after respawn, press M1 then M2 quickly for phantom airblast that can only be seen by other players)
+				// fix airblast bug with no airblast backburner variants
+				// (after respawn, press M1 then M2 quickly for phantom airblast that can only be seen by other players)
 				return MRES_Supercede;
 			}
 
 			// airblast set type cvar
-
 			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Feat_Airblast));
-
-			return MRES_Ignored;
 		}
-		if (
+		else if (
 			GetItemVariant(Wep_ShortCircuit) == 0 &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
@@ -6268,8 +6221,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 
 			return MRES_Supercede;
 		}
-
-		if (
+		else if (
 			(GetItemVariant(Wep_ShortCircuit) == 1 ||
 			GetItemVariant(Wep_ShortCircuit) == 2) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
@@ -6277,8 +6229,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			// prevent alt-fire for pre-gunmettle short circuit
 			return MRES_Supercede;
 		}
-
-		if (
+		else if (
 			ItemIsEnabled(Wep_Shortstop) &&
 			cvar_enable_shortstop_shove.BoolValue == false &&
 			StrEqual(class, "tf_weapon_handgun_scout_primary")
@@ -6286,88 +6237,15 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			// shortstop shove removal
 			return MRES_Supercede;
 		}
-
-		if (
+		else if (
 			GetItemVariant(Wep_Dalokohs) == 0 &&
-			player_weapons[owner][Wep_Dalokohs] &&
 			StrEqual(class, "tf_weapon_lunchbox") &&
 			(index == 159 || index == 433) // dalokohs and fishcake
 		) {
 			// pre-gun mettle dalokohs bar alt-fire drop prevention
-				//PrintToChat(owner, "Cannot drop pre-Gun Mettle Dalokohs Bar!");
 			return MRES_Supercede;
 		}
 	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
-	//int owner;
-	char class[64];
-
-	GetEntityClassname(entity, class, sizeof(class));
-
-	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
-	if (
-		GetItemVariant(Wep_Dalokohs) == 0 &&
-		StrEqual(class, "tf_weapon_lunchbox") &&
-		(index == 159 || index == 433) // dalokohs and fishcake
-	) {
-		return MRES_Supercede;
-	}
-
-	if (
-		GetItemVariant(Wep_Sandvich) == 0 &&
-		StrEqual(class, "tf_weapon_lunchbox") && 
-		(index == 42 || index == 863 || index == 1002) // Sandvich, Robo-Sandvich, Festive Sandvich
-	) {
-		return MRES_Supercede;
-	}
-	
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
-	char pszSceneName[PLATFORM_MAX_PATH];
-	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
-	int iTauntIndex = parameters.Get(2);
-
-	if (
-		ItemIsEnabled(Wep_Huntsman) &&
-		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
-		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
-		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
-	) {
-		// Set the players m_flTauntNextStartTime to CurrentTime.
-		SetEntDataFloat(entity, m_flTauntNextStartTime, GetGameTime(), true);
-	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
-	int weapon;
-	char class[64];
-
-	// amputator track uber level right upon taunting, this is done to track uber for amputator only when needed
-	if (
-		GetItemVariant(Wep_Amputator) == 1 && 
-		player_weapons[entity][Wep_Amputator]							
-	) {
-		weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Secondary);
-
-		if (weapon > 0) {
-			GetEntityClassname(weapon, class, sizeof(class));								
-			
-			if (
-				StrEqual(class, "tf_weapon_medigun")
-			) {
-				players[entity].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_amputator_current_uber);
-					// use the above PrintToChat to check if GetEntPropFloat occurs only when needed
-			}
-		}	
-	}
-
 	return MRES_Ignored;
 }
 
@@ -6481,6 +6359,76 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			}
 		}
 	}
+}
+
+MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
+	//int owner;
+	char class[64];
+
+	GetEntityClassname(entity, class, sizeof(class));
+
+	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+	if (
+		GetItemVariant(Wep_Dalokohs) == 0 &&
+		StrEqual(class, "tf_weapon_lunchbox") &&
+		(index == 159 || index == 433) // dalokohs and fishcake
+	) {
+		return MRES_Supercede;
+	}
+
+	if (
+		GetItemVariant(Wep_Sandvich) == 0 &&
+		StrEqual(class, "tf_weapon_lunchbox") && 
+		(index == 42 || index == 863 || index == 1002) // Sandvich, Robo-Sandvich, Festive Sandvich
+	) {
+		return MRES_Supercede;
+	}
+	
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
+	char pszSceneName[PLATFORM_MAX_PATH];
+	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
+	int iTauntIndex = parameters.Get(2);
+
+	if (
+		ItemIsEnabled(Wep_Huntsman) &&
+		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
+		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
+		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
+	) {
+		// Set the players m_flTauntNextStartTime to CurrentTime.
+		SetEntDataFloat(entity, m_flTauntNextStartTime, GetGameTime(), true);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
+	int weapon;
+	char class[64];
+
+	// amputator track uber level right upon taunting, this is done to track uber for amputator only when needed
+	if (
+		GetItemVariant(Wep_Amputator) == 1 && 
+		player_weapons[entity][Wep_Amputator]							
+	) {
+		weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Secondary);
+
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));								
+			
+			if (
+				StrEqual(class, "tf_weapon_medigun")
+			) {
+				players[entity].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_amputator_current_uber);
+					// use the above PrintToChat to check if GetEntPropFloat occurs only when needed
+			}
+		}	
+	}
+
+	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnValue) {
@@ -6795,7 +6743,7 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int arrowEntity, DHookParam parameters) {
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entity, DHookParam parameters) {
 	int sentry = parameters.Get(1);
 
 	// Revert the sentry's shield.
@@ -6887,8 +6835,8 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 
 			// apply regen
 			regen_amount *= regen_scale - 1.0; // compensate for original regen source
-			if (regen_amount > 0.0) {
-				TF2Attrib_AddCustomPlayerAttribute(client, "health regen", regen_amount, 0.001);
+			if (regen_amount != 0.0) {
+				TF2Attrib_AddCustomPlayerAttribute(client, "health drain", regen_amount, 0.001);
 			}
 
 			return MRES_Ignored;
