@@ -146,6 +146,10 @@
 	{
 		"en"	"All Sentry Guns"
 	}
+	"sniperquickscope"
+	{
+		"en"	"Sniper Quickscopes"
+	}
 	"sniperrifles"
 	{
 		"en"	"All Sniper Rifles"
@@ -547,6 +551,10 @@
 	"Sentry_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, sentry is active immediately after being unsapped"
+	}
+	"SniperQuickscope_Pre2008"
+	{
+		"en"	"Reverted to pre-February 14, 2008; can instantly headshot after zooming in (0.2 sec headshot prevention delay when zooming removed)"
 	}
 	"SniperRifle_PreLW"
 	{
