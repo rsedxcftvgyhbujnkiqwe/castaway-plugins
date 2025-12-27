@@ -2427,8 +2427,6 @@ public void OnEntityDestroyed(int entity) {
 }
 
 public void TF2_OnConditionAdded(int client, TFCond condition) {
-	float cloak;
-
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
 	// they will both be present when this is called for each
@@ -2454,49 +2452,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
 		) {
 			TF2_RemoveCondition(client, TFCond_CritHype);
-		}
-	}
-	{
-		// "old-style" dead ringer stuff
-
-		if (
-			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) >= 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Spy
-		) {
-			if (
-				condition == TFCond_Cloaked &&
-				player_weapons[client][Wep_DeadRinger]
-			) {
-				cloak = GetEntPropFloat(client, Prop_Send, "m_flCloakMeter");
-
-				if (
-					abs(GetGameTickCount() - players[client].feign_ready_tick) <= 2 &&
-					players[client].feign_ready_tick > 0
-				) {
-					// undo 50% drain on activated
-					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", floatMin(cloak + 50.0, 100.0));
-				}
-			}
-
-			if (
-				TF2_IsPlayerInCondition(client, TFCond_Cloaked) &&
-				player_weapons[client][Wep_DeadRinger]
-			) {
-
-				if (
-					condition == TFCond_AfterburnImmune &&
-					TF2_IsPlayerInCondition(client, TFCond_FireImmune) == false // didn't use spycicle
-				) {
-					// grant afterburn immunity for a bit
-
-					// this may look like it overrides spycicle afterburn immune in some cases, but it doesn't
-					// this function is not called when a condition is gained that we already had before
-
-					TF2_RemoveCondition(client, TFCond_AfterburnImmune);
-					TF2_AddCondition(client, TFCond_AfterburnImmune, 0.5, 0);
-				}
-			}
 		}
 	}
 	{
@@ -2622,13 +2577,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			GetItemVariant(Wep_DeadRinger) >= 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy
 		) {
-			// prevent speed boost being applied on feign death
-			if (
-				condition == TFCond_SpeedBuffAlly &&
-				players[client].feign_ready_tick == GetGameTickCount()
-			) {
-				return Plugin_Handled;
-			}
 			// prevent cloak flickering while under feign buffs
 			if (
 				condition == TFCond_CloakFlicker &&
@@ -4727,15 +4675,10 @@ Action SDKHookCB_OnTakeDamage(
 
 				// "old-style" dead ringer track when feign begins
 				if (
-					GetItemVariant(Wep_DeadRinger) == 0 ||
-					GetItemVariant(Wep_DeadRinger) >= 3
+					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
+					players[victim].spy_is_feigning == false
 				) {
-					if (
-						GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-						players[victim].spy_is_feigning == false
-					) {
-						players[victim].feign_ready_tick = GetGameTickCount();
-					}
+					players[victim].feign_ready_tick = GetGameTickCount();
 				}
 			}
 		}
@@ -5607,14 +5550,24 @@ void SDKHookCB_OnTakeDamagePost(
 		victim <= MaxClients
 	) {
 		{
-			// dead ringer damage tracking
 
-			if (
-				players[victim].spy_is_feigning &&
-				players[victim].spy_under_feign_buffs &&
-				TF2_GetPlayerClass(victim) == TFClass_Spy
-			) {
-				players[victim].damage_taken_during_feign += damage;
+			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
+				if (
+					players[victim].spy_is_feigning &&
+					players[victim].spy_under_feign_buffs
+				) {
+					// dead ringer damage tracking
+					players[victim].damage_taken_during_feign += damage;
+				}
+
+				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+				if (
+					charge < 100.0 &&
+					players[victim].feign_ready_tick == GetGameTickCount()
+				) {
+					// undo 50% drain on activated
+					SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
+				}
 			}
 		}
 	}
