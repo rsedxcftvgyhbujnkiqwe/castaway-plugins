@@ -178,6 +178,7 @@
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x53\x57\xFF\x75\x2A\x8B\xF9\xFF\x75"
+				"linux"	  "@_ZN14CTFSniperRifle19CanFireCriticalShotEbP11CBaseEntity"
 			}
 		}
 
@@ -638,8 +639,14 @@
 					"windows"
 					{
 						"offset"	"231"
-						"verify"	"\x77\x18"	// JA
-						"patch"		"\xEB\x18"	// JMP
+						"verify"	"\x77\x2A"	// JA
+						"patch"		"\x90\x90"	// NOP 2x
+					}
+					"linux"
+					{
+						"offset"	"354"
+						"verify"	"\x76\x2A"	// JBE
+						"patch"		"\x90\x90"	// NOP 2x
 					}
 				}
 
