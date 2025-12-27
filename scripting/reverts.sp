@@ -5167,12 +5167,13 @@ Action SDKHookCB_OnTakeDamage(
 				// direct hit minicrits
 				if (
 					ItemIsEnabled(Wep_DirectHit) &&
-					StrEqual(class, "tf_weapon_rocketlauncher_directhit")
+					StrEqual(class, "tf_weapon_rocketlauncher_directhit") &&
+					GetEntityFlags(victim) & FL_ONGROUND == 0
 				) {
 					if (
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true ||
-						(GetItemVariant(Wep_DirectHit) == 1 &&
-						GetEntityFlags(victim) & FL_ONGROUND == 0)
+						(GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
+						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true) ||
+						GetItemVariant(Wep_DirectHit) == 1
 					) {
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}
