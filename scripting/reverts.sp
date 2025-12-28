@@ -740,6 +740,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Oct2010");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
+	ItemVariant(Wep_Sandman, "Sandman_PreClassless");
 	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
 	ItemVariant(Wep_Sandvich, "Sandvich_Pre2012");
 	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
@@ -3368,6 +3369,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 125, -30.0); // -30 max health on wearer
 					TF2Items_SetAttribute(itemNew, 1, 278, 1.50); // increase ball recharge time to 15s
 				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 49, 1.0); // no double jump
+					TF2Items_SetAttribute(itemNew, 1, 125, 0.0); // -0 max health on wearer
+					TF2Items_SetAttribute(itemNew, 2, 278, 1.50); // increase ball recharge time to 15s
+				}
 				default: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 278, 1.50); // increase ball recharge time to 15s
@@ -4476,6 +4483,9 @@ Action SDKHookCB_Touch(int entity, int other) {
 	char class[64];
 	int owner;
 	int weapon;
+	float stun_amt;
+	float stun_dur;
+	int stun_fls;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
@@ -4554,6 +4564,63 @@ Action SDKHookCB_Touch(int entity, int other) {
 		}
 	}
 
+	{
+		// pre-classless sandman stun invuln
+		if (StrEqual(class, "tf_projectile_stun_ball")) {
+			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
+			if (
+				GetItemVariant(Wep_Sandman) == 2 &&
+				!GetEntProp(entity, Prop_Send, "m_bTouched") &&
+				owner >= 1 && owner <= MaxClients &&
+				other >= 1 && other <= MaxClients
+			) {
+				if (
+					PlayerIsInvulnerable(other) &&
+					players[other].projectile_touch_frame == GetGameTickCount()
+				) {
+					players[other].projectile_touch_frame = 0;
+
+					if (GetEntProp(other, Prop_Data, "m_nWaterLevel") != 3) {
+						// exact replica of the original stun time formula as far as I can tell (from the source leak)
+
+						stun_amt = (GetGameTime() - entities[players[other].projectile_touch_entity].spawn_time);
+
+						if (stun_amt > 1.0) stun_amt = 1.0;
+						if (stun_amt > 0.1) {
+							stun_dur = stun_amt;
+							stun_dur = (stun_dur * 6.0);
+
+							if (GetEntProp(entity, Prop_Send, "m_bCritical")) {
+								stun_dur = (stun_dur + 2.0);
+							}
+
+							stun_fls = TF_STUNFLAGS_NORMALBONK;
+
+							if (stun_amt >= 1.0) {
+								// moonshot!
+
+								stun_dur = (stun_dur + 1.0);
+								stun_fls = TF_STUNFLAGS_BIGBONK;
+
+								if (cvar_show_moonshot.BoolValue) {
+									ShowMoonshotMessage(owner, other);
+								}
+							}
+
+							TF2_StunPlayer(other, stun_dur, 0.5, stun_fls, owner);
+
+							players[other].stunball_fix_time_bonk = GetGameTime();
+							players[other].stunball_fix_time_wear = 0.0;
+						}
+					}
+
+					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
+				}
+			}
+		}
+	}
+
 	return Plugin_Continue;
 }
 
@@ -4589,7 +4656,7 @@ Action SDKHookCB_OnTakeDamage(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
-	int idx;
+	//int idx;
 	char class[64];
 	float pos1[3];
 	float pos2[3];
@@ -4926,17 +4993,7 @@ Action SDKHookCB_OnTakeDamage(
 									stun_fls = TF_STUNFLAGS_BIGBONK;
 
 									if (cvar_show_moonshot.BoolValue) {
-										SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
-
-										char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
-										GetClientName(attacker, attackerName, sizeof(attackerName));
-										GetClientName(victim, victimName, sizeof(victimName));
-
-										for (idx = 1; idx <= MaxClients; idx++) {
-											if (IsClientInGame(idx) && !IsFakeClient(idx) && !IsClientSourceTV(idx) && !IsClientReplay(idx) && g_hClientShowMoonshot.GetInt(idx, 1)) {
-												ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
-											}
-										}
+										ShowMoonshotMessage(attacker, victim);
 									}
 								}
 
@@ -5324,7 +5381,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// pre-WAR! sandman victims receive 75% of damage dealt
 
 			if (
-				GetItemVariant(Wep_Sandman) == 1 &&
+				GetItemVariant(Wep_Sandman) >= 1 &&
 				TF2_IsPlayerInCondition(victim, TFCond_Dazed) &&
 				resist_damage
 			) {
@@ -5333,7 +5390,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
 					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
 				) {
-					damage *= 0.75;
+					damage *= GetItemVariant(Wep_Sandman) == 1 ? 0.75 : 0.50;
 					returnValue = Plugin_Changed;
 				}
 			}
@@ -5653,6 +5710,7 @@ public Action OnPlayerRunCmd(
 	int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2]
 ) {
 	Action returnValue = Plugin_Continue;
+	int weapon1;
 
 	switch (TF2_GetPlayerClass(client))
 	{
@@ -5682,6 +5740,22 @@ public Action OnPlayerRunCmd(
 				else
 				{
 					players[client].holding_jump = false;
+				}
+			}
+			
+			if (GetItemVariant(Wep_Sandman) == 2) {
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+				if (weapon1 > 0) {
+
+					if (
+						buttons & IN_ATTACK != 0 &&
+						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 44
+					) {
+						// Pre-Classless Sandman launches ball on primary fire too
+						buttons |= IN_ATTACK2;
+						returnValue = Plugin_Changed;
+					}
 				}
 			}
 		}
@@ -6132,6 +6206,26 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
 
 	return true;
+}
+
+void ShowMoonshotMessage(int attacker, int victim) {
+	SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+
+	char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+	GetClientName(attacker, attackerName, sizeof(attackerName));
+	GetClientName(victim, victimName, sizeof(victimName));
+
+	for (int idx = 1; idx <= MaxClients; idx++) {
+		if (
+			IsClientInGame(idx) &&
+			!IsFakeClient(idx) &&
+			!IsClientSourceTV(idx) &&
+			!IsClientReplay(idx) &&
+			g_hClientShowMoonshot.GetInt(idx, 1)
+		) {
+			ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+		}
+	}
 }
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
