@@ -4505,10 +4505,10 @@ void SDKHookCB_SpawnPost(int entity) {
 					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 				) {
-					maxs[0] = 2.0;
-					maxs[1] = 2.0;
-					maxs[2] = 10.0;
-
+					maxs[0] = 4.0;	// equals to ~48.0 HU in the X axis
+					maxs[1] = 4.0;	// equals to ~48.0 HU in the Y axis
+					maxs[2] = 32.0;	// 10.0 equals to ~26.0 HU; 32.0 equals to ~48.0 HU in the Z axis
+					// old pomson/bison hitbox was a cube that was about 48 HU on all sides and only its center would collide with world
 					mins[0] = (0.0 - maxs[0]);
 					mins[1] = (0.0 - maxs[1]);
 					mins[2] = (0.0 - maxs[2]);
