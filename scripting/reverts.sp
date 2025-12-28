@@ -4483,9 +4483,6 @@ Action SDKHookCB_Touch(int entity, int other) {
 	char class[64];
 	int owner;
 	int weapon;
-	float stun_amt;
-	float stun_dur;
-	int stun_fls;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
@@ -4581,39 +4578,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				) {
 					players[other].projectile_touch_frame = 0;
 
-					if (GetEntProp(other, Prop_Data, "m_nWaterLevel") != 3) {
-						// exact replica of the original stun time formula as far as I can tell (from the source leak)
-
-						stun_amt = (GetGameTime() - entities[players[other].projectile_touch_entity].spawn_time);
-
-						if (stun_amt > 1.0) stun_amt = 1.0;
-						if (stun_amt > 0.1) {
-							stun_dur = stun_amt;
-							stun_dur = (stun_dur * 6.0);
-
-							if (GetEntProp(entity, Prop_Send, "m_bCritical")) {
-								stun_dur = (stun_dur + 2.0);
-							}
-
-							stun_fls = TF_STUNFLAGS_NORMALBONK;
-
-							if (stun_amt >= 1.0) {
-								// moonshot!
-
-								stun_dur = (stun_dur + 1.0);
-								stun_fls = TF_STUNFLAGS_BIGBONK;
-
-								if (cvar_show_moonshot.BoolValue) {
-									ShowMoonshotMessage(owner, other);
-								}
-							}
-
-							TF2_StunPlayer(other, stun_dur, 0.5, stun_fls, owner);
-
-							players[other].stunball_fix_time_bonk = GetGameTime();
-							players[other].stunball_fix_time_wear = 0.0;
-						}
-					}
+					DoSandmanStun(owner, other, GetEntProp(entity, Prop_Send, "m_bCritical") != 0);
 
 					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
 				}
@@ -4660,9 +4625,6 @@ Action SDKHookCB_OnTakeDamage(
 	char class[64];
 	float pos1[3];
 	float pos2[3];
-	float stun_amt;
-	float stun_dur;
-	int stun_fls;
 	float charge;
 	float damage1;
 	//int health_cur;
@@ -4970,39 +4932,7 @@ Action SDKHookCB_OnTakeDamage(
 
 						TF2_RemoveCondition(victim, TFCond_Dazed);
 
-						if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
-							// exact replica of the original stun time formula as far as I can tell (from the source leak)
-
-							stun_amt = (GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time);
-
-							if (stun_amt > 1.0) stun_amt = 1.0;
-							if (stun_amt > 0.1) {
-								stun_dur = stun_amt;
-								stun_dur = (stun_dur * 6.0);
-
-								if ((damage_type & DMG_CRIT) != 0) {
-									stun_dur = (stun_dur + 2.0);
-								}
-
-								stun_fls = GetItemVariant(Wep_Sandman) == 0 ? TF_STUNFLAGS_SMALLBONK : TF_STUNFLAGS_NORMALBONK;
-
-								if (stun_amt >= 1.0) {
-									// moonshot!
-
-									stun_dur = (stun_dur + 1.0);
-									stun_fls = TF_STUNFLAGS_BIGBONK;
-
-									if (cvar_show_moonshot.BoolValue) {
-										ShowMoonshotMessage(attacker, victim);
-									}
-								}
-
-								TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
-
-								players[victim].stunball_fix_time_bonk = GetGameTime();
-								players[victim].stunball_fix_time_wear = 0.0;
-							}
-						}
+						DoSandmanStun(attacker, victim, (damage_type & DMG_CRIT) != 0);
 					}
 
 					return Plugin_Changed;
@@ -6208,22 +6138,58 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	return true;
 }
 
-void ShowMoonshotMessage(int attacker, int victim) {
-	SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+void DoSandmanStun(int attacker, int victim, bool crit) {
+	float stun_amt;
+	float stun_dur;
+	int stun_fls;
 
-	char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
-	GetClientName(attacker, attackerName, sizeof(attackerName));
-	GetClientName(victim, victimName, sizeof(victimName));
+	if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
+		// exact replica of the original stun time formula as far as I can tell (from the source leak)
 
-	for (int idx = 1; idx <= MaxClients; idx++) {
-		if (
-			IsClientInGame(idx) &&
-			!IsFakeClient(idx) &&
-			!IsClientSourceTV(idx) &&
-			!IsClientReplay(idx) &&
-			g_hClientShowMoonshot.GetInt(idx, 1)
-		) {
-			ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+		stun_amt = (GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time);
+
+		if (stun_amt > 1.0) stun_amt = 1.0;
+		if (stun_amt > 0.1) {
+			stun_dur = stun_amt;
+			stun_dur = (stun_dur * 6.0);
+
+			if (crit) {
+				stun_dur = (stun_dur + 2.0);
+			}
+
+			stun_fls = GetItemVariant(Wep_Sandman) == 0 ? TF_STUNFLAGS_SMALLBONK : TF_STUNFLAGS_NORMALBONK;
+
+			if (stun_amt >= 1.0) {
+				// moonshot!
+
+				stun_dur = (stun_dur + 1.0);
+				stun_fls = TF_STUNFLAGS_BIGBONK;
+
+				if (cvar_show_moonshot.BoolValue) {
+					SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+
+					char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+					GetClientName(attacker, attackerName, sizeof(attackerName));
+					GetClientName(victim, victimName, sizeof(victimName));
+
+					for (int idx = 1; idx <= MaxClients; idx++) {
+						if (
+							IsClientInGame(idx) &&
+							!IsFakeClient(idx) &&
+							!IsClientSourceTV(idx) &&
+							!IsClientReplay(idx) &&
+							g_hClientShowMoonshot.GetInt(idx, 1)
+						) {
+							ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+						}
+					}
+				}
+			}
+
+			TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
+
+			players[victim].stunball_fix_time_bonk = GetGameTime();
+			players[victim].stunball_fix_time_wear = 0.0;
 		}
 	}
 }
