@@ -4547,20 +4547,23 @@ void SDKHookCB_SpawnPost(int entity) {
 				if (
 					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-				) {
-					maxs[0] = 2.0;
-					maxs[1] = 2.0;
-					maxs[2] = 10.0;
-
+				) {	// old pomson/bison projectile hitbox was a cube that was about 48 HU on all sides and only around its center would it collide with world
+					maxs[0] = 2.0;	// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
+					maxs[1] = 2.0;	// 2.0 equals to ~48.0 HU in the Y axis with m_triggerBloat set to 26
+					maxs[2] = 8.0;	// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
+					
 					mins[0] = (0.0 - maxs[0]);
 					mins[1] = (0.0 - maxs[1]);
 					mins[2] = (0.0 - maxs[2]);
-
+					// m_vecMaxs and m_vecMins is the actual size of the projectile hitbox which can collide with world geometry (bounding box)
 					SetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
 					SetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
-
+					// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
 					SetEntProp(entity, Prop_Send, "m_usSolidFlags", (GetEntProp(entity, Prop_Send, "m_usSolidFlags") | FSOLID_USE_TRIGGER_BOUNDS));
-					SetEntProp(entity, Prop_Send, "m_triggerBloat", 24);
+					SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true); // m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
+					SetEntProp(entity, Prop_Send, "m_triggerBloat", 26); // using m_triggerBloat ensures that the projectile does not collide with world geometry but still increases the trigger hitbox against players and buildings
+					// setting the maxs values to 2.0 and m_triggerBloat to 26 ensures that the projectile hitbox is a 48 HU cube, just like the old projectile hitbox
+					// as for why its 26, its to account for the default hitbox being a 2 HU cube, and through experimental testing via puppet bots, cl_showpos, getpos, and setpos
 				}
 			}
 		}
