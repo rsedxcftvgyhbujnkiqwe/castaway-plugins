@@ -904,9 +904,9 @@
 	{
 		"fi"	"Ennen Tough Breakiä: kerää ammuksia terveytenä, +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää, ei ammuksia apulaitteista tai kärryistä"
 	}
-	"Persuader_Release"
+	"Persuader_PreMnvy"
 	{
-		"en"	"Julkaisuversio: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+		"en"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
 	}
 	"Phlog_Pyro"
 	{

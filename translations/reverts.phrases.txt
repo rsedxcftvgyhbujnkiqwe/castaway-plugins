@@ -948,9 +948,9 @@
 	{
 		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty, cannot gain ammo from dispensers and carts"
 	}
-	"Persuader_Release"
+	"Persuader_PreMnvy"
 	{
-		"en"	"Reverted to release, picks up ammo as health (including metal from dropped ammo), +100%% charge recharge rate, no max ammo penalty"
+		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo), +100%% charge recharge rate, no max ammo penalty"
 	}
 	"Phlog_Pyro"
 	{
