@@ -906,7 +906,7 @@
 	}
 	"Persuader_PreMnvy"
 	{
-		"en"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+		"fi"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
 	}
 	"Phlog_Pyro"
 	{
