@@ -334,6 +334,7 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 
+MemoryPatch patch_RevertSniperQuickscopeDelay;
 MemoryPatch patch_RevertSniperRifles_ScopeJump;
 #if !defined WIN32
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
@@ -408,6 +409,7 @@ enum
 	Feat_Minigun, // All Miniguns
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
+	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
 	Feat_Stickybomb, // All Stickybomb Launchers
@@ -584,6 +586,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
+	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
@@ -940,6 +943,9 @@ public void OnPluginStart() {
 		patch_DroppedWeapon =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DropAmmoPack");
+		patch_RevertSniperQuickscopeDelay =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFSniperRifle::CanFireCriticalShot_SniperNo200msQuickscopeDelay");
 		patch_RevertSniperRifles_ScopeJump =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
@@ -1057,6 +1063,10 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) {
 			hook_fail=true;
 			LogError("Failed to create patch_DroppedWeapon");
+		}
+		if (!ValidateAndNullCheck(patch_RevertSniperQuickscopeDelay)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSniperQuickscopeDelay");
 		}
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) {
 			hook_fail=true;
@@ -1199,6 +1209,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperQuickscope),Feat_SniperQuickscope);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
@@ -1287,6 +1298,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #if !defined WIN32
 				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
 #endif
+			}
+		}
+		case Feat_SniperQuickscope: {
+			if (enable) {
+				patch_RevertSniperQuickscopeDelay.Enable();
+			} else {
+				patch_RevertSniperQuickscopeDelay.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
@@ -3938,9 +3956,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					if (
-						StrEqual(class, "tf_weapon_sniperrifle") &&
+						(StrEqual(class, "tf_weapon_sniperrifle") || StrEqual(class, "tf_weapon_sniperrifle_classic")) &&
 						!(StrEqual(class, "tf_weapon_compound_bow"))
 					) {
+						if (!StrEqual(class, "tf_weapon_sniperrifle_classic")) player_weapons[client][Feat_SniperQuickscope] = true;
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
