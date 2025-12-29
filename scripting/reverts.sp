@@ -258,6 +258,7 @@ enum struct Player {
 	float weapon_switch_time;
 	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
 	bool has_thrown_sandvich;
+	bool deny_metal_collection;
 }
 
 enum struct Entity {
@@ -705,6 +706,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
+	ItemVariant(Wep_Persian, "Persuader_Release");
 	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
 	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
@@ -2146,6 +2148,7 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].cloak_gain_capped = false;
+				players[idx].deny_metal_collection = false;
 			}
 		}
 	}
@@ -6696,20 +6699,35 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		client <= MaxClients
 	) {
 		int pack_size = SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity);
-		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
-			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
-		) {
-			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
-			if (weapon > 0) {
-				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
-					// cap cloak gain to 35% per pack
-					float multiplier = 1.0;
-					if (pack_size > 0) {
-						multiplier = (pack_size == 1) ? 0.7 : 0.35;
+
+		switch (TF2_GetPlayerClass(client)) {
+			case TFClass_DemoMan:
+			{
+				if (
+					GetItemVariant(Wep_Persian) == 1 &&
+					TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
+				) {
+					players[client].deny_metal_collection = true;
+				}
+			}
+			case TFClass_Spy:
+			{
+				if (
+					GetItemVariant(Wep_DeadRinger) == 0 &&
+					GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
+				) {
+					int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
+					if (weapon > 0) {
+						if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
+							// cap cloak gain to 35% per pack
+							float multiplier = 1.0;
+							if (pack_size > 0) {
+								multiplier = (pack_size == 1) ? 0.7 : 0.35;
+							}
+							TF2Attrib_SetByDefIndex(weapon, 729, multiplier); // ReducedCloakFromAmmo
+							players[client].cloak_gain_capped = true;
+						}
 					}
-					TF2Attrib_SetByDefIndex(weapon, 729, multiplier); // ReducedCloakFromAmmo
-					players[client].cloak_gain_capped = true;
 				}
 			}
 		}
@@ -6791,14 +6809,17 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 				}
 			}
 
-			repair_amount_float = floatMin(repair_amount_float, float(GetEntProp(building, Prop_Data, "m_iMaxHealth") - GetEntProp(building, Prop_Data, "m_iHealth")));
+			int health_old = GetEntProp(building, Prop_Data, "m_iHealth");
+			repair_amount_float = floatMin(repair_amount_float, float(GetEntProp(building, Prop_Data, "m_iMaxHealth") - health_old));
 
 			int repair_amount = RoundToNearest(repair_amount_float);
 			if (repair_amount > 0) {
 				SetVariantInt(repair_amount);
 				AcceptEntityInput(building, "AddHealth", attacker);
-				Event event = CreateEvent("building_healed");
 
+				repair_amount = GetEntProp(building, Prop_Data, "m_iHealth") - health_old;
+
+				Event event = CreateEvent("building_healed");
 				if (event != null)
 				{
 					event.SetInt("priority", 1); // HLTV event priority, not transmitted
@@ -7105,9 +7126,18 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 
 		if (
 			ItemIsEnabled(Wep_Persian) &&
-			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1 &&
-			ammo_idx != TF_AMMO_METAL
+			TF2Attrib_HookValueInt(0, "ammo_becomes_health", client) == 1
 		) {
+			if (ammo_idx == TF_AMMO_METAL) {
+				if (
+					GetItemVariant(Wep_Persian) == 0 ||
+					players[client].deny_metal_collection
+				) {
+					players[client].deny_metal_collection = false;
+					return MRES_Ignored;
+				}
+			}
+
 			// Ammo from ground pickups is converted to health.
 			if (ammo_source == kAmmoSource_Pickup) {
 				int iTakenHealth = TF2Util_TakeHealth(client, float(amount));
@@ -7133,7 +7163,10 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 			}
 
 			// Ammo from the cart or engineer dispensers is flatly ignored.
-			if (ammo_source == kAmmoSource_DispenserOrCart) {
+			if (
+				GetItemVariant(Wep_Persian) == 0 &&
+				ammo_source == kAmmoSource_DispenserOrCart
+			) {
 				returnValue.Value = 0;
 				return MRES_Supercede;
 			}

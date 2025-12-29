@@ -948,6 +948,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty, cannot gain ammo from dispensers and carts"
 	}
+	"Persuader_Release"
+	{
+		"en"	"Reverted to release, picks up ammo as health (including metal from dropped ammo), +100%% charge recharge rate, no max ammo penalty"
+	}
 	"Phlog_Pyro"
 	{
 		"en"	"Reverted to pre-toughbreak, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"

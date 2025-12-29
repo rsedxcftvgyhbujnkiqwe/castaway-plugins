@@ -904,6 +904,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: kerää ammuksia terveytenä, +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää, ei ammuksia apulaitteista tai kärryistä"
 	}
+	"Persuader_Release"
+	{
+		"en"	"Julkaisuversio: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+	}
 	"Phlog_Pyro"
 	{
 		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
@@ -1034,11 +1038,15 @@
 	}
 	"Sandman_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajia, 15 sekunnin latausaika"
+		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajat, 15 sekunnin latausaika"
 	}
 	"Sandman_PreWAR"
 	{
 		"fi"	"Ennen WAR!-päivitystä: pallo-osumat tainnuttavat pelaajat täysin, tainnutusuhrit saavat 75%% vahinkoa, -30 maksimiterveys, 15 sekunnin latausaika"
+	}
+	"Sandman_PreClassless"
+	{
+		"fi"	"Ennen Classless-päivitystä: pallo-osumat tainnuttavat pelaajat täysin, voi tainnuttaa yliladattuja pelaajia, tainnutusuhrit saavat 50%% vahinkoa, ei terveysvähennystä, ei tuplahyppyä, 15 sekunnin latausaika"
 	}
 	"Sandvich_PreEngineer"
 	{
