@@ -950,7 +950,7 @@
 	}
 	"Persuader_PreMnvy"
 	{
-		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo), +100%% charge recharge rate, no max ammo penalty"
+		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo, 120 HP per drop), +100%% charge recharge rate, no max ammo penalty, can gain ammo from dispensers/carts"
 	}
 	"Phlog_Pyro"
 	{
