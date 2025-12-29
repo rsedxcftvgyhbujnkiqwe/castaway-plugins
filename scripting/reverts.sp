@@ -5641,6 +5641,7 @@ public Action OnPlayerRunCmd(
 ) {
 	Action returnValue = Plugin_Continue;
 	int weapon1;
+	char class[64];
 
 	switch (TF2_GetPlayerClass(client))
 	{
@@ -5748,6 +5749,36 @@ public Action OnPlayerRunCmd(
 				// if jump key is currently not held, always set variable to false
 				if (!(buttons & IN_JUMP)) {
 					players[client].was_jump_key_pressed = false;
+				}
+			}
+		}
+
+		case TFClass_Heavy:
+		{
+			if (
+				GetItemVariant(Wep_Sandman) == 2 &&
+				TF2_IsPlayerInCondition(client, TFCond_Dazed)
+			) {
+				int stun_fls = GetEntProp(client, Prop_Send, "m_iStunFlags");
+
+				if (
+					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
+					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
+				) {
+					weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+					if (weapon1 > 0) {
+						GetEntityClassname(weapon1, class, sizeof(class));
+
+						if (
+							buttons & (IN_ATTACK | IN_ATTACK2) != 0 &&
+							StrEqual(class, "tf_weapon_minigun")
+						) {
+							// Pre-Classless Sandman un-revs Heavies
+							buttons &= ~(IN_ATTACK | IN_ATTACK2);
+							returnValue = Plugin_Changed;
+						}
+					}
 				}
 			}
 		}
