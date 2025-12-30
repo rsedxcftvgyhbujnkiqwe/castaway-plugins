@@ -2282,7 +2282,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
 
-	if (
+	if (StrEqual(class, "tf_projectile_rocket")) {
+		rocket_create_entity = entity;
+		rocket_create_frame = GetGameTickCount();
+
+		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
+	} 
+	
+	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
 		StrEqual(class, "tf_projectile_cleaver")
@@ -2290,54 +2297,21 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
-	}
-
-	if (
+	} 
+	
+	else if (
 		StrEqual(class, "obj_sentrygun") ||
 		StrEqual(class, "obj_dispenser") ||
 		StrEqual(class, "obj_teleporter")
 	) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
-	}
-
-	if (StrEqual(class, "instanced_scripted_scene")) {
-		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
-	}
-
-	if (StrEqual(class, "tf_projectile_rocket")) {
-		// keep track of when rockets are created
-
-		rocket_create_entity = entity;
-		rocket_create_frame = GetGameTickCount();
-
-		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
-	}
-
-	if (
-		StrEqual(class, "tf_weapon_flamethrower") ||
-		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-	) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_lunchbox")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrContains(class, "item_ammopack") == 0) {
+	} 
+	
+	else if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
-	}
-
-	if (StrEqual(class, "obj_sentrygun")) {
+	} 
+	
+	else if (StrEqual(class, "obj_sentrygun")) {
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
 #if defined MEMORY_PATCHES
@@ -2345,18 +2319,42 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 #endif
-	}
+	} 
 
-	// Check if it's a healthkit.
-	if (
+	else if (
+		ItemIsEnabled(Wep_Sandvich) &&
 		(StrEqual(class, "item_healthkit_small", false) ||
 		StrEqual(class, "item_healthkit_medium", false) ||
-		StrEqual(class, "item_healthkit_full", false)) &&
-		ItemIsEnabled(Wep_Sandvich)
+		StrEqual(class, "item_healthkit_full", false))
+		
 	) {
-		// It's a healthkit! Hook it with a SpawnPost.
-		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown); // OnSandvichThrown is not a sourcemod provided forward or event etc. It's named as such so we know what it's for.	
+		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown);
 	}
+
+	else if (StrEqual(class, "instanced_scripted_scene")) {
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
+	} 
+	
+	else if (
+		StrEqual(class, "tf_weapon_flamethrower") ||
+		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+	) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_lunchbox")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+
 }
 
 
