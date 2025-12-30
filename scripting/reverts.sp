@@ -240,6 +240,7 @@ enum struct Player {
 	int charge_tick;
 	int fall_dmg_tick;
 	bool holding_jump;
+	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
 	bool spy_under_feign_buffs;
@@ -334,6 +335,7 @@ Address AddressOf_g_flDalokohsBarCanOverHealTo;
 
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 
+MemoryPatch patch_RevertSniperQuickscopeDelay;
 MemoryPatch patch_RevertSniperRifles_ScopeJump;
 #if !defined WIN32
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
@@ -373,6 +375,7 @@ DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 DynamicDetour dhook_CTFPlayer_Taunt;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
+DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -407,6 +410,7 @@ enum
 	Feat_Minigun, // All Miniguns
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
+	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
 	Feat_Stickybomb, // All Stickybomb Launchers
@@ -583,6 +587,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
+	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
@@ -880,6 +885,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
+		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -940,6 +946,9 @@ public void OnPluginStart() {
 		patch_DroppedWeapon =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DropAmmoPack");
+		patch_RevertSniperQuickscopeDelay =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFSniperRifle::CanFireCriticalShot_SniperNo200msQuickscopeDelay");
 		patch_RevertSniperRifles_ScopeJump =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
@@ -1058,6 +1067,10 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_DroppedWeapon");
 		}
+		if (!ValidateAndNullCheck(patch_RevertSniperQuickscopeDelay)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSniperQuickscopeDelay");
+		}
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSniperRifles_ScopeJump");
@@ -1127,6 +1140,7 @@ public void OnPluginStart() {
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
+	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1139,6 +1153,7 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
+	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1197,6 +1212,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperQuickscope),Feat_SniperQuickscope);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
@@ -1285,6 +1301,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #if !defined WIN32
 				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
 #endif
+			}
+		}
+		case Feat_SniperQuickscope: {
+			if (enable) {
+				patch_RevertSniperQuickscopeDelay.Enable();
+			} else {
+				patch_RevertSniperQuickscopeDelay.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
@@ -1627,6 +1650,25 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// shortstop shove removal from NotnHeavy's plugin; mostly prevents animation glitch when holding down mouse2 at lower pings
+						if (
+							ItemIsEnabled(Wep_Shortstop) &&
+							cvar_enable_shortstop_shove.BoolValue == false &&
+							StrEqual(class, "tf_weapon_handgun_scout_primary") &&
+							players[idx].holding_attack2 // only run this when attack2 is pressed and/or held
+						) {
+							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+								SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
+									// PrintToChat(idx, "m_flNextSecondaryAttack = %f", GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack"));
+							}
+						}
+					}
+
 				} else {
 					// reset if player isn't scout
 					players[idx].is_under_hype = false;
@@ -2244,7 +2286,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
 
-	if (
+	if (StrEqual(class, "tf_projectile_rocket")) {
+		rocket_create_entity = entity;
+		rocket_create_frame = GetGameTickCount();
+
+		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
+	} 
+	
+	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
 		StrEqual(class, "tf_projectile_cleaver")
@@ -2252,54 +2301,21 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
-	}
-
-	if (
+	} 
+	
+	else if (
 		StrEqual(class, "obj_sentrygun") ||
 		StrEqual(class, "obj_dispenser") ||
 		StrEqual(class, "obj_teleporter")
 	) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
-	}
-
-	if (StrEqual(class, "instanced_scripted_scene")) {
-		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
-	}
-
-	if (StrEqual(class, "tf_projectile_rocket")) {
-		// keep track of when rockets are created
-
-		rocket_create_entity = entity;
-		rocket_create_frame = GetGameTickCount();
-
-		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
-	}
-
-	if (
-		StrEqual(class, "tf_weapon_flamethrower") ||
-		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-	) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrEqual(class, "tf_weapon_lunchbox")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	}
-
-	if (StrContains(class, "item_ammopack") == 0) {
+	} 
+	
+	else if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
-	}
-
-	if (StrEqual(class, "obj_sentrygun")) {
+	} 
+	
+	else if (StrEqual(class, "obj_sentrygun")) {
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 		dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
 #if defined MEMORY_PATCHES
@@ -2307,18 +2323,42 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 		dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 #endif
-	}
+	} 
 
-	// Check if it's a healthkit.
-	if (
+	else if (
+		ItemIsEnabled(Wep_Sandvich) &&
 		(StrEqual(class, "item_healthkit_small", false) ||
 		StrEqual(class, "item_healthkit_medium", false) ||
-		StrEqual(class, "item_healthkit_full", false)) &&
-		ItemIsEnabled(Wep_Sandvich)
+		StrEqual(class, "item_healthkit_full", false))
+		
 	) {
-		// It's a healthkit! Hook it with a SpawnPost.
-		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown); // OnSandvichThrown is not a sourcemod provided forward or event etc. It's named as such so we know what it's for.	
+		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown);
 	}
+
+	else if (StrEqual(class, "instanced_scripted_scene")) {
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
+	} 
+	
+	else if (
+		StrEqual(class, "tf_weapon_flamethrower") ||
+		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+	) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	} 
+	
+	else if (StrEqual(class, "tf_weapon_lunchbox")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+
 }
 
 
@@ -3872,9 +3912,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					if (
-						StrEqual(class, "tf_weapon_sniperrifle") &&
+						(StrEqual(class, "tf_weapon_sniperrifle") || StrEqual(class, "tf_weapon_sniperrifle_classic")) &&
 						!(StrEqual(class, "tf_weapon_compound_bow"))
 					) {
+						if (!StrEqual(class, "tf_weapon_sniperrifle_classic")) player_weapons[client][Feat_SniperQuickscope] = true;
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
 #endif
@@ -4462,20 +4503,23 @@ void SDKHookCB_SpawnPost(int entity) {
 				if (
 					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-				) {
-					maxs[0] = 2.0;
-					maxs[1] = 2.0;
-					maxs[2] = 10.0;
-
+				) {	// old pomson/bison projectile hitbox was a cube that was about 48 HU on all sides and only around its center would it collide with world
+					maxs[0] = 2.0;	// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
+					maxs[1] = 2.0;	// 2.0 equals to ~48.0 HU in the Y axis with m_triggerBloat set to 26
+					maxs[2] = 8.0;	// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
+					
 					mins[0] = (0.0 - maxs[0]);
 					mins[1] = (0.0 - maxs[1]);
 					mins[2] = (0.0 - maxs[2]);
-
+					// m_vecMaxs and m_vecMins is the actual size of the projectile hitbox which can collide with world geometry (bounding box)
 					SetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
 					SetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
-
+					// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
 					SetEntProp(entity, Prop_Send, "m_usSolidFlags", (GetEntProp(entity, Prop_Send, "m_usSolidFlags") | FSOLID_USE_TRIGGER_BOUNDS));
-					SetEntProp(entity, Prop_Send, "m_triggerBloat", 24);
+					SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true); // m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
+					SetEntProp(entity, Prop_Send, "m_triggerBloat", 26); // using m_triggerBloat ensures that the projectile does not collide with world geometry but still increases the trigger hitbox against players and buildings
+					// setting the maxs values to 2.0 and m_triggerBloat to 26 ensures that the projectile hitbox is a 48 HU cube, just like the old projectile hitbox
+					// as for why its 26, its to account for the default hitbox being a 2 HU cube, and through experimental testing via puppet bots, cl_showpos, getpos, and setpos
 				}
 			}
 		}
@@ -5692,6 +5736,42 @@ public Action OnPlayerRunCmd(
 					}
 				}
 			}
+
+			if (
+				ItemIsEnabled(Wep_Shortstop) &&
+				player_weapons[client][Wep_Shortstop] &&
+				cvar_enable_shortstop_shove.BoolValue == false &&
+				IsPlayerAlive(client)
+			) {
+				// Buggy fix for shortstop autoreload bug
+				// A solution I thought of for the shortstop shoveless reload bug is to force the client to reload when autoreload is detected
+				// However I do not know how to detect if auto-reload is enabled. This here just simply forces a reload whenever ATTACK2 is pressed or held down.
+				// Bug: When autoreload is turned off, and the player alt-fires, it reloads the weapon.
+				// However when autoreload is turned on, and the player alt-fires after firing, it reloads the weapon, fixing the old bug.
+				if (
+					(buttons & IN_ATTACK2 != 0) && 
+					(buttons & IN_RELOAD == 0)
+				) {
+					buttons |= IN_RELOAD;
+						// PrintToChat(client, "IN_ATTACK2 != 0 && IN_RELOAD == 0, running IN_RELOAD");
+				}
+
+				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
+				if (
+					(buttons & IN_ATTACK2 != 0)
+				) {
+					if (!players[client].holding_attack2)
+					{
+						players[client].holding_attack2 = true;
+							// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
+					}
+				}
+				else 
+				{
+					players[client].holding_attack2 = false;
+						// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
+				}
+			}			
 		}
 
 		case TFClass_Pyro:
@@ -6268,7 +6348,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	
 	if (owner > 0) {
-		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");		
+		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 		if (
 			StrEqual(class, "tf_weapon_flamethrower") ||
 			StrEqual(class, "tf_weapon_rocketlauncher_fireball")
@@ -7260,6 +7340,26 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 			players[client].has_thrown_sandvich = false;
 		}	
 	}
+
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn returnValue, DHookParam parameters)
+{
+	int client = parameters.Get(1);
+
+	// ambassador long range headshot score bug fix, return true so the game thinks a headshot happened and adds a point for a headshot
+	// this also makes the ambassador headshot from any range
+
+	if (
+		ItemIsEnabled(Wep_Ambassador) && 
+		!returnValue.Value && 
+		player_weapons[client][Wep_Ambassador]
+	) {
+			returnValue.Value = true;
+				// PrintToChat(client, "return TRUE for CanFireCriticalShot");
+			return MRES_Override;
+	}	
 
 	return MRES_Ignored;
 }
