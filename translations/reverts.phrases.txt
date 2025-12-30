@@ -148,7 +148,7 @@
 	}
 	"sniperquickscope"
 	{
-		"en"	"Sniper Quickscopes"
+		"en"	"All Sniper Quickscopes"
 	}
 	"sniperrifles"
 	{
