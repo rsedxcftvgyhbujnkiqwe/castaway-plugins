@@ -956,6 +956,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty, cannot gain ammo from dispensers and carts"
 	}
+	"Persuader_PreMnvy"
+	{
+		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo, 120 HP per drop), +100%% charge recharge rate, no max ammo penalty, can gain ammo from dispensers/carts"
+	}
 	"Phlog_Pyro"
 	{
 		"en"	"Reverted to pre-toughbreak, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
@@ -1091,6 +1095,10 @@
 	"Sandman_PreWAR"
 	{
 		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"
+	}
+	"Sandman_PreClassless"
+	{
+		"en"	"Reverted to pre-Classless Update, full stuns, can stun invuln players, stun victims receive 50%% damage, no health penalty, no double jump, 15 sec ball recharge time"
 	}
 	"Sandvich_PreEngineer"
 	{
