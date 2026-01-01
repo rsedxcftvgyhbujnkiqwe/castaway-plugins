@@ -682,11 +682,15 @@
 	}
 	"BuffaloSteak_Release"
 	{
-		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU), heal yourself by throwing the Steak"
+		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU), no cooldown at full health, heal yourself by throwing the Steak"
 	}
-	"BuffaloSteak_Pre2012"
+	"BuffaloSteak_PreMnvy"
 	{
-		"en"	"Reverted to pre-February 14, 2012; +35%% faster move speed on use, damage taken minicrits, heal yourself by throwing the Steak"
+		"en"	"Reverted to pre-Manniversary, +35%% faster move speed on use, damage taken minicrits, no cooldown at full health, heal yourself by throwing the Steak"
+	}
+	"BuffaloSteak_Pre2011"
+	{
+		"en"	"Reverted to pre-July 7, 2011, +35%% faster move speed on use, damage taken minicrits, switch weapons under effects, no cooldown at full health, heal yourself by throwing the Steak"
 	}
 	"BuffBanner_Release"
 	{
