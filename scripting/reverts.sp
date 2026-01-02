@@ -5664,7 +5664,7 @@ void SDKHookCB_OnTakeDamagePost(
 			players[attacker].BazaarBargainShot == BazaarBargain_Gain &&
 			!IsPlayerAlive(victim)
 		) {
-			// Bazaar Bargain: do not gain two heads in one time. I don't wanna make yet another DHook so I'll just make this instead.
+			// Bazaar Bargain: do not gain two heads in one time.
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
@@ -7462,7 +7462,7 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 			owner > 0 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap")
 		) {
-			// I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
+			// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
 			// Change the recharge rate for the Bazaar Bargain.
 			returnValue.Value = 0.2 * (intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 			return MRES_Supercede;
