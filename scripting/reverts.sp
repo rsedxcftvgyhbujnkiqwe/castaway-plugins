@@ -3568,32 +3568,32 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Tomislav)) {
 				case 0: { // Pre-Pyromania
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.60); // 40% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.60); // 40% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 				}
 				case 1: { // Release
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.25); // 75% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.25); // 75% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}
 				case 2: { // Pre-Love & War
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.90); // 10% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}				
 				case 3: { // SOUND PITCH REVERT ONLY; essentially Vanilla Tomislav but higher pitched sounds
 					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 2, 549, 1.2); // halloween fire rate bonus
 				}
 				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
@@ -7378,7 +7378,7 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 		// Make sure that the healthkit is owned by world before we reset tracking.
 		// This is because we want to avoid letting other heavys sandviches that have not been hooked charge the touching heavys chargemeter.
 		// If we want heavy to be able to recharge of things like the candy cane healthkit or healthkits dropped
-		// in Medivial mode, we need to figure out how to do that later. This will have to do in the meanwhile.
+		// in Medieval mode, we need to figure out how to do that later. This will have to do in the meanwhile.
 		if ( hp >= maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
 			// It's a normal map placed healthkit, allow the recharge.
 			players[client].has_thrown_sandvich = false;

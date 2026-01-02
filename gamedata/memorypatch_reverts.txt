@@ -682,47 +682,6 @@
 				"this"      "entity"
 				"return"    "void"
 			}
-			"CBaseObject::CreateAmmoPack"
-			{
-				"signature" "CBaseObject::CreateAmmoPack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "cbaseentity"
-				"arguments"
-				{
-					"pchModel"
-					{
-						"type" "charptr"
-					}
-					"nMetal"
-					{
-						"type" "int"
-					}
-				}
-			}
-			"CBaseObject::OnConstructionHit"
-			{
-				"signature" "CBaseObject::OnConstructionHit"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type" "cbaseentity"
-					}
-					"pWrench"
-					{
-						"type" "cbaseentity"
-					}
-					"hitLoc"
-					{
-						"type" "object"
-						"size" "12"
-					}
-				}
-			}
 		}
 	}
 }
