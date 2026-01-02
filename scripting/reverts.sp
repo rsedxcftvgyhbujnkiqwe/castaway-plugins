@@ -7673,8 +7673,8 @@ stock bool IsBuildingValidHealTarget(int building, int engineer)
 	if (!IsValidEntity(building))
 		return false;
 
-	char classname[64];
-	GetEntityClassname(building, classname, sizeof(classname));
+	char class[64];
+	GetEntityClassname(building, class, sizeof(class));
 
 	if (StrContains(class, "obj_") == -1) {
 		//PrintToChatAll("Entity did not match buildings");
