@@ -308,7 +308,6 @@ ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
-ConVar cvar_ref_tf_whip_speed_increase;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -832,7 +831,6 @@ public void OnPluginStart() {
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
-	cvar_ref_tf_whip_speed_increase = FindConVar("tf_whip_speed_increase");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1599,6 +1597,18 @@ public void OnGameFrame() {
 					}
 
 					{
+						// crit-a-cola damage taken minicrits
+
+						if (
+							GetItemVariant(Wep_CritCola) >= 3 &&
+							player_weapons[idx][Wep_CritCola] &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
+						) {
+							TF2_AddCondition(idx, TFCond_MarkedForDeathSilent, 0.100, 0);
+						}
+					}
+
+					{
 						// sodapopper stuff
 
 						if (ItemIsEnabled(Wep_SodaPopper)) {
@@ -1930,6 +1940,18 @@ public void OnGameFrame() {
 									SetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", 0.0, LOADOUT_POSITION_SECONDARY);
 								}
 							}
+						}
+					}
+
+					{
+						// buffalo steak damage taken minicrits
+
+						if (
+							GetItemVariant(Wep_BuffaloSteak) >= 1 &&
+							player_weapons[idx][Wep_BuffaloSteak] &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
+						) {
+							TF2_AddCondition(idx, TFCond_MarkedForDeathSilent, 0.100, 0);
 						}
 					}
 				}
@@ -2550,17 +2572,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
-		// if player somehow activated hype condition, remove it, unless they have a drink item
-
-		if (
-			GetItemVariant(Wep_SodaPopper) == 0 &&
-			condition == TFCond_CritHype &&
-			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
-		) {
-			TF2_RemoveCondition(client, TFCond_CritHype);
-		}
-	}
-	{
 		// spycicle fire immune
 
 		if (
@@ -2576,29 +2587,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
-		// buffalo steak sandvich minicrit on damage taken
-		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
-		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			condition == TFCond_RestrictToMelee &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola)
-		) {
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-	{
-		// crit-a-cola damage taken minicrits
-		if (
-			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_CritCola &&
-			player_weapons[client][Wep_CritCola] == true
-		) {
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
-		}
-	}
-	{
 		// Track when player starts aiming (Minigun, Sniper Rifles) for use elsewhere
 		if (condition == TFCond_Slowed) {
 			players[client].aiming_cond_time = GetGameTime();
@@ -2607,30 +2595,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
-	{
-		// buffalo steak sandvich marked-for-death effect removal
-		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			(condition == TFCond_CritCola || 
-			(condition == TFCond_RestrictToMelee && GetItemVariant(Wep_BuffaloSteak) != 3)) && 
-			// prevent marked for death removal bugs with variant 3, this is done because RestrictToMelee is applied every second when Heavy is eating the Steak.
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-	{
-		// crit-a-cola mark-for-death removal for pre-July2013 and release variants
-		if (
-			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
-			condition == TFCond_CritCola &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
 	{
 		if (
 			TF2_GetPlayerClass(client) == TFClass_Engineer &&
@@ -6799,32 +6763,23 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			const float heavy_base_speed = 230.0;
 			float steak_boost_cap = heavy_base_speed * 1.35;
 
-			float new_speed = heavy_base_speed;
-
-			// apply various movespeed modifications (from SDK code)
-
-			if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
-				new_speed += floatMin(new_speed * 0.4, cvar_ref_tf_whip_speed_increase.FloatValue);
+			if (view_as<float>(returnValue.Value) < steak_boost_cap) {
+				multiplier *= 1.35 / 1.30;
 			}
 
-			multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed", entity);
+			if (GetItemVariant(Wep_BuffaloSteak) == 1) {
+				// apply various movespeed modifications
 
-			int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
-			if (weapon > 0) {
-				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed_active", weapon);
-			}
+				if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+					multiplier *= 1.4;
+				}
 
-			new_speed *= multiplier;
+				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed", entity);
 
-			// apply the steak speed boost
-			new_speed *= 1.35;
-
-			// Movespeed cap if not using release steak
-			if (
-				GetItemVariant(Wep_BuffaloSteak) != 1 &&
-				new_speed > steak_boost_cap
-			) {
-				new_speed = steak_boost_cap;
+				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+				if (weapon > 0) {
+					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed_active", weapon);
+				}
 			}
 
 			// Heavy still slows down when revved under Steak effects; include additional 4% speed increase from the revert while slowing down
@@ -6832,13 +6787,9 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				GetItemVariant(Wep_BuffaloSteak) == 3 &&
 				TF2_IsPlayerInCondition(entity, TFCond_Slowed)
 			) {
-				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
-				new_speed *= multiplier;
-				new_speed *= 0.478; // heavy slows down to 47% of his movespeed when revved
+				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
+				multiplier *= 0.478; // heavy slows down to 47% of his movespeed when revved
 			}
-
-			returnValue.Value = new_speed;
-			return MRES_Override;
 		}
 
 		if (multiplier != 1.0)
