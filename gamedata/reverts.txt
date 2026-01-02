@@ -110,6 +110,25 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x56\x8B\x75"
 				"linux"   "@_ZN14AI_CriteriaSet14AppendCriteriaEPKcS1_f"
 			}
+			"CBaseObject::GetReversesBuildingConstructionSpeed" // offset aBuildingSentry_13 ; "Building_Sentrygun.Disabled", first function call in subroutine
+			{
+				"library" "server"
+				"windows" "\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // offset aBuildingSentry_6 ; "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
+				"linux"   "@_ZN11CBaseObject36GetReversesBuildingConstructionSpeedEv"
+			}
+			"CBaseObject::CreateAmmoPack" // offset aModelsWeaponsW_11 ; "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
+				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
+			}
+			"CBaseObject::OnConstructionHit" // offset aNutsnboltsBuil ; "nutsnbolts_build", don't use precache subroutine
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
+				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
+			}
+
 		}
 
 		"Offsets"
@@ -175,6 +194,16 @@
 			{
 				"windows" "498"
 				"linux"   "505"
+			}
+			"CObjectSentrygun::StartBuilding"
+			{
+				"windows" "342"
+				"linux"   "344"
+			}
+			"CObjectSentrygun::Construct" // look for CBaseObject::Construct in CObjectSentrygun
+			{
+				"windows" "350"
+				"linux"   "352"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -280,6 +309,35 @@
 					{
 						"type" "object"
 						"size" "12"
+					}
+				}
+			}
+
+			"CObjectSentrygun::StartBuilding"
+			{
+				"offset"   "CObjectSentrygun::StartBuilding"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"pBuilder"
+					{
+						"type" "cbaseentity"
+					}
+				}
+			}
+			"CObjectSentrygun::Construct"
+			{
+				"offset"   "CObjectSentrygun::Construct"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "bool"
+				"arguments"
+				{
+					"flHealth"
+					{
+						"type" "float"
 					}
 				}
 			}

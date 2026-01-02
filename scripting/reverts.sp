@@ -352,22 +352,13 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
-DynamicHook dhook_CObjectSentrygun_StartBuilding;
-DynamicHook dhook_CObjectSentrygun_Construct;
-
-DynamicDetour dhook_CBaseObject_OnConstructionHit;
-DynamicDetour dhook_CBaseObject_CreateAmmoPack;
-
-Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
-
-Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
-
 #endif
 
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle sdkcall_AwardAchievement;
+Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -376,6 +367,8 @@ DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
 DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
+DynamicHook dhook_CObjectSentrygun_StartBuilding;
+DynamicHook dhook_CObjectSentrygun_Construct;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -389,7 +382,10 @@ DynamicDetour dhook_CTFPlayer_Taunt;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
+DynamicDetour dhook_CBaseObject_OnConstructionHit;
+DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 
+Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
@@ -487,9 +483,7 @@ enum
 	Wep_Cleaver, // Flying Guillotine
 	Wep_GRU, // Gloves of Running Urgently
 	Wep_Gunboats,
-#if defined MEMORY_PATCHES
 	Wep_Gunslinger,
-#endif
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_Huntsman,
 #if defined MEMORY_PATCHES	
@@ -706,10 +700,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Gunboats);
-#if defined MEMORY_PATCHES
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
-#endif
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES	
@@ -886,12 +878,19 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_AwardAchievement = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
+		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
+		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -906,7 +905,10 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
+		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
+		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
+		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
@@ -989,53 +991,18 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 #endif
 
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
-		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
-		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
-		
-		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
-		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
-
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
-		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
 		// this is done this way so all failures are logged simultaneously rather than one by one
 		// helps for fixing update breakage
 		bool hook_fail = false;
 
-		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) {
-			hook_fail=true;
-			LogError("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
-		}
-		if (dhook_CObjectSentrygun_StartBuilding == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CObjectSentrygun_StartBuilding");
-		}
-		if (dhook_CObjectSentrygun_Construct == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CObjectSentrygun_Construct");
-		}
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) {
 			hook_fail=true;
 			LogError("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 		} else {
 			dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		}
-		if (dhook_CBaseObject_OnConstructionHit == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CBaseObject_OnConstructionHit");
-		} else {
-			dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
-		}
-		if (dhook_CBaseObject_CreateAmmoPack == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CBaseObject_CreateAmmoPack");
-		} else {
-			dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
-		}
-
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) {
 			hook_fail=true;
@@ -1123,8 +1090,6 @@ public void OnPluginStart() {
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
-		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
-
 		delete conf;
 	}
 #endif
@@ -1146,24 +1111,31 @@ public void OnPluginStart() {
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
 	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
+	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
+
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
+	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
+	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
+	if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
+	if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
+
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
-	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
+	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
+	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1178,6 +1150,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
+	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
+	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2370,20 +2344,15 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 	} 
 	
-	else if (
-		StrEqual(class, "obj_sentrygun") ||
-		StrEqual(class, "obj_dispenser") ||
-		StrEqual(class, "obj_teleporter")
-	) {
+	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
+
 		if (StrEqual(class, "obj_sentrygun")) {
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
-	#if defined MEMORY_PATCHES
 			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
-	#endif
 		} 
 	} 
 	
@@ -3201,12 +3170,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 135, 0.25); // -75% blast damage from rocket jumps
 		}}
-#if defined MEMORY_PATCHES
 		case 142: { if (ItemIsEnabled(Wep_Gunslinger)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 464, 4.0); // Sentry build speed increased by 300%
 		}}
-#endif
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
@@ -4037,8 +4004,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
 						case 56, 1005, 1092: player_weapons[client][Wep_Huntsman] = true;
-#if defined MEMORY_PATCHES
 						case 142: player_weapons[client][Wep_Gunslinger] = true;
+#if defined MEMORY_PATCHES
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 #endif
 						case 329: player_weapons[client][Wep_Jag] = true;
@@ -6936,7 +6903,6 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 		SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
 	}
 
-#if defined MEMORY_PATCHES
 	char class[64];
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -6949,7 +6915,6 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 			return MRES_Supercede;
 		}
 	}
-#endif
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		// It's Sigafoo save time BABY!
@@ -7133,7 +7098,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		SetEntProp(entity, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
 	}
 
-#if defined MEMORY_PATCHES
 	// Do not allow repairs on mini sentries. Mini sentries can still get refilled with ammo.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -7172,7 +7136,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		returnValue.Value = did_work;
 		return MRES_Supercede;
 	}
-#endif
 
 	return MRES_Ignored;
 }
@@ -7190,7 +7153,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
-#if defined MEMORY_PATCHES
 MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -7198,7 +7160,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn 
 		!GetEntProp(entity, Prop_Send, "m_bCarryDeploy")
 	) {
 		// Mini sentries always start off at max health.
-		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, 100.00, NumberType_Int32);
+		SetEntityHealth(entity, GetEntProp(entity, Prop_Send, "m_iMaxHealth"));
 	}
 	return MRES_Ignored;
 }
@@ -7229,7 +7191,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 			// Release Gunslinger double heal rate on construction
 			float delta = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - entities[entity].minisentry_health;
 			if (delta > 0.0) {
-				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, 100.0), NumberType_Int32);
+				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth"))), NumberType_Int32);
 			}
 		}
 	}
@@ -7264,8 +7226,6 @@ MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn retu
     }
     return MRES_Ignored;
 }
-
-#endif
 
 MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (
@@ -7708,34 +7668,30 @@ stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
-stock bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
+stock bool IsBuildingValidHealTarget(int building, int engineer)
 {
-	if (!IsValidEntity(buildingIndex))
+	if (!IsValidEntity(building))
 		return false;
 
 	char classname[64];
-	GetEntityClassname(buildingIndex, classname, sizeof(classname));
+	GetEntityClassname(building, classname, sizeof(classname));
 
-	if (
-		!StrEqual(classname, "obj_sentrygun", false) &&
-		!StrEqual(classname, "obj_teleporter", false) &&
-		!StrEqual(classname, "obj_dispenser", false)
-	) {
+	if (StrContains(class, "obj_") == -1) {
 		//PrintToChatAll("Entity did not match buildings");
 		return false;
 	}
 
 	if (
-		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
+		GetEntProp(building, Prop_Send, "m_bHasSapper") ||
+		GetEntProp(building, Prop_Send, "m_bPlasmaDisable") ||
+		GetEntProp(building, Prop_Send, "m_bBuilding") ||
+		GetEntProp(building, Prop_Send, "m_bPlacing")
 	) {
 		//PrintToChatAll("Big if statement about sappers etc triggered");
 		return false;
 	}
 
-	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
+	if (!AreEntitiesOnSameTeam(building, engineer)) {
 		//PrintToChatAll("Entities were not on the same team");
 		return false;
 	}
