@@ -6545,7 +6545,10 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 							if (TR_DidHit() == false) {
 								if (idx <= MaxClients) {
 									// damage players
-									if (damage != 0.0) {
+									if (
+										damage != 0.0 &&
+										IsPlayerAlive(idx)
+									) {
 										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
 
 										// show particle effect
