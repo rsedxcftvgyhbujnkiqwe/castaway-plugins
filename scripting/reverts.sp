@@ -391,13 +391,7 @@ DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 
-Player players[MAXPLAYERS+1];
-Entity entities[2048];
-int frame;
-Handle hudsync;
-// Menu menu_pick;
-int rocket_create_entity;
-int rocket_create_frame;
+Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -405,6 +399,14 @@ int rocket_create_frame;
 // It's recommended that you name the int the same as the member.
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
 int m_flTauntNextStartTime;
+
+Player players[MAXPLAYERS+1];
+Entity entities[2048];
+int frame;
+Handle hudsync;
+// Menu menu_pick;
+int rocket_create_entity;
+int rocket_create_frame;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -906,6 +908,8 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
+
+		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -3789,36 +3793,27 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
 		attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 
-		// Just to ensure that if attacker is missing for some reason, that we still check the victim.
-		// Also check that wrangler revert is enabled.
+		// 1 second sentry disable if wrangler shield active and engineer dies.
+		// should not affect the normal 3 second disable on engineer weapon switch etc.
 		if (
 			client > 0 &&
 			client <= MaxClients &&
 			IsClientInGame(client) && 
 			ItemIsEnabled(Wep_Wrangler)
 		) {
-			// 1 second sentry disable if wrangler shield active && engineer dies.
-			// should not effect the normal 3 second disable on engineer weapon switch etc.
 			if (TF2_GetPlayerClass(client) == TFClass_Engineer) {
 
 				int sentry = FindSentryGunOwnedByClient(client);
 				if (sentry != -1) {
-					int isControlled = GetEntProp(sentry, Prop_Send, "m_bPlayerControlled");
-					if (isControlled > 0) {
-						Address sentryBaseAddr = GetEntityAddress(sentry); // Get base address of sentry.
 
+					if (GetEntProp(sentry, Prop_Send, "m_bPlayerControlled") > 0) {
+						
 						// Offset to m_flShieldFadeTime and input our own value.
-#if !defined WIN32
-						// Offset for Linux (0xB50)
-						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
-#else
-						// Offset for Windows (0xB38 NOTE: Ghidra will show something else in decompile, check the bytes instead!)
-						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB38), GetGameTime() + 1.0, NumberType_Int32);
-#endif
-						isControlled = 0; // Make sure isControlled is set to 0 or org source code
-										  // will consider it true on next tick and m_flShieldFadeTime will become 3.0
-										  // thus undoing our revert.
-						SetEntProp(sentry, Prop_Send, "m_bPlayerControlled", isControlled);
+						StoreToAddress(GetEntityAddress(sentry) + CObjectSentrygun_m_flShieldFadeTime, GetGameTime() + 1.0, NumberType_Int32);
+
+						// Set m_bPlayerControlled to 0 such that the original code
+						// wouldn't set the shield fade time to 3 seconds, thus undoing our revert.
+						SetEntProp(sentry, Prop_Send, "m_bPlayerControlled", 0);
 					} 
 				} 
 			} 
@@ -5857,19 +5852,15 @@ public Action OnPlayerRunCmd(
 				}
 
 				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
-				if (
-					(buttons & IN_ATTACK2 != 0)
-				) {
+				if (buttons & IN_ATTACK2 != 0) {
 					if (!players[client].holding_attack2)
 					{
 						players[client].holding_attack2 = true;
-							// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
 					}
 				}
 				else 
 				{
 					players[client].holding_attack2 = false;
-						// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
 				}
 			}			
 		}
@@ -7039,32 +7030,34 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 
 				repair_amount = GetEntProp(building, Prop_Data, "m_iHealth") - health_old;
 
-				Event event = CreateEvent("building_healed");
-				if (event != null)
-				{
-					event.SetInt("priority", 1); // HLTV event priority, not transmitted
-					event.SetInt("building", building); // self-explanatory.
-					event.SetInt("healer", attacker); // Index of the engineer who healed the building.
-					event.SetInt("amount", repair_amount); // Repair amount to display.
+				if (repair_amount > 0) {
+					Event event = CreateEvent("building_healed");
+					if (event != null)
+					{
+						event.SetInt("priority", 1); // HLTV event priority, not transmitted
+						event.SetInt("building", building); // self-explanatory.
+						event.SetInt("healer", attacker); // Index of the engineer who healed the building.
+						event.SetInt("amount", repair_amount); // Repair amount to display.
 
-					event.Fire(); // FIRE IN THE HOLE!!!!!!!
-				}
+						event.Fire(); // FIRE IN THE HOLE!!!!!!!
+					}
 
-				// Spawn heal particles
-				if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 3) {
-					// [1696] repair_claw_heal_blue
-					AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
-				} else {
-					// [1699] repair_claw_heal_red
-					// PATTACH_ABSORIGIN_FOLLOW
-					AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
-				}
+					// Spawn heal particles
+					if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 3) {
+						// [1696] repair_claw_heal_blue
+						AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
+					} else {
+						// [1699] repair_claw_heal_red
+						// PATTACH_ABSORIGIN_FOLLOW
+						AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
+					}
 
-				// Check if building owner and the engineer who shot the bolt
-				// are the same person. If not, give them progress on
-				// the "Circle the Wagons" achievement.
-				if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
-					AddProgressOnAchievement(attacker, 1836, repair_amount);
+					// Check if building owner and the engineer who shot the bolt
+					// are the same person. If not, give them progress on
+					// the "Circle the Wagons" achievement.
+					if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
+						AddProgressOnAchievement(attacker, 1836, repair_amount);
+					}
 				}
 			}
 
