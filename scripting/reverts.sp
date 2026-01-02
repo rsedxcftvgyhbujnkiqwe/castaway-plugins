@@ -631,7 +631,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2013");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2012");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
@@ -1871,7 +1871,6 @@ public void OnGameFrame() {
 							// hence the weird comments inside the if statement.
 							(GetItemVariant(Wep_Sandvich) == 0 && player_weapons[idx][Wep_Sandvich])
 //							||
-//							(GetItemVariant(Wep_BuffaloSteak) > 0 && player_weapons[idx][Wep_BuffaloSteak])
 //							()
 						) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
@@ -1881,8 +1880,7 @@ public void OnGameFrame() {
 							if (	
 								item_def_idx == 42 || // Sandvich
 								item_def_idx == 863 || // Robo-Sandvich
-								item_def_idx == 1002 // || // Festive Sandvich
-							//	item_def_idx == 311 // Buffalo Steak Sandvich (Kept just because. LOL)
+								item_def_idx == 1002 // Festive Sandvich
 							) {
 								timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
 								// Before every gameframe when has_thrown_sandvich is true on this heavy.							

@@ -676,9 +676,9 @@
 	{
 		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU), heal yourself by throwing the Steak"
 	}
-	"BuffaloSteak_Pre2013"
+	"BuffaloSteak_Pre2012"
 	{
-		"en"	"Reverted to pre-Summer 2013, +35%% faster move speed on use, damage taken minicrits, heal yourself by throwing the Steak"
+		"en"	"Reverted to pre-February 14, 2012; +35%% faster move speed on use, damage taken minicrits, heal yourself by throwing the Steak"
 	}
 	"BuffBanner_Release"
 	{
