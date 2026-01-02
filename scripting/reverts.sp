@@ -2020,8 +2020,10 @@ public void OnGameFrame() {
 							player_weapons[idx][Wep_BazaarBargain]
 						) {
 							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
-							if ((players[idx].BazaarBargainShot == BazaarBargain_Lose && decapitations != 0) || players[idx].BazaarBargainShot != BazaarBargain_Idle)
-							{
+							if (
+								(players[idx].BazaarBargainShot == BazaarBargain_Lose && decapitations != 0) || 
+								players[idx].BazaarBargainShot != BazaarBargain_Idle
+							) {
 								int newHead = decapitations + view_as<int>(players[idx].BazaarBargainShot);
 								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, newHead));
 								players[idx].BazaarBargainShot = BazaarBargain_Idle;
@@ -2391,8 +2393,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
-	else if (StrEqual(class, "tf_weapon_sniperrifle_decap"))
+	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	}
 
 }
 
@@ -5258,7 +5262,7 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled(Wep_BazaarBargain) &&
 					StrEqual(class,"tf_weapon_sniperrifle_decap") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
-					players[victim].headshot_frame == GetGameTickCount() && 
+					players[attacker].headshot_frame == GetGameTickCount() && 
 					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
 				) {
 					players[attacker].BazaarBargainShot = BazaarBargain_Gain;
@@ -5657,7 +5661,8 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled(Wep_BazaarBargain) &&
 			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
-			players[attacker].BazaarBargainShot == BazaarBargain_Gain
+			players[attacker].BazaarBargainShot == BazaarBargain_Gain &&
+			!IsPlayerAlive(victim)
 		) {
 			// Bazaar Bargain: do not gain two heads in one time. I don't wanna make yet another DHook so I'll just make this instead.
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
@@ -6397,12 +6402,19 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	}
 
 	if (
-		ItemIsEnabled(Wep_BazaarBargain) &&
-		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 && 
-		TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+		ItemIsEnabled(Wep_BazaarBargain) 
 	) {
+		GetEntityClassname(entity, class, sizeof(class));
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		if (
+			owner > 0 &&
+			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
+			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+		) {
 		// Bazaar Bargain head counter: lose a head.
 		players[owner].BazaarBargainShot = BazaarBargain_Lose;
+		}
 	}
 	
 	return MRES_Ignored;
@@ -7437,12 +7449,26 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 
 MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity, DHookReturn returnValue)
 {
-    // I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
-    // Change the recharge rate for the Bazaar Bargain.
-	if (ItemIsEnabled(Wep_BazaarBargain)) {
-		returnValue.Value = 0.2 * (intMin(GetEntProp(entities[entity].owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
-		return MRES_Supercede;
+	int owner;
+	char class[64];
+
+	if (
+		ItemIsEnabled(Wep_BazaarBargain) &&
+		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402
+	) {
+		GetEntityClassname(entity, class, sizeof(class));
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		if (
+			owner > 0 &&
+			StrEqual(class, "tf_weapon_sniperrifle_decap")
+		) {
+			// I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
+			// Change the recharge rate for the Bazaar Bargain.
+			returnValue.Value = 0.2 * (intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+			return MRES_Supercede;
+		}
 	}
+	
 	return MRES_Ignored;
 }
 
