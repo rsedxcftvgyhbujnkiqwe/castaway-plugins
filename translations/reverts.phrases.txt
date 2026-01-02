@@ -514,6 +514,10 @@
 	{
 		"en"	"Ullapool Caber"
 	}
+	"vaccinator"
+	{
+		"en"	"Vaccinator"
+	}
 	"vitasaw"
 	{
 		"en"	"Vita-Saw"
@@ -1259,6 +1263,10 @@
 	"Caber_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no firing speed and deploy penalties"
+	}
+	"Vaccinator_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle...<PLACEHOLDER TEXT>"
 	}
 	"VitaSaw_PreJI"
 	{

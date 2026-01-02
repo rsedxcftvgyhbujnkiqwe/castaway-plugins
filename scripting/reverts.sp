@@ -534,6 +534,7 @@ enum
 	Wep_Tomislav,	
 	Wep_TribalmansShiv,
 	Wep_Caber, // Ullapool Caber
+	Wep_Vaccinator,
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
 	Wep_Wrangler,
@@ -798,6 +799,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLWSoundOnly");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
+	ItemDefine("vaccinator", "Vaccinator_PreGM", CLASSFLAG_MEDIC, Wep_Vaccinator);
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
@@ -4121,6 +4123,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 265: player_weapons[client][Wep_StickyJumper] = true;
 						case 424: player_weapons[client][Wep_Tomislav] = true;
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
+						case 998: player_weapons[client][Wep_Vaccinator] = true;
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
