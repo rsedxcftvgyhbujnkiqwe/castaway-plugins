@@ -164,6 +164,11 @@
 				"windows" "439"
 				"linux"	  "446"
 			}
+			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			{
+				"windows" "498"
+				"linux"   "505"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -500,6 +505,13 @@
 					}
 				}
 			}
+			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			{
+				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "float"
+			}			
 		}
 	}
 }

@@ -137,6 +137,8 @@ public Plugin myinfo = {
 #define LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL		"models/workshop/weapons/c_models/c_chocolate/plate_chocolate.mdl"
 #define LUNCHBOX_BANANA_DROP_MODEL  "models/items/banana/plate_banana.mdl"
 #define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
+#define MAX_HEAD_BONUS 6
+#define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50
 
 enum
 {
@@ -194,6 +196,13 @@ char class_names[][] = {
 	"SPY",
 	"ENGINEER"
 };
+
+enum BazaarBargainShotManager
+{
+    BazaarBargain_Lose = -1,
+    BazaarBargain_Idle = 0,
+    BazaarBargain_Gain
+}
 
 enum struct Item {
 	char key[64];
@@ -260,6 +269,8 @@ enum struct Player {
 	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
 	bool has_thrown_sandvich;
 	bool deny_metal_collection;
+    // Bazaar Bargain.
+    BazaarBargainShotManager BazaarBargainShot;
 }
 
 enum struct Entity {
@@ -267,6 +278,7 @@ enum struct Entity {
 	float spawn_time;
 	int old_shield;
 	float minisentry_health;
+	int owner;
 }
 
 ConVar cvar_enable;
@@ -364,6 +376,7 @@ DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
+DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -433,6 +446,7 @@ enum
 	Wep_BabyFace,
 	Wep_Backburner,
 	Wep_BaseJumper,
+	Wep_BazaarBargain,	
 	Wep_Beggars,
 	Wep_BlackBox,
 	Wep_Blutsauger,
@@ -620,6 +634,7 @@ public void OnPluginStart() {
 	ItemDefine("basejump", "BaseJumper_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
+	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
@@ -873,6 +888,7 @@ public void OnPluginStart() {
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
+		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1995,6 +2011,25 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// Bazaar Bargain head counter. (imported from NotnHeavy)
+
+						if (
+							ItemIsEnabled(Wep_BazaarBargain) &&
+							player_weapons[idx][Wep_BazaarBargain]
+						) {
+							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
+							if (
+								(players[idx].BazaarBargainShot == BazaarBargain_Lose && decapitations != 0) || 
+								players[idx].BazaarBargainShot != BazaarBargain_Idle
+							) {
+								int newHead = decapitations + view_as<int>(players[idx].BazaarBargainShot);
+								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, newHead));
+								players[idx].BazaarBargainShot = BazaarBargain_Idle;
+							}
+						}
+					}
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
@@ -2357,6 +2392,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 	
 	else if (StrEqual(class, "tf_weapon_lunchbox")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+
+	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
+		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 	}
 
 }
@@ -3926,7 +3966,9 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 
 					if (
-						(StrEqual(class, "tf_weapon_sniperrifle") || StrEqual(class, "tf_weapon_sniperrifle_classic")) &&
+						(StrEqual(class, "tf_weapon_sniperrifle") || 
+						StrEqual(class, "tf_weapon_sniperrifle_classic") || 
+						StrEqual(class, "tf_weapon_sniperrifle_decap")) &&
 						!(StrEqual(class, "tf_weapon_compound_bow"))
 					) {
 						if (!StrEqual(class, "tf_weapon_sniperrifle_classic")) player_weapons[client][Feat_SniperQuickscope] = true;
@@ -3979,6 +4021,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 772: player_weapons[client][Wep_BabyFace] = true;
 						case 40, 1146: player_weapons[client][Wep_Backburner] = true;
 						case 1101: player_weapons[client][Wep_BaseJumper] = true;
+						case 402: player_weapons[client][Wep_BazaarBargain] = true;
 						case 237: player_weapons[client][Wep_RocketJumper] = true;
 						case 730: player_weapons[client][Wep_Beggars] = true;
 						case 442: player_weapons[client][Wep_Bison] = true;
@@ -4665,7 +4708,7 @@ Action SDKHookCB_TraceAttack(
 					GetItemVariant(Wep_Ambassador) >= 1 &&
 					player_weapons[attacker][Wep_Ambassador]
 				) ||
-				TF2_GetPlayerClass(attacker) == TFClass_Sniper // for sydney sleeper
+				TF2_GetPlayerClass(attacker) == TFClass_Sniper // for sydney sleeper and bazaar bargain
 			) {
 				players[attacker].headshot_frame = GetGameTickCount();
 				players[victim].hit_by_headshot = true;
@@ -5228,6 +5271,19 @@ Action SDKHookCB_OnTakeDamage(
 				}
 			}
 
+			{
+				// Bazaar bargain headshot: gain a head.
+				if (
+					ItemIsEnabled(Wep_BazaarBargain) &&
+					StrEqual(class,"tf_weapon_sniperrifle_decap") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+					players[attacker].headshot_frame == GetGameTickCount() && 
+					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
+				) {
+					players[attacker].BazaarBargainShot = BazaarBargain_Gain;
+				}
+			}
+
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
@@ -5614,6 +5670,17 @@ void SDKHookCB_OnTakeDamagePost(
 				// Restore sleeper attrib
 				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 			}
+		}
+
+		if (
+			ItemIsEnabled(Wep_BazaarBargain) &&
+			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
+			players[attacker].BazaarBargainShot == BazaarBargain_Gain &&
+			!IsPlayerAlive(victim)
+		) {
+			// Bazaar Bargain: do not gain two heads in one time.
+			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
 		if (inflictor > MaxClients) {
@@ -6348,6 +6415,23 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 			}
 		}
 	}
+
+	if (
+		ItemIsEnabled(Wep_BazaarBargain) 
+	) {
+		GetEntityClassname(entity, class, sizeof(class));
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		if (
+			owner > 0 &&
+			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
+			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+		) {
+		// Bazaar Bargain head counter: lose a head.
+		players[owner].BazaarBargainShot = BazaarBargain_Lose;
+		}
+	}
+	
 	return MRES_Ignored;
 }
 
@@ -7375,6 +7459,31 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 			return MRES_Override;
 	}	
 
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity, DHookReturn returnValue)
+{
+	int owner;
+	char class[64];
+
+	if (
+		ItemIsEnabled(Wep_BazaarBargain) &&
+		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402
+	) {
+		GetEntityClassname(entity, class, sizeof(class));
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		if (
+			owner > 0 &&
+			StrEqual(class, "tf_weapon_sniperrifle_decap")
+		) {
+			// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
+			// Change the recharge rate for the Bazaar Bargain.
+			returnValue.Value = 0.2 * (intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+			return MRES_Supercede;
+		}
+	}
+	
 	return MRES_Ignored;
 }
 

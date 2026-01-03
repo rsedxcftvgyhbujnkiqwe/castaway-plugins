@@ -190,6 +190,10 @@
 	{
 		"en"	"Baby Face's Blaster"
 	}
+	"bazaar"
+	{
+		"en"	"Bazaar Bargain"
+	}	
 	"beggars"
 	{
 		"en"	"Beggar's Bazooka"
@@ -631,6 +635,10 @@
 	"BabyFace_Release"
 	{
 		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, boost resets on any jump"
+	}
+	"Bazaar_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +7.5%% charge rate per head up to +45%%, lose heads on scoped bodyshots/misses"
 	}
 	"Beggars_Pre2013"
 	{
