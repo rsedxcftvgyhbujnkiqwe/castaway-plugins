@@ -1264,6 +1264,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no firing speed and deploy penalties"
 	}
+	"Vaccinator_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, +50%% Uber rate, -66%% Uber rate on overhealed patients, you are healed for 10%% of the matched incoming damage on patient"
+	}	
 	"Vaccinator_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle...<PLACEHOLDER TEXT>"
