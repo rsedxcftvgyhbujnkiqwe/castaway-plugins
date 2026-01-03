@@ -148,7 +148,7 @@
 	}
 	"sniperquickscope"
 	{
-		"en"	"Sniper Quickscopes"
+		"en"	"All Sniper Quickscopes"
 	}
 	"sniperrifles"
 	{
@@ -982,7 +982,7 @@
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg, drains more than 20%% cloak against disguised or cloaked Spies"
 	}
 	"Pomson_PreGM_Historical"
 	{
@@ -1098,7 +1098,7 @@
 	}
 	"Sandman_PreClassless"
 	{
-		"en"	"Reverted to pre-Classless Update, full stuns, can stun invuln players, stun victims receive 50%% damage, no health penalty, no double jump, 15 sec ball recharge time"
+		"en"	"Reverted to pre-Classless Update, full stuns, can stun invuln players, stun victims receive 50%% damage, no health penalty, no double jump, 15 sec ball recharge time, no alt-fire"
 	}
 	"Sandvich_PreEngineer"
 	{
