@@ -389,6 +389,7 @@ DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 DynamicDetour dhook_CTFPlayer_Taunt;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
+DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -902,6 +903,7 @@ public void OnPluginStart() {
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
+		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1157,6 +1159,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
+	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1170,6 +1173,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
+	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -7485,6 +7489,33 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	}
 	
 	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters)
+{
+
+	char criteria[32];
+	parameters.GetString(1, criteria, sizeof(criteria));
+
+	// Fast reject
+	if (criteria[0] != 'i' || !StrEqual(criteria, "item_name", false))
+	{
+		return MRES_Ignored;
+	}
+
+	char value[64];
+	parameters.GetString(2, value, sizeof(value));
+
+	if (value[0] != 'T' || !StrEqual(value, "The Spy-cicle", false))
+	{
+		return MRES_Ignored;
+	}
+
+	// Rewrite value
+	parameters.SetString(2, "__DISABLED__The Spy-cicle");
+
+	// Tell DHooks to apply modified params and continue
+	return MRES_ChangedHandled;
 }
 
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
