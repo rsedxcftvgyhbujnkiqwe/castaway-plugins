@@ -631,7 +631,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2013");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2012");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
@@ -1870,8 +1870,8 @@ public void OnGameFrame() {
 							// This if statement is prepared for handling more than just the Sandvich if there's a desire for it
 							// hence the weird comments inside the if statement.
 							(GetItemVariant(Wep_Sandvich) == 0 && player_weapons[idx][Wep_Sandvich])
-							// ||
-							// ()
+//							||
+//							()
 						) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
 							int item_def_idx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
@@ -2325,7 +2325,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	} 
 
 	else if (
-		ItemIsEnabled(Wep_Sandvich) &&
+		(ItemIsEnabled(Wep_Sandvich) || GetItemVariant(Wep_BuffaloSteak) > 0) 
+		&&
 		(StrEqual(class, "item_healthkit_small", false) ||
 		StrEqual(class, "item_healthkit_medium", false) ||
 		StrEqual(class, "item_healthkit_full", false))
@@ -2375,7 +2376,8 @@ public void OnSandvichThrown(int entity){
 // Keep this mutually exclusive with IsNonSandvichLunchboxDropModel.
 bool IsSandvichDropModel(const char[] model_name)
 {
-    return StrEqual(model_name, LUNCHBOX_DROP_MODEL, false) ||
+    return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false) ||
+    	StrEqual(model_name, LUNCHBOX_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_ROBOT_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_FESTIVE_DROP_MODEL, false);
 }
@@ -2384,8 +2386,7 @@ bool IsSandvichDropModel(const char[] model_name)
 // These should never allow Heavy to recharge IF they have the Sandvich and revert is ON.
 bool IsNonSandvichLunchboxDropModel(const char[] model_name)
 {
-    return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false) ||
-		StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false) ||
+    return StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_BANANA_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_FISHCAKE_DROP_MODEL, false);
 }
@@ -2398,14 +2399,17 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 		return;
 	}
 
-	if (!ItemIsEnabled(Wep_Sandvich)) {
-		return;
-	}
+
+	bool sandvich_enabled = ItemIsEnabled(Wep_Sandvich);
+
+	int  steak_variant = GetItemVariant(Wep_BuffaloSteak);
+	bool steak_enabled = ItemIsEnabled(Wep_BuffaloSteak);
+	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2);
 
 	char model_name[PLATFORM_MAX_PATH];
 	GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
 
-	// If model matches Sandvich, Robo-Sandvich or Festive Sandvich.
+	// If model matches Sandvich, Robo-Sandvich, Festive Sandvich or a Buffalo Steak.
 	if (IsSandvichDropModel(model_name)) {
 		// Check so client is real and is ingame.
 		int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
@@ -2423,18 +2427,27 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 					GetEntityClassname(weapon, className, sizeof(className));
 					int ItemDefIndex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-					if (
-						ItemDefIndex == 42 ||
-						ItemDefIndex == 863 ||
-						ItemDefIndex == 1002
-					) {
-						// Fully verified thrown Sandvich.
-						// Healthkit is owned by the heavy, is a eligble Sandvich model, and heavy has the Sandvich equipped.
-						players[client].has_thrown_sandvich = true;
-						players[client].thrown_sandvich_ent_ref = EntIndexToEntRef(entity);
-						// Hook this entity with the special DHookCallback_CHealthKit_Sandvich_MyTouch callback.
-						dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_Sandvich_MyTouch);
+					bool is_sandvich =
+						ItemDefIndex == 42 ||   // Sandvich
+						ItemDefIndex == 863 ||  // Robo-Sandvich
+						ItemDefIndex == 1002;   // Festive Sandvich
+
+					bool is_steak = (ItemDefIndex == 311); // Buffalo Steak Sandvich
+
+					bool eligible =
+						(is_sandvich && sandvich_enabled) ||
+						(is_steak && steak_enabled && steak_variant_allowed);
+
+					if (!eligible) {
+						return;
 					}
+
+					// Fully verified eligible lunchbox drop.
+					// Healthkit is owned by the heavy, is an eligible lunchbox model, and heavy has an eligible lunchbox equipped.
+					players[client].has_thrown_sandvich = true;
+					players[client].thrown_sandvich_ent_ref = EntIndexToEntRef(entity);
+					// Hook this entity with the special DHookCallback_CHealthKit_Sandvich_MyTouch callback.
+					dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_Sandvich_MyTouch);
 				}
 			}
 		}
@@ -2444,7 +2457,7 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 		// If it's NOT another sandvich type (for example steak) and it's NOT owned by a player, then it's a normal healthkit.
 		// This will need changing later once we figure out how to support (depending on history research) recharging
 		// from Candycane and Medieval Mode healthkit drops. This will have to do in the meanwhile.
-		if (!IsNonSandvichLunchboxDropModel(model_name) && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
+		if (!IsNonSandvichLunchboxDropModel(model_name) && (owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
 			// Normal map entity placed healthkit. Hook it!
 			dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CHealthKit_MyTouch);
 		}
@@ -3859,12 +3872,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		// If player has touched a respawn cabinet (or respawned), then
 		// clear their stale references if they are NOT a heavy but
-		// has_thrown_sandvich is true OR Sandvich revert is off.
+		// has_thrown_sandvich is true OR Sandvich revert is off Or
+		// Buffalo Steak variant is below 1.
 
 		if ( 
 			(TF2_GetPlayerClass(client) != TFClass_Heavy &&
 			players[client].has_thrown_sandvich) ||
-			!ItemIsEnabled(Wep_Sandvich)
+			!ItemIsEnabled(Wep_Sandvich) ||
+			GetItemVariant(Wep_BuffaloSteak) < 1
 		) {
 			players[client].has_thrown_sandvich = false;
 			players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
@@ -7275,7 +7290,7 @@ MRESReturn DHookCallback_CHealthKit_Sandvich_MyTouch(int entity, DHookReturn ret
 			{
 				// Something is wrong with the resource manager, default to MRES_Ignored.
 				LogMessage("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
-				LogMessage("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not being obtained as expected!");
+				LogMessage("If you see this warning, disable Wep_Sandvich/Buffalo Steak variants above 0, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not being obtained as expected!");
 				return MRES_Ignored;
 			}
 
@@ -7320,7 +7335,7 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 		{
 			// Something is wrong with the resource manager, default to MRES_Ignored.
 			LogMessage("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
-			LogMessage("If you see this warning, disable Wep_Sandvich, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not working out!");
+			LogMessage("If you see this warning, disable Wep_Sandvich/Buffalo Steak variants above 0, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not working out!");
 			return MRES_Ignored;
 		}
 
