@@ -152,6 +152,8 @@ public void OnLibraryRemoved(const char[] name)
 
 public void OnConfigsExecuted()
 {
+	// force reset every time to force a map list reload always
+	g_mapFileSerial = -1;
 	if (ReadMapList(g_MapList,
 					g_mapFileSerial,
 					"nominations",
