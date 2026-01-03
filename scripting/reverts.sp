@@ -780,6 +780,7 @@ public void OnPluginStart() {
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
+	ItemVariant(Wep_Spycicle, "SpyCicle_Pre2011");
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
@@ -7493,29 +7494,31 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 
 MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters)
 {
+	if (GetItemVariant(Wep_Spycicle) == 1) {
+		char criteria[32];
+		parameters.GetString(1, criteria, sizeof(criteria));
 
-	char criteria[32];
-	parameters.GetString(1, criteria, sizeof(criteria));
+		// Fast reject
+		if (criteria[0] != 'i' || !StrEqual(criteria, "item_name", false))
+		{
+			return MRES_Ignored;
+		}
 
-	// Fast reject
-	if (criteria[0] != 'i' || !StrEqual(criteria, "item_name", false))
-	{
-		return MRES_Ignored;
+		char value[64];
+		parameters.GetString(2, value, sizeof(value));
+
+		if (value[0] != 'T' || !StrEqual(value, "The Spy-cicle", false))
+		{
+			return MRES_Ignored;
+		}
+
+		// Rewrite value
+		parameters.SetString(2, "__DISABLED__The Spy-cicle");
+
+		// Tell DHooks to apply modified params and continue
+		return MRES_ChangedHandled;
 	}
-
-	char value[64];
-	parameters.GetString(2, value, sizeof(value));
-
-	if (value[0] != 'T' || !StrEqual(value, "The Spy-cicle", false))
-	{
-		return MRES_Ignored;
-	}
-
-	// Rewrite value
-	parameters.SetString(2, "__DISABLED__The Spy-cicle");
-
-	// Tell DHooks to apply modified params and continue
-	return MRES_ChangedHandled;
+	return MRES_Ignored;
 }
 
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
