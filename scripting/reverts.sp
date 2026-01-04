@@ -274,13 +274,6 @@ enum struct Player {
 
 	// Vaccinator.
 	bool vaccinator_healers[MAXPLAYERS + 1];
-	// bool UsingVaccinatorUber;
-	// float VaccinatorCharge;
-	// float EndVaccinatorChargeFalloff;
-	// int TicksSinceApplyingDamageRules;
-	// Address DamageInfo;
-	// int ActualDamageType;
-	// ECritType ActualCritType;	
 }
 
 enum struct Entity {
@@ -292,7 +285,7 @@ enum struct Entity {
 }
 
 // Vaccinator stuff
-int resistanceMapping[] =
+int resistance_mapping[] =
 {
     DMG_BULLET | DMG_BUCKSHOT,
     DMG_BLAST,
@@ -831,7 +824,7 @@ public void OnPluginStart() {
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC, Wep_Vaccinator);
-	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM");
+	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // NOT IMPLEMENTED
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
@@ -5678,7 +5671,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 									// PrintToChatAll("\"%N\" <- healed by player \"%N\" [%i]", victim, iHealerIndex, iHealerIndex);
 								if (
 									attacker != victim && 
-									damage_type & resistanceMapping[GetResistType(weapon2)]
+									damage_type & resistance_mapping[GetResistType(weapon2)]
 								) { // Check that the damage type matches the Medic's current resistance.
 									if (damage_type != DMG_BURN)
 									{
@@ -5686,7 +5679,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 										{
 											health_cur = GetClientHealth(iHealerIndex);
 											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
-											float resist_heal = ((GetItemVariant(Wep_Vaccinator) == 0) ? 0.10 : 0.25);
+											float resist_heal = ((GetItemVariant(Wep_Vaccinator) == 0) ? 0.10 : 0.25); // 10% for pre-TB (base version), 25% for pre-GM (variant 1)
 
 											// Show that the healer got healed.
 											Handle event = CreateEvent("player_healonhit", true);

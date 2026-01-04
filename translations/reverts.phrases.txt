@@ -1270,7 +1270,7 @@
 	}	
 	"Vaccinator_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle...<PLACEHOLDER TEXT>"
+		"en"	"Reverted to pre-gunmettle, <UNFINISHED>, you are healed for 25%% of the matched incoming damage on patient"
 	}
 	"VitaSaw_PreJI"
 	{
