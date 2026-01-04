@@ -823,7 +823,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLWSoundOnly");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
-	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC, Wep_Vaccinator);
+	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
 	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // NOT IMPLEMENTED
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
