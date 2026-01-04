@@ -8,9 +8,11 @@ public Plugin myinfo =
 };
 
 #include <tf2_stocks>
+#include <sdktools_voice>
 
 // only look for relevant buttons when performing button checks
-#define ACTION_BUTTONS 12191
+// do not check for 32!
+#define ACTION_BUTTONS (1 + 2 + 4 + 8 + 16 + 512 + 1024 + 2048 + 8192 + 65536)
 
 int g_iLastPressTime[MAXPLAYERS+1];
 bool g_bMovedToSpec[MAXPLAYERS+1];
@@ -37,6 +39,9 @@ public void OnPluginStart()
 	HookEvent("player_team", OnGameEvent, EventHookMode_Post);
 	HookEvent("player_changeclass", OnGameEvent, EventHookMode_Post);
 
+	AddCommandListener(OnSpecChanged,"spec_next");
+	AddCommandListener(OnSpecChanged,"spec_prev");
+
 	FindConVar("mp_idledealmethod").SetInt(0);
 
     CreateTimer(1.0, AfkDaemon,_,TIMER_REPEAT);
@@ -48,26 +53,37 @@ public void OnMapStart() {
 	}
 }
 
+public void OnClientConnected(int client) {
+	ClientPressedButton(client);
+}
 
 public void OnGameFrame() {
 	int idx;
 	int buttons;
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (
-			IsClientInGame(idx)
+			IsClientInGame(idx) &&
+			!IsFakeClient(idx)
 		) {
-			buttons = GetClientButtons(idx);
-			if (buttons & ACTION_BUTTONS > 0) {
-				// for efficiency just store precision to the second using the daemon's stored time
+			buttons = GetEntProp(idx, Prop_Data, "m_nButtons");
+
+			if (
+				(buttons & ACTION_BUTTONS > 0)
+			) {
 				ClientPressedButton(idx);
 			}
 		}
 	}
 }
 
-public void OnClientConnected(int client) {
-	// store a client's first press immediately upon joining to start the clock
+public void OnClientSpeaking(int client) {
 	ClientPressedButton(client);
+}
+
+Action OnSpecChanged(int client, const char[] command, int argc) {
+	// spectators moving cameras is not covered by button checks (annoyingly!)
+	ClientPressedButton(client);
+	return Plugin_Continue;
 }
 
 Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
