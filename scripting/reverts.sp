@@ -2445,7 +2445,7 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 
 	int  steak_variant = GetItemVariant(Wep_BuffaloSteak);
 	bool steak_enabled = ItemIsEnabled(Wep_BuffaloSteak);
-	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2);
+	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2 || steak_variant == 3);
 
 	char model_name[PLATFORM_MAX_PATH];
 	GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
