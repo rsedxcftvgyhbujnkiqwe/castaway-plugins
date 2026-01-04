@@ -257,8 +257,11 @@ void CheckAndRunCrons(int timestamp) {
             (c.min[min/32] & (1 << (min%32))) &&
             (c.hour[0] & (1 << hour)) &&
             (c.mon[0] & (1 << mon)) &&
-            ((c.dow[0] & (1 << dow)) ||
-            (c.dom[0] & (1 << dom)))
+            //this check sucks
+            (((c.dow[0] == ~0) && (c.dom[0] & (1 << dom))) ||
+            ((c.dom[0] == ~0) && (c.dow[0] & (1 << dow))) ||
+            ((c.dow[0] != ~0) && (c.dom[0] != ~0) && 
+            ((c.dom[0] & (1 << dom)) || (c.dow[0] & (1 << dow)))))
         ) {
             ExecuteMessageGroup(i);
         }
