@@ -5452,7 +5452,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 	Action returnValue = Plugin_Continue;
 	char class[64];
 	int weapon1;
-	int weapon1;
 	int health_cur;
 	int health_max;
 
