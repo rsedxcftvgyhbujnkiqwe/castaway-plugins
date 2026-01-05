@@ -2539,6 +2539,18 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
+		// crit-a-cola release variant duration modification
+		if (
+			GetItemVariant(Wep_CritCola) == 4 &&
+			condition == TFCond_CritCola &&
+			player_weapons[client][Wep_CritCola] &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
+		) {
+			// set energy drink meter to 75 such that it drains to 0 in 6 seconds
+			SetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter", 75.0);
+		}
+	}
+	{
 		// spycicle fire immune
 
 		if (
@@ -2634,19 +2646,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		}
 	}
 	{
-		// crit-a-cola release variant duration modification
-		// crit-a-cola normally applies 9 seconds, then relies on the energy drink meter to have it be 8 seconds
-		if (
-			GetItemVariant(Wep_CritCola) == 4 &&
-			condition == TFCond_CritCola &&
-			time == 9.0 &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			time = 6.0;
-			return Plugin_Changed;
-		}
-	}
-	{
 		// pre-july 7, 2011 steak restrict to melee duration modification
 		// force heavy to switch to melee first then allow him to switch weapons again to replicate the bug
 		if (
@@ -2725,9 +2724,9 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 		// pre-inferno crit-a-cola mark-for-death on expire
 		if (
 			GetItemVariant(Wep_CritCola) == 1 &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
 			condition == TFCond_CritCola &&
-			GetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter") <= 0.0
+			player_weapons[client][Wep_CritCola] &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
 		}
