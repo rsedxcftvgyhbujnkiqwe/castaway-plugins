@@ -7158,7 +7158,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn 
 		!GetEntProp(entity, Prop_Send, "m_bCarryDeploy")
 	) {
 		// Mini sentries always start off at max health.
-		SetEntityHealth(entity, GetEntProp(entity, Prop_Send, "m_iMaxHealth"));
+		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth")), NumberType_Int32);
 	}
 	return MRES_Ignored;
 }
