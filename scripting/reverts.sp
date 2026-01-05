@@ -5616,13 +5616,15 @@ void SDKHookCB_OnTakeDamagePost(
 
 		if (
 			ItemIsEnabled(Wep_BazaarBargain) &&
-			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
 			players[attacker].bazaar_shot == BAZAAR_GAIN &&
-			!IsPlayerAlive(victim)
+			!IsPlayerAlive(victim) &&
+			weapon > 0
 		) {
-			// Bazaar Bargain: do not gain two heads in one time.
-			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402) {
+				// Bazaar Bargain: do not gain two heads in one time.
+				SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+			}
 		}
 
 		if (inflictor > MaxClients) {
