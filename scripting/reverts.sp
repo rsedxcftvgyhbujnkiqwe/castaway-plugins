@@ -93,6 +93,13 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
+enum
+{
+    BAZAAR_LOSE = -1,
+    BAZAAR_IDLE = 0,
+    BAZAAR_GAIN
+}
+
 // flags for item definitions
 #define CLASSFLAG_SCOUT		(1 << 0)
 #define CLASSFLAG_SNIPER	(1 << 1)
@@ -197,13 +204,6 @@ char class_names[][] = {
 	"ENGINEER"
 };
 
-enum BazaarBargainShotManager
-{
-    BazaarBargain_Lose = -1,
-    BazaarBargain_Idle = 0,
-    BazaarBargain_Gain
-}
-
 enum struct Item {
 	char key[64];
 	int flags;
@@ -269,8 +269,7 @@ enum struct Player {
 	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
 	bool has_thrown_sandvich;
 	bool deny_metal_collection;
-    // Bazaar Bargain.
-    BazaarBargainShotManager BazaarBargainShot;
+    int bazaar_shot;
 }
 
 enum struct Entity {
@@ -2027,12 +2026,11 @@ public void OnGameFrame() {
 						) {
 							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
 							if (
-								(players[idx].BazaarBargainShot == BazaarBargain_Lose && decapitations != 0) || 
-								players[idx].BazaarBargainShot != BazaarBargain_Idle
+								(players[idx].bazaar_shot == BAZAAR_LOSE && decapitations != 0) ||
+								players[idx].bazaar_shot != BAZAAR_IDLE
 							) {
-								int newHead = decapitations + view_as<int>(players[idx].BazaarBargainShot);
-								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, newHead));
-								players[idx].BazaarBargainShot = BazaarBargain_Idle;
+								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, decapitations + players[idx].bazaar_shot));
+								players[idx].bazaar_shot = BAZAAR_IDLE;
 							}
 						}
 					}
@@ -5225,7 +5223,7 @@ Action SDKHookCB_OnTakeDamage(
 					players[attacker].headshot_frame == GetGameTickCount() && 
 					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
 				) {
-					players[attacker].BazaarBargainShot = BazaarBargain_Gain;
+					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
 			}
 
@@ -5621,7 +5619,7 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled(Wep_BazaarBargain) &&
 			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
-			players[attacker].BazaarBargainShot == BazaarBargain_Gain &&
+			players[attacker].bazaar_shot == BAZAAR_GAIN &&
 			!IsPlayerAlive(victim)
 		) {
 			// Bazaar Bargain: do not gain two heads in one time.
@@ -6357,9 +6355,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		}
 	}
 
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) 
-	) {
+	if (ItemIsEnabled(Wep_BazaarBargain)) {
 		GetEntityClassname(entity, class, sizeof(class));
 		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 		if (
@@ -6368,8 +6364,8 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
 		) {
-		// Bazaar Bargain head counter: lose a head.
-		players[owner].BazaarBargainShot = BazaarBargain_Lose;
+			// Bazaar Bargain head counter: lose a head.
+			players[owner].bazaar_shot = BAZAAR_LOSE;
 		}
 	}
 	
