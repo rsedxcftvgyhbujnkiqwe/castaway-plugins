@@ -271,9 +271,6 @@ enum struct Player {
 	bool deny_metal_collection;
     // Bazaar Bargain.
     BazaarBargainShotManager BazaarBargainShot;
-
-	// Vaccinator.
-	bool vaccinator_healers[MAXPLAYERS + 1];
 }
 
 enum struct Entity {
@@ -5455,7 +5452,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	Action returnValue = Plugin_Continue;
 	char class[64];
 	int weapon1;
-	int weapon2;
+	int weapon1;
 	int health_cur;
 	int health_max;
 
@@ -5549,6 +5546,49 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// vaccinator heal medic when patient takes damage under resist revert
+			if (ItemIsEnabled(Wep_Vaccinator)) {
+				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
+					int iHealerIndex = TF2Util_GetPlayerHealer(victim, i);
+					bool bIsClient = (iHealerIndex <= MaxClients);
+
+					if (bIsClient) {
+						weapon1 = GetPlayerWeaponSlot(iHealerIndex, TFWeaponSlot_Secondary);
+						if (weapon1 > 0) {
+							GetEntityClassname(weapon1, class, sizeof(class));
+							if (StrEqual(class, "tf_weapon_medigun") && GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 998) {
+									// PrintToChatAll("\"%N\" <- healed by player \"%N\" [%i]", victim, iHealerIndex, iHealerIndex);
+								if (
+									attacker != victim && 
+									damage_type & resistance_mapping[GetResistType(weapon1)]
+								) { // Check that the damage type matches the Medic's current resistance.
+									if (damage_type != DMG_BURN)
+									{
+										if (victim != i)
+										{
+											health_cur = GetClientHealth(iHealerIndex);
+											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
+											float resist_heal = ((GetItemVariant(Wep_Vaccinator) == 0) ? 0.10 : 0.25); // 10% for pre-TB (base version), 25% for pre-GM (variant 1)
+
+											// Show that the healer got healed.
+											Handle event = CreateEvent("player_healonhit", true);
+											SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
+											SetEventInt(event, "entindex", iHealerIndex);
+											FireEvent(event);
+
+											// Set health.
+											TF2Util_TakeHealth(iHealerIndex, (damage * resist_heal));
+												// PrintToChatAll("(iHealerIndex: %i) Added %i health on resist, health_cur = %i, new health = %i", iHealerIndex, RoundFloat(damage * resist_heal), health_cur, health_cur + RoundFloat(damage * resist_heal));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}		
 	}
 
 	if (
@@ -5654,49 +5694,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
 				damage *= 0.40; // will also resist taunt kills!
 				returnValue = Plugin_Changed;
-			}
-		}
-		{
-			// vaccinator heal medic when patient takes damage under resist revert
-			if (ItemIsEnabled(Wep_Vaccinator)) {
-				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
-					int iHealerIndex = TF2Util_GetPlayerHealer(victim, i);
-					bool bIsClient = (iHealerIndex <= MaxClients);
-
-					if (bIsClient) {
-						weapon2 = GetPlayerWeaponSlot(iHealerIndex, TFWeaponSlot_Secondary);
-						if (weapon2 > 0) {
-							GetEntityClassname(weapon2, class, sizeof(class));
-							if (StrEqual(class, "tf_weapon_medigun") && GetEntProp(weapon2, Prop_Send, "m_iItemDefinitionIndex") == 998) {
-									// PrintToChatAll("\"%N\" <- healed by player \"%N\" [%i]", victim, iHealerIndex, iHealerIndex);
-								if (
-									attacker != victim && 
-									damage_type & resistance_mapping[GetResistType(weapon2)]
-								) { // Check that the damage type matches the Medic's current resistance.
-									if (damage_type != DMG_BURN)
-									{
-										if (victim != i)
-										{
-											health_cur = GetClientHealth(iHealerIndex);
-											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
-											float resist_heal = ((GetItemVariant(Wep_Vaccinator) == 0) ? 0.10 : 0.25); // 10% for pre-TB (base version), 25% for pre-GM (variant 1)
-
-											// Show that the healer got healed.
-											Handle event = CreateEvent("player_healonhit", true);
-											SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
-											SetEventInt(event, "entindex", iHealerIndex);
-											FireEvent(event);
-
-											// Set health.
-											TF2Util_TakeHealth(iHealerIndex, (damage * resist_heal));
-												// PrintToChatAll("(iHealerIndex: %i) Added %i health on resist, health_cur = %i, new health = %i", iHealerIndex, RoundFloat(damage * resist_heal), health_cur, health_cur + RoundFloat(damage * resist_heal));
-										}
-									}
-								}
-							}
-						}
-					}
-				}
 			}
 		}
 	}
