@@ -6333,14 +6333,12 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
 
-	if (
-		GetItemVariant(Wep_ShortCircuit) == 1 ||
-		GetItemVariant(Wep_ShortCircuit) == 2
-	) {
+	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (owner > 0) {
 		GetEntityClassname(entity, class, sizeof(class));
-		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
 		if (
-			owner > 0 &&
+			(GetItemVariant(Wep_ShortCircuit) == 1 || GetItemVariant(Wep_ShortCircuit) == 2) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
@@ -6354,13 +6352,8 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 				}
 			}
 		}
-	}
-
-	if (ItemIsEnabled(Wep_BazaarBargain)) {
-		GetEntityClassname(entity, class, sizeof(class));
-		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-		if (
-			owner > 0 &&
+		else if (
+			ItemIsEnabled(Wep_BazaarBargain) &&
 			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
@@ -6404,39 +6397,34 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Feat_Airblast));
 		}
 		else if (
-			GetItemVariant(Wep_ShortCircuit) == 0 &&
+			ItemIsEnabled(Wep_ShortCircuit) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit secondary fire
 
-			SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
-			SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
+			if (GetItemVariant(Wep_ShortCircuit) == 0) {
 
-			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+				SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
+				SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
 
-			if (metal >= BALANCE_CIRCUIT_METAL) {
-				for (idx = 1; idx <= MaxClients; idx++) {
-					if (
-						IsClientInGame(idx) &&
-						(
-							idx != owner ||
-							metal < 65
-						)
-					) {
-						EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
+				metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+
+				if (metal >= BALANCE_CIRCUIT_METAL) {
+					for (idx = 1; idx <= MaxClients; idx++) {
+						if (
+							IsClientInGame(idx) &&
+							(
+								idx != owner ||
+								metal < 65
+							)
+						) {
+							EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
+						}
 					}
+					DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
 				}
-				DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
 			}
 
-			return MRES_Supercede;
-		}
-		else if (
-			(GetItemVariant(Wep_ShortCircuit) == 1 ||
-			GetItemVariant(Wep_ShortCircuit) == 2) &&
-			StrEqual(class, "tf_weapon_mechanical_arm")
-		) {
-			// prevent alt-fire for pre-gunmettle short circuit
 			return MRES_Supercede;
 		}
 		else if (
