@@ -145,7 +145,7 @@ enum
 #define LUNCHBOX_BANANA_DROP_MODEL  "models/items/banana/plate_banana.mdl"
 #define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
 #define MAX_HEAD_BONUS 6
-#define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50
+#define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
 
 enum
 {
@@ -2872,6 +2872,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 783, 0.0); // Extinguishing teammates restores 0 health
 				}
 			}
+		}}
+		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 268, 1.20); // Base charge rate decreased by 20%
 		}}
 		case 237: { if (ItemIsEnabled(Wep_RocketJumper)) {
 			switch (GetItemVariant(Wep_RocketJumper)) {				
@@ -7401,19 +7405,17 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	int owner;
 	char class[64];
 
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) &&
-		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402
-	) {
-		GetEntityClassname(entity, class, sizeof(class));
+	if (ItemIsEnabled(Wep_BazaarBargain)) {
 		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		GetEntityClassname(entity, class, sizeof(class));
+
 		if (
 			owner > 0 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap")
 		) {
 			// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
 			// Change the recharge rate for the Bazaar Bargain.
-			returnValue.Value = 0.2 * (intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+			returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 			return MRES_Supercede;
 		}
 	}
