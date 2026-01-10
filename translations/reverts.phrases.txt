@@ -1192,6 +1192,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, fire immunity for 2s, silent killer, cannot regenerate from ammo sources"
 	}
+	"SpyCicle_Pre2011"
+	{
+		"en"	"Reverted to pre-December 23, 2011, fire immunity for 2s, silent killer, cannot regenerate from ammo sources, taunting uses the Fencing taunt attack"
+	}
 	"StkJumper_Pre2013"
 	{
 		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once again"

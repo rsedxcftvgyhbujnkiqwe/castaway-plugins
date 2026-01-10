@@ -103,6 +103,13 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x56\xFF\x75"
 				"linux"   "@_ZN11CTFRevolver19CanFireCriticalShotEbP11CBaseEntity"
 			}
+			"AI_CriteriaSet::AppendCriteria" // find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
+											// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x48\x56\x8B\x75"
+				"linux"   "@_ZN14AI_CriteriaSet14AppendCriteriaEPKcS1_f"
+			}
 		}
 
 		"Offsets"
@@ -512,6 +519,28 @@
 				"this"     "entity"
 				"return"   "float"
 			}			
+			"AI_CriteriaSet::AppendCriteria"
+			{
+				"signature"	"AI_CriteriaSet::AppendCriteria"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"criteria"
+					{
+						"type"	"charptr"
+					}
+					"value"
+					{
+						"type"	"charptr"
+					}
+					"weight"
+					{
+						"type"	"float"
+					}
+				}
+			}
 		}
 	}
 }
