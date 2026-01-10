@@ -93,6 +93,13 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 
+enum
+{
+    BAZAAR_LOSE = -1,
+    BAZAAR_IDLE = 0,
+    BAZAAR_GAIN
+}
+
 // flags for item definitions
 #define CLASSFLAG_SCOUT		(1 << 0)
 #define CLASSFLAG_SNIPER	(1 << 1)
@@ -138,7 +145,7 @@ public Plugin myinfo = {
 #define LUNCHBOX_BANANA_DROP_MODEL  "models/items/banana/plate_banana.mdl"
 #define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
 #define MAX_HEAD_BONUS 6
-#define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50
+#define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
 
 enum
 {
@@ -196,13 +203,6 @@ char class_names[][] = {
 	"SPY",
 	"ENGINEER"
 };
-
-enum BazaarBargainShotManager
-{
-    BazaarBargain_Lose = -1,
-    BazaarBargain_Idle = 0,
-    BazaarBargain_Gain
-}
 
 enum struct Item {
 	char key[64];
@@ -269,8 +269,7 @@ enum struct Player {
 	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
 	bool has_thrown_sandvich;
 	bool deny_metal_collection;
-    // Bazaar Bargain.
-    BazaarBargainShotManager BazaarBargainShot;
+    int bazaar_shot;
 }
 
 enum struct Entity {
@@ -308,7 +307,6 @@ ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
-ConVar cvar_ref_tf_whip_speed_increase;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -353,22 +351,13 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
-DynamicHook dhook_CObjectSentrygun_StartBuilding;
-DynamicHook dhook_CObjectSentrygun_Construct;
-
-DynamicDetour dhook_CBaseObject_OnConstructionHit;
-DynamicDetour dhook_CBaseObject_CreateAmmoPack;
-
-Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
-
-Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
-
 #endif
 
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle sdkcall_AwardAchievement;
+Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -377,6 +366,8 @@ DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
 DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
+DynamicHook dhook_CObjectSentrygun_StartBuilding;
+DynamicHook dhook_CObjectSentrygun_Construct;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -390,6 +381,18 @@ DynamicDetour dhook_CTFPlayer_Taunt;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
+DynamicDetour dhook_CBaseObject_OnConstructionHit;
+DynamicDetour dhook_CBaseObject_CreateAmmoPack;
+
+Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
+Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
+
+// OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
+// (as in they cannot be found in datamaps/netprop).
+// These offsets are discovered using tools such as IDA and Ghidra.
+// It's recommended that you name the int the same as the member.
+// We later load these with GameConfGetOffset(Handle gc, const char[] key)
+int m_flTauntNextStartTime;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -398,13 +401,6 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
-
-// OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
-// (as in they cannot be found in datamaps/netprop).
-// These offsets are discovered using tools such as IDA and Ghidra.
-// It's recommended that you name the int the same as the member.
-// We later load these with GameConfGetOffset(Handle gc, const char[] key)
-int m_flTauntNextStartTime;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -486,9 +482,7 @@ enum
 	Wep_Cleaver, // Flying Guillotine
 	Wep_GRU, // Gloves of Running Urgently
 	Wep_Gunboats,
-#if defined MEMORY_PATCHES
 	Wep_Gunslinger,
-#endif
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_Huntsman,
 #if defined MEMORY_PATCHES	
@@ -705,10 +699,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Gunboats);
-#if defined MEMORY_PATCHES
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
-#endif
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES	
@@ -830,7 +822,6 @@ public void OnPluginStart() {
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
-	cvar_ref_tf_whip_speed_increase = FindConVar("tf_whip_speed_increase");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -886,12 +877,19 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		sdkcall_AwardAchievement = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
+		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
+		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -906,6 +904,11 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
+		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
+		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
+
+		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
+		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -987,53 +990,18 @@ public void OnPluginStart() {
 			"CTFSniperRifle::Fire_SniperScopeJump");
 #endif
 
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
-		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
-		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
-		
-		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
-		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
-
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
-		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 
 		// this is done this way so all failures are logged simultaneously rather than one by one
 		// helps for fixing update breakage
 		bool hook_fail = false;
 
-		if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) {
-			hook_fail=true;
-			LogError("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
-		}
-		if (dhook_CObjectSentrygun_StartBuilding == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CObjectSentrygun_StartBuilding");
-		}
-		if (dhook_CObjectSentrygun_Construct == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CObjectSentrygun_Construct");
-		}
 		if (dhook_CTFAmmoPack_MakeHolidayPack == null) {
 			hook_fail=true;
 			LogError("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
 		} else {
 			dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		}
-		if (dhook_CBaseObject_OnConstructionHit == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CBaseObject_OnConstructionHit");
-		} else {
-			dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
-		}
-		if (dhook_CBaseObject_CreateAmmoPack == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CBaseObject_CreateAmmoPack");
-		} else {
-			dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
-		}
-
 
 		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) {
 			hook_fail=true;
@@ -1121,8 +1089,6 @@ public void OnPluginStart() {
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
-		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
-
 		delete conf;
 	}
 #endif
@@ -1144,24 +1110,31 @@ public void OnPluginStart() {
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
 	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
+	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
+
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
 	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
+	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
+	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
+	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
+	if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
+	if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
+
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
 	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
-	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
+	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
+	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1176,6 +1149,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
+	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
+	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1595,6 +1570,18 @@ public void OnGameFrame() {
 					}
 
 					{
+						// crit-a-cola damage taken minicrits
+
+						if (
+							GetItemVariant(Wep_CritCola) >= 3 &&
+							player_weapons[idx][Wep_CritCola] &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
+						) {
+							TF2_AddCondition(idx, TFCond_MarkedForDeathSilent, 0.100, 0);
+						}
+					}
+
+					{
 						// sodapopper stuff
 
 						if (ItemIsEnabled(Wep_SodaPopper)) {
@@ -1928,6 +1915,18 @@ public void OnGameFrame() {
 							}
 						}
 					}
+
+					{
+						// buffalo steak damage taken minicrits
+
+						if (
+							GetItemVariant(Wep_BuffaloSteak) >= 1 &&
+							player_weapons[idx][Wep_BuffaloSteak] &&
+							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
+						) {
+							TF2_AddCondition(idx, TFCond_MarkedForDeathSilent, 0.100, 0);
+						}
+					}
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Medic) {
@@ -2027,12 +2026,11 @@ public void OnGameFrame() {
 						) {
 							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
 							if (
-								(players[idx].BazaarBargainShot == BazaarBargain_Lose && decapitations != 0) || 
-								players[idx].BazaarBargainShot != BazaarBargain_Idle
+								(players[idx].bazaar_shot == BAZAAR_LOSE && decapitations != 0) ||
+								players[idx].bazaar_shot != BAZAAR_IDLE
 							) {
-								int newHead = decapitations + view_as<int>(players[idx].BazaarBargainShot);
-								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, newHead));
-								players[idx].BazaarBargainShot = BazaarBargain_Idle;
+								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, decapitations + players[idx].bazaar_shot));
+								players[idx].bazaar_shot = BAZAAR_IDLE;
 							}
 						}
 					}
@@ -2344,20 +2342,15 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 	} 
 	
-	else if (
-		StrEqual(class, "obj_sentrygun") ||
-		StrEqual(class, "obj_dispenser") ||
-		StrEqual(class, "obj_teleporter")
-	) {
+	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
+
 		if (StrEqual(class, "obj_sentrygun")) {
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
-	#if defined MEMORY_PATCHES
 			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
-	#endif
 		} 
 	} 
 	
@@ -2546,14 +2539,15 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
-		// if player somehow activated hype condition, remove it, unless they have a drink item
-
+		// crit-a-cola release variant duration modification
 		if (
-			GetItemVariant(Wep_SodaPopper) == 0 &&
-			condition == TFCond_CritHype &&
-			(player_weapons[client][Wep_Bonk] || player_weapons[client][Wep_CritCola]) == false
+			GetItemVariant(Wep_CritCola) == 4 &&
+			condition == TFCond_CritCola &&
+			player_weapons[client][Wep_CritCola] &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
-			TF2_RemoveCondition(client, TFCond_CritHype);
+			// set energy drink meter to 75 such that it drains to 0 in 6 seconds
+			SetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter", 75.0);
 		}
 	}
 	{
@@ -2572,29 +2566,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
-		// buffalo steak sandvich minicrit on damage taken
-		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
-		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			condition == TFCond_RestrictToMelee &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola)
-		) {
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-	{
-		// crit-a-cola damage taken minicrits
-		if (
-			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			condition == TFCond_CritCola &&
-			player_weapons[client][Wep_CritCola] == true
-		) {
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 8.0, 0);
-		}
-	}
-	{
 		// Track when player starts aiming (Minigun, Sniper Rifles) for use elsewhere
 		if (condition == TFCond_Slowed) {
 			players[client].aiming_cond_time = GetGameTime();
@@ -2603,30 +2574,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
-	{
-		// buffalo steak sandvich marked-for-death effect removal
-		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			(condition == TFCond_CritCola || 
-			(condition == TFCond_RestrictToMelee && GetItemVariant(Wep_BuffaloSteak) != 3)) && 
-			// prevent marked for death removal bugs with variant 3, this is done because RestrictToMelee is applied every second when Heavy is eating the Steak.
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
-	{
-		// crit-a-cola mark-for-death removal for pre-July2013 and release variants
-		if (
-			(GetItemVariant(Wep_CritCola) == 3 || GetItemVariant(Wep_CritCola) == 4) &&
-			condition == TFCond_CritCola &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
-			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
-		) {
-			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}
-	}
 	{
 		if (
 			TF2_GetPlayerClass(client) == TFClass_Engineer &&
@@ -2696,19 +2643,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		if (condition == TFCond_Charging) {
 			players[client].charge_tick = GetGameTickCount();
 			return Plugin_Continue;
-		}
-	}
-	{
-		// crit-a-cola release variant duration modification
-		// crit-a-cola normally applies 9 seconds, then relies on the energy drink meter to have it be 8 seconds
-		if (
-			GetItemVariant(Wep_CritCola) == 4 &&
-			condition == TFCond_CritCola &&
-			time == 9.0 &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			time = 6.0;
-			return Plugin_Changed;
 		}
 	}
 	{
@@ -2790,9 +2724,9 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 		// pre-inferno crit-a-cola mark-for-death on expire
 		if (
 			GetItemVariant(Wep_CritCola) == 1 &&
-			TF2_GetPlayerClass(client) == TFClass_Scout &&
 			condition == TFCond_CritCola &&
-			GetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter") <= 0.0
+			player_weapons[client][Wep_CritCola] &&
+			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
 		}
@@ -2938,6 +2872,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 783, 0.0); // Extinguishing teammates restores 0 health
 				}
 			}
+		}}
+		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 268, 1.20); // Base charge rate decreased by 20%
 		}}
 		case 237: { if (ItemIsEnabled(Wep_RocketJumper)) {
 			switch (GetItemVariant(Wep_RocketJumper)) {				
@@ -3233,12 +3171,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 135, 0.25); // -75% blast damage from rocket jumps
 		}}
-#if defined MEMORY_PATCHES
 		case 142: { if (ItemIsEnabled(Wep_Gunslinger)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 464, 4.0); // Sentry build speed increased by 300%
 		}}
-#endif
 		case 812, 833: { if (ItemIsEnabled(Wep_Cleaver)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
@@ -3633,32 +3569,32 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_Tomislav)) {
 				case 0: { // Pre-Pyromania
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.60); // 40% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.60); // 40% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 				}
 				case 1: { // Release
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.25); // 75% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.25); // 75% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}
 				case 2: { // Pre-Love & War
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 87, 0.90); // 10% faster spin up time
-					TF2Items_SetAttribute(itemNew, 2, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}				
 				case 3: { // SOUND PITCH REVERT ONLY; essentially Vanilla Tomislav but higher pitched sounds
 					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 1, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 1, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 2, 549, 1.2); // halloween fire rate bonus
 				}
 				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
@@ -3789,36 +3725,27 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		client = GetClientOfUserId(GetEventInt(event, "userid"));
 		attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 
-		// Just to ensure that if attacker is missing for some reason, that we still check the victim.
-		// Also check that wrangler revert is enabled.
+		// 1 second sentry disable if wrangler shield active and engineer dies.
+		// should not affect the normal 3 second disable on engineer weapon switch etc.
 		if (
 			client > 0 &&
 			client <= MaxClients &&
 			IsClientInGame(client) && 
 			ItemIsEnabled(Wep_Wrangler)
 		) {
-			// 1 second sentry disable if wrangler shield active && engineer dies.
-			// should not effect the normal 3 second disable on engineer weapon switch etc.
 			if (TF2_GetPlayerClass(client) == TFClass_Engineer) {
 
 				int sentry = FindSentryGunOwnedByClient(client);
 				if (sentry != -1) {
-					int isControlled = GetEntProp(sentry, Prop_Send, "m_bPlayerControlled");
-					if (isControlled > 0) {
-						Address sentryBaseAddr = GetEntityAddress(sentry); // Get base address of sentry.
 
+					if (GetEntProp(sentry, Prop_Send, "m_bPlayerControlled") > 0) {
+						
 						// Offset to m_flShieldFadeTime and input our own value.
-#if !defined WIN32
-						// Offset for Linux (0xB50)
-						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB50), GetGameTime() + 1.0, NumberType_Int32);
-#else
-						// Offset for Windows (0xB38 NOTE: Ghidra will show something else in decompile, check the bytes instead!)
-						StoreToAddress(sentryBaseAddr + view_as<Address>(0xB38), GetGameTime() + 1.0, NumberType_Int32);
-#endif
-						isControlled = 0; // Make sure isControlled is set to 0 or org source code
-										  // will consider it true on next tick and m_flShieldFadeTime will become 3.0
-										  // thus undoing our revert.
-						SetEntProp(sentry, Prop_Send, "m_bPlayerControlled", isControlled);
+						StoreToAddress(GetEntityAddress(sentry) + CObjectSentrygun_m_flShieldFadeTime, GetGameTime() + 1.0, NumberType_Int32);
+
+						// Set m_bPlayerControlled to 0 such that the original code
+						// wouldn't set the shield fade time to 3 seconds, thus undoing our revert.
+						SetEntProp(sentry, Prop_Send, "m_bPlayerControlled", 0);
 					} 
 				} 
 			} 
@@ -4078,8 +4005,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
 						case 56, 1005, 1092: player_weapons[client][Wep_Huntsman] = true;
-#if defined MEMORY_PATCHES
 						case 142: player_weapons[client][Wep_Gunslinger] = true;
+#if defined MEMORY_PATCHES
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 #endif
 						case 329: player_weapons[client][Wep_Jag] = true;
@@ -5299,7 +5226,7 @@ Action SDKHookCB_OnTakeDamage(
 					players[attacker].headshot_frame == GetGameTickCount() && 
 					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
 				) {
-					players[attacker].BazaarBargainShot = BazaarBargain_Gain;
+					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
 			}
 
@@ -5693,13 +5620,15 @@ void SDKHookCB_OnTakeDamagePost(
 
 		if (
 			ItemIsEnabled(Wep_BazaarBargain) &&
-			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
-			players[attacker].BazaarBargainShot == BazaarBargain_Gain &&
-			!IsPlayerAlive(victim)
+			players[attacker].bazaar_shot == BAZAAR_GAIN &&
+			!IsPlayerAlive(victim) &&
+			weapon > 0
 		) {
-			// Bazaar Bargain: do not gain two heads in one time.
-			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402) {
+				// Bazaar Bargain: do not gain two heads in one time.
+				SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+			}
 		}
 
 		if (inflictor > MaxClients) {
@@ -5857,19 +5786,15 @@ public Action OnPlayerRunCmd(
 				}
 
 				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
-				if (
-					(buttons & IN_ATTACK2 != 0)
-				) {
+				if (buttons & IN_ATTACK2 != 0) {
 					if (!players[client].holding_attack2)
 					{
 						players[client].holding_attack2 = true;
-							// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
 					}
 				}
 				else 
 				{
 					players[client].holding_attack2 = false;
-						// PrintToChat(client, "players[client].holding_attack2 = %b", players[client].holding_attack2);
 				}
 			}			
 		}
@@ -6412,14 +6337,12 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
 
-	if (
-		GetItemVariant(Wep_ShortCircuit) == 1 ||
-		GetItemVariant(Wep_ShortCircuit) == 2
-	) {
+	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (owner > 0) {
 		GetEntityClassname(entity, class, sizeof(class));
-		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+
 		if (
-			owner > 0 &&
+			(GetItemVariant(Wep_ShortCircuit) == 1 || GetItemVariant(Wep_ShortCircuit) == 2) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
@@ -6433,21 +6356,14 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 				}
 			}
 		}
-	}
-
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) 
-	) {
-		GetEntityClassname(entity, class, sizeof(class));
-		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-		if (
-			owner > 0 &&
+		else if (
+			ItemIsEnabled(Wep_BazaarBargain) &&
 			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
 		) {
-		// Bazaar Bargain head counter: lose a head.
-		players[owner].BazaarBargainShot = BazaarBargain_Lose;
+			// Bazaar Bargain head counter: lose a head.
+			players[owner].bazaar_shot = BAZAAR_LOSE;
 		}
 	}
 	
@@ -6485,39 +6401,34 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			SetConVarMaybe(cvar_ref_tf_airblast_cray, "0", ItemIsEnabled(Feat_Airblast));
 		}
 		else if (
-			GetItemVariant(Wep_ShortCircuit) == 0 &&
+			ItemIsEnabled(Wep_ShortCircuit) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit secondary fire
 
-			SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
-			SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
+			if (GetItemVariant(Wep_ShortCircuit) == 0) {
 
-			metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+				SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
+				SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
 
-			if (metal >= BALANCE_CIRCUIT_METAL) {
-				for (idx = 1; idx <= MaxClients; idx++) {
-					if (
-						IsClientInGame(idx) &&
-						(
-							idx != owner ||
-							metal < 65
-						)
-					) {
-						EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
+				metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+
+				if (metal >= BALANCE_CIRCUIT_METAL) {
+					for (idx = 1; idx <= MaxClients; idx++) {
+						if (
+							IsClientInGame(idx) &&
+							(
+								idx != owner ||
+								metal < 65
+							)
+						) {
+							EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
+						}
 					}
+					DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
 				}
-				DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
 			}
 
-			return MRES_Supercede;
-		}
-		else if (
-			(GetItemVariant(Wep_ShortCircuit) == 1 ||
-			GetItemVariant(Wep_ShortCircuit) == 2) &&
-			StrEqual(class, "tf_weapon_mechanical_arm")
-		) {
-			// prevent alt-fire for pre-gunmettle short circuit
 			return MRES_Supercede;
 		}
 		else if (
@@ -6623,7 +6534,10 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 							if (TR_DidHit() == false) {
 								if (idx <= MaxClients) {
 									// damage players
-									if (damage != 0.0) {
+									if (
+										damage != 0.0 &&
+										IsPlayerAlive(idx)
+									) {
 										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
 
 										// show particle effect
@@ -6808,32 +6722,23 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			const float heavy_base_speed = 230.0;
 			float steak_boost_cap = heavy_base_speed * 1.35;
 
-			float new_speed = heavy_base_speed;
-
-			// apply various movespeed modifications (from SDK code)
-
-			if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
-				new_speed += floatMin(new_speed * 0.4, cvar_ref_tf_whip_speed_increase.FloatValue);
+			if (view_as<float>(returnValue.Value) < steak_boost_cap) {
+				multiplier *= 1.35 / 1.30;
 			}
 
-			multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed", entity);
+			if (GetItemVariant(Wep_BuffaloSteak) == 1) {
+				// apply various movespeed modifications
 
-			int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
-			if (weapon > 0) {
-				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed_active", weapon);
-			}
+				if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+					multiplier *= 1.4;
+				}
 
-			new_speed *= multiplier;
+				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed", entity);
 
-			// apply the steak speed boost
-			new_speed *= 1.35;
-
-			// Movespeed cap if not using release steak
-			if (
-				GetItemVariant(Wep_BuffaloSteak) != 1 &&
-				new_speed > steak_boost_cap
-			) {
-				new_speed = steak_boost_cap;
+				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+				if (weapon > 0) {
+					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed_active", weapon);
+				}
 			}
 
 			// Heavy still slows down when revved under Steak effects; include additional 4% speed increase from the revert while slowing down
@@ -6841,13 +6746,12 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				GetItemVariant(Wep_BuffaloSteak) == 3 &&
 				TF2_IsPlayerInCondition(entity, TFCond_Slowed)
 			) {
-				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
-				new_speed *= multiplier;
-				new_speed *= 0.478; // heavy slows down to 47% of his movespeed when revved
+				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+				if (weapon > 0) {
+					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
+				}
+				multiplier *= 0.478; // heavy slows down to 47% of his movespeed when revved
 			}
-
-			returnValue.Value = new_speed;
-			return MRES_Override;
 		}
 
 		if (multiplier != 1.0)
@@ -6994,7 +6898,6 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 		SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
 	}
 
-#if defined MEMORY_PATCHES
 	char class[64];
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -7007,7 +6910,6 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 			return MRES_Supercede;
 		}
 	}
-#endif
 
 	if (ItemIsEnabled(Wep_RescueRanger)) {
 		// It's Sigafoo save time BABY!
@@ -7039,32 +6941,34 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 
 				repair_amount = GetEntProp(building, Prop_Data, "m_iHealth") - health_old;
 
-				Event event = CreateEvent("building_healed");
-				if (event != null)
-				{
-					event.SetInt("priority", 1); // HLTV event priority, not transmitted
-					event.SetInt("building", building); // self-explanatory.
-					event.SetInt("healer", attacker); // Index of the engineer who healed the building.
-					event.SetInt("amount", repair_amount); // Repair amount to display.
+				if (repair_amount > 0) {
+					Event event = CreateEvent("building_healed");
+					if (event != null)
+					{
+						event.SetInt("priority", 1); // HLTV event priority, not transmitted
+						event.SetInt("building", building); // self-explanatory.
+						event.SetInt("healer", attacker); // Index of the engineer who healed the building.
+						event.SetInt("amount", repair_amount); // Repair amount to display.
 
-					event.Fire(); // FIRE IN THE HOLE!!!!!!!
-				}
+						event.Fire(); // FIRE IN THE HOLE!!!!!!!
+					}
 
-				// Spawn heal particles
-				if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 3) {
-					// [1696] repair_claw_heal_blue
-					AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
-				} else {
-					// [1699] repair_claw_heal_red
-					// PATTACH_ABSORIGIN_FOLLOW
-					AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
-				}
+					// Spawn heal particles
+					if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 3) {
+						// [1696] repair_claw_heal_blue
+						AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
+					} else {
+						// [1699] repair_claw_heal_red
+						// PATTACH_ABSORIGIN_FOLLOW
+						AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
+					}
 
-				// Check if building owner and the engineer who shot the bolt
-				// are the same person. If not, give them progress on
-				// the "Circle the Wagons" achievement.
-				if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
-					AddProgressOnAchievement(attacker, 1836, repair_amount);
+					// Check if building owner and the engineer who shot the bolt
+					// are the same person. If not, give them progress on
+					// the "Circle the Wagons" achievement.
+					if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
+						AddProgressOnAchievement(attacker, 1836, repair_amount);
+					}
 				}
 			}
 
@@ -7189,7 +7093,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		SetEntProp(entity, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
 	}
 
-#if defined MEMORY_PATCHES
 	// Do not allow repairs on mini sentries. Mini sentries can still get refilled with ammo.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -7228,7 +7131,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		returnValue.Value = did_work;
 		return MRES_Supercede;
 	}
-#endif
 
 	return MRES_Ignored;
 }
@@ -7246,7 +7148,6 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
-#if defined MEMORY_PATCHES
 MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -7254,7 +7155,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn 
 		!GetEntProp(entity, Prop_Send, "m_bCarryDeploy")
 	) {
 		// Mini sentries always start off at max health.
-		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, 100.00, NumberType_Int32);
+		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth")), NumberType_Int32);
 	}
 	return MRES_Ignored;
 }
@@ -7285,7 +7186,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 			// Release Gunslinger double heal rate on construction
 			float delta = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - entities[entity].minisentry_health;
 			if (delta > 0.0) {
-				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, 100.0), NumberType_Int32);
+				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth"))), NumberType_Int32);
 			}
 		}
 	}
@@ -7320,8 +7221,6 @@ MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn retu
     }
     return MRES_Ignored;
 }
-
-#endif
 
 MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (
@@ -7474,7 +7373,7 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 		// Make sure that the healthkit is owned by world before we reset tracking.
 		// This is because we want to avoid letting other heavys sandviches that have not been hooked charge the touching heavys chargemeter.
 		// If we want heavy to be able to recharge of things like the candy cane healthkit or healthkits dropped
-		// in Medivial mode, we need to figure out how to do that later. This will have to do in the meanwhile.
+		// in Medieval mode, we need to figure out how to do that later. This will have to do in the meanwhile.
 		if ( hp >= maxhealth && ( owner_of_healthkit == 0 || owner_of_healthkit == -1)) {
 			// It's a normal map placed healthkit, allow the recharge.
 			players[client].has_thrown_sandvich = false;
@@ -7509,19 +7408,17 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	int owner;
 	char class[64];
 
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) &&
-		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402
-	) {
-		GetEntityClassname(entity, class, sizeof(class));
+	if (ItemIsEnabled(Wep_BazaarBargain)) {
 		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		GetEntityClassname(entity, class, sizeof(class));
+
 		if (
 			owner > 0 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap")
 		) {
 			// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
 			// Change the recharge rate for the Bazaar Bargain.
-			returnValue.Value = 0.2 * (intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+			returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 			return MRES_Supercede;
 		}
 	}
@@ -7764,34 +7661,30 @@ stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
-stock bool IsBuildingValidHealTarget(int buildingIndex, int engineerIndex)
+stock bool IsBuildingValidHealTarget(int building, int engineer)
 {
-	if (!IsValidEntity(buildingIndex))
+	if (!IsValidEntity(building))
 		return false;
 
-	char classname[64];
-	GetEntityClassname(buildingIndex, classname, sizeof(classname));
+	char class[64];
+	GetEntityClassname(building, class, sizeof(class));
 
-	if (
-		!StrEqual(classname, "obj_sentrygun", false) &&
-		!StrEqual(classname, "obj_teleporter", false) &&
-		!StrEqual(classname, "obj_dispenser", false)
-	) {
+	if (StrContains(class, "obj_") == -1) {
 		//PrintToChatAll("Entity did not match buildings");
 		return false;
 	}
 
 	if (
-		GetEntProp(buildingIndex, Prop_Send, "m_bHasSapper") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlasmaDisable") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bBuilding") ||
-		GetEntProp(buildingIndex, Prop_Send, "m_bPlacing")
+		GetEntProp(building, Prop_Send, "m_bHasSapper") ||
+		GetEntProp(building, Prop_Send, "m_bPlasmaDisable") ||
+		GetEntProp(building, Prop_Send, "m_bBuilding") ||
+		GetEntProp(building, Prop_Send, "m_bPlacing")
 	) {
 		//PrintToChatAll("Big if statement about sappers etc triggered");
 		return false;
 	}
 
-	if (!AreEntitiesOnSameTeam(buildingIndex, engineerIndex)) {
+	if (!AreEntitiesOnSameTeam(building, engineer)) {
 		//PrintToChatAll("Entities were not on the same team");
 		return false;
 	}

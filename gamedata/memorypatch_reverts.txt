@@ -125,29 +125,11 @@
 				"linux"		"@_ZN16CTFWeaponBaseGun12FirePipeBombEP9CTFPlayeri"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xF1"
 			}
-			"CBaseObject::GetReversesBuildingConstructionSpeed" // offset aBuildingSentry_13 ; "Building_Sentrygun.Disabled", first function call in subroutine
-			{
-				"library" "server"
-				"windows" "\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // offset aBuildingSentry_6 ; "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
-				"linux"   "@_ZN11CBaseObject36GetReversesBuildingConstructionSpeedEv"
-			}
 			"CBaseObject::GetConstructionMultiplier" // offset aTeleporterBuil ; "teleporter_build_rate_multiplier", xref to this
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x56\x8B\xF1\x89\x75\xF4\xE8\x2A\x2A\x2A\x2A\x85\xC0"
 				"linux"   "@_ZN11CBaseObject25GetConstructionMultiplierEv"
-			}
-			"CBaseObject::CreateAmmoPack" // offset aModelsWeaponsW_11 ; "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
-				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
-			}
-			"CBaseObject::OnConstructionHit" // offset aNutsnboltsBuil ; "nutsnbolts_build", don't use precache subroutine
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
-				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
 			"CTFProjectile_HealingBolt::ImpactTeamPlayer" // search for string crossbow_heal to find the function
 			{
@@ -155,13 +137,6 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x2A\x8B\xF1\x89\x75\x2A\x85\xFF\x0F\x84"
 				"linux"   "@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
 			}
-			//	Thermal Thruster bug fix has been officially reverted by Valve
-			//	"CTFPlayerShared::ConditionThink"
-			//	{
-			//		"library" "server"
-			//		"windows" "\x55\x8B\xEC\x83\xEC\x30\x53\x56\x57\x8B\xD9\xE8"
-			//		"linux"	  "@_ZN15CTFPlayerShared14ConditionThinkEv"
-			//	}
 			"CTFPlayer::DoClassSpecialSkill" // Search for the string cannot_pick_up_buildings, in it's FUN, it's the XREF FUN_ that has around 60-80 lines of code in decompiler (Ghidra).
 			{
 				"library" "server"
@@ -184,16 +159,7 @@
 
 		"Offsets"
 		{
-			"CObjectSentrygun::StartBuilding"
-			{
-				"windows" "342"
-				"linux"   "344"
-			}
-			"CObjectSentrygun::Construct" // look for CBaseObject::Construct in CObjectSentrygun
-			{
-				"windows" "350"
-				"linux"   "352"
-			}
+			
 		}
 
 		"MemPatches"
@@ -324,29 +290,6 @@
 						"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
 					}
 				}
-
-				// ================================================
-				//	THERMAL THRUSTER BUG FIX HAS BEEN OFFICIALLY REVERTED BY Valve
-				//	SEE https://www.teamfortress.com/post.php?id=255953
-				//	
-				//  Revert Thermal Thruster October 27, 2025 bug fix
-				//	Reverts bug fix (https://github.com/ValveSoftware/source-sdk-2013/pull/1490) in the TF2 source code by preventing RemoveCond() from happening
-				//	"CTFPlayerShared::ConditionThink_PreventJetpackPassiveRemoval"
-				//	{
-				//		"signature" "CTFPlayerShared::ConditionThink"
-				//		"linux"
-				//		{
-				//			"offset"	"1912"
-				//			"verify"	"\xE8\xC3\x80\x2A\x2A" // CALL, x2A wildcard twice
-				//			"patch"		"\x90\x90\x90\x90\x90" // NOP 5x, prevent RemoveCond() from running
-				//		}
-				//		"windows"
-				//		{
-				//			"offset"	"666"
-				//			"verify"	"\xE8\x71\xBB\x2A\x2A" // CALL, x2A wildcard twice
-				//			"patch"		"\x83\xC4\x08\x90\x90" // add esp, 0x8; undo pushes, pad rest with NOPs, prevent RemoveCond() from running
-				//		}
-				//	}
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                   Demoman                    ║
@@ -732,81 +675,12 @@
 			}
 		"Functions"
 		{
-			"CObjectSentrygun::StartBuilding"
-			{
-				"offset"   "CObjectSentrygun::StartBuilding"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
-				"arguments"
-				{
-					"pBuilder"
-					{
-						"type" "cbaseentity"
-					}
-				}
-			}
-			"CObjectSentrygun::Construct"
-			{
-				"offset"   "CObjectSentrygun::Construct"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
-				"arguments"
-				{
-					"flHealth"
-					{
-						"type" "float"
-					}
-				}
-			}
 			"CTFAmmoPack::MakeHolidayPack"
 			{
 				"signature" "CTFAmmoPack::MakeHolidayPack"
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
-			}
-			"CBaseObject::CreateAmmoPack"
-			{
-				"signature" "CBaseObject::CreateAmmoPack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "cbaseentity"
-				"arguments"
-				{
-					"pchModel"
-					{
-						"type" "charptr"
-					}
-					"nMetal"
-					{
-						"type" "int"
-					}
-				}
-			}
-			"CBaseObject::OnConstructionHit"
-			{
-				"signature" "CBaseObject::OnConstructionHit"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type" "cbaseentity"
-					}
-					"pWrench"
-					{
-						"type" "cbaseentity"
-					}
-					"hitLoc"
-					{
-						"type" "object"
-						"size" "12"
-					}
-				}
 			}
 		}
 	}

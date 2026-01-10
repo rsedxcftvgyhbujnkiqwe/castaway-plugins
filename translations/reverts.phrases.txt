@@ -990,15 +990,15 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size, passes through team, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Increased hitbox size, passes through team, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, increased hitbox size, penetrates targets, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg, drains more than 20%% cloak against disguised or cloaked Spies"
+		"en"	"Reverted to release, increased hitbox size, penetrates targets, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, drains cloak per-tick if target is disguised or cloaked"
 	}
 	"Pomson_PreGM_Historical"
 	{
-		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no uber & cloak drain fall-off, ignites friendly Huntsman arrows, deals untyped dmg, old dmg formula"
+		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, old damage formula"
 	}
 	"Powerjack_PreGM"
 	{
@@ -1010,7 +1010,7 @@
 	}
 	"Powerjack_Pre2013"
 	{
-		"en"	"Reverted to Hatless Update, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, 20%% melee vuln while active"
+		"en"	"Reverted to pre-Summer 2013, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, 20%% melee vuln while active"
 	}
 	"Pocket_Release"
 	{
@@ -1070,11 +1070,11 @@
 	}
 	"Bison_PreMYM"
 	{
-		"en"	"Increased hitbox size (can hit same target many times), ignites friendly Huntsman arrows, deals untyped dmg"
+		"en"	"Increased hitbox size (can hit same target many times), pierces bullet resists, ignites friendly Huntsman arrows"
 	}
 	"Bison_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, increased hitbox size (can hit same target many times), ignites friendly Huntsman arrows, deals untyped dmg, old dmg formula"
+		"en"	"Reverted to pre-toughbreak, increased hitbox size (can hit same target many times), pierces bullet resists, ignites friendly Huntsman arrows, old damage formula"
 	}
 	"RocketJmp_Pre2013"
 	{
