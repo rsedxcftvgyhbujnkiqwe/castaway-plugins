@@ -6746,7 +6746,10 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				GetItemVariant(Wep_BuffaloSteak) == 3 &&
 				TF2_IsPlayerInCondition(entity, TFCond_Slowed)
 			) {
-				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
+				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+				if (weapon > 0) {
+					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
+				}
 				multiplier *= 0.478; // heavy slows down to 47% of his movespeed when revved
 			}
 		}
