@@ -646,7 +646,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2012");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_PreMnvy");
+	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2011");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
@@ -2444,7 +2445,7 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 
 	int  steak_variant = GetItemVariant(Wep_BuffaloSteak);
 	bool steak_enabled = ItemIsEnabled(Wep_BuffaloSteak);
-	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2);
+	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2 || steak_variant == 3);
 
 	char model_name[PLATFORM_MAX_PATH];
 	GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
@@ -2569,7 +2570,7 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// buffalo steak sandvich minicrit on damage taken
 		// steak sandvich buff effect is composed of TFCond_CritCola and TFCond_RestrictToMelee according to the released source code
 		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
+			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
 			condition == TFCond_RestrictToMelee &&
 			TF2_IsPlayerInCondition(client, TFCond_CritCola)
@@ -2600,13 +2601,15 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
 		// buffalo steak sandvich marked-for-death effect removal
 		if (
-			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2) &&
+			(GetItemVariant(Wep_BuffaloSteak) == 1 || GetItemVariant(Wep_BuffaloSteak) == 2 || GetItemVariant(Wep_BuffaloSteak) == 3) &&
 			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			(condition == TFCond_CritCola || condition == TFCond_RestrictToMelee) &&
+			(condition == TFCond_CritCola || 
+			(condition == TFCond_RestrictToMelee && GetItemVariant(Wep_BuffaloSteak) != 3)) && 
+			// prevent marked for death removal bugs with variant 3, this is done because RestrictToMelee is applied every second when Heavy is eating the Steak.
 			TF2_IsPlayerInCondition(client, TFCond_MarkedForDeathSilent)
 		) {
 			TF2_RemoveCondition(client, TFCond_MarkedForDeathSilent);
-		}			
+		}
 	}
 	{
 		// crit-a-cola mark-for-death removal for pre-July2013 and release variants
@@ -2700,6 +2703,17 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
 			time = 6.0;
+			return Plugin_Changed;
+		}
+	}
+	{
+		// pre-july 7, 2011 steak restrict to melee duration modification
+		// force heavy to switch to melee first then allow him to switch weapons again to replicate the bug
+		if (
+			GetItemVariant(Wep_BuffaloSteak) == 3 && 
+			condition == TFCond_RestrictToMelee
+		) {
+			time = 0.4; // this is the lowest this can go while forcing the heavy to switch to melee first
 			return Plugin_Changed;
 		}
 	}
@@ -6634,12 +6648,14 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 }
 
 MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
-	//int owner;
+	int owner;
 	char class[64];
 
 	GetEntityClassname(entity, class, sizeof(class));
 
 	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	
 	if (
 		GetItemVariant(Wep_Dalokohs) == 0 &&
 		StrEqual(class, "tf_weapon_lunchbox") &&
@@ -6652,6 +6668,17 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		GetItemVariant(Wep_Sandvich) == 0 &&
 		StrEqual(class, "tf_weapon_lunchbox") && 
 		(index == 42 || index == 863 || index == 1002) // Sandvich, Robo-Sandvich, Festive Sandvich
+	) {
+		return MRES_Supercede;
+	}
+
+	// no cooldown when steak is eaten at full health for pre-Manniversary variants
+	if (
+		GetItemVariant(Wep_BuffaloSteak) >= 0 &&
+		StrEqual(class, "tf_weapon_lunchbox") &&
+		index == 311 &&
+		TF2_IsPlayerInCondition(owner, TFCond_Taunting) &&
+		GetClientHealth(owner) >= SDKCall(sdkcall_GetMaxHealth, owner)
 	) {
 		return MRES_Supercede;
 	}
@@ -6802,6 +6829,16 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				new_speed > steak_boost_cap
 			) {
 				new_speed = steak_boost_cap;
+			}
+
+			// Heavy still slows down when revved under Steak effects; include additional 4% speed increase from the revert while slowing down
+			if (
+				GetItemVariant(Wep_BuffaloSteak) == 3 &&
+				TF2_IsPlayerInCondition(entity, TFCond_Slowed)
+			) {
+				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
+				new_speed *= multiplier;
+				new_speed *= 0.478; // heavy slows down to 47% of his movespeed when revved
 			}
 
 			returnValue.Value = new_speed;
