@@ -280,6 +280,27 @@ enum struct Entity {
 	int owner;
 }
 
+// Vaccinator stuff
+int resistance_mapping[] =
+{
+    DMG_BULLET | DMG_BUCKSHOT,
+    DMG_BLAST,
+    DMG_IGNITE | DMG_BURN
+};
+
+enum
+{
+	MEDIGUN_CHARGE_INVALID = -1,
+	MEDIGUN_CHARGE_INVULN = 0,
+	MEDIGUN_CHARGE_CRITICALBOOST,
+	MEDIGUN_CHARGE_MEGAHEAL,
+	MEDIGUN_CHARGE_BULLET_RESIST,
+	MEDIGUN_CHARGE_BLAST_RESIST,
+	MEDIGUN_CHARGE_FIRE_RESIST,
+
+	MEDIGUN_NUM_CHARGE_TYPES,
+};
+
 ConVar cvar_enable;
 ConVar cvar_show_moonshot;
 ConVar cvar_old_falldmg_sfx;
@@ -528,6 +549,7 @@ enum
 	Wep_Tomislav,	
 	Wep_TribalmansShiv,
 	Wep_Caber, // Ullapool Caber
+	Wep_Vaccinator,
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
 	Wep_Wrangler,
@@ -790,6 +812,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLWSoundOnly");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
+	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
+	// ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // Leaving this is for future use if we ever manage to implement this
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
@@ -3623,6 +3647,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 1, 0.65); // -35% damage penalty
 			TF2Items_SetAttribute(itemNew, 1, 149, 8.0); // On Hit: Bleed for 8 seconds
 		}}
+		case 998: { if (ItemIsEnabled(Wep_Vaccinator)) {
+			// switch (GetItemVariant(Wep_Vaccinator)) {
+				// case 0: { // Pre-Tough Break Vaccinator
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
+					TF2Items_SetAttribute(itemNew, 1, 739, 0.34); // -66% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
+				// }
+				// case 1: { // Pre-Gun Mettle Vaccinator, commenting this if we ever manage to fully implement this
+				// 	TF2Items_SetNumAttributes(itemNew, 2);
+				// 	TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
+				// 	TF2Items_SetAttribute(itemNew, 1, 739, 1.00); // -0% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
+				// }
+			// }
+		}}
 		case 173: { if (ItemIsEnabled(Wep_VitaSaw)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 188, 20.0); // preserve ubercharge (doesn't work)
@@ -4048,6 +4086,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 265: player_weapons[client][Wep_StickyJumper] = true;
 						case 424: player_weapons[client][Wep_Tomislav] = true;
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
+						case 998: player_weapons[client][Wep_Vaccinator] = true;
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
@@ -5433,6 +5472,49 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// vaccinator heal medic when patient takes damage under resist revert
+			if (ItemIsEnabled(Wep_Vaccinator)) {
+				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
+					int iHealerIndex = TF2Util_GetPlayerHealer(victim, i);
+					bool bIsClient = (iHealerIndex <= MaxClients);
+
+					if (bIsClient) {
+						weapon1 = GetPlayerWeaponSlot(iHealerIndex, TFWeaponSlot_Secondary);
+						if (weapon1 > 0) {
+							GetEntityClassname(weapon1, class, sizeof(class));
+							if (StrEqual(class, "tf_weapon_medigun") && GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 998) {
+									// PrintToChatAll("\"%N\" <- healed by player \"%N\" [%i]", victim, iHealerIndex, iHealerIndex);
+								if (
+									attacker != victim && 
+									damage_type & resistance_mapping[GetResistType(weapon1)]
+								) { // Check that the damage type matches the Medic's current resistance.
+									if (damage_type != DMG_BURN)
+									{
+										if (victim != i)
+										{
+											health_cur = GetClientHealth(iHealerIndex);
+											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
+											float resist_heal = (0.10); // 10% for pre-TB (base version); TODO: implement pre-GM version (25%)
+
+											// Show that the healer got healed.
+											Handle event = CreateEvent("player_healonhit", true);
+											SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
+											SetEventInt(event, "entindex", iHealerIndex);
+											FireEvent(event);
+
+											// Set health.
+											TF2Util_TakeHealth(iHealerIndex, (damage * resist_heal));
+												// PrintToChatAll("(iHealerIndex: %i) Added %i health on resist, health_cur = %i, new health = %i", iHealerIndex, RoundFloat(damage * resist_heal), health_cur, health_cur + RoundFloat(damage * resist_heal));
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}		
 	}
 
 	if (
@@ -7808,3 +7890,16 @@ stock float floatMax(float x, float y)
     return x > y ? x : y;
 }
 
+int GetChargeType(int entity)
+{
+    int iTmp = MEDIGUN_CHARGE_INVULN;
+    if (GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998)
+        iTmp += GetEntProp(entity, Prop_Send, "m_nChargeResistType");
+    return iTmp;
+}
+
+int GetResistType(int entity)
+{
+    // the original code is weird and this does what i want but it's here for the sake of it.
+    return GetChargeType(entity);
+}
