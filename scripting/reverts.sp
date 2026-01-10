@@ -821,7 +821,7 @@ public void OnPluginStart() {
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
-	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // NOT IMPLEMENTED
+	// ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // Leaving this is for future use if we ever manage to implement this
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
@@ -3712,18 +3712,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 149, 8.0); // On Hit: Bleed for 8 seconds
 		}}
 		case 998: { if (ItemIsEnabled(Wep_Vaccinator)) {
-			switch (GetItemVariant(Wep_Vaccinator)) {
-				case 0: { // Pre-Tough Break Vaccinator
+			// switch (GetItemVariant(Wep_Vaccinator)) {
+				// case 0: { // Pre-Tough Break Vaccinator
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
 					TF2Items_SetAttribute(itemNew, 1, 739, 0.34); // -66% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
-				}
-				case 1: { // Pre-Gun Mettle Vaccinator
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
-					TF2Items_SetAttribute(itemNew, 1, 739, 1.00); // -0% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
-				}
-			}
+				// }
+				// case 1: { // Pre-Gun Mettle Vaccinator, commenting this if we ever manage to fully implement this
+				// 	TF2Items_SetNumAttributes(itemNew, 2);
+				// 	TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
+				// 	TF2Items_SetAttribute(itemNew, 1, 739, 1.00); // -0% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
+				// }
+			// }
 		}}
 		case 173: { if (ItemIsEnabled(Wep_VitaSaw)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
@@ -5568,7 +5568,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 										{
 											health_cur = GetClientHealth(iHealerIndex);
 											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
-											float resist_heal = ((GetItemVariant(Wep_Vaccinator) == 0) ? 0.10 : 0.25); // 10% for pre-TB (base version), 25% for pre-GM (variant 1)
+											float resist_heal = (0.10); // 10% for pre-TB (base version); TODO: implement pre-GM version (25%)
 
 											// Show that the healer got healed.
 											Handle event = CreateEvent("player_healonhit", true);
