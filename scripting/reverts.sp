@@ -320,8 +320,6 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
-MemoryPatch patch_RevertMiniguns_RampupNerf_Dmg;
-MemoryPatch patch_RevertMiniguns_RampupNerf_Spread;
 MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
@@ -358,6 +356,8 @@ Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle sdkcall_AwardAchievement;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
+Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
+Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -368,6 +368,8 @@ DynamicHook dhook_CHealthKit_MyTouch;
 DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
 DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CObjectSentrygun_Construct;
+DynamicHook dhook_CTFMinigun_GetProjectileDamage;
+DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -589,11 +591,7 @@ public void OnPluginStart() {
 	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
 #endif
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
-#if defined MEMORY_PATCHES
-	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun, true);
-#else
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
-#endif
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
@@ -882,6 +880,16 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CTFWeaponBaseGun::GetProjectileDamage");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CTFWeaponBaseGun_GetProjectileDamage = EndPrepSDKCall();
+
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CTFWeaponBaseGun::GetWeaponSpread");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CTFWeaponBaseGun_GetWeaponSpread = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
@@ -890,6 +898,8 @@ public void OnPluginStart() {
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
 		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
+		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
+		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -942,12 +952,6 @@ public void OnPluginStart() {
 		patch_RevertFlamethrowers_Density_OnCollide =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertMiniguns_RampupNerf_Dmg =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFMinigun::GetProjectileDamage_JumpOver1SecondCheck");
-		patch_RevertMiniguns_RampupNerf_Spread =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFMinigun::GetWeaponSpread_JumpOver1SecondCheck");
 		patch_RevertCozyCamper_FlinchNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition");
@@ -1018,14 +1022,6 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
-		}
-		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Dmg)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertMiniguns_RampupNerf_Dmg");
-		}
-		if (!ValidateAndNullCheck(patch_RevertMiniguns_RampupNerf_Spread)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertMiniguns_RampupNerf_Spread");
 		}
 		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) {
 			hook_fail=true;
@@ -1111,6 +1107,8 @@ public void OnPluginStart() {
 	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
+	if (sdkcall_CTFWeaponBaseGun_GetProjectileDamage == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetProjectileDamage");
+	if (sdkcall_CTFWeaponBaseGun_GetWeaponSpread == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetWeaponSpread");
 
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
@@ -1120,6 +1118,8 @@ public void OnPluginStart() {
 	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
 	if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
 	if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
+	if (dhook_CTFMinigun_GetProjectileDamage == null) SetFailState("Failed to create dhook_CTFMinigun_GetProjectileDamage");
+	if (dhook_CTFMinigun_GetWeaponSpread == null) SetFailState("Failed to create dhook_CTFMinigun_GetWeaponSpread");
 
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
@@ -1208,7 +1208,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Minigun),Feat_Minigun);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperQuickscope),Feat_SniperQuickscope);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
@@ -1276,15 +1275,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertFlamethrowers_Density_DmgScale.Disable();
 				patch_RevertFlamethrowers_Density_OnCollide.Disable();
-			}
-		}
-		case Feat_Minigun: {
-			if (enable) {
-				patch_RevertMiniguns_RampupNerf_Dmg.Enable();
-				patch_RevertMiniguns_RampupNerf_Spread.Enable();
-			} else {
-				patch_RevertMiniguns_RampupNerf_Dmg.Disable();
-				patch_RevertMiniguns_RampupNerf_Spread.Disable();
 			}
 		}
 		case Feat_SniperRifle: {
@@ -1838,42 +1828,6 @@ public void OnGameFrame() {
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Heavy) {
-#if !defined MEMORY_PATCHES
-					{
-						// Patchless minigun rampup revert
-
-						if (
-							ItemIsEnabled(Feat_Minigun) &&
-							TF2_IsPlayerInCondition(idx, TFCond_Slowed)
-						) {
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_minigun")) {
-									float spinup_time = TF2Attrib_HookValueFloat(TF_MINIGUN_SPINUP_TIME, "mult_minigun_spinup_time", weapon);
-									float spunup_duration = GetGameTime() - players[idx].aiming_cond_time - spinup_time;
-
-									if (spunup_duration < TF_MINIGUN_PENALTY_PERIOD) {
-
-										// weapon spread
-										// inverse of flMod = RemapValClamped( flSpinTime, 0.f, TF_MINIGUN_PENALTY_PERIOD, 1.5f, 1.f );
-										TF2Attrib_SetByDefIndex(weapon, 36, ValveRemapVal(spunup_duration, 0.0, TF_MINIGUN_PENALTY_PERIOD, 0.66666667, 1.0));
-
-										// damage
-										// inverse of flMod = RemapValClamped( flSpinTime, 0.2f, TF_MINIGUN_PENALTY_PERIOD, 0.5f, 1.f );
-										TF2Attrib_SetByDefIndex(weapon, 476, ValveRemapVal(spunup_duration, 0.2, TF_MINIGUN_PENALTY_PERIOD, 2.0, 1.0));
-									} else {
-										// once we've stayed spun up for long enough remove the attribs
-										TF2Attrib_RemoveByDefIndex(weapon, 36);
-										TF2Attrib_RemoveByDefIndex(weapon, 476);
-									}
-								}
-							}
-						}
-					}
-#endif
 					{
 						if (
 							// This if statement is prepared for handling more than just the Sandvich if there's a desire for it
@@ -2398,6 +2352,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 	}
 
+	else if (StrEqual(class, "tf_weapon_minigun")) {
+		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
+		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
+	}
 }
 
 
@@ -2593,31 +2551,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			}
 		}
 	}
-#if !defined MEMORY_PATCHES
-	{
-		// Temporary attribute removal on minigun spin-down
-		if (
-			TF2_GetPlayerClass(client) == TFClass_Heavy &&
-			condition == TFCond_Slowed
-		) {
-			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-
-			if (weapon > 0) {
-				char class[64];
-				GetEntityClassname(weapon, class, sizeof(class));
-
-				if (StrEqual(class, "tf_weapon_minigun")) {
-					if (ItemIsEnabled(Feat_Minigun)) {
-						// patchless minigun rampup revert
-						TF2Attrib_RemoveByDefIndex(weapon, 36);
-						TF2Attrib_RemoveByDefIndex(weapon, 476);
-					}
-
-				}
-			}
-		}
-	}
-#endif
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -7403,26 +7336,18 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity, DHookReturn returnValue)
-{
-	int owner;
-	char class[64];
-
-	if (ItemIsEnabled(Wep_BazaarBargain)) {
-		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-		GetEntityClassname(entity, class, sizeof(class));
-
-		if (
-			owner > 0 &&
-			StrEqual(class, "tf_weapon_sniperrifle_decap")
-		) {
-			// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
-			// Change the recharge rate for the Bazaar Bargain.
-			returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
-			return MRES_Supercede;
-		}
+MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity, DHookReturn returnValue) {
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (
+		ItemIsEnabled(Wep_BazaarBargain) &&
+		owner > 0
+	) {
+		// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
+		// Change the recharge rate for the Bazaar Bargain.
+		returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+		return MRES_Supercede;
 	}
-	
+
 	return MRES_Ignored;
 }
 
@@ -7451,6 +7376,22 @@ MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam
 
 		// Tell DHooks to apply modified params and continue
 		return MRES_ChangedHandled;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFMinigun_GetProjectileDamage(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Feat_Minigun)) {
+		returnValue.Value = SDKCall(sdkcall_CTFWeaponBaseGun_GetProjectileDamage, entity);
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Feat_Minigun)) {
+		returnValue.Value = SDKCall(sdkcall_CTFWeaponBaseGun_GetWeaponSpread, entity);
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
