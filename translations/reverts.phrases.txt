@@ -660,6 +660,10 @@
 	{
 		"en"	"Reverted to pre-inferno, no longer slows after the effect wears off"
 	}
+	"Bonk_PrePyro"
+	{
+		"en"	"Reverted to pre-pyromania, no post-effect slowdown, effect lasts 6 seconds"
+	}
 	"Booties_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, shield not required for speed bonus"
