@@ -225,9 +225,7 @@ enum struct Player {
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
 	float stunball_fix_time_wear;
-	float spy_cloak_meter;
 	bool spy_is_feigning;
-	int ammo_grab_frame;
 	int bonk_cond_frame;
 	int beggars_ammo;
 	int sleeper_piss_frame;
@@ -238,7 +236,6 @@ enum struct Player {
 	float medic_amputator_current_uber;
 	bool medic_crossbow_heal;
 	float cleaver_regen_time;
-	float icicle_regen_time;
 	int scout_airdash_value;
 	int scout_airdash_count;
 	float backstab_time;
@@ -258,7 +255,6 @@ enum struct Player {
 	int powerjack_kill_tick;
 	float rage_meter;
 	int mmmph_use_tick;
-	bool cloak_gain_capped;
 	float damage_received_time;
 	float aiming_cond_time;
 	bool has_used_jetpack;
@@ -353,7 +349,6 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
-Handle sdkcall_CAmmoPack_GetPowerupSize;
 Handle sdkcall_AwardAchievement;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
@@ -373,7 +368,6 @@ DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
-DynamicDetour dhook_CTFAmmoPack_PackTouch;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
@@ -385,9 +379,11 @@ DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
+DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
+Address CTFPlayerShared_m_pOuter;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -837,7 +833,6 @@ public void OnPluginStart() {
 	HookEvent("player_spawn", OnGameEvent, EventHookMode_Post);
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
 	HookEvent("post_inventory_application", OnGameEvent, EventHookMode_Post);
-	HookEvent("item_pickup", OnGameEvent, EventHookMode_Post);
 	HookEvent("object_destroyed", OnGameEvent, EventHookMode_Post);
 	HookEvent("crossbow_heal", OnGameEvent, EventHookMode_Pre);
 
@@ -864,11 +859,6 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszImpactEffect
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
 		sdkcall_JarExplode = EndPrepSDKCall();
-
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CAmmoPack::GetPowerupSize");
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-		sdkcall_CAmmoPack_GetPowerupSize = EndPrepSDKCall();
 
 		StartPrepSDKCall(SDKCall_Player);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
@@ -905,7 +895,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
-		dhook_CTFAmmoPack_PackTouch =  DynamicDetour.FromConf(conf, "CTFAmmoPack::PackTouch");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
@@ -917,9 +906,11 @@ public void OnPluginStart() {
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
+		dhook_CTFPlayerShared_AddToSpyCloakMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddToSpyCloakMeter");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
+		CTFPlayerShared_m_pOuter = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_nHalloweenBombHeadStage") - FindSendPropInfo("CTFPlayer", "m_Shared") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1105,7 +1096,6 @@ public void OnPluginStart() {
 
 	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
 	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
-	if (sdkcall_CAmmoPack_GetPowerupSize == null) SetFailState("Failed to create sdkcall_CAmmoPack_GetPowerupSize");
 	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
 	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
 	if (sdkcall_CTFWeaponBaseGun_GetProjectileDamage == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetProjectileDamage");
@@ -1125,7 +1115,6 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
 	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CTFAmmoPack_PackTouch == null) SetFailState("Failed to create dhook_CTFAmmoPack_PackTouch");
 	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
@@ -1136,11 +1125,11 @@ public void OnPluginStart() {
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
 	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
+	if (dhook_CTFPlayerShared_AddToSpyCloakMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddToSpyCloakMeter");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
-	dhook_CTFAmmoPack_PackTouch.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_PackTouch);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
@@ -1152,6 +1141,7 @@ public void OnPluginStart() {
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
+	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2017,60 +2007,31 @@ public void OnGameFrame() {
 								players[idx].spy_is_feigning = false;
 								players[idx].spy_under_feign_buffs = false;
 
+								cloak = -1.0;
+
 								switch (GetItemVariant(Wep_DeadRinger)) {
 									case 0: { // pre-GM
 										// when uncloaking, cloak is drained to 40%
-
-										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 40.0) {
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 40.0);
-										}
+										cloak = 40.0;
 									}
 									case 3: { // post-release
 										// fully drain meter when uncloaking
-
-										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > 0.0) {
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 0.0);
-										}
+										cloak = 0.0;
 									}
 									case 5: { // pre-2010
 										// when uncloaking, cloak is drained to 60%
-										if (GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") >= 60.0) {
-											SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", 60.0);
-										}
+										cloak = 60.0;
 									}
 								}
-							}
-						}
-
-						cloak = GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter");
-
-						if (GetItemVariant(Wep_DeadRinger) == 0) {
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Building);
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (
-									StrEqual(class, "tf_weapon_invis") &&
-									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59
+									cloak != -1.0 &&
+									GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > cloak
 								) {
-									if (
-										(cloak - players[idx].spy_cloak_meter) > 35.0 &&
-										(players[idx].ammo_grab_frame + 1) == GetGameTickCount()
-									) {
-										// ammo boxes only give 35% cloak max
-										cloak = (players[idx].spy_cloak_meter + 35.0);
-										SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);	
-									}
-									if (players[idx].cloak_gain_capped) {
-										TF2Attrib_RemoveByDefIndex(weapon, 729);
-										players[idx].cloak_gain_capped = false;
-									}
+									SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 								}
 							}
 						}
-
-						players[idx].spy_cloak_meter = cloak;
 					}
 
 					{
@@ -2081,37 +2042,6 @@ public void OnGameFrame() {
 						) {
 							if (GetFeignBuffsEnd(idx) < GetGameTickCount()) {
 								players[idx].spy_under_feign_buffs = false;
-							}
-						}
-					}
-
-					{
-						// spycicle recharge
-
-						if (ItemIsEnabled(Wep_Spycicle)) {
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (
-									StrEqual(class, "tf_weapon_knife") &&
-									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 649
-								) {
-									timer = GetEntPropFloat(weapon, Prop_Send, "m_flKnifeMeltTimestamp");
-
-									if (
-										timer > 0.1 &&
-										players[idx].icicle_regen_time > 0.1 &&
-										players[idx].icicle_regen_time > timer &&
-										(players[idx].ammo_grab_frame + 1) == GetGameTickCount()
-									) {
-										timer = players[idx].icicle_regen_time;
-										SetEntPropFloat(weapon, Prop_Send, "m_flKnifeMeltTimestamp", timer);
-									}
-
-									players[idx].icicle_regen_time = timer;
-								}
 							}
 						}
 					}
@@ -2138,7 +2068,6 @@ public void OnGameFrame() {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
 					players[idx].spy_under_feign_buffs = false;
-					players[idx].cloak_gain_capped = false;
 				}
 
 				if (
@@ -2183,7 +2112,6 @@ public void OnGameFrame() {
 				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
-				players[idx].cloak_gain_capped = false;
 				players[idx].deny_metal_collection = false;
 			}
 		}
@@ -4231,19 +4159,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
-		}
-	}
-
-	if (StrEqual(name, "item_pickup")) {
-		client = GetClientOfUserId(GetEventInt(event, "userid"));
-
-		GetEventString(event, "item", class, sizeof(class));
-
-		if (
-			StrContains(class, "ammopack_") == 0 || // normal map pickups
-			StrContains(class, "tf_ammo_") == 0 // ammo dropped on death
-		) {
-			players[client].ammo_grab_frame = GetGameTickCount();
 		}
 	}
 
@@ -6757,8 +6672,6 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 		client > 0 &&
 		client <= MaxClients
 	) {
-		int pack_size = SDKCall(sdkcall_CAmmoPack_GetPowerupSize, entity);
-
 		switch (TF2_GetPlayerClass(client)) {
 			case TFClass_DemoMan:
 			{
@@ -6769,53 +6682,9 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, 
 					players[client].deny_metal_collection = true;
 				}
 			}
-			case TFClass_Spy:
-			{
-				if (
-					GetItemVariant(Wep_DeadRinger) == 0 &&
-					GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
-				) {
-					int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
-					if (weapon > 0) {
-						if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
-							// cap cloak gain to 35% per pack
-							float multiplier = 1.0;
-							if (pack_size > 0) {
-								multiplier = (pack_size == 1) ? 0.7 : 0.35;
-							}
-							TF2Attrib_SetByDefIndex(weapon, 729, multiplier); // ReducedCloakFromAmmo
-							players[client].cloak_gain_capped = true;
-						}
-					}
-				}
-			}
 		}
 	}
 
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFAmmoPack_PackTouch(int entity, DHookParam parameters)
-{
-	int client = parameters.Get(1);
-	if (
-		client > 0 &&
-		client <= MaxClients
-	) {
-		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
-			GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") < 100.0
-		) {
-			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Building);
-			if (weapon > 0) {
-				if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59) {
-					// cap cloak gain to 35% per pack
-					TF2Attrib_SetByDefIndex(weapon, 729, 0.7); // ReducedCloakFromAmmo
-					players[client].cloak_gain_capped = true;
-				}
-			}
-		}
-	}
 	return MRES_Ignored;
 }
 
@@ -7398,6 +7267,28 @@ MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn retu
 	return MRES_Ignored;
 }
 
+MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHookReturn returnValue, DHookParam parameters) {
+	if (GetItemVariant(Wep_DeadRinger) == 0) {
+		int client = GetEntityFromAddress(LoadFromAddress(pThis + CTFPlayerShared_m_pOuter, NumberType_Int32));
+		if (
+			client >= 1 &&
+			client <= MaxClients
+		) {
+			bool force = parameters.Get(2);
+			if (
+				player_weapons[client][Wep_DeadRinger] &&
+				!force
+			) {
+				// cap dead ringer cloak gain to 35%
+				float val = parameters.Get(1);
+				parameters.Set(1, floatMin(val, 35.00));
+				return MRES_ChangedHandled;	
+			}
+		}
+	}
+	return MRES_Ignored;
+}
+
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
@@ -7689,6 +7580,24 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	}
 
 	return -1;
+}
+
+// Nosoop stock
+stock int GetEntityFromHandle(any handle)
+{
+	int ent = handle & 0xFFF;
+	if (ent == 0xFFF)
+		ent = -1;
+	return ent;
+}
+
+// Nosoop stock
+stock int GetEntityFromAddress(Address pEntity)
+{
+	if (pEntity == Address_Null)
+		return -1;
+
+	return GetEntityFromHandle(LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32));
 }
 
 /** 

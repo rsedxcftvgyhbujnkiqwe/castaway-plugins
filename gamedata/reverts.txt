@@ -140,6 +140,12 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x57\x6A\x01\x6A\x00"
 				"linux"   "@_ZN16CTFWeaponBaseGun15GetWeaponSpreadEv"
 			}
+			"CTFPlayerShared::AddToSpyCloakMeter" // offset aModCloakNoRege ; "mod_cloak_no_regen_from_items"
+			{
+				"library" "server"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
+				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
+			}
 		}
 
 		"Offsets"
@@ -672,6 +678,24 @@
 					{
 						"type" "object"
 						"size" "12"
+					}
+				}
+			}
+			"CTFPlayerShared::AddToSpyCloakMeter"
+			{
+				"signature" "CTFPlayerShared::AddToSpyCloakMeter"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "bool"
+				"arguments"
+				{
+					"val"
+					{
+						"type" "float"
+					}
+					"bForce"
+					{
+						"type" "bool"
 					}
 				}
 			}
