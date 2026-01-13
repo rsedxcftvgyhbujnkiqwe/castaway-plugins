@@ -1198,7 +1198,7 @@
 	}
 	"SpyCicle_Pre2011"
 	{
-		"en"	"Reverted to pre-December 23, 2011, fire immunity for 2s, silent killer, cannot regenerate from ammo sources, taunting uses the Fencing taunt attack"
+		"en"	"Reverted to release, fire immunity for 2s, silent killer, cannot regenerate from ammo sources, uses the Fencing taunt attack"
 	}
 	"StkJumper_Pre2013"
 	{

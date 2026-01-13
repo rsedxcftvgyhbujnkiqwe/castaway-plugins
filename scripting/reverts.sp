@@ -1646,15 +1646,16 @@ public void OnGameFrame() {
 						if (
 							ItemIsEnabled(Wep_Shortstop) &&
 							cvar_enable_shortstop_shove.BoolValue == false &&
-							StrEqual(class, "tf_weapon_handgun_scout_primary") &&
 							players[idx].holding_attack2 // only run this when attack2 is pressed and/or held
 						) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
 							if (weapon > 0) {
 								GetEntityClassname(weapon, class, sizeof(class));
-								SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
-									// PrintToChat(idx, "m_flNextSecondaryAttack = %f", GetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack"));
+
+								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
+								}
 							}
 						}
 					}
@@ -6955,8 +6956,8 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding") &&
-		!GetEntProp(entity, Prop_Send, "m_bCarryDeploy")
+		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		// Mini sentries always start off at max health.
 		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth")), NumberType_Int32);
@@ -6967,6 +6968,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn 
 MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
@@ -6978,6 +6980,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn 
 MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
+		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
