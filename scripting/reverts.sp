@@ -1703,35 +1703,6 @@ public void OnGameFrame() {
 					}
 
 					{
-						// Release Buff Banner rage takes 1000 damage to fully fill (from 600)
-
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
-
-						if (weapon > 0) {
-
-							if (
-								ItemIsEnabled(Wep_BuffBanner) &&
-								(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 129 ||
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1001)
-							) {
-								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
-								float delta = hype - players[idx].rage_meter;
-
-								if (
-									delta > 0.0 && 
-									hype < 100.0 // esoteric fix to allow buff banner to be usable when full. i have no idea why that happens.
-								) {
-									delta *= 0.6; // 600.0 / 1000.0
-									hype = floatMin(players[idx].rage_meter + delta, 100.0);
-									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
-								}
-
-								players[idx].rage_meter = hype;
-							}
-						}
-					}
-
-					{
 						// equalizer damage bonus
 
 						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
@@ -1789,31 +1760,6 @@ public void OnGameFrame() {
 									// Apply overheal
 									TF2Util_TakeHealth(idx, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
 								}
-							}
-						}
-					}
-
-					{
-						// Phlog rage takes 225 damage to fully fill (from 300)
-
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Primary);
-
-						if (weapon > 0) {
-
-							if (
-								ItemIsEnabled(Wep_Phlogistinator) &&
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 594
-							) {
-								hype = GetEntPropFloat(idx, Prop_Send, "m_flRageMeter");
-								float delta = hype - players[idx].rage_meter;
-
-								if (delta > 0.0) {
-									delta *= 1.33333333; // 300.0 / 225.0
-									hype = floatMin(players[idx].rage_meter + delta, 100.0);
-									SetEntPropFloat(idx, Prop_Send, "m_flRageMeter", hype);
-								}
-
-								players[idx].rage_meter = hype;
 							}
 						}
 					}
@@ -4666,6 +4612,11 @@ Action SDKHookCB_OnTakeDamage(
 	) {
 		// damage from players only
 
+		{
+			// save attacker's rage meter for modifications
+			players[attacker].rage_meter = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
+		}
+
 		if (weapon > MaxClients) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
@@ -5407,6 +5358,8 @@ void SDKHookCB_OnTakeDamagePost(
 	float charge;
 	float damage1;
 	int weapon1;
+	float rage;
+	float delta;
 
 	if (
 		victim >= 1 &&
@@ -5439,6 +5392,33 @@ void SDKHookCB_OnTakeDamagePost(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
+
+		{
+			// rage meter modifications
+			rage = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
+			delta = rage - players[attacker].rage_meter;
+
+			if (
+				delta > 0.0 &&
+				rage < 100.0
+			) {
+				if (
+					ItemIsEnabled(Wep_BuffBanner) &&
+					player_weapons[attacker][Wep_BuffBanner]
+				) {
+					delta *= 0.6; // 600.0 / 1000.0
+				} else if (
+					ItemIsEnabled(Wep_Phlogistinator) &&
+					player_weapons[attacker][Wep_Phlogistinator]
+				) {
+					delta *= 1.33333333; // 300.0 / 225.0
+				}
+
+				rage = floatMin(players[attacker].rage_meter + delta, 100.0);
+				SetEntPropFloat(attacker, Prop_Send, "m_flRageMeter", rage);
+			}
+		}
+
 		if (
 			victim == attacker &&
 			damage > 0 &&
