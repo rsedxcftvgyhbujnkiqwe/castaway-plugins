@@ -2581,8 +2581,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	// ClearDisguiseWeaponList is run in OnRemoveDisguised and in CTFPlayerShared::ConditionGameRulesThink whenever player is not disguised. With our needForce check, we also ensure
 	// we only give bForce to items that would have ended up in m_hDisguiseWeaponList so we know this won't grow out of control.
 	itemNew = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | ( needForce ? FORCE_GENERATION : 0) );
-	
-	bool sword_reverted = false;
 
 	switch (index) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
@@ -2788,16 +2786,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
-			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 4 : 3);
+			TF2Items_SetNumAttributes(itemNew, 3);
 			TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
 			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
 			TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
-			// sword holster code handled here
-			if (swords) {
-				TF2Items_SetAttribute(itemNew, 3, 781, 0.0); // is a sword
-			}
-			sword_reverted = true;
 		}}
 		case 354: { if (ItemIsEnabled(Wep_Concheror)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3120,18 +3112,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			// Overheal on kill handled elsewhere
 		}}
 		case 404: { if (ItemIsEnabled(Wep_Persian)) {
-			bool swords = ItemIsEnabled(Feat_Sword);
-			TF2Items_SetNumAttributes(itemNew, swords ? 7 : 6);
+			TF2Items_SetNumAttributes(itemNew, 6);
 			TF2Items_SetAttribute(itemNew, 0, 77, 1.00); // -0% max primary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 1, 79, 1.00); // -0% max secondary ammo on wearer
 			TF2Items_SetAttribute(itemNew, 2, 249, 2.00); // +100% increase in charge recharge rate
 			TF2Items_SetAttribute(itemNew, 3, 258, 1.0); // Ammo collected from ammo boxes becomes health (doesn't work, using a DHook instead)
 			TF2Items_SetAttribute(itemNew, 4, 778, 0.00); // Melee hits refill 0% of your charge meter
 			TF2Items_SetAttribute(itemNew, 5, 782, 0.0); // Ammo boxes collected also (don't) give Charge
-			if (swords) {
-				TF2Items_SetAttribute(itemNew, 6, 781, 0.0); // is a sword
-			}
-			sword_reverted = true;
 		}}
 		case 57: { if (ItemIsEnabled(Wep_Razorback)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3457,23 +3444,35 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 	}
 
-	if (
-		ItemIsEnabled(Feat_Sword) &&
-		!sword_reverted && //must be set to true on every weapon that implements Feat_Sword check! 
-		(StrEqual(class, "tf_weapon_sword") ||
-		(!ItemIsEnabled(Wep_Zatoichi) && (index == 357)) )
-	) {
-		TF2Items_SetNumAttributes(itemNew, 2);
-		TF2Items_SetAttribute(itemNew, 0, 781, 0.0); // is a sword
-		TF2Items_SetAttribute(itemNew, 1, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
-	}
-
 	if (TF2Items_GetNumAttributes(itemNew)) {
 		itemTarget = itemNew;
 		return Plugin_Changed;
 	}
 	delete itemNew;
 	return Plugin_Continue;
+}
+
+public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, int level, int quality, int entity) {
+	if (
+		ItemIsEnabled(Feat_Grenade) &&
+		StrEqual(class, "tf_weapon_grenadelauncher")
+	) {
+		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
+		// Old radius: 159 Hu, Modern radius: 146 Hu.
+	} else if (
+		ItemIsEnabled(Feat_Stickybomb) &&
+		StrEqual(class, "tf_weapon_pipebomblauncher")
+	) {
+		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
+		// Old radius: 159 Hu, Modern radius: 146 Hu.
+	} else if (
+		ItemIsEnabled(Feat_Sword) &&
+		(StrEqual(class, "tf_weapon_sword") ||
+		(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")))
+	) {
+		TF2Attrib_SetByDefIndex(entity, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
+		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
+	}
 }
 
 Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
@@ -3741,20 +3740,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					else if (StrEqual(class, "tf_weapon_grenadelauncher")) {
 						player_weapons[client][Feat_Grenade] = true;
-
-						if (ItemIsEnabled(Feat_Grenade)) {
-							TF2Attrib_SetByDefIndex(weapon, 99, 1.089); // +8.9% explosion radius
-							// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
-						}
 					}
 
 					else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
 						player_weapons[client][Feat_Stickybomb] = true;
-
-						if (ItemIsEnabled(Feat_Stickybomb)) {
-							TF2Attrib_SetByDefIndex(weapon, 99, 1.089); // +8.9% explosion radius
-							// Old radius: 159 Hu, Modern radius: 146 Hu. 159/146 = 1.089
-						}
 					}
 
 					else if (StrEqual(class, "tf_weapon_pda_engineer_build")) {
