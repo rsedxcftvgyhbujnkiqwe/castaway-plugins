@@ -1360,7 +1360,7 @@ public void OnGameFrame() {
 	int weapon;
 	int ammo;
 	int clip;
-	int ent;
+	//int ent;
 	float timer;
 	float pos1[3];
 	//float pos2[3];
@@ -2021,12 +2021,18 @@ public void OnGameFrame() {
 										//PrintToChat(idx, "burn duration left %f", TF2Util_GetPlayerBurnDuration(idx));
 									} else if (cond == TFCond_Bleeding) {
 										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
+
 											dur = TF2Util_GetPlayerBleedDuration(idx, j);
 											if (dur > 0.0) {
-												ent = TF2Util_GetPlayerBleedAttacker(idx, j);
-												weapon = TF2Util_GetPlayerBleedWeapon(idx, j);
 
-												TF2Util_MakePlayerBleed(idx, ent, dur + addition, weapon);
+												TF2Util_MakePlayerBleed(
+													idx,
+													TF2Util_GetPlayerBleedAttacker(idx, j),
+													dur + addition,
+													TF2Util_GetPlayerBleedWeapon(idx, j),
+													TF2Util_GetPlayerBleedDamage(idx, j),
+													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
+												);
 											}
 											//PrintToChat(idx, "bleed %d duration left %f", j, TF2Util_GetPlayerBleedDuration(idx, j));
 										}
