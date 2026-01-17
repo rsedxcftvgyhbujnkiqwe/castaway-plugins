@@ -1360,7 +1360,7 @@ public void OnGameFrame() {
 	int weapon;
 	int ammo;
 	int clip;
-	//int ent;
+	int ent;
 	float timer;
 	float pos1[3];
 	//float pos2[3];
@@ -1984,11 +1984,54 @@ public void OnGameFrame() {
 					{
 						// "old-style" deadringer feign buff canceling
 						if (
-							players[idx].spy_is_feigning &&
-							players[idx].spy_under_feign_buffs
+							players[idx].spy_under_feign_buffs &&
+							GetFeignBuffsEnd(idx) < GetGameTickCount()
 						) {
-							if (GetFeignBuffsEnd(idx) < GetGameTickCount()) {
-								players[idx].spy_under_feign_buffs = false;
+							players[idx].spy_under_feign_buffs = false;
+						}
+					}
+
+					{
+						// no reduced debuff timer for old-style deadringer
+						if (
+							(GetItemVariant(Wep_DeadRinger) == 0 ||
+							GetItemVariant(Wep_DeadRinger) >= 3) &&
+							players[idx].spy_is_feigning
+						) {
+							for (int i = 0; i < sizeof(debuffs); ++i) {
+								TFCond cond = debuffs[i];
+
+								if (TF2_IsPlayerInCondition(idx, cond)) {
+									// float flReduction = gpGlobals->frametime * 0.75f;
+									float addition = GetTickInterval() * 0.75;
+									float dur = TF2Util_GetPlayerConditionDuration(idx, cond);
+
+									// jarate, milk and gas
+									if (dur > 0.0) {
+										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
+										//PrintToChat(idx, "debuff %d duration left %f", cond, TF2Util_GetPlayerConditionDuration(idx, cond));
+									}
+
+									// burning and bleed handle expire time separately
+									if (cond == TFCond_OnFire) {
+										dur = TF2Util_GetPlayerBurnDuration(idx);
+										if (dur > 0.0) {
+											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
+										}
+										//PrintToChat(idx, "burn duration left %f", TF2Util_GetPlayerBurnDuration(idx));
+									} else if (cond == TFCond_Bleeding) {
+										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
+											dur = TF2Util_GetPlayerBleedDuration(idx, j);
+											if (dur > 0.0) {
+												ent = TF2Util_GetPlayerBleedAttacker(idx, j);
+												weapon = TF2Util_GetPlayerBleedWeapon(idx, j);
+
+												TF2Util_MakePlayerBleed(idx, ent, dur + addition, weapon);
+											}
+											//PrintToChat(idx, "bleed %d duration left %f", j, TF2Util_GetPlayerBleedDuration(idx, j));
+										}
+									}
+								}
 							}
 						}
 					}
