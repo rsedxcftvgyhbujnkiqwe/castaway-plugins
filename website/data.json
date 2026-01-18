@@ -1,0 +1,4102 @@
+[
+    {
+        "name": "Air Strike",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Air_Strike.png",
+        "qua_unique": "The Air Strike",
+        "att_level": "Level 1 - 100 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "-15% blast damage from rocket jumps"
+            },
+            {
+                "type": "att_positive",
+                "text": "Increased attack speed and smaller blast radius while blast jumping"
+            },
+            {
+                "type": "att_positive",
+                "text": "Clip size increased on kill"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "-10% explosion radius"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "-15% blast damage from rocket jumps"
+            },
+            {
+                "type": "att_positive",
+                "text": "Increases attack speed while blast jumping"
+            },
+            {
+                "type": "att_positive",
+                "text": "Clip size increased on kill"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "-10% explosion radius"
+            }
+        ]
+    },
+    {
+        "name": "All Flamethrowers",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Flamethrower.png",
+        "qua_unique": "All Flamethrowers",
+        "att_level": "Level 1-100 Flamethrower",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "Damage ramps up based on flame density"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Full damage regardless of density"
+            }
+        ]
+    },
+    {
+        "name": "All Miniguns",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Minigun.png",
+        "qua_unique": "All Miniguns",
+        "att_level": "Level 1-100 Minigun",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "Damage and accuracy ramp up after spinning up. Full accuracy and damage after 1 second."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Full accuracy and damage immediately upon spinning up."
+            }
+        ]
+    },
+    {
+        "name": "All Sentry Guns",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "PDA 2"
+        ],
+        "backpack_image": "/images/backpack/Backpack_PDA.png",
+        "qua_unique": "All Sentry Guns",
+        "att_level": "Sentry Gun",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "Sentry is disabled for a short time after a sapper is removed"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Sentry is active immediately after a sapper is removed"
+            }
+        ]
+    },
+    {
+        "name": "All Sniper Rifles",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Sniper_Rifle.png",
+        "qua_unique": "All Sniper Rifles",
+        "att_level": "Level 1-100 Sniper Rifle",
+        "current_attributes": [
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Can jump immediately after firing a scoped shot"
+            }
+        ]
+    },
+    {
+        "name": "All Stickybomb Launchers",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Stickybomb_Launcher.png",
+        "qua_unique": "All Stickybomb Launchers",
+        "att_level": "Level 1-100 Stickybomb Launcher",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "-9% reduced blast radius"
+            },
+            {
+                "type": "att_negative",
+                "text": "Air detonated stickies have reduced blast radius"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Air detonated stickies have full blast radius"
+            }
+        ]
+    },
+    {
+        "name": "All Swords",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Eyelander.png",
+        "qua_unique": "All Swords",
+        "att_level": "Level 1-100 Sword",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "50% increased melee range"
+            },
+            {
+                "type": "att_negative",
+                "text": "75% slower deploy and holster speed"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "50% increased melee range"
+            }
+        ]
+    },
+    {
+        "name": "Ambassador",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Ambassador.png",
+        "qua_unique": "The Ambassador",
+        "att_level": "Level 5 Revolver",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Crits on headshot"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Critical damage is affected by range"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Crits on headshot"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Amputator",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Amputator.png",
+        "qua_unique": "The Amputator",
+        "att_level": "Level 15 Bonesaw",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+3 health regenerated per second on wearer based on recent damage taken"
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Applies a healing effect to all nearby teammates"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+3 health regenerated per second on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Applies a healing effect to all nearby teammates"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            }
+        ]
+    },
+    {
+        "name": "Ali Baba's Wee Booties",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Ali_Baba%27s_Wee_Booties.png",
+        "qua_unique": "Ali Baba's Wee Booties",
+        "att_level": "Level 10 Boots",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+200% increase in turning control while charging"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 25% of your charge meter"
+            },
+            {
+                "type": "att_positive",
+                "text": "+10% faster move speed on wearer (shield required)"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+200% increase in turning control while charging"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 25% of your charge meter."
+            },
+            {
+                "type": "att_positive",
+                "text": "+10% faster move speed on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Atomizer",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Atomizer.png",
+        "qua_unique": "The Atomizer",
+        "att_level": "Level 10 Bat",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Grants Triple Jump while deployed.<br>Melee attacks mini-crit while airborne."
+            },
+            {
+                "type": "att_negative",
+                "text": "-15% damage vs players"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon deploys 50% slower"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Grants Triple Jump: The third jump deals 10 damage when used"
+            },
+            {
+                "type": "att_negative",
+                "text": "-30% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage vs players"
+            }
+        ]
+    },
+    {
+        "name": "Axtinguisher",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Axtinguisher.png",
+        "qua_unique": "The Axtinguisher",
+        "att_level": "Level 10 Fire Axe",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Mini-crits burning targets and extinguishes them.<br>Damage increases based on remaining duration of afterburn<br>Killing blows on burning players grant a speed boost."
+            },
+            {
+                "type": "att_negative",
+                "text": "-33% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon holsters 35% slower"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "100% critical hit vs burning players"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% damage vs non-burning players"
+            },
+            {
+                "type": "att_negative",
+                "text": "No critical hits vs non-burning players"
+            }
+        ]
+    },
+    {
+        "name": "B.A.S.E. Jumper",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_B.A.S.E._Jumper.png",
+        "qua_unique": "The B.A.S.E. Jumper",
+        "att_level": "Level 1 - 100 Parachute",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_negative",
+                "text": "Can only deploy once per fall"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Press 'JUMP' key in the air to deploy.\nDeployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_positive",
+                "text": "Up-draft when on fire"
+            }
+        ]
+    },
+    {
+        "name": "B.A.S.E. Jumper",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_B.A.S.E._Jumper.png",
+        "qua_unique": "The B.A.S.E. Jumper",
+        "att_level": "Level 1 - 100 Parachute",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_negative",
+                "text": "Can only deploy once per fall"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Press 'JUMP' key in the air to deploy.\nDeployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_positive",
+                "text": "Up-draft when on fire"
+            }
+        ]
+    },
+    {
+        "name": "Baby Face's Blaster",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Baby_Face%27s_Blaster.png",
+        "qua_unique": "Baby Face's Blaster",
+        "att_level": "Level 10 Scattergun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Builds Boost<br>Run speed increased with Boost"
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "10% slower move speed on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "75% boost lost on air jumps"
+            },
+            {
+                "type": "att_negative",
+                "text": "Boost reduced when hit"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Builds Boost"
+            },
+            {
+                "type": "att_positive",
+                "text": "Run speed increased with Boost"
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "10% slower move speed on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "25% boost lost on air jumps"
+            }
+        ]
+    },
+    {
+        "name": "Backburner",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Backburner.png",
+        "qua_unique": "The Backburner",
+        "att_level": "Level 10 Flame Thrower",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "100% critical hits from behind"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "+150% airblast cost"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "100% critical hits from behind"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus"
+            },
+            {
+                "type": "att_negative",
+                "text": "No airblast"
+            }
+        ]
+    },
+    {
+        "name": "Beggar's Bazooka",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Beggar%27s_Bazooka.png",
+        "qua_unique": "The Beggar's Bazooka",
+        "att_level": "Level 1 - 100 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Hold Fire to load up to three rockets<br>Release Fire to unleash the barrage"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% explosion radius"
+            },
+            {
+                "type": "att_negative",
+                "text": "+3 degrees random projectile deviation"
+            },
+            {
+                "type": "att_negative",
+                "text": "Overloading the chamber will cause a misfire"
+            },
+            {
+                "type": "att_negative",
+                "text": "Misfires remove ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "No ammo from dispensers when active"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Hold Fire to load up to three rockets"
+            },
+            {
+                "type": "att_positive",
+                "text": "Release Fire to unleash the barrage"
+            },
+            {
+                "type": "att_negative",
+                "text": "+3 degrees random projectile deviation"
+            },
+            {
+                "type": "att_negative",
+                "text": "Overloading the chamber will cause a misfire"
+            },
+            {
+                "type": "att_negative",
+                "text": "No ammo from dispensers"
+            }
+        ]
+    },
+    {
+        "name": "Black Box",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Black_Box.png",
+        "qua_unique": "The Black Box",
+        "att_level": "Level 5 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain up to +20 health per attack"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: +15 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            }
+        ]
+    },
+    {
+        "name": "Blutsauger",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Blutsauger.png",
+        "qua_unique": "The Blutsauger",
+        "att_level": "Level 5 Syringe Gun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain up to +3 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-2 health regenerated per second on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain up to +3 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Bonk! Atomic Punch",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Bonk!_Atomic_Punch.png",
+        "qua_unique": "Bonk! Atomic Punch",
+        "att_level": "Level 5 Lunch Box",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Drink to become invulnerable for 8 seconds.  Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time"
+            }
+        ]
+    },
+    {
+        "name": "Brass Beast",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Brass_Beast.png",
+        "qua_unique": "The Brass Beast",
+        "att_level": "Level 5 Minigun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "20% damage resistance when below 50% health and spun up"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% slower spin up time"
+            },
+            {
+                "type": "att_negative",
+                "text": "-60% slower move speed while deployed"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "20% damage resistance when spun up"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% slower spin up time"
+            },
+            {
+                "type": "att_negative",
+                "text": "-60% slower move speed while deployed"
+            }
+        ]
+    },
+    {
+        "name": "Buffalo Steak Sandvich",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Buffalo_Steak_Sandvich.png",
+        "qua_unique": "The Buffalo Steak Sandvich",
+        "att_level": "Level 1 Lunch Box",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "+20% damage vulnerability while active"
+            },
+            {
+                "type": "att_neutral",
+                "text": "After consuming, 30% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_negative",
+                "text": "+10% damage vulnerability while active"
+            },
+            {
+                "type": "att_neutral",
+                "text": "After consuming, 35% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+            }
+        ]
+    },
+    {
+        "name": "Bushwacka",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Bushwacka.png",
+        "qua_unique": "The Bushwacka",
+        "att_level": "Level 5 Kukri",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Crits whenever it would normally mini-crit"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% damage vulnerability on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Crits whenever it would normally mini-crit"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% fire damage vulnerability on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Chargin' Targe",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Chargin%27_Targe.png",
+        "qua_unique": "The Chargin' Targe",
+        "att_level": "Level 1 - 99 Shield",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+30% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Shield bash deals damage at any range"
+            },
+            {
+                "type": "att_negative",
+                "text": "Shield bash damage scales with charge depleted"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies and remove debuffs.<br>Gain a critical melee strike after impacting an enemy at distance."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Immune to the effects of afterburn"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies.<br>Gain a critical melee strike after impacting an enemy."
+            }
+        ]
+    },
+    {
+        "name": "Claidheamh M\u00f2r",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Claidheamh_M%C3%B2r.png",
+        "qua_unique": "The Claidheamh M\u00f2r",
+        "att_level": "Level 5 Sword",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_neutral",
+                "text": "This Weapon has a large melee range and<br>deploys and holsters slower"
+            },
+            {
+                "type": "att_positive",
+                "text": "0.5 sec increase in charge duration"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 25% of your charge meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "15% damage vulnerability on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "This Weapon has a large melee range"
+            },
+            {
+                "type": "att_positive",
+                "text": "0.5 sec increase in charge duration"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 25% of your charge meter."
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Cleaner's Carbine",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Cleaner%27s_Carbine.png",
+        "qua_unique": "The Cleaner's Carbine",
+        "att_level": "Level 1 SMG",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Secondary fire when charged grants mini-crits for 8 seconds"
+            },
+            {
+                "type": "att_positive",
+                "text": "Dealing damage fills charge meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "25% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Kill: 3 seconds of 100% critical chance"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "35% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Concheror",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Concheror.png",
+        "qua_unique": "The Concheror",
+        "att_level": "Level 5 Sashimono",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+4 health regenerated per second on wearer based on recent damage taken"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Provides group speed buff<br>with damage done giving health.<br>Gain rage with damage."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+2 health regenerated per second on wearer"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Provides group speed buff<br>with damage done giving health.<br>Gain rage with damage."
+            }
+        ]
+    },
+    {
+        "name": "Cozy Camper",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Cozy_Camper.png",
+        "qua_unique": "The Cozy Camper",
+        "att_level": "Level 10 Backpack",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+4 health regenerated per second on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No flinching when aiming and fully charged"
+            },
+            {
+                "type": "att_positive",
+                "text": "Knockback reduced by 20% when aiming"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+4 health regenerated per second on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No flinching when aiming"
+            },
+            {
+                "type": "att_positive",
+                "text": "Knockback reduced by 20% when aiming"
+            }
+        ]
+    },
+    {
+        "name": "Crit-a-Cola",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Crit-a-Cola.png",
+        "qua_unique": "Crit-a-Cola",
+        "att_level": "Level 5 Lunch Box",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "While effect is active: Each attack mini-crits and sets Marked-For-Death for 5 seconds."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "While under the effects,<br> +25% movement speed, your attacks mini-crit, and damage taken increased by 10%."
+            }
+        ]
+    },
+    {
+        "name": "Crusader's Crossbow",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Crusader%27s_Crossbow.png",
+        "qua_unique": "Crusader's Crossbow",
+        "att_level": "Level 15 Crossbow",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Fires special bolts that heal teammates and deals damage based on distance traveled."
+            },
+            {
+                "type": "att_positive",
+                "text": "Reloads automatically while holstered."
+            },
+            {
+                "type": "att_positive",
+                "text": "On heal, grants small amount to the ÜberCharge meter."
+            },
+            {
+                "type": "att_negative",
+                "text": "No headshots."
+            },
+            {
+                "type": "att_negative",
+                "text": "-75% max primary ammo on wearer."
+            },
+            {
+                "type": "att_negative",
+                "text": "ÜberCharge gain reduced if target recently damaged."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Fires special bolts that heal teammates and deals damage based on distance traveled."
+            },
+            {
+                "type": "att_positive",
+                "text": "Reloads automatically while holstered."
+            },
+            {
+                "type": "att_positive",
+                "text": "On heal, grants small amount to the ÜberCharge meter."
+            },
+            {
+                "type": "att_negative",
+                "text": "No headshots."
+            },
+            {
+                "type": "att_negative",
+                "text": "-75% max primary ammo on wearer."
+            }
+        ]
+    },
+    {
+        "name": "Dalokohs Bar",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Dalokohs_Bar.png",
+        "qua_unique": "The Dalokohs Bar",
+        "att_level": "Level 1 Lunch Box",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Adds +50 max health for 30 seconds"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Eat to gain up to 100 health."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-fire: Share chocolate with a friend (Small Health Kit)"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Adds +50 max health for 30 seconds"
+            },
+            {
+                "type": "att_positive",
+                "text": "Can overheal if eaten near max health"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Eat to gain up to 100 health."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-fire: Share chocolate with a friend (Small Health Kit)"
+            }
+        ]
+    },
+    {
+        "name": "Dead Ringer",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "PDA 2"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Dead_Ringer.png",
+        "qua_unique": "The Dead Ringer",
+        "att_level": "Level 5 Invis Watch",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
+            },
+            {
+                "type": "att_positive",
+                "text": "+50% cloak regen rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% cloak meter when Feign Death is activated"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannot refill cloak meter with ammo"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Cloak Type: Feign Death"
+            },
+            {
+                "type": "att_positive",
+                "text": "+80% cloak regen rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "+60% cloak drain rate"
+            }
+        ]
+    },
+    {
+        "name": "Degreaser",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Degreaser.png",
+        "qua_unique": "The Degreaser",
+        "att_level": "Level 10 Flame Thrower",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "This weapon holsters 30% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 60% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% afterburn damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "+25% airblast cost"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "65% faster weapon switch"
+            },
+            {
+                "type": "att_negative",
+                "text": "-10% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% afterburn damage penalty"
+            }
+        ]
+    },
+    {
+        "name": "Direct Hit",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Direct_Hit.png",
+        "qua_unique": "The Direct Hit",
+        "att_level": "Level 1 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "+80% projectile speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "Mini-crits targets launched airborne by explosions, grapple hooks, or rocket packs"
+            },
+            {
+                "type": "att_negative",
+                "text": "-70% explosion radius"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "+80% projectile speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "Mini-crits targets launched airborne by explosions, airblast, grapple hooks, or rocket packs"
+            },
+            {
+                "type": "att_negative",
+                "text": "-70% explosion radius"
+            }
+        ]
+    },
+    {
+        "name": "Disciplinary Action",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Disciplinary_Action.png",
+        "qua_unique": "The Disciplinary Action",
+        "att_level": "Level 10 Riding Crop",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit Teammate: Boosts both players' speed for 2 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit Teammate: Boosts both players' speed for 3 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            }
+        ]
+    },
+    {
+        "name": "Dragon's Fury",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Dragon%27s_Fury.png",
+        "qua_unique": "The Dragon's Fury",
+        "att_level": "Level 1 - 100 Flame Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deals 300% damage to burning players when hitting the direct center of the hitbox"
+            },
+            {
+                "type": "att_positive",
+                "text": "+50% re-pressurization rate on hit"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% repressurization rate on Alt-Fire"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% radius of fireball"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deals 300% damage to burning players"
+            },
+            {
+                "type": "att_positive",
+                "text": "+50% re-pressurization rate on hit"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% repressurization rate on Alt-Fire"
+            }
+        ]
+    },
+    {
+        "name": "Enforcer",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Enforcer.png",
+        "qua_unique": "The Enforcer",
+        "att_level": "Level 5 Revolver",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus while disguised"
+            },
+            {
+                "type": "att_positive",
+                "text": "Attacks pierce damage resistance effects and bonuses"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus while undisguised"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Equalizer",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Equalizer.png",
+        "qua_unique": "The Equalizer",
+        "att_level": "Level 10 Pickaxe",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Damage increases as the user becomes injured"
+            },
+            {
+                "type": "att_negative",
+                "text": "-90% less healing from Medic sources"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Move speed increases as the user becomes injured"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deal up to 113 damage at low health"
+            },
+            {
+                "type": "att_negative",
+                "text": "Reduced damage when at high health"
+            },
+            {
+                "type": "att_negative",
+                "text": "Blocks healing when in use"
+            }
+        ]
+    },
+    {
+        "name": "Escape Plan",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Escape_Plan.png",
+        "qua_unique": "The Escape Plan",
+        "att_level": "Level 10 Pickaxe",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Move speed increases as the user becomes injured"
+            },
+            {
+                "type": "att_negative",
+                "text": "You are Marked-For-Death while active, and for short period after switching weapons"
+            },
+            {
+                "type": "att_negative",
+                "text": "-90% less healing from Medic sources"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Move speed increases as the user becomes injured"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deal up to 107 damage at low health"
+            },
+            {
+                "type": "att_negative",
+                "text": "Reduced damage when at high health"
+            },
+            {
+                "type": "att_negative",
+                "text": "Blocks healing when in use"
+            }
+        ]
+    },
+    {
+        "name": "Eureka Effect",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Eureka_Effect.png",
+        "qua_unique": "The Eureka Effect",
+        "att_level": "Level 20 Wrench",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to choose to teleport to spawn or your exit teleporter"
+            },
+            {
+                "type": "att_positive",
+                "text": "-50% metal cost when constructing or upgrading teleporters"
+            },
+            {
+                "type": "att_negative",
+                "text": "Construction hit speed boost decreased by 50%"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% less metal from pickups and dispensers"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to choose to teleport to spawn or your exit teleporter"
+            },
+            {
+                "type": "att_positive",
+                "text": "Teleporting to spawn refills health and ammo"
+            },
+            {
+                "type": "att_positive",
+                "text": "-50% metal cost when constructing or upgrading teleporters"
+            },
+            {
+                "type": "att_negative",
+                "text": "Construction hit speed boost decreased by 50%"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% less metal from pickups and dispensers"
+            }
+        ]
+    },
+    {
+        "name": "Eviction Notice",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Eviction_Notice.png",
+        "qua_unique": "The Eviction Notice",
+        "att_level": "Level 10 Boxing Gloves",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+40% faster firing speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain a speed boost"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster move speed on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "-60% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "Maximum health is drained while item is active"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% faster firing speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain a speed boost"
+            },
+            {
+                "type": "att_negative",
+                "text": "-60% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% damage vulnerability on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Fists of Steel",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Fists_of_Steel.png",
+        "qua_unique": "The Fists of Steel",
+        "att_level": "Level 10 Boxing Gloves",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "-40% damage from ranged sources while active"
+            },
+            {
+                "type": "att_negative",
+                "text": "+100% damage from melee sources while active"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon holsters 100% slower"
+            },
+            {
+                "type": "att_negative",
+                "text": "-40% maximum overheal on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "-40% health from healers on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "-60% damage from ranged sources while active"
+            },
+            {
+                "type": "att_negative",
+                "text": "+100% damage from melee sources while active"
+            }
+        ]
+    },
+    {
+        "name": "Flying Guillotine",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Flying_Guillotine.png",
+        "qua_unique": "The Flying Guillotine",
+        "att_level": "Level 1 - 100 Cleaver",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Throw at your enemies to make them bleed!  Long distance hits reduce recharge time"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Throw at your enemies to make them bleed!"
+            },
+            {
+                "type": "att_positive",
+                "text": "Long distance hits cause mini-crits"
+            },
+            {
+                "type": "att_positive",
+                "text": "100% critical hit vs stunned players"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Gloves of Running Urgently",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Gloves_of_Running_Urgently.png",
+        "qua_unique": "The Gloves of Running Urgently",
+        "att_level": "Level 10 Boxing Gloves",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+30% faster move speed on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Maximum health is drained while item is active"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon holsters 50% slower"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+30% faster move speed on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "You are marked for death while active, and for a short period after switching weapons"
+            }
+        ]
+    },
+    {
+        "name": "Gunslinger",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Gunslinger.png",
+        "qua_unique": "The Gunslinger",
+        "att_level": "Level 15 Robot Arm",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Sentry build speed increased by 150%"
+            },
+            {
+                "type": "att_positive",
+                "text": "Third successful punch in a row always crits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Replaces the Sentry with a Mini-Sentry"
+            },
+            {
+                "type": "att_negative",
+                "text": "Sentry gibs do not give metal"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Sentry build speed increased by 300%"
+            },
+            {
+                "type": "att_positive",
+                "text": "Sentries start with full health and self repair while building"
+            },
+            {
+                "type": "att_positive",
+                "text": "Third successful punch in a row always crits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Replaces the Sentry with a Mini-Sentry"
+            },
+            {
+                "type": "att_negative",
+                "text": "Sentries cannot be repaired or wrench boosted"
+            }
+        ]
+    },
+    {
+        "name": "Half-Zatoichi",
+        "classes": [
+            "Soldier",
+            "Demoman"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Half-Zatoichi.png",
+        "qua_unique": "The Half-Zatoichi",
+        "att_level": "Level 5 Katana",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "This Weapon has a large melee range and<br>deploys and holsters slower"
+            },
+            {
+                "type": "att_positive",
+                "text": "Gain 50% of base health on kill"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Honorbound: Once drawn sheathing deals 50 damage to yourself unless it kills"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Soldiers and Demos<br>Can duel with katanas<br>For a one-hit kill"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Kill: Restores you to 100% health"
+            },
+            {
+                "type": "att_negative",
+                "text": "Honorbound: Once drawn cannot be sheathed until it kills."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Soldiers and Demos<br>Can duel with katanas<br>For a one-hit kill"
+            }
+        ]
+    },
+    {
+        "name": "The Holy Mackerel",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Holy_Mackerel.png",
+        "qua_unique": "The Holy Mackerel",
+        "att_level": "Level 42 Fish",
+        "current_attributes": [
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Milkman"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Jag",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Jag.png",
+        "qua_unique": "The Jag",
+        "att_level": "Level 15 Wrench",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Construction hit speed boost increased by 30%"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower repair rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "-33% damage penalty vs buildings"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Construction hit speed boost increased by 30%"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower repair rate"
+            }
+        ]
+    },
+    {
+        "name": "L'Etranger",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_L%27Etranger.png",
+        "qua_unique": "L'Etranger",
+        "att_level": "Level 5 Revolver",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% cloak on hit"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Saharan Spy"
+            },
+            {
+                "type": "att_setitem",
+                "text": "L'Etranger"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Your Eternal Reward"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Familiar Fez"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extra effects when taunting"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% cloak on hit"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Saharan Spy"
+            },
+            {
+                "type": "att_setitem",
+                "text": "L'Etranger"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Your Eternal Reward"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Reduced decloak sound volume"
+            },
+            {
+                "type": "att_negative",
+                "text": "0.5 sec longer Cloak blink time"
+            }
+        ]
+    },
+    {
+        "name": "Liberty Launcher",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Liberty_Launcher.png",
+        "qua_unique": "The Liberty Launcher",
+        "att_level": "Level 25 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% clip size"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% projectile speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "-25% blast damage from rocket jumps"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+40% projectile speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            }
+        ]
+    },
+    {
+        "name": "The Loch-n-Load",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Loch-n-Load.png",
+        "qua_unique": "The Loch-n-Load",
+        "att_level": "Level 10 Grenade Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage vs buildings"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25% projectile speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% explosion radius"
+            },
+            {
+                "type": "att_negative",
+                "text": "Launched bombs shatter on surfaces"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25% projectile speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% explosion radius"
+            },
+            {
+                "type": "att_negative",
+                "text": "Launched bombs shatter on surfaces"
+            }
+        ]
+    },
+    {
+        "name": "The Loose Cannon",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Loose_Cannon.png",
+        "qua_unique": "The Loose Cannon",
+        "att_level": "Level 10 Grenade Launcher",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Cannonballs have a fuse time of 1 second; fuses can be primed to explode earlier by holding down the fire key"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% projectile speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "Cannonballs push players back on impact"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannonballs do not explode on impact"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannonball impacts affected by damage falloff"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Double Donk! Bomb explosions after a cannon ball impact will deal mini-crits to impact victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Cannonballs have a fuse time of 1 second; fuses can be primed to explode earlier by holding down the fire key."
+            },
+            {
+                "type": "att_positive",
+                "text": "+50% projectile speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "Cannonballs push players back on impact"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannonballs do not explode on impact"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Double Donk! Bomb explosions after a cannon ball impact will deal mini-crits to impact victims"
+            }
+        ]
+    },
+    {
+        "name": "The Market Gardener",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Market_Gardener.png",
+        "qua_unique": "The Market Gardener",
+        "att_level": "Level 10 Shovel",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Deals crits while the wielder is rocket jumping"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Deals crits while the wielder is rocket jumping"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Mad Milk",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Mad_Milk.png",
+        "qua_unique": "The Mad Milk",
+        "att_level": "Level 5 Non-Milk Substance",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates reduces cooldown by -20%"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Players heal 60% of the damage done to an enemy covered with milk."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Can be used to extinguish fires."
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Milkman"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Players heal 75% of the damage done to an enemy covered with milk."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Can be used to extinguish fires."
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Natascha",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Natascha.png",
+        "qua_unique": "The Natascha",
+        "att_level": "Level 5 Minigun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: 100% chance to slow target"
+            },
+            {
+                "type": "att_positive",
+                "text": "20% damage resistance when below 50% health and spun up"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "30% slower spin up time"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: 100% chance to slow target"
+            },
+            {
+                "type": "att_positive",
+                "text": "20% damage resistance when spun up"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "30% slower spin up time"
+            }
+        ]
+    },
+    {
+        "name": "The Panic Attack",
+        "classes": [
+            "Soldier",
+            "Pyro",
+            "Heavy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Panic_Attack.png",
+        "qua_unique": "The Panic Attack",
+        "att_level": "Level 1 - 99 Shotgun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% bullets per shot"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 50% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fires a wide, fixed shot pattern"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "Successive shots become less accurate"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "50% faster reload time"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 50% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fire rate increases as health decreases"
+            },
+            {
+                "type": "att_positive",
+                "text": "Hold fire to load up to 4 shells"
+            },
+            {
+                "type": "att_negative",
+                "text": "Weapon spread increases as health decreases"
+            }
+        ]
+    },
+    {
+        "name": "The Panic Attack",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Panic_Attack.png",
+        "qua_unique": "The Panic Attack",
+        "att_level": "Level 1 - 99 Shotgun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% bullets per shot"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 50% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fires a wide, fixed shot pattern"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "Successive shots become less accurate"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "50% faster reload time"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 50% faster"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fire rate increases as health decreases"
+            },
+            {
+                "type": "att_positive",
+                "text": "Hold fire to load up to 4 shells"
+            },
+            {
+                "type": "att_negative",
+                "text": "Weapon spread increases as health decreases"
+            }
+        ]
+    },
+    {
+        "name": "The Persian Persuader",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Persian_Persuader.png",
+        "qua_unique": "The Persian Persuader",
+        "att_level": "Level 10 Sword",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "This Weapon has a large melee range and<br>deploys and holsters slower"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee hits refill 20% of your charge meter"
+            },
+            {
+                "type": "att_positive",
+                "text": "Ammo boxes collected also refill your charge meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "-80% max primary ammo on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "-80% max secondary ammo on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "This Weapon has a large melee range"
+            },
+            {
+                "type": "att_positive",
+                "text": "+100% increase in charge recharge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "All ammo collected becomes health"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            }
+        ]
+    },
+    {
+        "name": "Pomson 6000",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Pomson_6000.png",
+        "qua_unique": "The Pomson 6000",
+        "att_level": "Level 10 Indivisible Particle Smasher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Does not require ammo"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile cannot be deflected"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Victim loses up to 10% Medigun"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Victim loses up to 20% cloak"
+            },
+            {
+                "type": "att_negative",
+                "text": "Deals only 20% damage to buildings"
+            },
+            {
+                "type": "att_negative",
+                "text": "Reduced projectile hitbox size"
+            },
+            {
+                "type": "att_negative",
+                "text": "Projectiles cannot pass through teammates"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Does not require ammo"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile cannot be deflected"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deals untyped damage that ignores resistances"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Victim loses 10% Medigun"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Victim loses 20% cloak"
+            },
+            {
+                "type": "att_negative",
+                "text": "Deals only 20% damage to buildings"
+            }
+        ]
+    },
+    {
+        "name": "Phlogistinator",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Phlogistinator.png",
+        "qua_unique": "The Phlogistinator",
+        "att_level": "Level 10 Flame Thrower",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Build 'Mmmph' by dealing 300 fire damage."
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire on full 'Mmmph': Taunt to gain crit for 10 seconds."
+            },
+            {
+                "type": "att_positive",
+                "text": "Invulnerable while 'Mmmph' taunting."
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No airblast"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Build 'Mmmph' by dealing 225 fire damage."
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire on full 'Mmmph': Taunt to refill health and gain crit for 10 seconds."
+            },
+            {
+                "type": "att_positive",
+                "text": "75% damage resist while 'Mmmph' taunting."
+            },
+            {
+                "type": "att_negative",
+                "text": "-10% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No airblast"
+            }
+        ]
+    },
+    {
+        "name": "Powerjack",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Powerjack.png",
+        "qua_unique": "The Powerjack",
+        "att_level": "Level 5 Sledgehammer",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25 health restored on kill"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% damage vulnerability on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+75 health restored on kill"
+            },
+            {
+                "type": "att_positive",
+                "text": "Health restoration can overheal"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% damage vulnerability on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Pretty Boy's Pocket Pistol",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Pretty_Boy%27s_Pocket_Pistol.png",
+        "qua_unique": "Pretty Boy's Pocket Pistol",
+        "att_level": "Level 10 Pistol",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% faster firing speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain up to +3 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-25% clip size"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+15 max health on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Wearer never takes falling damage"
+            },
+            {
+                "type": "att_negative",
+                "text": "25% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% fire damage vulnerability on wearer"
+            }
+        ]
+    },
+    {
+        "name": "Postal Pummeler",
+        "classes": [
+            "Pyro"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Postal_Pummeler.png",
+        "qua_unique": "The Postal Pummeler",
+        "att_level": "Level 10 Mailbox",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Mini-crits burning targets and extinguishes them.<br>Damage increases based on remaining duration of afterburn<br>Killing blows on burning players grant a speed boost."
+            },
+            {
+                "type": "att_negative",
+                "text": "-33% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon holsters 35% slower"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "100% critical hit vs burning players"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% damage vs non-burning players"
+            },
+            {
+                "type": "att_negative",
+                "text": "No critical hits vs non-burning players"
+            }
+        ]
+    },
+    {
+        "name": "Quick-Fix",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Quick-Fix.png",
+        "qua_unique": "The Quick-Fix",
+        "att_level": "Level 8 Medi Gun Prototype",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge increases healing to 300%<br>and grants immunity to movement-<br>impairing effects "
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% heal rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+10% ÜberCharge rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% max overheal"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannot capture objectives while ÜberCharged"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Mirror the blast jumps and shield charges of patients."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge increases healing to 300%<br>and grants immunity to movement-<br>impairing effects "
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% heal rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25% ÜberCharge rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% max overheal"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Mirror the blast jumps and shield charges of patients."
+            }
+        ]
+    },
+    {
+        "name": "Razorback",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Razorback.png",
+        "qua_unique": "The Razorback",
+        "att_level": "Level 10 Shield",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Blocks a single backstab attempt."
+            },
+            {
+                "type": "att_positive",
+                "text": "Regenerates after 30 seconds."
+            },
+            {
+                "type": "att_negative",
+                "text": "-100% maximum overheal on wearer"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Blocks a single backstab attempt."
+            }
+        ]
+    },
+    {
+        "name": "The Rescue Ranger",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Rescue_Ranger.png",
+        "qua_unique": "The Rescue Ranger",
+        "att_level": "Level 1-100 Shotgun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Use 100 metal to pick up your targeted building from long range"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fires a special bolt that can repair friendly buildings for up to 60 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% max primary ammo on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Self mark for death when hauling buildings"
+            },
+            {
+                "type": "att_negative",
+                "text": "4-to-1 health-to-metal ratio when repairing buildings"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Use 100 metal to pick up your targeted building from long range"
+            },
+            {
+                "type": "att_positive",
+                "text": "Fires a special bolt that can repair friendly buildings for 75 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% max primary ammo on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Self mark for death when hauling buildings"
+            }
+        ]
+    },
+    {
+        "name": "The Reserve Shooter",
+        "classes": [
+            "Soldier",
+            "Pyro"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Reserve_Shooter.png",
+        "qua_unique": "The Reserve Shooter",
+        "att_level": "Level 10 Shotgun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Mini-crits targets launched airborne by explosions, grapple hooks or rocket packs"
+            },
+            {
+                "type": "att_positive",
+                "text": "This weapon deploys 20% faster"
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Mini-crits all airborne targets for 5 seconds after being deployed"
+            },
+            {
+                "type": "att_positive",
+                "text": "15% faster weapon switch "
+            },
+            {
+                "type": "att_negative",
+                "text": "-34% clip size"
+            }
+        ]
+    },
+    {
+        "name": "The Righteous Bison",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Righteous_Bison.png",
+        "qua_unique": "The Righteous Bison",
+        "att_level": "Level 30 Indivisible Particle Smasher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Does not require ammo"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile penetrates enemy targets"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile cannot be deflected"
+            },
+            {
+                "type": "att_negative",
+                "text": "Deals only 20% damage to buildings"
+            },
+            {
+                "type": "att_negative",
+                "text": "Reduced projectile hitbox size"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Does not require ammo"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile penetrates enemy targets"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile cannot be deflected"
+            },
+            {
+                "type": "att_positive",
+                "text": "Projectile can hit target multiple times"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deals untyped damage that ignores resistances"
+            },
+            {
+                "type": "att_negative",
+                "text": "Deals only 20% damage to buildings"
+            }
+        ]
+    },
+    {
+        "name": "The Rocket Jumper",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Rocket_Jumper.png",
+        "qua_unique": "The Rocket Jumper",
+        "att_level": "Level 1 Rocket Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+200% max primary ammo on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No self inflicted blast damage taken"
+            },
+            {
+                "type": "att_negative",
+                "text": "-100% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Wearer cannot carry the intelligence briefcase or PASS Time JACK"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+200% max primary ammo on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No self inflicted blast damage taken from this weapon or taunts"
+            },
+            {
+                "type": "att_negative",
+                "text": "-100% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Wearer cannot carry the intelligence briefcase or PASS Time JACK"
+            }
+        ]
+    },
+    {
+        "name": "The Sandman",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Sandman.png",
+        "qua_unique": "The Sandman",
+        "att_level": "Level 15 Bat",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Launches a ball that slows opponents"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15 max health on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Ball recharges in 10 seconds if not picked up"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Launches a ball that stuns opponents"
+            },
+            {
+                "type": "att_negative",
+                "text": "-15 max health on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Ball recharges in 15 seconds if not picked up"
+            }
+        ]
+    },
+    {
+        "name": "The Sandvich",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Sandvich.png",
+        "qua_unique": "The Sandvich",
+        "att_level": "Level 1 Lunch Box",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Eat to regain up to 300 health"
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-fire: Throw a Sandvich on the ground (Medium Health Kit)"
+            },
+            {
+                "type": "att_positive",
+                "text": "Picking up a dropped sandvich recharges the meter"
+            },
+            {
+                "type": "att_positive",
+                "text": "Picking up a health kit or sandvich while at full health will recharge the meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "30 second recharge time after eating or throwing"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Eat to regain up to 300 health"
+            },
+            {
+                "type": "att_positive",
+                "text": "Alt-fire: Throw a Sandvich on the ground (Medium Health Kit)"
+            },
+            {
+                "type": "att_positive",
+                "text": "Picking up a dropped sandvich functions as a medium health kit"
+            },
+            {
+                "type": "att_positive",
+                "text": "Picking up a health kit while at full health will recharge the meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "30 second recharge time after eating or throwing"
+            },
+            {
+                "type": "att_negative",
+                "text": "Cannot pick up a dropped sandvich while at maximum health"
+            }
+        ]
+    },
+    {
+        "name": "The Shortstop",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Shortstop.png",
+        "qua_unique": "The Shortstop",
+        "att_level": "Level 1 Peppergun",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
+                "type": "att_negative",
+                "text": "50% slower reload speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "Increase in push force taken from damage and airblast"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Holds a 4-shot clip and reloads its entire clip at once.<br>Alt-Fire to reach and shove someone!"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Milkman"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_negative",
+                "text": "Shares reserve ammunition with secondary pistols"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Holds a 4-shot clip and reloads its entire clip at once."
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Special Delivery"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Shortstop"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Mad Milk"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Holy Mackerel"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "The Soda Popper",
+        "classes": [
+            "Scout"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Soda_Popper.png",
+        "qua_unique": "The Soda Popper",
+        "att_level": "Level 10 Scattergun",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% faster firing speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "25% faster reload time"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Builds Hype"
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% clip size"
+            },
+            {
+                "type": "att_neutral",
+                "text": "When Hype is full, Alt-Fire to activate Hype mode for multiple air jumps.<br>This weapon reloads its entire clip at once."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% faster reloading speed"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25% firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% clip size"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Builds Hype as you run. When the hype meter is full, unleash mini-crits!"
+            }
+        ]
+    },
+    {
+        "name": "The Solemn Vow",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Solemn_Vow.png",
+        "qua_unique": "The Solemn Vow",
+        "att_level": "Level 10 Bust of Hippocrates",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Allows you to see enemy health"
+            },
+            {
+                "type": "att_negative",
+                "text": "10% slower firing speed"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Allows you to see enemy health"
+            }
+        ]
+    },
+    {
+        "name": "Splendid Screen",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Splendid_Screen.png",
+        "qua_unique": "The Splendid Screen",
+        "att_level": "Level 10 Shield",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+70% increase in charge impact damage"
+            },
+            {
+                "type": "att_positive",
+                "text": "+50% increase in charge recharge rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "Shield bash damage scales with charge depleted"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies and remove debuffs.<br>Gain a critical melee strike after impacting an enemy at distance."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+70% increase in charge impact damage"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies.<br>Gain a critical melee strike after impacting an enemy."
+            }
+        ]
+    },
+    {
+        "name": "The Spy-cicle",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Spy-cicle.png",
+        "qua_unique": "The Spy-cicle",
+        "att_level": "Level 1 Knife",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit by Fire: Fireproof for 1 second and Afterburn immunity for 10 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "Backstab turns victim to ice"
+            },
+            {
+                "type": "att_negative",
+                "text": "Melts in fire, regenerates in 15 seconds and by picking up ammo"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Silent Killer: No attack noise from backstabs"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit by Fire: Become fireproof for 2 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "Backstab turns victim to ice"
+            },
+            {
+                "type": "att_negative",
+                "text": "Melts in fire, regenerates after 15 seconds"
+            }
+        ]
+    },
+    {
+        "name": "The Sticky Jumper",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Sticky_Jumper.png",
+        "qua_unique": "The Sticky Jumper",
+        "att_level": "Level 1 Stickybomb Launcher",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+200% max secondary ammo on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No self inflicted blast damage taken"
+            },
+            {
+                "type": "att_negative",
+                "text": "-100% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "-6 max stickybombs out"
+            },
+            {
+                "type": "att_negative",
+                "text": "Wearer cannot carry the intelligence briefcase or PASS Time JACK"
+            },
+            {
+                "type": "att_neutral",
+                "text": "A special no-damage stickybomb launcher for learning stickybomb jump tricks and patterns."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+200% max secondary ammo on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "No self inflicted blast damage taken"
+            },
+            {
+                "type": "att_negative",
+                "text": "-100% damage penalty"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Wearer cannot carry the intelligence briefcase or PASS Time JACK"
+            },
+            {
+                "type": "att_neutral",
+                "text": "A special no-damage stickybomb launcher for learning stickybomb jump tricks and patterns."
+            }
+        ]
+    },
+    {
+        "name": "The Sydney Sleeper",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Primary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Sydney_Sleeper.png",
+        "qua_unique": "The Sydney Sleeper",
+        "att_level": "Level 1 Sniper Rifle",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% charge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Scoped Hit: Apply Jarate for 2 to 5 seconds based on charge level.<br>Nature's Call: Scoped headshots always mini-crit and reduce the remaining cooldown of Jarate by 1 second."
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No headshots"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% charge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Scoped Hit: Jarate target for 2 to 8 seconds based on amount charged"
+            },
+            {
+                "type": "att_positive",
+                "text": "Headshots or fully charged shots cause an explosion of Jarate."
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "No headshots"
+            }
+        ]
+    },
+    {
+        "name": "The Tide Turner",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Tide_Turner.png",
+        "qua_unique": "The Tide Turner",
+        "att_level": "Level 1 - 100 Shield",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+15% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+15% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Full turning control while charging"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 75% of your charge meter"
+            },
+            {
+                "type": "att_positive",
+                "text": "Shield bash deals damage at any range"
+            },
+            {
+                "type": "att_negative",
+                "text": "Shield bash damage scales with charge depleted"
+            },
+            {
+                "type": "att_negative",
+                "text": "Taking damage while shield charging reduces remaining charging time"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies and remove debuffs.<br>Gain a mini-crit melee strike after impacting an enemy at distance."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+25% fire damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "+25% explosive damage resistance on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Full turning control while charging"
+            },
+            {
+                "type": "att_positive",
+                "text": "Melee kills refill 75% of your charge meter"
+            },
+            {
+                "type": "att_negative",
+                "text": "Taking damage while shield charging reduces remaining charging time"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Alt-Fire: Charge toward your enemies.<br>Gain a critical melee strike after impacting an enemy."
+            }
+        ]
+    },
+    {
+        "name": "The Tribalman's Shiv",
+        "classes": [
+            "Sniper"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Tribalman%27s_Shiv.png",
+        "qua_unique": "The Tribalman's Shiv",
+        "att_level": "Level 5 Kukri",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Bleed for 6 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "-50% damage penalty"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Hit: Bleed for 8 seconds"
+            },
+            {
+                "type": "att_negative",
+                "text": "-35% damage penalty"
+            }
+        ]
+    },
+    {
+        "name": "The Ullapool Caber",
+        "classes": [
+            "Demoman"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Ullapool_Caber.png",
+        "qua_unique": "The Ullapool Caber",
+        "att_level": "Level 10 Stick Bomb",
+        "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "25% reduced explosion damage"
+            },
+            {
+                "type": "att_negative",
+                "text": "20% slower firing speed"
+            },
+            {
+                "type": "att_negative",
+                "text": "This weapon deploys 100% slower"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_neutral",
+                "text": "The first hit will cause an explosion"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_neutral",
+                "text": "The first hit will cause an explosion"
+            }
+        ]
+    },
+    {
+        "name": "The Vita-Saw",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Vita-Saw.png",
+        "qua_unique": "The Vita-Saw",
+        "att_level": "Level 5 Bonesaw",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Collect the organs of people you hit"
+            },
+            {
+                "type": "att_negative",
+                "text": "-10 max health on wearer"
+            },
+            {
+                "type": "att_neutral",
+                "text": "A percentage of your \u00dcberCharge level is retained on death, based on the number of organs harvested (15% per). Total \u00dcberCharge retained on spawn caps at 60%."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On death up to 20% of your stored \u00dcberCharge is retained"
+            },
+            {
+                "type": "att_negative",
+                "text": "-10 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "The Warrior's Spirit",
+        "classes": [
+            "Heavy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Warrior%27s_Spirit.png",
+        "qua_unique": "The Warrior's Spirit",
+        "att_level": "Level 10 Boxing Gloves",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+30% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "+50 health restored on kill"
+            },
+            {
+                "type": "att_negative",
+                "text": "30% damage vulnerability on wearer while active"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+30% damage bonus"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Gain up to +10 health"
+            },
+            {
+                "type": "att_negative",
+                "text": "-20 max health on wearer"
+            }
+        ]
+    },
+    {
+        "name": "The Wrangler",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Wrangler.png",
+        "qua_unique": "The Wrangler",
+        "att_level": "Level 5 Laser Pointer",
+        "current_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Take manual control of your Sentry Gun."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Damage falloff based on sentry position"
+            },
+            {
+                "type": "att_positive",
+                "text": "Wrangled sentries gain a shield that reduces damage by 66%."
+            },
+            {
+                "type": "att_negative",
+                "text": "Repairs reduced by 66% while shield is active."
+            },
+            {
+                "type": "att_negative",
+                "text": "Sentries are disabled for 3 seconds after becoming unwrangled."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Take manual control of your Sentry Gun."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Damage falloff based on engineer position"
+            },
+            {
+                "type": "att_positive",
+                "text": "Wrangled sentries gain a shield that reduces damage by 66%."
+            },
+            {
+                "type": "att_negative",
+                "text": "Sentries are disabled for 3 seconds after becoming unwrangled, and 1 second after death."
+            }
+        ]
+    },
+    {
+        "name": "Your Eternal Reward",
+        "classes": [
+            "Spy"
+        ],
+        "categories": [
+            "Melee"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Your_Eternal_Reward.png",
+        "qua_unique": "Your Eternal Reward",
+        "att_level": "Level 1 Knife",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Upon a successful backstab against a human target, you rapidly disguise as your victim"
+            },
+            {
+                "type": "att_positive",
+                "text": "Silent Killer: No attack noise from backstabs"
+            },
+            {
+                "type": "att_negative",
+                "text": "+33% cloak drain rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "Normal disguises require (and consume) a full cloak meter"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Saharan Spy"
+            },
+            {
+                "type": "att_setitem",
+                "text": "L'Etranger"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Your Eternal Reward"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Familiar Fez"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extra effects when taunting"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Upon a successful backstab against a human target, you rapidly disguise as your victim"
+            },
+            {
+                "type": "att_positive",
+                "text": "Silent Killer: No attack noise from backstabs"
+            },
+            {
+                "type": "att_negative",
+                "text": "Wearer cannot disguise"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Saharan Spy"
+            },
+            {
+                "type": "att_setitem",
+                "text": "L'Etranger"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Your Eternal Reward"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Reduced decloak sound volume"
+            },
+            {
+                "type": "att_negative",
+                "text": "0.5 sec longer Cloak blink time"
+            }
+        ]
+    }
+]

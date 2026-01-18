@@ -95,3 +95,9 @@ translations/ru/*
 
 !reverts-git-commit.sh
 !check-translations.py
+
+!website/
+website/*
+!website/data.json
+!website/genhtml.py
+!website/reverts.html
