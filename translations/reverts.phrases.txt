@@ -514,6 +514,10 @@
 	{
 		"en"	"Ullapool Caber"
 	}
+	"vaccinator"
+	{
+		"en"	"Vaccinator"
+	}
 	"vitasaw"
 	{
 		"en"	"Vita-Saw"
@@ -1260,6 +1264,14 @@
 	{
 		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no firing speed and deploy penalties"
 	}
+	"Vaccinator_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, +50%% Uber rate, -66%% Uber rate on overhealed patients, you are healed for 10%% of the matched incoming damage on patient"
+	}	
+	// "Vaccinator_PreGM"
+	// {
+	// 	"en"	"Pre-GM: full crit base resist, bubbles gone when cut off, no overhealed patient Uber rate penalty, no penalties when healed by other Medics, only 1 resist on patient, 25%% HP regen on proper resist, +50%% Uber rate, -66%% overheal build rate"
+	// }
 	"VitaSaw_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, always preserves up to 20%% uber on death"
