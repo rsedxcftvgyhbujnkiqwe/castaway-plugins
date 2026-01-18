@@ -664,6 +664,10 @@
 	{
 		"en"	"Reverted to pre-inferno, no longer slows after the effect wears off"
 	}
+	"Bonk_PrePyro"
+	{
+		"en"	"Reverted to pre-pyromania, no post-effect slowdown, effect lasts 6 seconds"
+	}
 	"Booties_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, shield not required for speed bonus"
@@ -1198,7 +1202,7 @@
 	}
 	"SpyCicle_Pre2011"
 	{
-		"en"	"Reverted to pre-December 23, 2011, fire immunity for 2s, silent killer, cannot regenerate from ammo sources, taunting uses the Fencing taunt attack"
+		"en"	"Reverted to release, fire immunity for 2s, silent killer, cannot regenerate from ammo sources, uses the Fencing taunt attack"
 	}
 	"StkJumper_Pre2013"
 	{

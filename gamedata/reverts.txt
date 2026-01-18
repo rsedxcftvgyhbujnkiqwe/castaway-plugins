@@ -128,7 +128,24 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
-
+			"CTFWeaponBaseGun::GetProjectileDamage" // offset aRageDamage ; "rage_damage"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x1C\x53\x56\x8B\xD9\x57\x89\x5D"
+				"linux"   "@_ZN16CTFWeaponBaseGun19GetProjectileDamageEv"
+			}
+			"CTFWeaponBaseGun::GetWeaponSpread" // offset aMultSpreadScal_0 ; "mult_spread_scale"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x57\x6A\x01\x6A\x00"
+				"linux"   "@_ZN16CTFWeaponBaseGun15GetWeaponSpreadEv"
+			}
+			"CTFPlayerShared::AddToSpyCloakMeter" // offset aModCloakNoRege ; "mod_cloak_no_regen_from_items"
+			{
+				"library" "server"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
+				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
+			}
 		}
 
 		"Offsets"
@@ -204,6 +221,16 @@
 			{
 				"windows" "350"
 				"linux"   "352"
+			}
+			"CTFMinigun::GetProjectileDamage"
+			{
+				"windows"	"488"
+				"linux"		"495"
+			}
+			"CTFMinigun::GetWeaponSpread"
+			{
+				"windows"	"482"
+				"linux"		"489"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -340,6 +367,20 @@
 						"type" "float"
 					}
 				}
+			}
+			"CTFMinigun::GetProjectileDamage"
+			{
+				"offset"	"CTFMinigun::GetProjectileDamage"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"float"
+			}
+			"CTFMinigun::GetWeaponSpread"
+			{
+				"offset"	"CTFMinigun::GetWeaponSpread"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"float"
 			}
 
 			"CTFPlayer::CanDisguise"
@@ -637,6 +678,24 @@
 					{
 						"type" "object"
 						"size" "12"
+					}
+				}
+			}
+			"CTFPlayerShared::AddToSpyCloakMeter"
+			{
+				"signature" "CTFPlayerShared::AddToSpyCloakMeter"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "bool"
+				"arguments"
+				{
+					"val"
+					{
+						"type" "float"
+					}
+					"bForce"
+					{
+						"type" "bool"
 					}
 				}
 			}
