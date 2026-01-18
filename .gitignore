@@ -101,3 +101,4 @@ website/*
 !website/data.json
 !website/genhtml.py
 !website/reverts.html
+!website/README.md

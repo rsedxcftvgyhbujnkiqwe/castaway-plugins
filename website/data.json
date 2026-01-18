@@ -3463,11 +3463,11 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+50% faster reloading speed"
+                "text": "+50% faster firing speed"
             },
             {
                 "type": "att_positive",
-                "text": "+25% firing speed"
+                "text": "25% faster reload time"
             },
             {
                 "type": "att_negative",
