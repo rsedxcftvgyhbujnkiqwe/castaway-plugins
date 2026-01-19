@@ -1650,7 +1650,10 @@ public void OnGameFrame() {
 										}
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 0.100, 0);
 
-										if (TF2_IsPlayerInCondition(idx, TFCond_CritCola)) {
+										if (
+											TF2_IsPlayerInCondition(idx, TFCond_CritCola) &&
+											!has_lunchbox
+										) {
 											// allow mini-crit buff to last indefinitely
 											SetEntPropFloat(idx, Prop_Send, "m_flEnergyDrinkMeter", 100.0);
 										}
