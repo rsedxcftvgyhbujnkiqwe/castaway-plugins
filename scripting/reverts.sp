@@ -404,7 +404,6 @@ DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
-Address CTFPlayerShared_m_pOuter;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -934,7 +933,6 @@ public void OnPluginStart() {
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
-		CTFPlayerShared_m_pOuter = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_nHalloweenBombHeadStage") - FindSendPropInfo("CTFPlayer", "m_Shared") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -7374,22 +7372,21 @@ MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn retu
 }
 
 MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHookReturn returnValue, DHookParam parameters) {
-	if (GetItemVariant(Wep_DeadRinger) == 0) {
-		int client = GetEntityFromAddress(LoadFromAddress(pThis + CTFPlayerShared_m_pOuter, NumberType_Int32));
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	if (
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		bool force = parameters.Get(2);
 		if (
-			client >= 1 &&
-			client <= MaxClients
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			player_weapons[client][Wep_DeadRinger] &&
+			!force
 		) {
-			bool force = parameters.Get(2);
-			if (
-				player_weapons[client][Wep_DeadRinger] &&
-				!force
-			) {
-				// cap dead ringer cloak gain to 35%
-				float val = parameters.Get(1);
-				parameters.Set(1, floatMin(val, 35.00));
-				return MRES_ChangedHandled;	
-			}
+			// cap dead ringer cloak gain to 35%
+			float val = parameters.Get(1);
+			parameters.Set(1, floatMin(val, 35.00));
+			return MRES_ChangedHandled;	
 		}
 	}
 	return MRES_Ignored;
@@ -7686,24 +7683,6 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	}
 
 	return -1;
-}
-
-// Nosoop stock
-stock int GetEntityFromHandle(any handle)
-{
-	int ent = handle & 0xFFF;
-	if (ent == 0xFFF)
-		ent = -1;
-	return ent;
-}
-
-// Nosoop stock
-stock int GetEntityFromAddress(Address pEntity)
-{
-	if (pEntity == Address_Null)
-		return -1;
-
-	return GetEntityFromHandle(LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32));
 }
 
 /** 
