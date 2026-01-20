@@ -7025,7 +7025,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		) {
 			int metal = GetEntProp(client, Prop_Send, "m_iAmmo", 4, TF_AMMO_METAL);
 			int sentry_ammo = GetEntProp(entity, Prop_Send, "m_iAmmoShells");
-			int sentry_max_ammo = GetEntProp(entity, Prop_Send, "m_iMaxAmmoShells");
+			int sentry_max_ammo = SENTRYGUN_MAX_SHELLS_1;
 
 			if (sentry_ammo < sentry_max_ammo && metal > 0) {
 				float amount_to_add_float = float(intMin(SENTRYGUN_ADD_SHELLS, metal));
