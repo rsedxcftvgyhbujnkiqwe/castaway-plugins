@@ -1572,6 +1572,26 @@ public void OnGameFrame() {
 					}
 
 					{
+						// sandman recharge
+
+						if (ItemIsEnabled(Wep_Sandman)) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (StrEqual(class, "tf_weapon_bat_wood")) {
+									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
+
+									if (timer > 0.1) {
+										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer + GetTickInterval() / 3.0);
+									}
+								}
+							}
+						}
+					}
+
+					{
 						// crit-a-cola damage taken minicrits
 
 						if (
@@ -2033,7 +2053,6 @@ public void OnGameFrame() {
 									// jarate, milk and gas
 									if (dur > 0.0) {
 										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
-										//PrintToChat(idx, "debuff %d duration left %f", cond, TF2Util_GetPlayerConditionDuration(idx, cond));
 									}
 
 									// burning and bleed handle expire time separately
@@ -2042,7 +2061,6 @@ public void OnGameFrame() {
 										if (dur > 0.0) {
 											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
 										}
-										//PrintToChat(idx, "burn duration left %f", TF2Util_GetPlayerBurnDuration(idx));
 									} else if (cond == TFCond_Bleeding) {
 										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
 
@@ -2058,7 +2076,6 @@ public void OnGameFrame() {
 													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
 												);
 											}
-											//PrintToChat(idx, "bleed %d duration left %f", j, TF2Util_GetPlayerBleedDuration(idx, j));
 										}
 									}
 								}
@@ -3285,19 +3302,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
 			switch (GetItemVariant(Wep_Sandman)) {
 				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 125, -30.0); // -30 max health on wearer
-					TF2Items_SetAttribute(itemNew, 1, 278, 1.50); // increase ball recharge time to 15s
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 49, 1.0); // no double jump
 					TF2Items_SetAttribute(itemNew, 1, 125, 0.0); // -0 max health on wearer
-					TF2Items_SetAttribute(itemNew, 2, 278, 1.50); // increase ball recharge time to 15s
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 278, 1.50); // increase ball recharge time to 15s
 				}
 			}
 		}}
@@ -4497,7 +4508,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				other >= 1 && other <= MaxClients
 			) {
 				if (
-					PlayerIsInvulnerable(other) &&
+					(PlayerIsInvulnerable(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
 					players[other].projectile_touch_frame == GetGameTickCount()
 				) {
 					players[other].projectile_touch_frame = 0;
@@ -6974,8 +6985,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			if (regen_amount != 0.0) {
 				TF2Attrib_AddCustomPlayerAttribute(client, "health drain", regen_amount, 0.001);
 			}
-
-			return MRES_Ignored;
 		}
 	}
 	
@@ -7008,7 +7017,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookRetur
 		) {
 			int metal = GetEntProp(client, Prop_Send, "m_iAmmo", 4, TF_AMMO_METAL);
 			int sentry_ammo = GetEntProp(entity, Prop_Send, "m_iAmmoShells");
-			int sentry_max_ammo = SENTRYGUN_MAX_SHELLS_1;
+			int sentry_max_ammo = GetEntProp(entity, Prop_Send, "m_iMaxAmmoShells");
 
 			if (sentry_ammo < sentry_max_ammo && metal > 0) {
 				float amount_to_add_float = float(intMin(SENTRYGUN_ADD_SHELLS, metal));
