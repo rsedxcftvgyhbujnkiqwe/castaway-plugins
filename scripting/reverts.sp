@@ -255,7 +255,6 @@ enum struct Player {
 	int powerjack_kill_tick;
 	float rage_meter;
 	int mmmph_use_tick;
-	float damage_received_time;
 	float aiming_cond_time;
 	bool has_used_jetpack;
 	bool was_jump_key_pressed;
@@ -4573,11 +4572,6 @@ Action SDKHookCB_OnTakeDamage(
 		// damage from any source
 
 		{
-			// track when victim is damaged for use with conch and amputator reverts
-			players[victim].damage_received_time = GetGameTime();
-		}
-
-		{
 			// save fall dmg tick for overriding with old fall dmg sound
 			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
 		}
@@ -6964,7 +6958,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 
 		if (full_regen) {
 			regen_amount = TF2Attrib_HookValueFloat(0.0, "add_health_regen", client);
-			time_since_damage = GetGameTime() - players[client].damage_received_time;
+			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(client);
 			regen_scale = 1.0;
 
 			if (time_since_damage < 5.0) {
