@@ -733,6 +733,7 @@ public void OnPluginStart() {
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
+	ItemVariant(Wep_Natascha, "Natascha_PreDec2010");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
@@ -3116,12 +3117,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
 		}}
 #endif
-		case 41: { if (GetItemVariant(Wep_Natascha) == 1) {
-			// imported from NotnHeavy's pre-GM plugin
-			TF2Items_SetNumAttributes(itemNew, 3);
-			TF2Items_SetAttribute(itemNew, 0, 32, 0.00); // On Hit: 0% chance to slow target
-			TF2Items_SetAttribute(itemNew, 1, 76, 1.50); // 50% max primary ammo on wearer
-			TF2Items_SetAttribute(itemNew, 2, 738, 1.00); // 0% damage resistance when below 50% health and spun up
+		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
+			switch (GetItemVariant(Wep_Natascha)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 76, 1.50); // 50% max primary ammo on wearer
+					TF2Items_SetAttribute(itemNew, 1, 738, 1.0); // 0% damage resistance when below 50% health and spun up
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 86, 1.0); // 0% slower spin up time
+					TF2Items_SetAttribute(itemNew, 1, 738, 1.0); // 0% damage resistance when below 50% health and spun up
+				}
+			}
 			// no distance falloff for natascha slowdown handled elsewhere
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
@@ -5061,7 +5069,7 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
 				if (
-					GetItemVariant(Wep_Natascha) == 1 &&
+					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class,"tf_weapon_minigun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
