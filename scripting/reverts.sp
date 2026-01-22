@@ -5070,12 +5070,19 @@ Action SDKHookCB_OnTakeDamage(
 				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
-					StrEqual(class,"tf_weapon_minigun") &&
+					StrEqual(class, "tf_weapon_minigun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
 					// Slow enemy on hit, unless they're being healed by a medic
-					if (!TF2_IsPlayerInCondition(victim, TFCond_Healing))
+					if (
+						!TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
+						GetVectorDistance(pos1, pos2, true) > Pow(512.0, 2.0)
+					) {
 						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+					}
 				}
 			}
         
