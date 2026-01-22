@@ -1685,26 +1685,6 @@ public void OnGameFrame() {
 							}
 						}
 					}
-
-					{
-						// shortstop shove removal from NotnHeavy's plugin; mostly prevents animation glitch when holding down mouse2 at lower pings
-						if (
-							ItemIsEnabled(Wep_Shortstop) &&
-							cvar_enable_shortstop_shove.BoolValue == false &&
-							players[idx].holding_attack2 // only run this when attack2 is pressed and/or held
-						) {
-							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
-								}
-							}
-						}
-					}
-
 				} else {
 					// reset if player isn't scout
 					players[idx].is_under_hype = false;
@@ -5121,8 +5101,7 @@ Action SDKHookCB_OnTakeDamage(
 				// Bazaar bargain headshot: gain a head.
 				if (
 					ItemIsEnabled(Wep_BazaarBargain) &&
-					StrEqual(class,"tf_weapon_sniperrifle_decap") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+					StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 					players[attacker].headshot_frame == GetGameTickCount() && 
 					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
 				) {
@@ -5594,13 +5573,10 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled(Wep_BazaarBargain) &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
 			players[attacker].bazaar_shot == BAZAAR_GAIN &&
-			!IsPlayerAlive(victim) &&
-			weapon > 0
+			!IsPlayerAlive(victim)
 		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402) {
-				// Bazaar Bargain: do not gain two heads in one time.
-				SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
-			}
+			// Bazaar Bargain: do not gain two heads in one time.
+			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
 		if (inflictor > MaxClients) {
@@ -5621,7 +5597,7 @@ void SDKHookCB_OnTakeDamagePost(
 					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-					damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+					damage1 = ValveRemapVal(GetVectorDistance(pos1, pos2, true), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
 
 					if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
 						weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
@@ -5744,20 +5720,9 @@ public Action OnPlayerRunCmd(
 				cvar_enable_shortstop_shove.BoolValue == false &&
 				IsPlayerAlive(client)
 			) {
-				// Buggy fix for shortstop autoreload bug
-				// A solution I thought of for the shortstop shoveless reload bug is to force the client to reload when autoreload is detected
-				// However I do not know how to detect if auto-reload is enabled. This here just simply forces a reload whenever ATTACK2 is pressed or held down.
-				// Bug: When autoreload is turned off, and the player alt-fires, it reloads the weapon.
-				// However when autoreload is turned on, and the player alt-fires after firing, it reloads the weapon, fixing the old bug.
-				if (
-					(buttons & IN_ATTACK2 != 0) && 
-					(buttons & IN_RELOAD == 0)
-				) {
-					buttons |= IN_RELOAD;
-						// PrintToChat(client, "IN_ATTACK2 != 0 && IN_RELOAD == 0, running IN_RELOAD");
-				}
+				// additional code for shortstop shove removal
 
-				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
+				// Track holding down ATTACK2
 				if (buttons & IN_ATTACK2 != 0) {
 					if (!players[client].holding_attack2)
 					{
@@ -5767,6 +5732,28 @@ public Action OnPlayerRunCmd(
 				else 
 				{
 					players[client].holding_attack2 = false;
+				}
+				
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+
+						if (players[client].holding_attack2) {
+							// mostly prevent animation glitch when holding down mouse2 at lower pings
+							SetEntPropFloat(weapon1, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.3);
+
+							if (
+								GetEntProp(weapon1, Prop_Send, "m_iClip1") <= 0 &&
+								buttons & IN_ATTACK != 0
+							) {
+								// force a reload when clip is empty
+								buttons |= IN_RELOAD;
+								returnValue = Plugin_Changed;
+							}
+						}
+					}
 				}
 			}			
 		}
@@ -6330,7 +6317,6 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		}
 		else if (
 			ItemIsEnabled(Wep_BazaarBargain) &&
-			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
 		) {
