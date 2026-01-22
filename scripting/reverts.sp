@@ -4846,19 +4846,19 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
-					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
+					players[victim].projectile_touch_frame == GetGameTickCount()
 				) {
-					damage = 15.0; // always deal 15 impact damage at any range
+					players[victim].projectile_touch_frame = 0;
 
-					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
-						players[victim].projectile_touch_frame = 0;
+					GetEntityClassname(players[victim].projectile_touch_entity, class, sizeof(class));
+					if (StrEqual(class, "tf_projectile_stun_ball")) {
+						damage = 15.0; // always deal 15 impact damage at any range
 
 						TF2_RemoveCondition(victim, TFCond_Dazed);
-
 						DoSandmanStun(attacker, victim, (damage_type & DMG_CRIT) != 0);
-					}
 
-					return Plugin_Changed;
+						return Plugin_Changed;
+					}				
 				}
 			}
 
