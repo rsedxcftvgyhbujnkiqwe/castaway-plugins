@@ -255,7 +255,6 @@ enum struct Player {
 	int powerjack_kill_tick;
 	float rage_meter;
 	int mmmph_use_tick;
-	float damage_received_time;
 	float aiming_cond_time;
 	bool has_used_jetpack;
 	bool was_jump_key_pressed;
@@ -404,7 +403,6 @@ DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
-Address CTFPlayerShared_m_pOuter;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -735,6 +733,7 @@ public void OnPluginStart() {
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
+	ItemVariant(Wep_Natascha, "Natascha_PreDec2010");
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
@@ -934,7 +933,6 @@ public void OnPluginStart() {
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
-		CTFPlayerShared_m_pOuter = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_nHalloweenBombHeadStage") - FindSendPropInfo("CTFPlayer", "m_Shared") + 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1575,6 +1573,26 @@ public void OnGameFrame() {
 					}
 
 					{
+						// sandman recharge
+
+						if (ItemIsEnabled(Wep_Sandman)) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (StrEqual(class, "tf_weapon_bat_wood")) {
+									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
+
+									if (timer > 0.1) {
+										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer + GetTickInterval() / 3.0);
+									}
+								}
+							}
+						}
+					}
+
+					{
 						// crit-a-cola damage taken minicrits
 
 						if (
@@ -1667,26 +1685,6 @@ public void OnGameFrame() {
 							}
 						}
 					}
-
-					{
-						// shortstop shove removal from NotnHeavy's plugin; mostly prevents animation glitch when holding down mouse2 at lower pings
-						if (
-							ItemIsEnabled(Wep_Shortstop) &&
-							cvar_enable_shortstop_shove.BoolValue == false &&
-							players[idx].holding_attack2 // only run this when attack2 is pressed and/or held
-						) {
-							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
-
-								if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-									SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 1.0);
-								}
-							}
-						}
-					}
-
 				} else {
 					// reset if player isn't scout
 					players[idx].is_under_hype = false;
@@ -2036,7 +2034,6 @@ public void OnGameFrame() {
 									// jarate, milk and gas
 									if (dur > 0.0) {
 										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
-										//PrintToChat(idx, "debuff %d duration left %f", cond, TF2Util_GetPlayerConditionDuration(idx, cond));
 									}
 
 									// burning and bleed handle expire time separately
@@ -2045,7 +2042,6 @@ public void OnGameFrame() {
 										if (dur > 0.0) {
 											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
 										}
-										//PrintToChat(idx, "burn duration left %f", TF2Util_GetPlayerBurnDuration(idx));
 									} else if (cond == TFCond_Bleeding) {
 										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
 
@@ -2061,7 +2057,6 @@ public void OnGameFrame() {
 													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
 												);
 											}
-											//PrintToChat(idx, "bleed %d duration left %f", j, TF2Util_GetPlayerBleedDuration(idx, j));
 										}
 									}
 								}
@@ -3102,12 +3097,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
 		}}
 #endif
-		case 41: { if (GetItemVariant(Wep_Natascha) == 1) {
-			// imported from NotnHeavy's pre-GM plugin
-			TF2Items_SetNumAttributes(itemNew, 3);
-			TF2Items_SetAttribute(itemNew, 0, 32, 0.00); // On Hit: 0% chance to slow target
-			TF2Items_SetAttribute(itemNew, 1, 76, 1.50); // 50% max primary ammo on wearer
-			TF2Items_SetAttribute(itemNew, 2, 738, 1.00); // 0% damage resistance when below 50% health and spun up
+		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
+			switch (GetItemVariant(Wep_Natascha)) {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 76, 1.50); // 50% max primary ammo on wearer
+					TF2Items_SetAttribute(itemNew, 1, 738, 1.0); // 0% damage resistance when below 50% health and spun up
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 86, 1.0); // 0% slower spin up time
+					TF2Items_SetAttribute(itemNew, 1, 738, 1.0); // 0% damage resistance when below 50% health and spun up
+				}
+			}
 			// no distance falloff for natascha slowdown handled elsewhere
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
@@ -3288,19 +3290,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
 			switch (GetItemVariant(Wep_Sandman)) {
 				case 1: {
-					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 125, -30.0); // -30 max health on wearer
-					TF2Items_SetAttribute(itemNew, 1, 278, 1.50); // increase ball recharge time to 15s
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 49, 1.0); // no double jump
 					TF2Items_SetAttribute(itemNew, 1, 125, 0.0); // -0 max health on wearer
-					TF2Items_SetAttribute(itemNew, 2, 278, 1.50); // increase ball recharge time to 15s
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 278, 1.50); // increase ball recharge time to 15s
 				}
 			}
 		}}
@@ -4500,7 +4496,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				other >= 1 && other <= MaxClients
 			) {
 				if (
-					PlayerIsInvulnerable(other) &&
+					(PlayerIsInvulnerable(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
 					players[other].projectile_touch_frame == GetGameTickCount()
 				) {
 					players[other].projectile_touch_frame = 0;
@@ -4573,11 +4569,6 @@ Action SDKHookCB_OnTakeDamage(
 		victim <= MaxClients
 	) {
 		// damage from any source
-
-		{
-			// track when victim is damaged for use with conch and amputator reverts
-			players[victim].damage_received_time = GetGameTime();
-		}
 
 		{
 			// save fall dmg tick for overriding with old fall dmg sound
@@ -4855,19 +4846,19 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
-					!StrEqual(class, "tf_weapon_bat_giftwrap") //reflected wrap will stun I think, lol!
+					players[victim].projectile_touch_frame == GetGameTickCount()
 				) {
-					damage = 15.0; // always deal 15 impact damage at any range
+					players[victim].projectile_touch_frame = 0;
 
-					if (players[victim].projectile_touch_frame == GetGameTickCount()) {
-						players[victim].projectile_touch_frame = 0;
+					GetEntityClassname(players[victim].projectile_touch_entity, class, sizeof(class));
+					if (StrEqual(class, "tf_projectile_stun_ball")) {
+						damage = 15.0; // always deal 15 impact damage at any range
 
 						TF2_RemoveCondition(victim, TFCond_Dazed);
-
 						DoSandmanStun(attacker, victim, (damage_type & DMG_CRIT) != 0);
-					}
 
-					return Plugin_Changed;
+						return Plugin_Changed;
+					}				
 				}
 			}
 
@@ -5058,13 +5049,20 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
 				if (
-					GetItemVariant(Wep_Natascha) == 1 &&
-					StrEqual(class,"tf_weapon_minigun") &&
+					GetItemVariant(Wep_Natascha) >= 1 &&
+					StrEqual(class, "tf_weapon_minigun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
 					// Slow enemy on hit, unless they're being healed by a medic
-					if (!TF2_IsPlayerInCondition(victim, TFCond_Healing))
+					if (
+						!TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
+						GetVectorDistance(pos1, pos2, true) > Pow(512.0, 2.0)
+					) {
 						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+					}
 				}
 			}
         
@@ -5103,8 +5101,7 @@ Action SDKHookCB_OnTakeDamage(
 				// Bazaar bargain headshot: gain a head.
 				if (
 					ItemIsEnabled(Wep_BazaarBargain) &&
-					StrEqual(class,"tf_weapon_sniperrifle_decap") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
+					StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 					players[attacker].headshot_frame == GetGameTickCount() && 
 					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
 				) {
@@ -5576,13 +5573,10 @@ void SDKHookCB_OnTakeDamagePost(
 			ItemIsEnabled(Wep_BazaarBargain) &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
 			players[attacker].bazaar_shot == BAZAAR_GAIN &&
-			!IsPlayerAlive(victim) &&
-			weapon > 0
+			!IsPlayerAlive(victim)
 		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 402) {
-				// Bazaar Bargain: do not gain two heads in one time.
-				SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
-			}
+			// Bazaar Bargain: do not gain two heads in one time.
+			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
 		if (inflictor > MaxClients) {
@@ -5603,7 +5597,7 @@ void SDKHookCB_OnTakeDamagePost(
 					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 
-					damage1 = ValveRemapVal(Pow(GetVectorDistance(pos1, pos2), 2.0), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
+					damage1 = ValveRemapVal(GetVectorDistance(pos1, pos2, true), Pow(512.0, 2.0), Pow(1536.0, 2.0), 1.0, 0.0);
 
 					if (TF2_GetPlayerClass(victim) == TFClass_Medic) {
 						weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Secondary);
@@ -5726,20 +5720,9 @@ public Action OnPlayerRunCmd(
 				cvar_enable_shortstop_shove.BoolValue == false &&
 				IsPlayerAlive(client)
 			) {
-				// Buggy fix for shortstop autoreload bug
-				// A solution I thought of for the shortstop shoveless reload bug is to force the client to reload when autoreload is detected
-				// However I do not know how to detect if auto-reload is enabled. This here just simply forces a reload whenever ATTACK2 is pressed or held down.
-				// Bug: When autoreload is turned off, and the player alt-fires, it reloads the weapon.
-				// However when autoreload is turned on, and the player alt-fires after firing, it reloads the weapon, fixing the old bug.
-				if (
-					(buttons & IN_ATTACK2 != 0) && 
-					(buttons & IN_RELOAD == 0)
-				) {
-					buttons |= IN_RELOAD;
-						// PrintToChat(client, "IN_ATTACK2 != 0 && IN_RELOAD == 0, running IN_RELOAD");
-				}
+				// additional code for shortstop shove removal
 
-				// Track holding down ATTACK2, used for preventing NotnHeavy's additional shove prevention method from running when not needed every frame
+				// Track holding down ATTACK2
 				if (buttons & IN_ATTACK2 != 0) {
 					if (!players[client].holding_attack2)
 					{
@@ -5749,6 +5732,28 @@ public Action OnPlayerRunCmd(
 				else 
 				{
 					players[client].holding_attack2 = false;
+				}
+				
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+				if (weapon1 > 0) {
+					GetEntityClassname(weapon1, class, sizeof(class));
+
+					if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+
+						if (players[client].holding_attack2) {
+							// mostly prevent animation glitch when holding down mouse2 at lower pings
+							SetEntPropFloat(weapon1, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.3);
+
+							if (
+								GetEntProp(weapon1, Prop_Send, "m_iClip1") <= 0 &&
+								buttons & IN_ATTACK != 0
+							) {
+								// force a reload when clip is empty
+								buttons |= IN_RELOAD;
+								returnValue = Plugin_Changed;
+							}
+						}
+					}
 				}
 			}			
 		}
@@ -6312,7 +6317,6 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		}
 		else if (
 			ItemIsEnabled(Wep_BazaarBargain) &&
-			GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 402 &&
 			StrEqual(class, "tf_weapon_sniperrifle_decap") &&
 			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
 		) {
@@ -6966,7 +6970,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 
 		if (full_regen) {
 			regen_amount = TF2Attrib_HookValueFloat(0.0, "add_health_regen", client);
-			time_since_damage = GetGameTime() - players[client].damage_received_time;
+			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(client);
 			regen_scale = 1.0;
 
 			if (time_since_damage < 5.0) {
@@ -6982,8 +6986,6 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			if (regen_amount != 0.0) {
 				TF2Attrib_AddCustomPlayerAttribute(client, "health drain", regen_amount, 0.001);
 			}
-
-			return MRES_Ignored;
 		}
 	}
 	
@@ -7374,22 +7376,21 @@ MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn retu
 }
 
 MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHookReturn returnValue, DHookParam parameters) {
-	if (GetItemVariant(Wep_DeadRinger) == 0) {
-		int client = GetEntityFromAddress(LoadFromAddress(pThis + CTFPlayerShared_m_pOuter, NumberType_Int32));
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	if (
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		bool force = parameters.Get(2);
 		if (
-			client >= 1 &&
-			client <= MaxClients
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			player_weapons[client][Wep_DeadRinger] &&
+			!force
 		) {
-			bool force = parameters.Get(2);
-			if (
-				player_weapons[client][Wep_DeadRinger] &&
-				!force
-			) {
-				// cap dead ringer cloak gain to 35%
-				float val = parameters.Get(1);
-				parameters.Set(1, floatMin(val, 35.00));
-				return MRES_ChangedHandled;	
-			}
+			// cap dead ringer cloak gain to 35%
+			float val = parameters.Get(1);
+			parameters.Set(1, floatMin(val, 35.00));
+			return MRES_ChangedHandled;	
 		}
 	}
 	return MRES_Ignored;
@@ -7686,24 +7687,6 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	}
 
 	return -1;
-}
-
-// Nosoop stock
-stock int GetEntityFromHandle(any handle)
-{
-	int ent = handle & 0xFFF;
-	if (ent == 0xFFF)
-		ent = -1;
-	return ent;
-}
-
-// Nosoop stock
-stock int GetEntityFromAddress(Address pEntity)
-{
-	if (pEntity == Address_Null)
-		return -1;
-
-	return GetEntityFromHandle(LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32));
 }
 
 /** 

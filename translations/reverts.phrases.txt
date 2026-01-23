@@ -967,7 +967,11 @@
 	"Natascha_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, full slowdown at any distance, 300 max ammo, no damage resistance when spun up"
-	}	
+	}
+	"Natascha_PreDec2010"
+	{
+		"en"	"Reverted to pre-December 17, 2010; full slowdown at any distance, no increased spin up time, no damage resistance when spun up"
+	}
 	"Panic_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health"
