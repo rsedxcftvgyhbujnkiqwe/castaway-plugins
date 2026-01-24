@@ -474,12 +474,12 @@ enum
 	Wep_Bushwacka,
 	Wep_CharginTarge,
 	Wep_Claidheamh,
+	Wep_CleanerCarbine,
 	Wep_Concheror,
 	Wep_CowMangler,
 #if defined MEMORY_PATCHES
 	Wep_CozyCamper,
-#endif
-	Wep_CleanerCarbine,
+#endif	
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
 	Wep_Crossbow,
@@ -536,12 +536,12 @@ enum
 	Wep_Scottish,
 	Wep_ShortCircuit,
 	Wep_Shortstop,
-	Wep_SydneySleeper,
 	Wep_SodaPopper,
 	Wep_Solemn,
 	Wep_SplendidScreen,
 	Wep_Spycicle,
 	Wep_StickyJumper,
+	Wep_SydneySleeper,
 	Wep_ThermalThruster,
 	Wep_TideTurner,
 	Wep_Tomislav,	
