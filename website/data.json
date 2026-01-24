@@ -712,38 +712,6 @@
         ]
     },
     {
-        "name": "Blutsauger",
-        "classes": [
-            "Medic"
-        ],
-        "categories": [
-            "Primary"
-        ],
-        "backpack_image": "/images/backpack/Backpack_Blutsauger.png",
-        "qua_unique": "The Blutsauger",
-        "att_level": "Level 5 Syringe Gun",
-        "current_attributes": [
-            {
-                "type": "att_positive",
-                "text": "On Hit: Gain up to +3 health"
-            },
-            {
-                "type": "att_negative",
-                "text": "-2 health regenerated per second on wearer"
-            }
-        ],
-        "reverted_attributes": [
-            {
-                "type": "att_positive",
-                "text": "On Hit: Gain up to +3 health"
-            },
-            {
-                "type": "att_negative",
-                "text": "No random critical hits"
-            }
-        ]
-    },
-    {
         "name": "Bonk! Atomic Punch",
         "classes": [
             "Scout"
