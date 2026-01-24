@@ -444,12 +444,14 @@ enum
 	Feat_Sword, // All Swords
 
 	// Item sets
-	Set_SpDelivery,
-	Set_GasJockey,
-	Set_Expert,
-	Set_Hibernate,
-	Set_CrocoStyle,
-	Set_Saharan,
+	Set_SpDelivery,		// Scout
+	Set_TankBuster,		// Soldier
+	Set_GasJockey,		// Pyro
+	Set_Expert,			// Demoman
+	Set_Hibernate,		// Heavy
+	Set_Medieval,		// Medic
+	Set_CrocoStyle,		// Sniper
+	Set_Saharan, 		// Spy
 	
 	// Specific weapons
 	Wep_Airstrike,
@@ -621,9 +623,11 @@ public void OnPluginStart() {
 	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Set_Expert);
 	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Set_GasJockey);
 	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
+	ItemDefine("medieval", "Medieval_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Set_Medieval);
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
+	ItemDefine("tankbuster", "TankBuster_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Set_TankBuster);
 
 	// Specific weapons
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -3965,9 +3969,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 		//item sets
 		if (
 			ItemIsEnabled(Set_SpDelivery) ||
+			ItemIsEnabled(Set_TankBuster) ||
 			ItemIsEnabled(Set_GasJockey) ||
 			ItemIsEnabled(Set_Expert) ||
 			ItemIsEnabled(Set_Hibernate) ||
+			ItemIsEnabled(Set_Medieval) ||
 			ItemIsEnabled(Set_CrocoStyle) ||
 			ItemIsEnabled(Set_Saharan)
 		) {
@@ -4023,6 +4029,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 								if(wep_count == 3) active_set = Set_SpDelivery;
 							}
 						}
+						// Tank Buster
+						case 228, 1085, 226: {
+							if(ItemIsEnabled(Set_TankBuster)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_TankBuster;
+							}
+						}						
 						// Gas Jockey's Gear
 						case 214, 215: {
 							if(ItemIsEnabled(Set_GasJockey)) {
@@ -4044,6 +4057,13 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 								if(wep_count == 3) active_set = Set_Hibernate;
 							}
 						}
+						// Medieval Medic
+						case 305, 1079, 304: {
+							if(ItemIsEnabled(Set_Medieval)) {
+								wep_count++;
+								if(wep_count == 3) active_set = Set_Medieval;
+							}
+						}						
 						// Croc-o-Style Kit
 						case 230, 232: {
 							if(ItemIsEnabled(Set_CrocoStyle)) {
@@ -4103,6 +4123,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 							player_weapons[client][Set_SpDelivery] = true;
 							TF2Attrib_SetByDefIndex(client, 517, 25.0); // SET BONUS: max health additive bonus
 						}
+						case Set_TankBuster:
+						{
+							player_weapons[client][Set_TankBuster] = true;
+							TF2Attrib_SetByDefIndex(client, 169, 0.80); // SET BONUS: dmg from sentry reduced
+						}
 						case Set_GasJockey:
 						{
 							player_weapons[client][Set_GasJockey] = true;
@@ -4118,6 +4143,11 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						{
 							player_weapons[client][Set_Hibernate] = true;
 							TF2Attrib_SetByDefIndex(client, 491, 0.95); // SET BONUS: dmg taken from crit reduced set bonus
+						}
+						case Set_Medieval:
+						{
+							player_weapons[client][Set_Medieval] = true;
+							TF2Attrib_SetByDefIndex(client, 490, 1.0); // SET BONUS: health regen set bonus
 						}
 						case Set_CrocoStyle:
 						{
