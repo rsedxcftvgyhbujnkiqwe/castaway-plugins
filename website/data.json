@@ -3280,6 +3280,62 @@
         ]
     },
     {
+        "name": "The Short Circuit",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Short_Circuit.png",
+        "qua_unique": "The Short Circuit",
+        "att_level": "Level 5 Robot Arm",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Launches a projectile-consuming energy ball. Costs 65 metal."
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: -15 ammo, destroy projectiles"
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
+            }
+        ]
+    },
+    {
         "name": "The Shortstop",
         "classes": [
             "Scout"
