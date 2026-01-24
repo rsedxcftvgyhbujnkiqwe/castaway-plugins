@@ -607,15 +607,19 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
+                "text": "+10% damage bonus"
+            },
+            {
+                "type": "att_positive",
                 "text": "100% critical hits from behind"
             },
             {
                 "type": "att_positive",
-                "text": "+20% damage bonus"
+                "text": "Extinguishing teammates restores 20 health"
             },
             {
                 "type": "att_negative",
-                "text": "No airblast"
+                "text": "+150% airblast cost"
             }
         ]
     },
@@ -1300,6 +1304,10 @@
             {
                 "type": "att_positive",
                 "text": "65% faster weapon switch"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
             },
             {
                 "type": "att_negative",
