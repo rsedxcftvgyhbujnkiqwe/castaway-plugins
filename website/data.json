@@ -3888,6 +3888,62 @@
         ]
     },
     {
+        "name": "The Vaccinator",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Vaccinator.png",
+        "qua_unique": "The Vaccinator",
+        "att_level": "Level 8 Vaccinator",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+67% ÜberCharge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type."
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% Overheal build rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "-33% ÜberCharge rate on Overhealed patients"
+            },
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% ÜberCharge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type.<br>You are healed for 10% of the matched incoming damage on your patient."
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% Overheal build rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% ÜberCharge rate on Overhealed patients"
+            },
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
+            }
+        ]
+    },
+    {
         "name": "The Vita-Saw",
         "classes": [
             "Medic"
