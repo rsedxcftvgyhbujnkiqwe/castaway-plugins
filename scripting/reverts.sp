@@ -473,12 +473,12 @@ enum
 	Wep_BuffBanner,
 	Wep_Bushwacka,
 	Wep_CharginTarge,
+	Wep_Claidheamh,
 	Wep_Concheror,
 	Wep_CowMangler,
 #if defined MEMORY_PATCHES
 	Wep_CozyCamper,
 #endif
-	Wep_Claidheamh,
 	Wep_CleanerCarbine,
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
@@ -619,15 +619,17 @@ public void OnPluginStart() {
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
 	// Item sets
-	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
-	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Set_Expert);
-	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Set_GasJockey);
-	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
-	ItemDefine("medieval", "Medieval_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Set_Medieval);
-	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Set_Saharan);
-	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
 	ItemDefine("tankbuster", "TankBuster_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Set_TankBuster);
+	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Set_GasJockey);
+	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Set_Expert);
+	ItemDefine("hibernate", "Hibernate_Release", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Set_Hibernate);
+	ItemDefine("medieval", "Medieval_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Set_Medieval);
+	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
+	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Set_Saharan);
+	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
+	
+	
 
 	// Specific weapons
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -3984,6 +3986,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				{
 					TF2Attrib_RemoveByDefIndex(client, 517); // SET BONUS: max health additive bonus
 				}
+				case TFClass_Soldier:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 169); // SET BONUS: dmg from sentry reduced
+				}
 				case TFClass_Pyro:
 				{
 					TF2Attrib_RemoveByDefIndex(client, 489); // SET BONUS: move speed set bonus
@@ -3996,6 +4002,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				case TFClass_Heavy:
 				{
 					TF2Attrib_RemoveByDefIndex(client, 491); // SET BONUS: dmg taken from crit reduced set bonus
+				}
+				case TFClass_Medic:
+				{
+					TF2Attrib_RemoveByDefIndex(client, 490); // SET BONUS: health regen set bonus
 				}
 				case TFClass_Sniper:
 				{
@@ -4033,7 +4043,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 228, 1085, 226: {
 							if(ItemIsEnabled(Set_TankBuster)) {
 								wep_count++;
-								if(wep_count == 3) active_set = Set_TankBuster;
+								if(wep_count == 2) active_set = Set_TankBuster;
 							}
 						}						
 						// Gas Jockey's Gear
@@ -4061,7 +4071,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 305, 1079, 304: {
 							if(ItemIsEnabled(Set_Medieval)) {
 								wep_count++;
-								if(wep_count == 3) active_set = Set_Medieval;
+								if(wep_count == 2) active_set = Set_Medieval;
 							}
 						}						
 						// Croc-o-Style Kit
