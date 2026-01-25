@@ -92,6 +92,7 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
+#define TF_COND_RESIST_OFFSET 58
 
 enum
 {
@@ -100,7 +101,6 @@ enum
     BAZAAR_GAIN
 }
 
-// Vaccinator stuff
 int resistance_mapping[] =
 {
     DMG_BULLET | DMG_BUCKSHOT,
@@ -286,6 +286,9 @@ enum struct Player {
 	bool has_thrown_sandvich;
 	bool deny_metal_collection;
     int bazaar_shot;
+	bool using_vaccinator_uber;
+	float vaccinator_charge;
+	float vaccinator_charge_end;
 }
 
 enum struct Entity {
@@ -293,6 +296,7 @@ enum struct Entity {
 	float spawn_time;
 	int old_shield;
 	float minisentry_health;
+	int patient;
 }
 
 ConVar cvar_enable;
@@ -372,6 +376,7 @@ Handle sdkcall_AwardAchievement;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
+Handle sdkcall_CWeaponMedigun_CanAttack;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -909,6 +914,11 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CTFWeaponBaseGun_GetWeaponSpread = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CWeaponMedigun::CanAttack");
+		PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
+		sdkcall_CWeaponMedigun_CanAttack = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
@@ -1127,6 +1137,7 @@ public void OnPluginStart() {
 	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
 	if (sdkcall_CTFWeaponBaseGun_GetProjectileDamage == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetProjectileDamage");
 	if (sdkcall_CTFWeaponBaseGun_GetWeaponSpread == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetWeaponSpread");
+	if (sdkcall_CWeaponMedigun_CanAttack == null) SetFailState("Failed to create sdkcall_CWeaponMedigun_CanAttack");
 
 	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
 	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
@@ -1858,35 +1869,83 @@ public void OnGameFrame() {
 						if (weapon > 0) {
 							GetEntityClassname(weapon, class, sizeof(class));
 
-							// amputator prevent uber on taunt
-							if (
-								StrEqual(class, "tf_weapon_medigun") &&
-								GetItemVariant(Wep_Amputator) == 1 &&
-								player_weapons[idx][Wep_Amputator] &&
-								TF2_IsPlayerInCondition(idx, TFCond_Taunting)
-							) {
-								if (!players[idx].medic_crossbow_heal) {
-									SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
-										// PrintToChat(idx, "SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
-									// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
-								} else if (players[idx].medic_crossbow_heal) {
-									players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-										// PrintToChat(idx, "CROSSBOW HEAL DETECTED! SetEntPropFloat for m_flChargeLevel = %f", players[idx].medic_amputator_current_uber);
-									players[idx].medic_crossbow_heal = false;
+							if (StrEqual(class, "tf_weapon_medigun")) {
+
+								// amputator prevent uber on taunt
+								if (
+									GetItemVariant(Wep_Amputator) == 1 &&
+									player_weapons[idx][Wep_Amputator] &&
+									TF2_IsPlayerInCondition(idx, TFCond_Taunting)
+								) {
+									if (!players[idx].medic_crossbow_heal) {
+										SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
+										// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
+									} else if (players[idx].medic_crossbow_heal) {
+										players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+										players[idx].medic_crossbow_heal = false;
+									}
 								}
-							}
-				
-							// vitasaw charge store
-							if (
-								StrEqual(class, "tf_weapon_medigun") &&
-								ItemIsEnabled(Wep_VitaSaw) &&
-								player_weapons[idx][Wep_VitaSaw]
-							) {
-								players[idx].medic_medigun_defidx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-								players[idx].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+
+								// pre-GM vaccinator stuff
+								if (
+									GetItemVariant(Wep_Vaccinator) == 1 &&
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 998
+								) {
+									int patient = GetEntPropEnt(weapon, Prop_Send, "m_hHealingTarget");
+									TFCond resistance = view_as<TFCond>(GetResistType(weapon) + TF_COND_RESIST_OFFSET);
+
+									if (players[idx].using_vaccinator_uber) {
+										players[idx].vaccinator_charge -= 0.25 * 0.5 * GetTickInterval();
+										if (players[idx].vaccinator_charge <= players[idx].vaccinator_charge_end) {
+											players[idx].using_vaccinator_uber = false;
+											TF2_RemoveCondition(idx, resistance);
+											if (
+												patient >= 1 &&
+												patient <= MaxClients
+											) {
+												TF2_RemoveCondition(patient, resistance);
+											}
+										} else {
+											SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].vaccinator_charge);
+										}
+									}
+									if (
+										entities[weapon].patient != patient ||
+										weapon != GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")
+									) {
+										if (
+											patient >= 1 &&
+											patient <= MaxClients
+										) {
+											if (players[idx].using_vaccinator_uber)
+												TF2_AddCondition(patient, resistance, 2.0, idx);
+										}
+										if (
+											entities[weapon].patient >= 1 &&
+											entities[weapon].patient <= MaxClients
+										) {
+											TF2_RemoveCondition(entities[weapon].patient, resistance);
+										}
+										entities[weapon].patient = patient;
+									}
+								}
+
+								// vitasaw charge store
+								if (
+									ItemIsEnabled(Wep_VitaSaw) &&
+									player_weapons[idx][Wep_VitaSaw]
+								) {
+									players[idx].medic_medigun_defidx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+									players[idx].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+								}
 							}
 						}
 					}
+				} else {
+					// reset if not medic
+					players[idx].using_vaccinator_uber = false;
+					players[idx].vaccinator_charge = 0.0;
+					players[idx].vaccinator_charge_end = 0.0;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Sniper) {
@@ -2136,6 +2195,9 @@ public void OnGameFrame() {
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].deny_metal_collection = false;
+				players[idx].using_vaccinator_uber = false;
+				players[idx].vaccinator_charge = 0.0;
+				players[idx].vaccinator_charge_end = 0.0;
 			}
 		}
 	}
@@ -2230,6 +2292,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].spawn_time = 0.0;
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
+	entities[entity].patient = -1;
 
 	if (StrEqual(class, "tf_projectile_rocket")) {
 		rocket_create_entity = entity;
@@ -3563,6 +3626,12 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 	) {
 		TF2Attrib_SetByDefIndex(entity, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
+	} else if (
+		GetItemVariant(Wep_Vaccinator) == 1 &&
+		StrEqual(class, "tf_weapon_medigun") &&
+		index == 998
+	) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 }
 
@@ -3811,12 +3880,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
 
-					if (
-						(StrEqual(class, "tf_weapon_sniperrifle") || 
-						StrEqual(class, "tf_weapon_sniperrifle_classic") || 
-						StrEqual(class, "tf_weapon_sniperrifle_decap")) &&
-						!(StrEqual(class, "tf_weapon_compound_bow"))
-					) {
+					if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 						if (!StrEqual(class, "tf_weapon_sniperrifle_classic")) player_weapons[client][Feat_SniperQuickscope] = true;
 						player_weapons[client][Feat_SniperRifle] = true;
 					}
@@ -5356,7 +5420,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			// vaccinator heal medic when patient takes damage under resist revert
 			if (ItemIsEnabled(Wep_Vaccinator)) {
 				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
 					healer = TF2Util_GetPlayerHealer(victim, i);
@@ -5372,6 +5435,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 								StrEqual(class, "tf_weapon_medigun") &&
 								GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 998
 							) {
+								// vaccinator heal medic when patient takes damage
 								if (
 									attacker != victim &&
 									damage_type & resistance_mapping[GetResistType(weapon1)]
@@ -5394,6 +5458,20 @@ Action SDKHookCB_OnTakeDamageAlive(
 										TF2Util_TakeHealth(healer, (damage * resist_heal));
 									}
 								}
+								// pre-GM vaccinator drain uber on crits
+								if (
+									GetItemVariant(Wep_Vaccinator) == 1 &&
+									damage_type & DMG_CRIT &&
+									players[healer].using_vaccinator_uber
+								) {
+									if (damage_type & resistance_mapping[0]) // bullet
+										players[healer].vaccinator_charge -= 0.03;
+									else if (damage_type & resistance_mapping[1]) // explosive
+										players[healer].vaccinator_charge -= 0.75;
+									else if (damage_type & resistance_mapping[2]) // fire
+										players[healer].vaccinator_charge -= 0.01;
+									SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", floatMax(players[healer].vaccinator_charge, 0.0));
+								}
 							}
 						}
 					}
@@ -5406,25 +5484,14 @@ Action SDKHookCB_OnTakeDamageAlive(
 				GetItemVariant(Wep_Vaccinator) == 1 &&
 				damage_type & DMG_CRIT
 			) {
-				bool resist_crit = false;
-
-				if (damage_type & resistance_mapping[0]) { // bullet
-					if (TF2_IsPlayerInCondition(victim, TFCond_SmallBulletResist)) {
-						resist_crit = true;
-					}
-				}
-				else if (damage_type & resistance_mapping[1]) { // explosive
-					if (TF2_IsPlayerInCondition(victim, TFCond_SmallBlastResist)) {
-						resist_crit = true;
-					}
-				}
-				else if (damage_type & resistance_mapping[2]) { // fire
-					if (TF2_IsPlayerInCondition(victim, TFCond_SmallFireResist)) {
-						resist_crit = true;
-					}
-				}
-
-				if (resist_crit) {
+				if (
+					damage_type & resistance_mapping[0] &&
+					TF2_IsPlayerInCondition(victim, TFCond_SmallBulletResist) ||
+					damage_type & resistance_mapping[1] &&
+					TF2_IsPlayerInCondition(victim, TFCond_SmallBlastResist) ||
+					damage_type & resistance_mapping[2] &&
+					TF2_IsPlayerInCondition(victim, TFCond_SmallFireResist)
+				) {
 					// Resist critical damage for this frame
 					TF2Attrib_AddCustomPlayerAttribute(
 						victim,
@@ -5734,8 +5801,20 @@ void SDKHookCB_OnTakeDamagePost(
 	}
 }
 
-void SDKHookCB_WeaponSwitchPost(int client, int weapon)
-{
+void SDKHookCB_WeaponSwitchPost(int client, int weapon) {
+	if (
+		GetItemVariant(Wep_Vaccinator) == 1 &&
+		IsValidEntity(weapon)
+	) {
+		// Give the Medic back the vaccinator bubble
+		if (
+			GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 998 &&
+			players[client].using_vaccinator_uber
+		) {
+			TF2_AddCondition(client, view_as<TFCond>(GetResistType(weapon) + TF_COND_RESIST_OFFSET), 2.0, client);
+		}
+	}
+
 	players[client].weapon_switch_time = GetGameTime();
 }
 
@@ -6484,6 +6563,22 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 		) {
 			// pre-gun mettle dalokohs bar alt-fire drop prevention
 			return MRES_Supercede;
+		}
+		else if (
+			GetItemVariant(Wep_Vaccinator) == 1 &&
+			StrEqual(class, "tf_weapon_medigun") &&
+			index == 998
+		) {
+			if (players[owner].using_vaccinator_uber)
+				return MRES_Supercede;
+			else if (
+				GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel") >= 0.25 &&
+				SDKCall(sdkcall_CWeaponMedigun_CanAttack, entity)
+			) {
+				players[owner].using_vaccinator_uber = true;
+				players[owner].vaccinator_charge = float(RoundToFloor(GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel") * 4.0)) * 0.25;
+				players[owner].vaccinator_charge_end = players[owner].vaccinator_charge - 0.25;
+			}
 		}
 	}
 	return MRES_Ignored;

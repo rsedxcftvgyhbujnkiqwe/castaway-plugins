@@ -232,6 +232,11 @@
 				"windows"	"482"
 				"linux"		"489"
 			}
+			"CWeaponMedigun::CanAttack"
+			{
+				"windows" "428"
+				"linux"   "435"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
