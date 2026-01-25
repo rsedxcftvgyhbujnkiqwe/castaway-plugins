@@ -607,15 +607,19 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
+                "text": "+10% damage bonus"
+            },
+            {
+                "type": "att_positive",
                 "text": "100% critical hits from behind"
             },
             {
                 "type": "att_positive",
-                "text": "+20% damage bonus"
+                "text": "Extinguishing teammates restores 20 health"
             },
             {
                 "type": "att_negative",
-                "text": "No airblast"
+                "text": "+150% airblast cost"
             }
         ]
     },
@@ -708,38 +712,6 @@
             {
                 "type": "att_negative",
                 "text": "-25% clip size"
-            }
-        ]
-    },
-    {
-        "name": "Blutsauger",
-        "classes": [
-            "Medic"
-        ],
-        "categories": [
-            "Primary"
-        ],
-        "backpack_image": "/images/backpack/Backpack_Blutsauger.png",
-        "qua_unique": "The Blutsauger",
-        "att_level": "Level 5 Syringe Gun",
-        "current_attributes": [
-            {
-                "type": "att_positive",
-                "text": "On Hit: Gain up to +3 health"
-            },
-            {
-                "type": "att_negative",
-                "text": "-2 health regenerated per second on wearer"
-            }
-        ],
-        "reverted_attributes": [
-            {
-                "type": "att_positive",
-                "text": "On Hit: Gain up to +3 health"
-            },
-            {
-                "type": "att_negative",
-                "text": "No random critical hits"
             }
         ]
     },
@@ -1332,6 +1304,10 @@
             {
                 "type": "att_positive",
                 "text": "65% faster weapon switch"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
             },
             {
                 "type": "att_negative",
@@ -3312,6 +3288,62 @@
         ]
     },
     {
+        "name": "The Short Circuit",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Short_Circuit.png",
+        "qua_unique": "The Short Circuit",
+        "att_level": "Level 5 Robot Arm",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Launches a projectile-consuming energy ball. Costs 65 metal."
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: -15 ammo, destroy projectiles"
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
+            }
+        ]
+    },
+    {
         "name": "The Shortstop",
         "classes": [
             "Scout"
@@ -3852,6 +3884,62 @@
             {
                 "type": "att_neutral",
                 "text": "The first hit will cause an explosion"
+            }
+        ]
+    },
+    {
+        "name": "The Vaccinator",
+        "classes": [
+            "Medic"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Vaccinator.png",
+        "qua_unique": "The Vaccinator",
+        "att_level": "Level 8 Vaccinator",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+67% ÜberCharge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type."
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% Overheal build rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "-33% ÜberCharge rate on Overhealed patients"
+            },
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+50% ÜberCharge rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type.<br>You are healed for 10% of the matched incoming damage on your patient."
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% Overheal build rate"
+            },
+            {
+                "type": "att_negative",
+                "text": "-66% ÜberCharge rate on Overhealed patients"
+            },
+            {
+                "type": "att_neutral",
+                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
             }
         ]
     },
