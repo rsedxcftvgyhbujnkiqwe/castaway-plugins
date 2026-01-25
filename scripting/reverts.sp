@@ -100,6 +100,14 @@ enum
     BAZAAR_GAIN
 }
 
+// Vaccinator stuff
+int resistance_mapping[] =
+{
+    DMG_BULLET | DMG_BUCKSHOT,
+    DMG_BLAST,
+    DMG_IGNITE | DMG_BURN
+};
+
 // flags for item definitions
 #define CLASSFLAG_SCOUT		(1 << 0)
 #define CLASSFLAG_SNIPER	(1 << 1)
@@ -192,6 +200,19 @@ enum
 	TF_AMMO_COUNT,
 };
 
+enum
+{
+	MEDIGUN_CHARGE_INVALID = -1,
+	MEDIGUN_CHARGE_INVULN = 0,
+	MEDIGUN_CHARGE_CRITICALBOOST,
+	MEDIGUN_CHARGE_MEGAHEAL,
+	MEDIGUN_CHARGE_BULLET_RESIST,
+	MEDIGUN_CHARGE_BLAST_RESIST,
+	MEDIGUN_CHARGE_FIRE_RESIST,
+
+	MEDIGUN_NUM_CHARGE_TYPES,
+};
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -272,29 +293,7 @@ enum struct Entity {
 	float spawn_time;
 	int old_shield;
 	float minisentry_health;
-	int owner;
 }
-
-// Vaccinator stuff
-int resistance_mapping[] =
-{
-    DMG_BULLET | DMG_BUCKSHOT,
-    DMG_BLAST,
-    DMG_IGNITE | DMG_BURN
-};
-
-enum
-{
-	MEDIGUN_CHARGE_INVALID = -1,
-	MEDIGUN_CHARGE_INVULN = 0,
-	MEDIGUN_CHARGE_CRITICALBOOST,
-	MEDIGUN_CHARGE_MEGAHEAL,
-	MEDIGUN_CHARGE_BULLET_RESIST,
-	MEDIGUN_CHARGE_BLAST_RESIST,
-	MEDIGUN_CHARGE_FIRE_RESIST,
-
-	MEDIGUN_NUM_CHARGE_TYPES,
-};
 
 ConVar cvar_enable;
 ConVar cvar_show_moonshot;
@@ -813,7 +812,7 @@ public void OnPluginStart() {
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
-	// ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM"); // Leaving this is for future use if we ever manage to implement this
+	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM");
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
@@ -3499,18 +3498,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 149, 8.0); // On Hit: Bleed for 8 seconds
 		}}
 		case 998: { if (ItemIsEnabled(Wep_Vaccinator)) {
-			// switch (GetItemVariant(Wep_Vaccinator)) {
-				// case 0: { // Pre-Tough Break Vaccinator
+			switch (GetItemVariant(Wep_Vaccinator)) {
+				case 0: { // Pre-Tough Break
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
-					TF2Items_SetAttribute(itemNew, 1, 739, 0.34); // -66% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
-				// }
-				// case 1: { // Pre-Gun Mettle Vaccinator, commenting this if we ever manage to fully implement this
-				// 	TF2Items_SetNumAttributes(itemNew, 2);
-				// 	TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // 50% ubercharge rate bonus
-				// 	TF2Items_SetAttribute(itemNew, 1, 739, 1.00); // -0% ubercharge overheal rate penalty (ÜberCharge rate on Overhealed patients)
-				// }
-			// }
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // +50% ÜberCharge rate
+					TF2Items_SetAttribute(itemNew, 1, 739, 0.34); // -66% ÜberCharge rate on Overhealed patients
+				}
+				case 1: { // Pre-Gun Mettle
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.50); // +50% ÜberCharge rate
+					TF2Items_SetAttribute(itemNew, 1, 739, 1.00); // -0% ÜberCharge rate on Overhealed patients
+				}
+			}
 		}}
 		case 173: { if (ItemIsEnabled(Wep_VitaSaw)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
@@ -5261,6 +5260,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int weapon1;
 	int health_cur;
 	int health_max;
+	int healer;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -5341,10 +5341,13 @@ Action SDKHookCB_OnTakeDamageAlive(
 									// play damage resist sound
 									EmitGameSoundToAll("Player.ResistanceLight", victim);
 
-									// increase crit vuln here for proper resist on crits and minicrits
-									// (multiplicative inverse of spunup resist value)
-									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1 / spunup_resist, 0.001);
+									// apply resistance
 									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", spunup_resist, 0.001);
+									if (damage_type & DMG_CRIT) {
+										// increase crit vuln here for proper resist on crits and minicrits
+										// (multiplicative inverse of spunup resist value)
+										TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1.0 / spunup_resist, 0.001);
+									}
 								}
 							}
 						}
@@ -5356,37 +5359,39 @@ Action SDKHookCB_OnTakeDamageAlive(
 			// vaccinator heal medic when patient takes damage under resist revert
 			if (ItemIsEnabled(Wep_Vaccinator)) {
 				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
-					int iHealerIndex = TF2Util_GetPlayerHealer(victim, i);
-					bool bIsClient = (iHealerIndex <= MaxClients);
+					healer = TF2Util_GetPlayerHealer(victim, i);
 
-					if (bIsClient) {
-						weapon1 = GetPlayerWeaponSlot(iHealerIndex, TFWeaponSlot_Secondary);
+					if (
+						healer >= 1 &&
+						healer <= MaxClients
+					) {
+						weapon1 = GetPlayerWeaponSlot(healer, TFWeaponSlot_Secondary);
 						if (weapon1 > 0) {
 							GetEntityClassname(weapon1, class, sizeof(class));
-							if (StrEqual(class, "tf_weapon_medigun") && GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 998) {
-									// PrintToChatAll("\"%N\" <- healed by player \"%N\" [%i]", victim, iHealerIndex, iHealerIndex);
+							if (
+								StrEqual(class, "tf_weapon_medigun") &&
+								GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 998
+							) {
 								if (
-									attacker != victim && 
+									attacker != victim &&
 									damage_type & resistance_mapping[GetResistType(weapon1)]
-								) { // Check that the damage type matches the Medic's current resistance.
-									if (damage_type != DMG_BURN)
-									{
-										if (victim != i)
-										{
-											health_cur = GetClientHealth(iHealerIndex);
-											health_max = SDKCall(sdkcall_GetMaxHealth, iHealerIndex);
-											float resist_heal = (0.10); // 10% for pre-TB (base version); TODO: implement pre-GM version (25%)
+								) {
+									if (
+										damage_type != DMG_BURN &&
+										victim != healer
+									) {
+										health_cur = GetClientHealth(healer);
+										health_max = SDKCall(sdkcall_GetMaxHealth, healer);
+										float resist_heal = (GetItemVariant(Wep_Vaccinator) == 0 ? 0.10 : 0.25); // 10% for pre-TB, 25% for pre-GM
 
-											// Show that the healer got healed.
-											Handle event = CreateEvent("player_healonhit", true);
-											SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
-											SetEventInt(event, "entindex", iHealerIndex);
-											FireEvent(event);
+										// Fire heal event
+										Handle event = CreateEvent("player_healonhit", true);
+										SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
+										SetEventInt(event, "entindex", healer);
+										FireEvent(event);
 
-											// Set health.
-											TF2Util_TakeHealth(iHealerIndex, (damage * resist_heal));
-												// PrintToChatAll("(iHealerIndex: %i) Added %i health on resist, health_cur = %i, new health = %i", iHealerIndex, RoundFloat(damage * resist_heal), health_cur, health_cur + RoundFloat(damage * resist_heal));
-										}
+										// Take health
+										TF2Util_TakeHealth(healer, (damage * resist_heal));
 									}
 								}
 							}
@@ -5394,7 +5399,42 @@ Action SDKHookCB_OnTakeDamageAlive(
 					}
 				}
 			}
-		}		
+		}
+		{
+			// pre-GM vaccinator full crit resist
+			if (
+				GetItemVariant(Wep_Vaccinator) == 1 &&
+				damage_type & DMG_CRIT
+			) {
+				bool resist_crit = false;
+
+				if (damage_type & resistance_mapping[0]) { // bullet
+					if (TF2_IsPlayerInCondition(victim, TFCond_SmallBulletResist)) {
+						resist_crit = true;
+					}
+				}
+				else if (damage_type & resistance_mapping[1]) { // explosive
+					if (TF2_IsPlayerInCondition(victim, TFCond_SmallBlastResist)) {
+						resist_crit = true;
+					}
+				}
+				else if (damage_type & resistance_mapping[2]) { // fire
+					if (TF2_IsPlayerInCondition(victim, TFCond_SmallFireResist)) {
+						resist_crit = true;
+					}
+				}
+
+				if (resist_crit) {
+					// Resist critical damage for this frame
+					TF2Attrib_AddCustomPlayerAttribute(
+						victim,
+						"dmg taken from crit increased",
+						TF2_IsPlayerInCondition(victim, TFCond_HealingDebuff) ? 0.20 : 0.0,
+						0.001
+					);
+				}
+			}
+		}
 	}
 
 	if (
