@@ -7643,7 +7643,7 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 			flMod = TF2Attrib_HookValueFloat(flMod, "mult_patient_overheal_penalty", patient);
 			weapon = GetEntPropEnt(patient, Prop_Send, "m_hActiveWeapon");
 			if (weapon > 0) {
-				flMod = TF2Attrib_HookValueFloat(flMod, "mult_player_movespeed_active", weapon);
+				flMod = TF2Attrib_HookValueFloat(flMod, "mult_patient_overheal_penalty_active", weapon);
 			}
 			if (
 				flMod <= 0.0 &&
