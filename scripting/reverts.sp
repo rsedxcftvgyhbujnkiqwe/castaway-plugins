@@ -326,6 +326,7 @@ ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
+ConVar cvar_ref_weapon_medigun_charge_rate;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -405,6 +406,7 @@ DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
+DynamicDetour dhook_CWeaponMedigun_FindAndHealTargets;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -424,6 +426,7 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+int team_round_timer_entity = 0;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -852,6 +855,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
+	cvar_ref_weapon_medigun_charge_rate = FindConVar("weapon_medigun_charge_rate");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -948,6 +952,7 @@ public void OnPluginStart() {
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 		dhook_CTFPlayerShared_AddToSpyCloakMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddToSpyCloakMeter");
+		dhook_CWeaponMedigun_FindAndHealTargets = DynamicDetour.FromConf(conf, "CWeaponMedigun::FindAndHealTargets");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
@@ -1169,6 +1174,7 @@ public void OnPluginStart() {
 	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 	if (dhook_CTFPlayerShared_AddToSpyCloakMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddToSpyCloakMeter");
+	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1185,6 +1191,8 @@ public void OnPluginStart() {
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
+	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre);
+	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Post, DHookCallback_CWeaponMedigun_FindAndHealTargets_Post);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2257,6 +2265,7 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+			cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
@@ -2381,6 +2390,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "tf_weapon_minigun")) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
+	}
+
+	else if (StrEqual(class, "team_round_timer")) {
+		team_round_timer_entity = entity;
 	}
 }
 
@@ -6738,7 +6751,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 
 	// no cooldown when steak is eaten at full health for pre-Manniversary variants
 	if (
-		GetItemVariant(Wep_BuffaloSteak) >= 0 &&
+		GetItemVariant(Wep_BuffaloSteak) >= 1 &&
 		StrEqual(class, "tf_weapon_lunchbox") &&
 		index == 311 &&
 		TF2_IsPlayerInCondition(owner, TFCond_Taunting) &&
@@ -7595,6 +7608,78 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 			StoreToAddress(GetEntityAddress(entity) + CWeaponMedigun_m_bReloadDown, true, NumberType_Int8);
 		}
 	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
+	float divisor;
+	float flMod;
+	int patient;
+	int healers;
+	int health_cur;
+	int health_max;
+	int health_max_boost;
+	int weapon;
+	bool overheal_blocked;
+
+	// No Uber rate penalties from overheal/other healers. Sourced from SDK code
+	if (
+		GetItemVariant(Wep_Vaccinator) == 1 &&
+		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998
+	) {
+		divisor = 1.0;
+
+		patient = GetEntPropEnt(entity, Prop_Send, "m_hHealingTarget");
+		if (
+			patient >= 1 &&
+			patient <= MaxClients
+		) {
+			health_cur = GetClientHealth(patient);
+			health_max = SDKCall(sdkcall_GetMaxHealth, patient);
+			health_max_boost = RoundToFloor(float(TF2Util_GetPlayerMaxHealthBoost(patient)) * 0.95);
+			overheal_blocked = false;
+
+			flMod = 1.0;
+			flMod = TF2Attrib_HookValueFloat(flMod, "mult_patient_overheal_penalty", patient);
+			weapon = GetEntPropEnt(patient, Prop_Send, "m_hActiveWeapon");
+			if (weapon > 0) {
+				flMod = TF2Attrib_HookValueFloat(flMod, "mult_player_movespeed_active", weapon);
+			}
+			if (
+				flMod <= 0.0 &&
+				health_cur >= health_max
+			) {
+				// if overheal negated (vanilla Razorback)
+				overheal_blocked = true;
+			}
+
+			// bypass overheal uber penalty
+			if (
+				(overheal_blocked || health_cur >= health_max_boost) &&
+				!(GameRules_GetProp("m_bInSetup") == 1 && team_round_timer_entity) 
+			) {
+				divisor *= 2.0;
+			}
+
+			// bypass multiple healers penalty
+			healers = GetEntProp(patient, Prop_Send, "m_nNumHealers");
+			if (healers > 1) {
+				divisor *= healers;
+			}
+		}
+
+		if (
+			divisor != 0.0 &&
+			divisor != 1.0
+		) {
+			cvar_ref_weapon_medigun_charge_rate.FloatValue /= divisor;
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Post(int entity) {
+	cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 	return MRES_Ignored;
 }
 
