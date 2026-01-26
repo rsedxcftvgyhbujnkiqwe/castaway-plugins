@@ -146,6 +146,12 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
 				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
 			}
+			"CWeaponMedigun::FindAndHealTargets" // offset aMultMedigunUbe ; "mult_medigun_uberchargerate"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\xF1\x8B\x8E"
+				"linux"   "@_ZN14CWeaponMedigun18FindAndHealTargetsEv"
+			}
 		}
 
 		"Offsets"
@@ -232,6 +238,16 @@
 				"windows"	"482"
 				"linux"		"489"
 			}
+			"CWeaponMedigun::CanAttack"
+			{
+				"windows"	"428"
+				"linux"		"435"
+			}
+			"CWeaponMedigun::ItemPostFrame"
+			{
+				"windows"	"273"
+				"linux"		"279"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -262,6 +278,7 @@
 
 		"Functions"
 		{
+			// Offset
 			"CTFWeaponBase::PrimaryAttack"
 			{
 				"offset" "CTFWeaponBase::PrimaryAttack"
@@ -382,7 +399,15 @@
 				"this"		"entity"
 				"return"	"float"
 			}
+			"CWeaponMedigun::ItemPostFrame"
+			{
+				"offset"   "CWeaponMedigun::ItemPostFrame"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "void"
+			}
 
+			// Signature
 			"CTFPlayer::CanDisguise"
 			{
 				"signature" "CTFPlayer::CanDisguise"
@@ -698,6 +723,13 @@
 						"type" "bool"
 					}
 				}
+			}
+			"CWeaponMedigun::FindAndHealTargets"
+			{
+				"signature" "CWeaponMedigun::FindAndHealTargets"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "bool"
 			}
 		}
 	}
