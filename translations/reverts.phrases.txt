@@ -1294,7 +1294,7 @@
 	}	
 	"Vaccinator_PreGM"
 	{
-		"en"	"Pre-GM: full crit base resist, bubbles gone when cut off, no Uber rate penalties, only 1 resist on patient, 25%% HP regen on proper resist, +50%% Uber rate, -66%% overheal build rate"
+		"en"	"Reverted to pre-gunmettle, +50%% Uber rate, no Uber rate penalties, full crit base resist, bubbles last 2s and are gone when cut off, only 1 resist on patient, 25%% HP regen on proper resist"
 	}
 	"VitaSaw_PreJI"
 	{

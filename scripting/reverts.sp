@@ -1900,7 +1900,9 @@ public void OnGameFrame() {
 									TFCond resistance = view_as<TFCond>(GetResistType(weapon) + TF_COND_RESIST_OFFSET);
 
 									if (players[idx].using_vaccinator_uber) {
+										// Deplete Vaccinator charge
 										players[idx].vaccinator_charge -= 0.25 * 0.5 * GetTickInterval();
+										// End Vaccinator charge, and remove the resist conditions
 										if (players[idx].vaccinator_charge <= players[idx].vaccinator_charge_end) {
 											players[idx].using_vaccinator_uber = false;
 											TF2_RemoveCondition(idx, resistance);
@@ -1914,6 +1916,7 @@ public void OnGameFrame() {
 											SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].vaccinator_charge);
 										}
 									}
+									// If heal target changes or weapons are switched, remove/add the resist conditions if ubered
 									if (
 										entities[weapon].patient != patient ||
 										weapon != GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")
