@@ -234,8 +234,13 @@
 			}
 			"CWeaponMedigun::CanAttack"
 			{
-				"windows" "428"
-				"linux"   "435"
+				"windows"	"428"
+				"linux"		"435"
+			}
+			"CWeaponMedigun::ItemPostFrame"
+			{
+				"windows"	"273"
+				"linux"		"279"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -267,6 +272,7 @@
 
 		"Functions"
 		{
+			// Offset
 			"CTFWeaponBase::PrimaryAttack"
 			{
 				"offset" "CTFWeaponBase::PrimaryAttack"
@@ -387,7 +393,15 @@
 				"this"		"entity"
 				"return"	"float"
 			}
+			"CWeaponMedigun::ItemPostFrame"
+			{
+				"offset"   "CWeaponMedigun::ItemPostFrame"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "void"
+			}
 
+			// Signature
 			"CTFPlayer::CanDisguise"
 			{
 				"signature" "CTFPlayer::CanDisguise"

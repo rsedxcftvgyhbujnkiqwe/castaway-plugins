@@ -389,6 +389,7 @@ DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CObjectSentrygun_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
+DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -407,6 +408,7 @@ DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
+Address CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -929,6 +931,7 @@ public void OnPluginStart() {
 		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
+		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -948,6 +951,7 @@ public void OnPluginStart() {
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
+		CWeaponMedigun_m_bReloadDown = view_as<Address>(FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1149,6 +1153,7 @@ public void OnPluginStart() {
 	if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
 	if (dhook_CTFMinigun_GetProjectileDamage == null) SetFailState("Failed to create dhook_CTFMinigun_GetProjectileDamage");
 	if (dhook_CTFMinigun_GetWeaponSpread == null) SetFailState("Failed to create dhook_CTFMinigun_GetWeaponSpread");
+	if (dhook_CWeaponMedigun_ItemPostFrame == null) SetFailState("Failed to create dhook_CWeaponMedigun_ItemPostFrame");
 
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
@@ -2267,6 +2272,9 @@ public void OnClientConnected(int client) {
 	players[client].resupply_time = 0.0;
 	players[client].medic_medigun_defidx = 0;
 	players[client].medic_medigun_charge = 0.0;
+	players[client].using_vaccinator_uber = false;
+	players[client].vaccinator_charge = 0.0;
+	players[client].vaccinator_charge_end = 0.0;
 	players[client].received_help_notice = false;
 
 	for (int i = 0; i < NUM_ITEMS; i++) {
@@ -3632,6 +3640,7 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 		index == 998
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CWeaponMedigun_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_ItemPostFrame);
 	}
 }
 
@@ -7566,6 +7575,21 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHook
 			float val = parameters.Get(1);
 			parameters.Set(1, floatMin(val, 35.00));
 			return MRES_ChangedHandled;	
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (
+		GetItemVariant(Wep_Vaccinator) == 1 &&
+		owner >= 1 &&
+		owner <= MaxClients
+	) {
+		if (players[owner].using_vaccinator_uber) {
+			// Prevent resistance cycling while Ubering with the Vaccinator.
+			StoreToAddress(GetEntityAddress(entity) + CWeaponMedigun_m_bReloadDown, true, NumberType_Int8);
 		}
 	}
 	return MRES_Ignored;
