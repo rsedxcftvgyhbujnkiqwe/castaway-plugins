@@ -146,6 +146,14 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
 				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
 			}
+			// We need CTFPipebombLauncher::SecondaryAttack in the reverts.txt gamedata file too since we need sdkcall for the function.
+			// The revert involves both a memorypatch and a sdkcall. Do not remove this.
+			"CTFPipebombLauncher::SecondaryAttack"
+			{
+				"library" "server"
+				"linux"	"@_ZN19CTFPipebombLauncher15SecondaryAttackEv"
+				"windows" "\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x2A\x2A\xFF\xD0\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\x83\xBE\x2A\x2A\x2A\x2A\x00"
+			}
 		}
 
 		"Offsets"
@@ -231,6 +239,11 @@
 			{
 				"windows"	"482"
 				"linux"		"489"
+			}
+			"CTFWeaponBase::CanAttack"
+			{
+				"windows"	"428"
+				"linux"		"435"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -698,6 +711,14 @@
 						"type" "bool"
 					}
 				}
+			}
+			// Used for sdkcall for the "Detonate stickies while taunting" revert
+			"CTFPipebombLauncher::SecondaryAttack"
+			{
+				"signature" "CTFPipebombLauncher::SecondaryAttack"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
 			}
 		}
 	}

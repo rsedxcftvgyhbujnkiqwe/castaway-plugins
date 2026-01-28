@@ -303,6 +303,7 @@ ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
 ConVar cvar_allow_cloak_taunt_bug;
+ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
@@ -365,6 +366,8 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump;
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 #endif
 
+MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -373,6 +376,9 @@ Handle sdkcall_AwardAchievement;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
+#if defined MEMORY_PATCHES
+Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
+#endif
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
@@ -592,6 +598,7 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
 	cvar_allow_cloak_taunt_bug = CreateConVar("sm_reverts__enable_allow_cloak_taunt_bug", "0", (PLUGIN_NAME ... " - Revert cloak behaviour so spy can taunt and cloak (i.e old fence taunt cloak bug)"), _, true, 0.0, true, 1.0);
+	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Revert so demoman can detonate stickies while taunting. Requires "), _, true, 0.0, true, 1.0);
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
@@ -600,6 +607,7 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
 	cvar_allow_cloak_taunt_bug.AddChangeHook(OnAllowCloakTauntBugChange);
+	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
 #endif
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
 
@@ -858,6 +866,9 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_classrevert", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 	RegConsoleCmd("sm_classreverts", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 	RegConsoleCmd("sm_toggleinfo", Command_ToggleInfo, (PLUGIN_NAME ... " - Toggle the revert info dump in chat when changing loadouts"), 0);
+#if defined MEMORY_PATCHES
+	RegConsoleCmd("sm_detonatestickies", Command_DetonateStickies, (PLUGIN_NAME ... " - Detonate your stickies as demoman (bind this command to your mouse2 with bind mouse2 \"+attack2; sm_detonatestickies\""), 0);
+#endif
 
 	HookEvent("player_spawn", OnGameEvent, EventHookMode_Post);
 	HookEvent("player_death", OnGameEvent, EventHookMode_Pre);
@@ -1013,6 +1024,9 @@ public void OnPluginStart() {
 			MemoryPatch.CreateFromConf(conf,
 			"CTFSniperRifle::Fire_SniperScopeJump");
 #endif
+		patch_RevertCannotDetonateStickiesWhileTaunting =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
@@ -1097,6 +1111,10 @@ public void OnPluginStart() {
 			LogError("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
 		}
 #endif
+		if (!ValidateAndNullCheck(patch_RevertCannotDetonateStickiesWhileTaunting)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertCannotDetonateStickiesWhileTaunting");
+		}
 
 		if (hook_fail) {
 			SetFailState("Failed to load dhooks/memory patches");
@@ -1104,6 +1122,14 @@ public void OnPluginStart() {
 
 		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
+
+
+		// Sdkcall is needed together with the memorypatch for the "detonate stickies during taunt" revert. DO NOT REMOVE IT.
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CTFPipebombLauncher::SecondaryAttack");
+		sdkcall_CTFPipebombLauncher_SecondaryAttack = EndPrepSDKCall();
+
+		if (sdkcall_CTFPipebombLauncher_SecondaryAttack == null) SetFailState("Failed to create sdkcall_CTFPipebombLauncher_SecondaryAttack");
 
 		delete conf;
 	}
@@ -1222,6 +1248,27 @@ void UpdateShortstopDescription() {
 	}
 }
 
+#if defined MEMORY_PATCHES
+public void OnAllowDetonateStickiesCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	UpdateStickyLauncherDescription();
+}
+
+void UpdateStickyLauncherDescription() {
+	int i = Feat_Stickybomb;
+	char taunt_detonate_str[] = "_Taunt_Detonate";
+
+	for (int j = 0; j <= items[i].num_variants; j++) {
+		if (cvar_allow_detonate_stickies_while_taunting.BoolValue) {
+			if (StrContains(items_desc[i][j], taunt_detonate_str) == -1) {
+				Format(items_desc[i][j], sizeof(items_desc[][]), "%s%s", items_desc[i][j], taunt_detonate_str);
+			}
+		} else {
+			ReplaceString(items_desc[i][j], sizeof(items_desc[][]), taunt_detonate_str, "");
+		}
+	}
+}
+#endif
+
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
@@ -1229,6 +1276,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperQuickscope),Feat_SniperQuickscope);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
@@ -1237,6 +1285,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 	OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
+	UpdateStickyLauncherDescription();
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
 #endif
@@ -1314,6 +1363,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertSniperQuickscopeDelay.Enable();
 			} else {
 				patch_RevertSniperQuickscopeDelay.Disable();
+			}
+		}
+		case Feat_Stickybomb: {
+			if (enable) {
+				patch_RevertCannotDetonateStickiesWhileTaunting.Enable();
+			} else {
+				patch_RevertCannotDetonateStickiesWhileTaunting.Disable();
 			}
 		}
 		case Wep_CozyCamper: {
@@ -2309,6 +2365,12 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
 	}
+
+#if defined MEMORY_PATCHES
+	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+#endif
 }
 
 
@@ -5952,6 +6014,80 @@ Action Command_ToggleInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
+#if defined MEMORY_PATCHES
+// Command used for the Demoman "detonate stickies during taunting" revert.
+public Action Command_DetonateStickies(int client, int args)
+{
+    bool CanAttack = CanAttack_Secondary_Demoman(client, cvar_allow_detonate_stickies_while_taunting.BoolValue);
+
+    if (CanAttack) {
+    	DetonateDemomanStickies(client);
+    }
+    return Plugin_Handled;
+}
+
+void DetonateDemomanStickies(int client) {
+	int demoman_secondaryweapon;
+	char weaponclass[64];
+	// Code here to get demomans secondary weapon.
+	demoman_secondaryweapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+
+	if (demoman_secondaryweapon > 0) {
+	GetEntityClassname(demoman_secondaryweapon, weaponclass, sizeof(weaponclass));
+						
+		if (StrEqual(weaponclass, "tf_weapon_pipebomblauncher")) {
+			SDKCall(sdkcall_CTFPipebombLauncher_SecondaryAttack, demoman_secondaryweapon);
+		}
+	}
+}
+
+// To be used exclusively for the demoman.
+// This is a modified copy of CTFPlayer::CanAttack
+// from tf_player_shared.cpp, stripping out what we do NOT need to check as a demoman intending
+// to blow up stickies.
+bool CanAttack_Secondary_Demoman(int client, bool skipIsTauntingCheck)
+{
+    // Player validity
+    if (client < 1 || client > MaxClients)
+        return false;
+
+    if (TF2_GetPlayerClass(client) != TFClass_DemoMan)
+        return false;
+
+    if (!IsClientInGame(client))
+        return false;
+
+    if (!IsPlayerAlive(client))
+        return false;
+
+    if (!skipIsTauntingCheck && TF2_IsPlayerInCondition(client, TFCond_Taunting)) {
+    	return false;
+    }
+
+    // Viewing ConTracker / CYOA PDA
+    if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
+        return false;
+
+    // Halloween kart
+    if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
+        return false;
+
+    // If demoman is not part of winning team, do not allow him to detonate stickies.
+    int roundState = GameRules_GetProp("m_iRoundState");
+
+    // GR_STATE_TEAM_WIN == 5
+    if (roundState == 5)
+    {
+        int winningTeam = GameRules_GetProp("m_iWinningTeam");
+
+        if (GetClientTeam(client) != winningTeam)
+            return false;
+    }
+
+    return true;
+}
+#endif
+
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
 }
@@ -6445,6 +6581,26 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			// pre-gun mettle dalokohs bar alt-fire drop prevention
 			return MRES_Supercede;
 		}
+#if defined MEMORY_PATCHES
+		else if (
+			GetItemVariant(Wep_Dalokohs) == 0 &&
+			StrEqual(class, "tf_weapon_lunchbox") &&
+			(index == 159 || index == 433) // dalokohs and fishcake
+		) {
+			// pre-gun mettle dalokohs bar alt-fire drop prevention
+			return MRES_Supercede;
+		}
+		else if (
+			ItemIsEnabled(Feat_Stickybomb) &&
+			StrEqual(class, "tf_weapon_pipebomblauncher")
+		) {
+			bool CanAttack = CanAttack_Secondary_Demoman(owner, cvar_allow_detonate_stickies_while_taunting.BoolValue);
+
+			if (!CanAttack) {
+				return MRES_Supercede;
+			}
+		}
+#endif
 	}
 	return MRES_Ignored;
 }
