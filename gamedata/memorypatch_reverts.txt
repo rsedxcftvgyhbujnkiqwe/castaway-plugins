@@ -525,6 +525,14 @@
 				"this"      "entity"
 				"return"    "void"
 			}
+			// Used for sdkcall for the "Detonate stickies while taunting" revert
+			"CTFPipebombLauncher::SecondaryAttack"
+			{
+				"signature" "CTFPipebombLauncher::SecondaryAttack"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+			}
 		}
 	}
 }
