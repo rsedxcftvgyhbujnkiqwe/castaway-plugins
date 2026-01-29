@@ -582,7 +582,7 @@
 	}
 	"Stickybomb_PreLW_Taunt_Detonate"
 	{
-		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius, can detonate while taunting (requires bind mouse2 \"+attack2; sm_detonatestickies\""
+		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius, can detonate while taunting (requires bind mouse2 \"+attack2; sm_detonatestickies\")"
 	}
 	"Swords_PreTB"
 	{
