@@ -726,13 +726,9 @@
 	{
 		"pl"	"Przywrócono stary bonus zestawu: Użytkownik może przeżyć jeden strzał w głowę. Załóż Sydnejski Usypiacz, Darwińską Tarczę Ochronną oraz Bandytę z Buszu, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
-	"DalokohsBar_PreMYM"
+	"DalokohsBar_PreJI"
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru (Gun Mettle), tabliczka może nadleczyć do 400 HP"
-	}
-	"DalokohsBar_PreMYM_Patchless"
-	{
-		"pl"	"Tablicza Ladyczeko nie jest przywrócona"
 	}
 	"DalokohsBar_PreGM"
 	{

@@ -587,7 +587,7 @@
 	{
 		"ru"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
 	}
-	"DalokohsBar_PreMYM"
+	"DalokohsBar_PreJI"
 	{
 		"ru"	"Reverted to Gun Mettle update, can now overheal to 400 HP again"
 	}
