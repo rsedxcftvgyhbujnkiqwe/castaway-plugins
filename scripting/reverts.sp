@@ -213,6 +213,18 @@ enum
 	MEDIGUN_NUM_CHARGE_TYPES,
 };
 
+enum
+{
+	LUNCHBOX_STANDARD = 0,		// Careful, can be the Scout BONK drink, or the Heavy sandvich.
+	LUNCHBOX_CHOCOLATE_BAR,
+	LUNCHBOX_ADDS_MINICRITS,
+	LUNCHBOX_STANDARD_ROBO,
+	LUNCHBOX_STANDARD_FESTIVE,
+	LUNCHBOX_ADDS_AMMO,
+	LUNCHBOX_BANANA,
+	LUNCHBOX_FISHCAKE,
+};
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -352,15 +364,6 @@ MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
 Address AddressOf_g_flMadMilkHealTarget;
 
-// Changes float addr to point to our plugin declared "AddressOf_g_flDalokohsBarCanOverHealTo"
-MemoryPatch patch_RevertDalokohsBar_ChgFloatAddr; 
-// Changes a MOV to 400. Basically it's for setup of the function that deals with
-// Consuming Dalokohs bar.
-MemoryPatch patch_RevertDalokohsBar_ChgTo400;
-float g_flDalokohsBarCanOverHealTo = 400.0; // Float to use for Dalokohs Bar revert
-// Address of our float to use for the MOVSS part of revert:
-Address AddressOf_g_flDalokohsBarCanOverHealTo;
-
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 
 MemoryPatch patch_RevertSniperQuickscopeDelay;
@@ -407,6 +410,7 @@ DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 DynamicDetour dhook_CWeaponMedigun_FindAndHealTargets;
+DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -690,10 +694,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
 	ItemVariant(Wep_CritCola, "CritCola_Release");
-	ItemDefine("dalokohsbar", "DalokohsBar_PreGM", CLASSFLAG_HEAVY, Wep_Dalokohs, true);
-#if defined MEMORY_PATCHES
-	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreMYM");
-#endif
+	ItemDefine("dalokohsbar", "DalokohsBar_PreJI", CLASSFLAG_HEAVY, Wep_Dalokohs);
+	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreGM");
 	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_PreJI");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
@@ -953,6 +955,7 @@ public void OnPluginStart() {
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
 		dhook_CTFPlayerShared_AddToSpyCloakMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddToSpyCloakMeter");
 		dhook_CWeaponMedigun_FindAndHealTargets = DynamicDetour.FromConf(conf, "CWeaponMedigun::FindAndHealTargets");
+		dhook_CTFLunchBox_ApplyBiteEffects = DynamicDetour.FromConf(conf, "CTFLunchBox::ApplyBiteEffects");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
@@ -999,15 +1002,9 @@ public void OnPluginStart() {
 		patch_RevertQuickFix_Uber_CannotCapturePoint =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
-		patch_RevertDalokohsBar_ChgFloatAddr =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOVSS_AddrTo_400");
 		patch_RevertMadMilk_ChgFloatAddr =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
-		patch_RevertDalokohsBar_ChgTo400 =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFLunchBox::ApplyBiteEffect_Dalokohs_MOV_400");
 		patch_DroppedWeapon =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayer::DropAmmoPack");
@@ -1077,14 +1074,6 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertMadMilk_ChgFloatAddr");
 		}
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgFloatAddr)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertDalokohsBar_ChgFloatAddr");
-		}
-		if (!ValidateAndNullCheck(patch_RevertDalokohsBar_ChgTo400)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertDalokohsBar_ChgTo400");
-		}
 		if (!ValidateAndNullCheck(patch_DroppedWeapon)) {
 			hook_fail=true;
 			LogError("Failed to create patch_DroppedWeapon");
@@ -1120,7 +1109,6 @@ public void OnPluginStart() {
 			SetFailState("Failed to load dhooks/memory patches");
 		}
 
-		AddressOf_g_flDalokohsBarCanOverHealTo = GetAddressOfCell(g_flDalokohsBarCanOverHealTo);
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
 
 		delete conf;
@@ -1175,6 +1163,7 @@ public void OnPluginStart() {
 	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
 	if (dhook_CTFPlayerShared_AddToSpyCloakMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddToSpyCloakMeter");
 	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
+	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1193,6 +1182,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
 	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre);
 	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Post, DHookCallback_CWeaponMedigun_FindAndHealTargets_Post);
+	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
+	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1255,7 +1246,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Dalokohs),Wep_Dalokohs);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
@@ -1358,19 +1348,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertQuickFix_Uber_CannotCapturePoint.Enable();
 			} else {
 				patch_RevertQuickFix_Uber_CannotCapturePoint.Disable();
-			}
-		}
-		case Wep_Dalokohs: {
-			if (enable && (GetItemVariant(Wep_Dalokohs) == 1)) {
-				patch_RevertDalokohsBar_ChgFloatAddr.Enable();
-				patch_RevertDalokohsBar_ChgTo400.Enable();
-
-				// Due to it being a MOVSS instruction that needs an address instead of an immediate value,
-				// an extra step needs to be done here:
-				StoreToAddress(patch_RevertDalokohsBar_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flDalokohsBarCanOverHealTo), NumberType_Int32);
-			} else {
-				patch_RevertDalokohsBar_ChgFloatAddr.Disable();
-				patch_RevertDalokohsBar_ChgTo400.Disable();
 			}
 		}
 		case Wep_MadMilk: {
@@ -3011,12 +2988,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-	// In case the DHook for preventing ammo usage for pre-Gun Mettle Dalokohs Bar doesn't work, uncomment this attribute based workaround
-	// Note that the player can pick up medpacks if they stand on top of one while eating.
-		// case 159, 433: { if (GetItemVariant(Wep_Dalokohs) == 0) {
-		// 	TF2Items_SetNumAttributes(itemNew, 1);
-		// 	TF2Items_SetAttribute(itemNew, 0, 874, 0.002); // mult_item_meter_charge_rate
-		// }}		
 		case 215: { if (ItemIsEnabled(Wep_Degreaser)) {
 			TF2Items_SetNumAttributes(itemNew, 6);
 			TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // damage penalty
@@ -6582,7 +6553,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			return MRES_Supercede;
 		}
 		else if (
-			GetItemVariant(Wep_Dalokohs) == 0 &&
+			GetItemVariant(Wep_Dalokohs) == 1 &&
 			StrEqual(class, "tf_weapon_lunchbox") &&
 			(index == 159 || index == 433) // dalokohs and fishcake
 		) {
@@ -6725,17 +6696,11 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 }
 
 MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
-	int owner;
-	char class[64];
-
-	GetEntityClassname(entity, class, sizeof(class));
-
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
-	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	
 	if (
-		GetItemVariant(Wep_Dalokohs) == 0 &&
-		StrEqual(class, "tf_weapon_lunchbox") &&
+		GetItemVariant(Wep_Dalokohs) == 1 &&
 		(index == 159 || index == 433) // dalokohs and fishcake
 	) {
 		return MRES_Supercede;
@@ -6743,7 +6708,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 
 	if (
 		GetItemVariant(Wep_Sandvich) == 0 &&
-		StrEqual(class, "tf_weapon_lunchbox") && 
 		(index == 42 || index == 863 || index == 1002) // Sandvich, Robo-Sandvich, Festive Sandvich
 	) {
 		return MRES_Supercede;
@@ -6752,7 +6716,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	// no cooldown when steak is eaten at full health for pre-Manniversary variants
 	if (
 		GetItemVariant(Wep_BuffaloSteak) >= 1 &&
-		StrEqual(class, "tf_weapon_lunchbox") &&
 		index == 311 &&
 		TF2_IsPlayerInCondition(owner, TFCond_Taunting) &&
 		GetClientHealth(owner) >= SDKCall(sdkcall_GetMaxHealth, owner)
@@ -7459,8 +7422,6 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 {
 	// Entity is the entity_index of the healthkit
 	// parameters.Get(1) get's the touching player.
-	char classname[64];
-	GetEntityClassname(entity, classname, sizeof(classname));
 
 	int client = parameters.Get(1);
 	if (	
@@ -7507,9 +7468,8 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 		!returnValue.Value && 
 		player_weapons[client][Wep_Ambassador]
 	) {
-			returnValue.Value = true;
-				// PrintToChat(client, "return TRUE for CanFireCriticalShot");
-			return MRES_Override;
+		returnValue.Value = true;
+		return MRES_Override;
 	}	
 
 	return MRES_Ignored;
@@ -7680,6 +7640,36 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 
 MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Post(int entity) {
 	cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre(int entity, DHookParam parameters) {
+	int client = parameters.Get(1);
+	if (
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		players[client].old_health = GetClientHealth(client);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookParam parameters) {
+	int lunchbox_type = TF2Attrib_HookValueInt(0, "set_weapon_mode", entity);
+	int client = parameters.Get(1);
+	if (
+		GetItemVariant(Wep_Dalokohs) == 0 &&
+		(lunchbox_type == LUNCHBOX_CHOCOLATE_BAR || lunchbox_type == LUNCHBOX_FISHCAKE) &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		int health_cur = GetClientHealth(client);
+		int health_gained = health_cur - players[client].old_health;
+		if (health_gained < 25) {
+			TF2Util_TakeHealth(client, float(intMin(25 - health_gained, 400 - health_cur)), TAKEHEALTH_IGNORE_MAXHEALTH);
+		}
+		//PrintToChat(client, "gained %d health from bite", GetClientHealth(client) - players[client].old_health);
+	}
 	return MRES_Ignored;
 }
 

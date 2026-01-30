@@ -716,9 +716,9 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: täysi ylilatauksen saanti parantaessa riippumatta siitä, ottiko kohde viime aikana vahinkoa"
 	}
-	"DalokohsBar_PreMYM"
+	"DalokohsBar_PreJI"
 	{
-		"fi"	"Gun Mettle versio: kykenee taas yliparantamaan 400 HP asti"
+		"fi"	"Ennen Jungle Infernoa: kykenee taas yliparantamaan 400 HP asti"
 	}
 	"Darwin_Pre2013"
 	{

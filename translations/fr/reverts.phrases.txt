@@ -626,7 +626,7 @@
 	{
 		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, ne peut pas être tué par les tirs en pleine tête quand la santé est plus que 1. Equipe la Sarbacane de Sydney, Bouclier du risque Darwinien et Bushwacka pour obtenir le bonus, chapeau non-requis"
 	}
-	"DalokohsBar_PreMYM"
+	"DalokohsBar_PreJI"
 	{
 		"fr"	"Réversion à Gun Mettle, peut donner un bonus d'extra santé jusqu'à 400"
 	}
