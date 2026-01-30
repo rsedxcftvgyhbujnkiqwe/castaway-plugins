@@ -776,10 +776,6 @@
 	{
 		"en"	"Reverted to Gun Mettle update, can now overheal to 400 HP again"
 	}
-	"DalokohsBar_PreMYM_Patchless"
-	{
-		"en"	"Memory patches turned off! Gun Mettle Dalokohs Bar is not reverted!"
-	}
 	"DalokohsBar_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, no cooldown, cannot be dropped via alt-fire"
