@@ -7666,7 +7666,9 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 		int health_cur = GetClientHealth(client);
 		int health_gained = health_cur - players[client].old_health;
 		if (health_gained < 25) {
-			TF2Util_TakeHealth(client, float(intMin(25 - health_gained, 400 - health_cur)), TAKEHEALTH_IGNORE_MAXHEALTH);
+			float heal = float(intMin(25 - health_gained, 400 - health_cur));
+			heal = floatMax(heal, 0.0);
+			TF2Util_TakeHealth(client, heal, TAKEHEALTH_IGNORE_MAXHEALTH);
 		}
 		//PrintToChat(client, "gained %d health from bite", GetClientHealth(client) - players[client].old_health);
 	}
