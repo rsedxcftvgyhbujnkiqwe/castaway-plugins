@@ -174,7 +174,7 @@ public void OnConfigsExecuted()
 public void OnMapStart() {
 	g_CanNominate = false;
 	delete g_NominationTimer;
-    CreateTimer(300.0, EnableNominations);
+    CreateTimer(60.0, EnableNominations);
 }
 
 Action EnableNominations(Handle timer, any data) {
