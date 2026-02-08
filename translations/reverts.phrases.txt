@@ -790,7 +790,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6s (reduced by dmg taken), no speedboost, no afterburn immunity after feign, no debuff reduction"
+		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6s (reduced by dmg taken), no speedboost, no afterburn immunity after feign, no debuff reduction when cloaked"
 	}
 	"Ringer_PreJI"
 	{
@@ -802,15 +802,15 @@
 	}
 	"Ringer_PostRelease"
 	{
-		"en"	"Reverted to post-release, 90%% dmg resist for 6s, no speedboost, full drain on early decloak, no afterburn immunity after feign, no debuff reduction"
+		"en"	"Reverted to post-release, 90%% dmg resist for 6s, no speedboost, full drain on early decloak, no afterburn immunity after feign, no debuff reduction when cloaked"
 	}
 	"Ringer_Release"
 	{
-		"en"	"Reverted to release, 90%% dmg resist for 6s, no speedboost, no drain on early decloak, no afterburn immunity after feign, no debuff reduction"
+		"en"	"Reverted to release, 90%% dmg resist for 6s, no speedboost, no drain on early decloak, no afterburn immunity after feign, no debuff reduction when cloaked"
 	}
 	"Ringer_Pre2010"
 	{
-		"en"	"Reverted to pre-Jan 6, 2010; can fully pick up ammo, 90%% dmg resist for 6s, no speedboost, up to 40%% drain on early decloak, no afterburn immunity after feign, no debuff reduction"
+		"en"	"Reverted to pre-Jan 6, 2010; can fully pick up ammo, 90%% dmg resist for 6s, no speedboost, up to 40%% drain on early decloak, no afterburn immunity after feign, no debuff reduction when cloaked"
 	}
 	"Degreaser_PreTB"
 	{
