@@ -74,6 +74,8 @@ StringMap g_mapTrie = null;
 bool g_NativeVotes;
 bool g_RegisteredMenusChangeLevel = false;
 bool g_RegisteredMenusNextLevel = false;
+bool g_CanNominate = false;
+Handle g_NominationTimer;
 
 #define LIBRARY "nativevotes"
 
@@ -167,6 +169,17 @@ public void OnConfigsExecuted()
 	}
 
 	BuildMapMenu();	
+}
+
+public void OnMapStart() {
+	g_CanNominate = false;
+	delete g_NominationTimer;
+    CreateTimer(300.0, EnableNominations);
+}
+
+Action EnableNominations(Handle timer, any data) {
+    g_CanNominate = true;
+    return Plugin_Stop;
 }
 
 public void OnNominationRemoved(const char[] map, int owner)
@@ -363,6 +376,11 @@ int FindMatchingMaps(ArrayList mapList, ArrayList results, const char[] input)
 
 void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
 {
+	if (!g_CanNominate) {
+		ReplyToCommand(client, "Cannot nominate maps at this time.");
+		return;
+	}
+
 	char mapname[PLATFORM_MAX_PATH];
 	
 	if (FindMap(map, mapname, size) == FindMap_NotFound)
