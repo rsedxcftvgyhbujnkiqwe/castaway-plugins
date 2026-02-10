@@ -167,7 +167,7 @@ public void OnConfigsExecuted()
 	}
 
 	BuildMapMenu();	
-}}
+}
 
 public void OnNominationRemoved(const char[] map, int owner)
 {
