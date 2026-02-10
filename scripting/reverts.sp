@@ -641,8 +641,6 @@ public void OnPluginStart() {
 	ItemDefine("crocostyle", "CrocoStyle_Release", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Set_CrocoStyle);
 	ItemDefine("saharan", "Saharan_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Set_Saharan);
 	ItemVariant(Set_Saharan, "Saharan_ExtraCloak");
-	
-	
 
 	// Specific weapons
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
@@ -6447,6 +6445,20 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 	}
 }
 
+int GetChargeType(int entity)
+{
+    int iTmp = MEDIGUN_CHARGE_INVULN;
+    if (GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998)
+        iTmp += GetEntProp(entity, Prop_Send, "m_nChargeResistType");
+    return iTmp;
+}
+
+int GetResistType(int entity)
+{
+    // the original code is weird and this does what i want but it's here for the sake of it.
+    return GetChargeType(entity);
+}
+
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
 	char class[64];
@@ -6456,7 +6468,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		GetEntityClassname(entity, class, sizeof(class));
 
 		if (
-			(GetItemVariant(Wep_ShortCircuit) == 1 || GetItemVariant(Wep_ShortCircuit) == 2) &&
+			ItemIsEnabled(Wep_ShortCircuit) &&
 			StrEqual(class, "tf_weapon_mechanical_arm")
 		) {
 			// short circuit primary fire
@@ -6589,8 +6601,9 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
  * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
  * @param damage               Damage to apply to players hit (default 0.0 for none).
  *
+ * @return True if hit a player or destroyed a projectile, false otherwise.
  */
-void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
+bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
 	int idx;
 	char class[64];
 	float player_pos[3];
@@ -6601,11 +6614,12 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 	float distance;
 	float limit;
 	int metal;
+	bool hit = false;
 
 	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
 
 	if (base_amount) {
-		SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - base_amount), 4, TF_AMMO_METAL);
+		SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(metal - base_amount, 0), 4, TF_AMMO_METAL);
 	}
 
 	GetClientEyePosition(owner, player_pos);
@@ -6662,29 +6676,40 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 							// didn't hit anything on the way to the target, so proceed
 							if (TR_DidHit() == false) {
 								if (idx <= MaxClients) {
-									// damage players
 									if (
 										damage != 0.0 &&
 										IsPlayerAlive(idx)
 									) {
-										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
+										hit = true;
 
-										// show particle effect
-										ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
+										// damage players
+										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);	
 									}
 								} else {
+									hit = true;
+
 									// delete projectiles
 									if (amount_per_destroyed)
 									{
 										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
 										if (metal < (base_amount + amount_per_destroyed)) break;
-										SetEntProp(owner, Prop_Data, "m_iAmmo", (metal - amount_per_destroyed), 4, TF_AMMO_METAL);
+										SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(metal - amount_per_destroyed, 0), 4, TF_AMMO_METAL);
 									}
+
+									RemoveEntity(idx);
+								}
+
+								if (hit) {
+									// add an offset to the player position
+									vector[0] = 10.0;
+									vector[1] = -10.0;
+									vector[2] = -20.0;
+
+									RotateVectorAroundZAxis(vector, FixViewAngleY(angles1[1]), vector);
+									AddVectors(player_pos, vector, player_pos);
 
 									// show particle effect
 									ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
-
-									RemoveEntity(idx);
 								}
 							}
 						}
@@ -6693,6 +6718,8 @@ void DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			}
 		}
 	}
+
+	return hit;
 }
 
 MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
@@ -7675,22 +7702,6 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 	return MRES_Ignored;
 }
 
-stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
-	float v1;
-	float v2;
-
-	v1 = FloatAbs(angle1[0] - angle2[0]);
-	v2 = FloatAbs(angle1[1] - angle2[1]);
-
-	v2 = FixViewAngleY(v2);
-
-	return SquareRoot(Pow(v1, 2.0) + Pow(v2, 2.0));
-}
-
-stock float FixViewAngleY(float angle) {
-	return (angle > 180.0 ? (angle - 360.0) : angle);
-}
-
 stock int GetFeignBuffsEnd(int client)
 {
 	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
@@ -7731,24 +7742,6 @@ stock bool PlayerIsCritboosted(int client) {
 	}
 
 	return false;
-}
-
-
-stock float ValveRemapVal(float val, float a, float b, float c, float d) {
-	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
-
-	float tmp;
-
-	if (a == b) {
-		return (val >= b ? d : c);
-	}
-
-	tmp = ((val - a) / (b - a));
-
-	if (tmp < 0.0) tmp = 0.0;
-	if (tmp > 1.0) tmp = 1.0;
-
-	return (c + ((d - c) * tmp));
 }
 
 stock void ParticleShowSimple(const char[] name, float position[3]) {
@@ -7968,6 +7961,8 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	return -1;
 }
 
+// math stocks
+
 /** 
  * Get an absolute value of an integer.
  * 
@@ -8028,16 +8023,40 @@ stock float floatMax(float x, float y)
     return x > y ? x : y;
 }
 
-int GetChargeType(int entity)
-{
-    int iTmp = MEDIGUN_CHARGE_INVULN;
-    if (GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998)
-        iTmp += GetEntProp(entity, Prop_Send, "m_nChargeResistType");
-    return iTmp;
+stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
+	float v1;
+	float v2;
+
+	v1 = FloatAbs(angle1[0] - angle2[0]);
+	v2 = FloatAbs(angle1[1] - angle2[1]);
+
+	v2 = FixViewAngleY(v2);
+
+	return SquareRoot(Pow(v1, 2.0) + Pow(v2, 2.0));
 }
 
-int GetResistType(int entity)
-{
-    // the original code is weird and this does what i want but it's here for the sake of it.
-    return GetChargeType(entity);
+stock float FixViewAngleY(float angle) {
+	return (angle > 180.0 ? (angle - 360.0) : angle);
+}
+
+stock float ValveRemapVal(float val, float a, float b, float c, float d) {
+	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
+
+	float tmp;
+
+	if (a == b) {
+		return (val >= b ? d : c);
+	}
+
+	tmp = ((val - a) / (b - a));
+
+	if (tmp < 0.0) tmp = 0.0;
+	if (tmp > 1.0) tmp = 1.0;
+
+	return (c + ((d - c) * tmp));
+}
+
+stock void RotateVectorAroundZAxis(float vector[3], float angle, float output[3]) {
+	output[0] = vector[0] * Cosine(DegToRad(angle)) - vector[1] * Sine(DegToRad(angle));
+	output[1] = vector[0] * Sine(DegToRad(angle)) + vector[1] * Cosine(DegToRad(angle));
 }
