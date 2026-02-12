@@ -107,8 +107,6 @@ MapChange g_ChangeTime;
 Handle g_NominationsResetForward = null;
 Handle g_MapVoteStartedForward = null;
 
-#define MAPLIST_PATH "configs/oldmaplist.txt"
-
 /* Upper bound of how many team there could be */
 #define MAXTEAMS 10
 int g_winCount[MAXTEAMS];
@@ -195,25 +193,6 @@ public void OnPluginStart()
 	
 	g_NominationsResetForward = CreateGlobalForward("OnNominationRemoved", ET_Ignore, Param_String, Param_Cell);
 	g_MapVoteStartedForward = CreateGlobalForward("OnMapVoteStarted", ET_Ignore);
-
-	//load previous map list if it exists
-	char path[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, path, sizeof(path), MAPLIST_PATH);
-	if(FileExists(path))
-	{
-		File listfile = OpenFile(path,"r");
-		char mapname[PLATFORM_MAX_PATH];
-		while(ReadFileLine(listfile,mapname,sizeof(mapname)))
-		{
-			int length = strlen(mapname);
-			if (mapname[length-1]=='\n')
-			{
-				mapname[length-1]='\0';
-			}
-			g_OldMapList.PushString(mapname);
-		}
-		delete listfile;
-	}
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -325,38 +304,12 @@ public void OnMapEnd()
 	
 	char map[PLATFORM_MAX_PATH];
 	GetCurrentMap(map, sizeof(map));
-
-	bool is_duplicate=false;
-	for(int i=0;i<g_OldMapList.Length;i++)
-	{
-		char mapname[PLATFORM_MAX_PATH];
-		g_OldMapList.GetString(i,mapname,sizeof(mapname));
-		if(StrEqual(mapname,map)) {
-			is_duplicate = true;
-			break;
-		}
-	}
-
-	if(!is_duplicate)
-	{
-		g_OldMapList.PushString(map);	
-	}
-
-	while (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
+	g_OldMapList.PushString(map);
+				
+	if (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
 	{
 		g_OldMapList.Erase(0);
 	}	
-
-	char path[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, path, sizeof(path), MAPLIST_PATH);
-	File listfile = OpenFile(path,"w+");
-	for (int i=0; i<g_OldMapList.Length;i++)
-	{
-		char mapname[PLATFORM_MAX_PATH];
-		g_OldMapList.GetString(i,mapname,sizeof(mapname));
-		WriteFileLine(listfile,"%s",mapname);
-	}
-	delete listfile;
 }
 
 public void OnClientDisconnect(int client)
@@ -1543,7 +1496,6 @@ public int Native_InitiateVote(Handle plugin, int numParams)
 	
 	LogAction(-1, -1, "Starting map vote because outside request");
 	InitiateVote(when, inputarray);
-	return 1;
 }
 
 /* native bool CanMapChooserStartVote(); */
@@ -1571,7 +1523,7 @@ public int Native_GetExcludeMapList(Handle plugin, int numParams)
 	
 	if (array == null)
 	{
-		return 1;	
+		return;	
 	}
 	int size = g_OldMapList.Length;
 	char map[PLATFORM_MAX_PATH];
@@ -1582,7 +1534,7 @@ public int Native_GetExcludeMapList(Handle plugin, int numParams)
 		array.PushString(map);	
 	}
 	
-	return 1;
+	return;
 }
 
 /* native void GetNominatedMapList(ArrayList maparray, ArrayList ownerarray = null); */
@@ -1592,7 +1544,7 @@ public int Native_GetNominatedMapList(Handle plugin, int numParams)
 	ArrayList ownerarray = view_as<ArrayList>(GetNativeCell(2));
 	
 	if (maparray == null)
-		return 1;
+		return;
 
 	char map[PLATFORM_MAX_PATH];
 
@@ -1609,5 +1561,5 @@ public int Native_GetNominatedMapList(Handle plugin, int numParams)
 		}
 	}
 
-	return 1;
+	return;
 }
