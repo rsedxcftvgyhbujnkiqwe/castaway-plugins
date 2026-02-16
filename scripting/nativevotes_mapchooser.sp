@@ -71,6 +71,7 @@ ConVar g_Cvar_ExtendRoundStep;
 ConVar g_Cvar_ExtendFragStep;
 ConVar g_Cvar_ExcludeMaps;
 ConVar g_Cvar_IncludeMaps;
+ConVar g_Cvar_PersistentMaps;
 ConVar g_Cvar_NoVoteMode;
 ConVar g_Cvar_Extend;
 ConVar g_Cvar_DontChange;
@@ -107,8 +108,6 @@ MapChange g_ChangeTime;
 Handle g_NominationsResetForward = null;
 Handle g_MapVoteStartedForward = null;
 
-#define MAPLIST_PATH "configs/oldmaplist.txt"
-
 /* Upper bound of how many team there could be */
 #define MAXTEAMS 10
 int g_winCount[MAXTEAMS];
@@ -143,6 +142,7 @@ public void OnPluginStart()
 	g_Cvar_ExtendFragStep = CreateConVar("sm_extendmap_fragstep", "10", "Specifies how many more frags are allowed when map is extended.", _, true, 5.0);	
 	g_Cvar_ExcludeMaps = CreateConVar("sm_mapvote_exclude", "5", "Specifies how many past maps to exclude from the vote.", _, true, 0.0);
 	g_Cvar_IncludeMaps = CreateConVar("sm_mapvote_include", "5", "Specifies how many maps to include in the vote.", _, true, 2.0, true, 6.0);
+	g_Cvar_PersistentMaps = CreateConVar("sm_mapvote_persistentmaps", "0", "Specifies if previous maps should be stored persistently.", _, true, 0.0, true, 1.0);
 	g_Cvar_NoVoteMode = CreateConVar("sm_mapvote_novote", "1", "Specifies whether or not MapChooser should pick a map if no votes are received.", _, true, 0.0, true, 1.0);
 	g_Cvar_Extend = CreateConVar("sm_mapvote_extend", "0", "Number of extensions allowed each map.", _, true, 0.0);
 	g_Cvar_DontChange = CreateConVar("sm_mapvote_dontchange", "1", "Specifies if a 'Don't Change' option should be added to early votes", _, true, 0.0);
@@ -195,25 +195,6 @@ public void OnPluginStart()
 	
 	g_NominationsResetForward = CreateGlobalForward("OnNominationRemoved", ET_Ignore, Param_String, Param_Cell);
 	g_MapVoteStartedForward = CreateGlobalForward("OnMapVoteStarted", ET_Ignore);
-
-	//load previous map list if it exists
-	char path[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, path, sizeof(path), MAPLIST_PATH);
-	if(FileExists(path))
-	{
-		File listfile = OpenFile(path,"r");
-		char mapname[PLATFORM_MAX_PATH];
-		while(ReadFileLine(listfile,mapname,sizeof(mapname)))
-		{
-			int length = strlen(mapname);
-			if (mapname[length-1]=='\n')
-			{
-				mapname[length-1]='\0';
-			}
-			g_OldMapList.PushString(mapname);
-		}
-		delete listfile;
-	}
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -284,7 +265,19 @@ public void OnConfigsExecuted()
 			LogError("Unable to create a valid map list.");
 		}
 	}
-	
+
+	/* First-load previous maps from a text file when persistency is enabled. */
+	static bool g_FirstConfigExec = true;
+	if (g_FirstConfigExec)
+	{
+		if (g_Cvar_PersistentMaps.BoolValue)
+		{
+			ReadPreviousMapsFromText();
+		}
+		
+		g_FirstConfigExec = false;
+	}
+
 	CreateNextVote();
 	SetupTimeleftTimer();
 	
@@ -325,38 +318,18 @@ public void OnMapEnd()
 	
 	char map[PLATFORM_MAX_PATH];
 	GetCurrentMap(map, sizeof(map));
-
-	bool is_duplicate=false;
-	for(int i=0;i<g_OldMapList.Length;i++)
-	{
-		char mapname[PLATFORM_MAX_PATH];
-		g_OldMapList.GetString(i,mapname,sizeof(mapname));
-		if(StrEqual(mapname,map)) {
-			is_duplicate = true;
-			break;
-		}
-	}
-
-	if(!is_duplicate)
-	{
-		g_OldMapList.PushString(map);	
-	}
-
+	RemoveStringFromArray(g_OldMapList, map);
+	g_OldMapList.PushString(map);
+				
 	while (g_OldMapList.Length > g_Cvar_ExcludeMaps.IntValue)
 	{
 		g_OldMapList.Erase(0);
-	}	
-
-	char path[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, path, sizeof(path), MAPLIST_PATH);
-	File listfile = OpenFile(path,"w+");
-	for (int i=0; i<g_OldMapList.Length;i++)
-	{
-		char mapname[PLATFORM_MAX_PATH];
-		g_OldMapList.GetString(i,mapname,sizeof(mapname));
-		WriteFileLine(listfile,"%s",mapname);
 	}
-	delete listfile;
+
+	if (g_Cvar_PersistentMaps.BoolValue)
+	{
+		WritePreviousMapsToText();
+	}
 }
 
 public void OnClientDisconnect(int client)
@@ -1543,7 +1516,8 @@ public int Native_InitiateVote(Handle plugin, int numParams)
 	
 	LogAction(-1, -1, "Starting map vote because outside request");
 	InitiateVote(when, inputarray);
-	return 1;
+
+	return 0;
 }
 
 /* native bool CanMapChooserStartVote(); */
@@ -1571,7 +1545,7 @@ public int Native_GetExcludeMapList(Handle plugin, int numParams)
 	
 	if (array == null)
 	{
-		return 1;	
+		return 0;	
 	}
 	int size = g_OldMapList.Length;
 	char map[PLATFORM_MAX_PATH];
@@ -1582,7 +1556,7 @@ public int Native_GetExcludeMapList(Handle plugin, int numParams)
 		array.PushString(map);	
 	}
 	
-	return 1;
+	return 0;
 }
 
 /* native void GetNominatedMapList(ArrayList maparray, ArrayList ownerarray = null); */
@@ -1592,7 +1566,7 @@ public int Native_GetNominatedMapList(Handle plugin, int numParams)
 	ArrayList ownerarray = view_as<ArrayList>(GetNativeCell(2));
 	
 	if (maparray == null)
-		return 1;
+		return 0;
 
 	char map[PLATFORM_MAX_PATH];
 
@@ -1609,5 +1583,54 @@ public int Native_GetNominatedMapList(Handle plugin, int numParams)
 		}
 	}
 
-	return 1;
+	return 0;
+}
+
+/* Add functions for persistent previous map storage */
+void ReadPreviousMapsFromText()
+{
+	File file = OpenFile(GetTextFilePath(), "r");	
+	if (file == null)
+	{
+		return;
+	}
+
+ 	g_OldMapList.Clear();
+	char map[PLATFORM_MAX_PATH];
+ 	do 
+	{
+		if (file.ReadLine(map, sizeof(map)))
+		{
+			TrimString(map);
+			g_OldMapList.PushString(map);		
+		}	
+	}
+	while (!file.EndOfFile());
+	file.Close();
+}
+
+void WritePreviousMapsToText()
+{
+	File file = OpenFile(GetTextFilePath(), "w");
+	if (file == null)
+	{
+		return;
+	}
+
+	char lastMap[PLATFORM_MAX_PATH];
+	for (int idx=0; idx<g_OldMapList.Length; idx++)
+	{
+		g_OldMapList.GetString(idx, lastMap, sizeof(lastMap));
+		TrimString(lastMap);
+		file.WriteLine(lastMap);
+	}
+	file.Close();
+}
+
+char[] GetTextFilePath()
+{
+	static char path[PLATFORM_MAX_PATH];
+	if (path[0] == '\0')
+		BuildPath(Path_SM, path, PLATFORM_MAX_PATH, "data/mapchooser_history.txt");
+	return path;
 }
