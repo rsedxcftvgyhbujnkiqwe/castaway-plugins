@@ -1034,12 +1034,20 @@
 	}
 	"Pocket_Release"
 	{
-		"en"	"Reverted to release, +15 max health, fall damage immunity, 25%% slower fire rate, 50%% fire vuln"
+		"en"	"Reverted to release, +15 max health, no clip size penalty, fall damage immunity, 25%% slower fire rate, 50%% fire vuln"
 	}
 	"Pocket_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, gain up to +7 health on hit"
 	}
+	"Pocket_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, gain up to +5 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
+	}
+	"Pocket_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, gain up to +3 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
+	}	
 	"Quickfix_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +25%% uber build rate, can capture objectives when ubered"
