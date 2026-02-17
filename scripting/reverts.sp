@@ -692,6 +692,7 @@ public void OnPluginStart() {
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
 	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
+	ItemVariant(Wep_CowMangler, "CowMangler_PreJI");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
@@ -2992,13 +2993,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			switch (GetItemVariant(Wep_CowMangler)) {
-				case 0: {
+				case 0: { // Release Cow Mangler 5000
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
 					TF2Items_SetAttribute(itemNew, 1, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
 					TF2Items_SetAttribute(itemNew, 2, 869, 0.0); // crits_become_minicrits
 				}
-				case 1: {
+				case 1: { // Pre-2013 Cow Mangler 5000
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // mult_dmg; -10% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 96, 1.05); // mult_reload_time; 5% slower reload time
@@ -3006,6 +3007,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 335, 1.25); // mult_clipsize_upgrade
 					TF2Items_SetAttribute(itemNew, 4, 869, 0.0); // crits_become_minicrits
 				}
+				case 2: { // Pre-Jungle Inferno Cow Mangler 5000
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
+					TF2Items_SetAttribute(itemNew, 1, 869, 0.0); // crits_become_minicrits
+				}				
 				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
 			}
 		}}

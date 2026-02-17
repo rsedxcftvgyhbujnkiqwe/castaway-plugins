@@ -752,6 +752,10 @@
 	{
 		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
 	}
+	"CowMangler_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, cannot be crit-boosted"
+	}	
 	"CozyCamper_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, flinch resist at any charge level"
