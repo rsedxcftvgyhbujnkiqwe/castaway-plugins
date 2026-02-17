@@ -101,6 +101,12 @@
 				"windows" "\x55\x8B\xEC\x53\x57\xFF\x75\x2A\x8B\xF9\xFF\x75"
 				"linux"	  "@_ZN14CTFSniperRifle19CanFireCriticalShotEbP11CBaseEntity"
 			}
+			"CTFPipebombLauncher::SecondaryAttack"
+			{
+				"library" "server"
+				"linux"	"@_ZN19CTFPipebombLauncher15SecondaryAttackEv"
+				"windows" "\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x2A\x2A\xFF\xD0\x84\xC0\x2A\x2A\x2A\x2A\x2A\x2A\x83\xBE\x2A\x2A\x2A\x2A\x00\x0F\x84\x2A\x2A\x2A\x2A"
+			}
 		}
 
 		"Offsets"
@@ -249,6 +255,32 @@
 						"offset"	"1383"
 						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x, e8 d4 34 d3 ff
 						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
+					}
+				}
+
+				// ================================================
+				//  Demoman cannot detonate stickies while taunting, removal.
+				//  Removes the CanAttack check.
+				//  Note: We take over the responsbility for the CanAttack check to ensure shenanigans
+				//  such as a demoman in the team that lost cannot detonate their stickies.
+
+				"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck" 
+				{
+					"signature" "CTFPipebombLauncher::SecondaryAttack"
+					// Linux contains a special "hot" part, the rest of the logic is in
+					// _ZN19CTFPipebombLauncher15SecondaryAttackEv.part.0
+					// But we DON'T want to patch that!
+					"linux"
+					{
+						"offset" "24"
+						"verify" "\x74\x2A"   // JZ short (CanAttack == 0 -> return)
+						"patch"  "\x90\x90"   // NOP jump -> ignore CanAttack entirely
+					}
+					"windows"
+					{
+						"offset"	"15"
+						"verify"	"\x0F\x84\x2A\x2A\x2A\x2A" // JZ, wildcard
+						"patch"		"\x90\x90\x90\x90\x90\x90" // NOP 6x, prevent if !CanAttack() statement
 					}
 				}
 
@@ -482,6 +514,21 @@
 			"CTFAmmoPack::MakeHolidayPack"
 			{
 				"signature" "CTFAmmoPack::MakeHolidayPack"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+			}
+			"CTFPlayer::DoClassSpecialSkill"
+			{
+				"signature" "CTFPlayer::DoClassSpecialSkill"
+				"callconv"  "thiscall"
+				"this"      "entity"
+				"return"    "void"
+			}
+			// Used for sdkcall for the "Detonate stickies while taunting" revert
+			"CTFPipebombLauncher::SecondaryAttack"
+			{
+				"signature" "CTFPipebombLauncher::SecondaryAttack"
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
