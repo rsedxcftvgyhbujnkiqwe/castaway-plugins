@@ -845,6 +845,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM");
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
+	ItemVariant(Wep_WarriorSpirit, "Warrior_PreGM");
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
@@ -3709,12 +3710,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 811, 0.0); // ubercharge preserved on spawn max
 		}}
 		case 310: { if (ItemIsEnabled(Wep_WarriorSpirit)) {
-			TF2Items_SetNumAttributes(itemNew, 5);
-			TF2Items_SetAttribute(itemNew, 0, 110, 10.0); // On Hit: Gain up to +10 health
-			TF2Items_SetAttribute(itemNew, 1, 125, -20.0); // -20 max health on wearer
-			TF2Items_SetAttribute(itemNew, 2, 128, 0.0); // When weapon is active:
-			TF2Items_SetAttribute(itemNew, 3, 180, 0.0); // +0 health restored on kill
-			TF2Items_SetAttribute(itemNew, 4, 412, 1.0); // 0% damage vulnerability on wearer
+			switch (GetItemVariant(Wep_WarriorSpirit)) {
+				case 0: { // Pre-Tough Break
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 110, 10.0); // On Hit: Gain up to +10 health
+					TF2Items_SetAttribute(itemNew, 1, 125, -20.0); // -20 max health on wearer
+					TF2Items_SetAttribute(itemNew, 2, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 3, 180, 0.0); // +0 health restored on kill
+					TF2Items_SetAttribute(itemNew, 4, 412, 1.0); // 0% damage vulnerability on wearer
+				}
+				case 1: { // Pre-Gun Mettle
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 125, -20.0); // -20 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 2, 180, 0.0); // +0 health restored on kill
+					TF2Items_SetAttribute(itemNew, 3, 412, 1.0); // 0% damage vulnerability on wearer
+				}
+			}
 		}}
 		case 357: { if (ItemIsEnabled(Wep_Zatoichi)) {
 			TF2Items_SetNumAttributes(itemNew, 4);
