@@ -314,6 +314,10 @@
 	{
 		"en"	"Expert's Ordnance"
 	}
+	"fanowar"
+	{
+		"en"	"Fan O'War"
+	}
 	"fiststeel"
 	{
 		"en"	"Fists of Steel"
@@ -879,6 +883,14 @@
 	"Expert_Release"
 	{
 		"en"	"Restored release item set bonus, +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
+	}
+	"FanOWar_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, does not crit on minicrits, -90%% dmg penalty"
+	}
+	"FanOWar_Release"
+	{
+		"en"	"Reverted to release, does not crit on minicrits, -90%% dmg penalty, marked-for-death lasts for 10 sec (from 15 sec)"
 	}
 	"FistSteel_PreJI"
 	{

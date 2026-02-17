@@ -514,6 +514,7 @@ enum
 	Wep_Pickaxe, // Equalizer
 	Wep_EurekaEffect,
 	Wep_Eviction,
+	Wep_FanOWar,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
 	Wep_GRU, // Gloves of Running Urgently
@@ -729,6 +730,8 @@ public void OnPluginStart() {
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
+	ItemDefine("fanowar", "FanOWar_PreGM", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_FanOWar);
+	ItemVariant(Wep_FanOWar, "FanOWar_Release");
 	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
 	ItemVariant(Wep_FistsSteel, "FistSteel_PreTB");
 	ItemVariant(Wep_FistsSteel, "FistSteel_Release");
@@ -3098,6 +3101,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
+		case 355: { if (ItemIsEnabled(Wep_FanOWar)) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 179, 0.0); // Crits whenever it would normally mini-crit
+			TF2Items_SetAttribute(itemNew, 1, 1, 0.1); // 90% damage penalty
+			// Release Fan O'War 10 sec duration revert handled in OnTakeDamage
+		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
 			switch (GetItemVariant(Wep_FistsSteel)) {
 				case 0: {
@@ -4041,6 +4050,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
 						case 589: player_weapons[client][Wep_EurekaEffect] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
+						case 355: player_weapons[client][Wep_FanOWar] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
@@ -5316,6 +5326,19 @@ Action SDKHookCB_OnTakeDamage(
 					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
 			}
+
+			{
+				// release fan o'war reduce marked-for-death duration from 15 sec to 10 sec
+				if (
+					GetItemVariant(Wep_FanOWar) == 1 &&
+					StrEqual(class, "tf_weapon_bat") &&
+					TF2_GetPlayerClass(attacker) == TFClass_Scout &&
+					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeath)
+				) {
+					TF2_RemoveCondition(victim, TFCond_MarkedForDeath);
+					TF2_AddCondition(victim, TFCond_MarkedForDeath, 10.0, 0);
+				}
+			}			
 
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
