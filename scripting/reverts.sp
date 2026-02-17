@@ -749,8 +749,10 @@ public void OnPluginStart() {
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_IronBomber, true);
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
-	ItemVariant(Wep_Jag, "Jag_PreGM");  
+	ItemVariant(Wep_Jag, "Jag_PreGM");
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
+	ItemVariant(Wep_LibertyLauncher, "Liberty_PreGM");
+	ItemVariant(Wep_LibertyLauncher, "Liberty_Pre2013");
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
@@ -3197,11 +3199,24 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
-			TF2Items_SetNumAttributes(itemNew, 4);
-			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
-			TF2Items_SetAttribute(itemNew, 1, 3, 0.75); // clip size penalty
-			TF2Items_SetAttribute(itemNew, 2, 4, 1.00); // clip size bonus
-			TF2Items_SetAttribute(itemNew, 3, 135, 1.00); // rocket jump damage reduction
+			switch (GetItemVariant(Wep_LibertyLauncher)) {
+				case 0: { // Release Liberty Launcher
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 3, 0.75); // clip size penalty
+					TF2Items_SetAttribute(itemNew, 2, 4, 1.00); // clip size bonus
+					TF2Items_SetAttribute(itemNew, 3, 135, 1.00); // rocket jump damage reduction
+				}
+				case 1: { // Pre-Gun Mettle Liberty Launcher
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 4, 1.00); // +0% clip size bonus
+				}
+				case 2: { // Pre-Two Cities Liberty Launcher
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 4, 1.00); // +0% clip size bonus
+					TF2Items_SetAttribute(itemNew, 1, 135, 1.00); // rocket jump damage reduction
+				}
+			}
 		}}
 		case 308: { if (ItemIsEnabled(Wep_LochLoad)) {
 			switch (GetItemVariant(Wep_LochLoad)) {
@@ -3590,11 +3605,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 1, 0.85); // -15% dmg penalty
 				}
 				case 2: { // Release
-					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
 					TF2Items_SetAttribute(itemNew, 1, 20, 0.0); // no 100% critical hit vs burning players 
 					TF2Items_SetAttribute(itemNew, 2, 21, 0.55); // -45% damage vs non-burning players
-					TF2Items_SetAttribute(itemNew, 3, 2, 1.35); // +35% dmg bonus
+					TF2Items_SetAttribute(itemNew, 3, 1, 1.00); // -0% dmg penalty
+					TF2Items_SetAttribute(itemNew, 4, 2, 1.35); // +35% dmg bonus
 				}
 			}
 

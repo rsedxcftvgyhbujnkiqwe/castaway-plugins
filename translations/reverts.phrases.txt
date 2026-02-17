@@ -966,7 +966,15 @@
 	}	
 	"Liberty_Release"
 	{
-		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"
+		"en"	"Reverted to release, no dmg penalty, -25%% clip size, no rocket jump resist bonus"
+	}
+	"Liberty_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no clip size increase"
+	}
+	"Liberty_Pre2013"
+	{
+		"en"	"Reverted to pre-Two Cities Update, no clip size increase, no rocket jump resist bonus"
 	}
 	"LochLoad_PreGM"
 	{
