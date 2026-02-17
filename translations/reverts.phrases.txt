@@ -494,6 +494,10 @@
 	{
 		"en"	"Sticky Jumper"
 	}
+	"sunstick"
+	{
+		"en"	"Sun-on-a-Stick"
+	}
 	"sleeper"
 	{
 		"en"	"Sydney Sleeper"
@@ -1247,6 +1251,18 @@
 	"StkJumper_ReleaseDay2"
 	{
 		"en"	"Reverted to October 28, 2010: 8 stickybombs out at once again, wearer can pick up intel, -75 max health, no self blast damage, random crits"
+	}
+	"SunOnAStick_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, no fire dmg resist while deployed"
+	}
+	"SunOnAStick_PreHatless"
+	{
+		"en"	"Reverted to pre-Hatless Update, minicrits vs burning players, -15%% dmg penalty, no fire dmg resist while deployed"
+	}
+	"SunOnAStick_Release"
+	{
+		"en"	"Reverted to release, no crit bonus, +35%% dmg done, -45%% dmg (-25.75%% total dmg) vs non-burning players, no fire dmg resist while deployed"
 	}
 	"Sleeper_PreBM"
 	{

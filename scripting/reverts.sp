@@ -558,6 +558,7 @@ enum
 	Wep_SplendidScreen,
 	Wep_Spycicle,
 	Wep_StickyJumper,
+	Wep_SunOnAStick,
 	Wep_SydneySleeper,
 	Wep_ThermalThruster,
 	Wep_TideTurner,
@@ -818,6 +819,9 @@ public void OnPluginStart() {
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
 	ItemVariant(Wep_StickyJumper, "StkJumper_ReleaseDay2");
+	ItemDefine("sunstick", "SunOnAStick_PreMYM", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_SunOnAStick);
+	ItemVariant(Wep_SunOnAStick, "SunOnAStick_PreHatless");
+	ItemVariant(Wep_SunOnAStick, "SunOnAStick_Release");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
@@ -3557,6 +3561,29 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}																
 			}
 		}}
+		case 349: { if (ItemIsEnabled(Wep_SunOnAStick)) {
+			switch (GetItemVariant(Wep_SunOnAStick)) {
+				case 0: { // Pre-Meet your Match
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+				}
+				case 1: { // Pre-Hatless
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+					TF2Items_SetAttribute(itemNew, 1, 20, 0.0); // no 100% critical hit vs burning players 
+					TF2Items_SetAttribute(itemNew, 2, 209, 1.0); // 100% minicrits vs burning players 
+					TF2Items_SetAttribute(itemNew, 3, 1, 0.85); // -15% dmg penalty
+				}
+				case 2: { // Release
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+					TF2Items_SetAttribute(itemNew, 1, 20, 0.0); // no 100% critical hit vs burning players 
+					TF2Items_SetAttribute(itemNew, 2, 21, 0.55); // -45% damage vs non-burning players
+					TF2Items_SetAttribute(itemNew, 3, 2, 1.35); // +35% dmg bonus
+				}
+			}
+
+		}}
 		case 131, 1144: { if (ItemIsEnabled(Wep_CharginTarge)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 64, 0.6); // dmg taken from blast reduced
@@ -4060,6 +4087,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						}
 						case 649: player_weapons[client][Wep_Spycicle] = true;
 						case 265: player_weapons[client][Wep_StickyJumper] = true;
+						case 349: player_weapons[client][Wep_SunOnAStick] = true;
 						case 424: player_weapons[client][Wep_Tomislav] = true;
 						case 171: player_weapons[client][Wep_TribalmansShiv] = true;
 						case 998: player_weapons[client][Wep_Vaccinator] = true;
