@@ -732,6 +732,7 @@ public void OnPluginStart() {
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
+	ItemVariant(Wep_Eviction, "Eviction_PreGM");
 	ItemDefine("fanowar", "FanOWar_PreGM", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_FanOWar);
 	ItemVariant(Wep_FanOWar, "FanOWar_Release");
 	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
@@ -3107,16 +3108,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			switch (GetItemVariant(Wep_Eviction)) {
-				case 1: {
+				case 0: { // Pre-Inferno
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 852, 1.20); // mult_dmgtaken_active
+					TF2Items_SetAttribute(itemNew, 1, 855, 0.0); // mod maxhealth drain rate
+				}				
+				case 1: { // Pre-MyM
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 6, 0.50); // +50% faster firing speed
 					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer
 					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
 				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 852, 1.20); // mult_dmgtaken_active
-					TF2Items_SetAttribute(itemNew, 1, 855, 0.0); // mod maxhealth drain rate
+				case 2: { // Pre-Gun Mettle
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 6, 0.50); // +50% faster firing speed
+					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer
+					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
+					TF2Items_SetAttribute(itemNew, 3, 737, 0.00); // On Hit: Gain a speed boost
 				}
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
