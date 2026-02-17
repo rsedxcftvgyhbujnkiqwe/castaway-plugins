@@ -888,6 +888,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain or move speed bonus"
 	}
+	"Eviction_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, +50%% faster firing speed, no health drain penalty and move speed bonus, no speedboost on hit"
+	}	
 	"Expert_Release"
 	{
 		"en"	"Restored release item set bonus, +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
