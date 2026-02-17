@@ -653,6 +653,7 @@ public void OnPluginStart() {
 
 	// Specific weapons
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
+	ItemVariant(Wep_Airstrike, "Airstrike_PreGM");
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
 	ItemVariant(Wep_Ambassador, "Ambassador_PreJune2009");
 	ItemVariant(Wep_Ambassador, "Ambassador_Release");
@@ -2781,6 +2782,17 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	itemNew = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | ( needForce ? FORCE_GENERATION : 0) );
 
 	switch (index) {
+		case 1104: { if (ItemIsEnabled(Wep_Airstrike)) {
+			switch (GetItemVariant(Wep_Airstrike)) {
+				case 1: { // Pre-Gun Mettle Air Strike
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.75); // -25% damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 3, 0.75); // -25% clip size
+					TF2Items_SetAttribute(itemNew, 2, 100, 0.85); // -15% explosion radius
+					TF2Items_SetAttribute(itemNew, 3, 135, 0.75); // -25% blast damage from rocket jumps					
+				}
+			}
+		}}
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
 			switch (GetItemVariant(Wep_Ambassador)) {
 				case 0: { // Pre-Jungle Inferno
@@ -2793,7 +2805,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 868, 0.0); // crit dmg falloff
 				}
 			}
-
 		}}
 		case 450: { if (ItemIsEnabled(Wep_Atomizer)) {
 			switch (GetItemVariant(Wep_Atomizer)) {

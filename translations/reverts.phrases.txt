@@ -560,6 +560,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
 	}
+	"Airstrike_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no extra blast radius penalty when blast jumping, -25%% clip size, -15%% radius penalty, -25%% dmg penalty, -25%% rocket jump blast dmg"
+	}
 	"Flamethrower_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, full damage with no density ramp up (around +30%% more flame DPS)"
