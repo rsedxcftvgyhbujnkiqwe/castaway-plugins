@@ -382,6 +382,10 @@
 	{
 		"en"	"Medieval Medic"
 	}
+	"manmelter"
+	{
+		"en"	"Manmelter"
+	}
 	"mantreads"
 	{
 		"en"	"Mantreads"
@@ -1004,6 +1008,14 @@
 	{
 		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
 	}
+	"Manmelter_PreJan2016"
+	{
+		"en"	"Reverted to pre-January 7, 2016; no +20 hp bonus when extinguishing teammates, -20%% slower firing speed penalty"
+	}
+	"Manmelter_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, -20%% slower firing speed penalty"
+	}	
 	"Mantreads_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no airblast push force reduction bonus, no air control bonus when blast jumping"

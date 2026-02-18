@@ -532,6 +532,7 @@ enum
 #if defined MEMORY_PATCHES
 	Wep_MadMilk,
 #endif
+	Wep_Manmelter,
 	Wep_Mantreads,
 	Wep_MarketGardener,
 	Wep_Natascha,
@@ -762,6 +763,8 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
 #endif
+	ItemDefine("manmelter", "Manmelter_PreJan2016", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_Manmelter);
+	ItemVariant(Wep_Manmelter, "Manmelter_PreMYM");
 	ItemDefine("mantreads", "Mantreads_PreJI", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Mantreads);
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -3163,6 +3166,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 595: { if (ItemIsEnabled(Wep_Manmelter)) {
+			switch (GetItemVariant(Wep_Manmelter)) {
+				case 0: {
+				// Pre-Jan 2016 Manmelter
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 783, 0.00); // Extinguishing teammates restores 0 health.
+					TF2Items_SetAttribute(itemNew, 1, 5, 1.20); // 20% slower firing speed
+				}
+				case 1: {
+				// Pre-MYM Manmelter
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 5, 1.20); // 20% slower firing speed
+				}
+			}
+		}}
 		case 444: { if (ItemIsEnabled(Wep_Mantreads)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 329, 1.00); // -0% reduction in airblast vulnerability
@@ -4112,6 +4130,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 426: player_weapons[client][Wep_Eviction] = true;
 						case 355: player_weapons[client][Wep_FanOWar] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
+						case 595: player_weapons[client][Wep_Manmelter] = true;
 						case 444: player_weapons[client][Wep_Mantreads] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
