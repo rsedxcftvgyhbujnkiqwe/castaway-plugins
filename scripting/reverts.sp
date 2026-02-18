@@ -514,6 +514,7 @@ enum
 	Wep_Pickaxe, // Equalizer
 	Wep_EurekaEffect,
 	Wep_Eviction,
+	Wep_FamilyBusiness,
 	Wep_FanOWar,
 	Wep_FistsSteel,
 	Wep_Cleaver, // Flying Guillotine
@@ -735,6 +736,7 @@ public void OnPluginStart() {
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
 	ItemVariant(Wep_Eviction, "Eviction_PreGM");
+	ItemDefine("family", "Family_PreGM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Wep_FamilyBusiness);
 	ItemDefine("fanowar", "FanOWar_PreGM", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_FanOWar);
 	ItemVariant(Wep_FanOWar, "FanOWar_Release");
 	ItemDefine("fiststeel", "FistSteel_PreJI", CLASSFLAG_HEAVY, Wep_FistsSteel);
@@ -3134,6 +3136,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 			// Eviction Notice stacking speedboost on hit with reverted Buffalo Steak Sandvich handled elsewhere
 		}}
+		case 425: { if (ItemIsEnabled(Wep_FamilyBusiness)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 1, 6, 1.00); // 0% faster firing speed
+		}}
 		case 355: { if (ItemIsEnabled(Wep_FanOWar)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 179, 0.0); // Crits whenever it would normally mini-crit
@@ -4128,6 +4134,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
 						case 589: player_weapons[client][Wep_EurekaEffect] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
+						case 425: player_weapons[client][Wep_FamilyBusiness] = true;
 						case 355: player_weapons[client][Wep_FanOWar] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
 						case 595: player_weapons[client][Wep_Manmelter] = true;
