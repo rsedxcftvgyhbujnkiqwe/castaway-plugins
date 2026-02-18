@@ -382,6 +382,10 @@
 	{
 		"en"	"Medieval Medic"
 	}
+	"mantreads"
+	{
+		"en"	"Mantreads"
+	}
 	"gardener"
 	{
 		"en"	"Market Gardener"
@@ -999,6 +1003,10 @@
 	"MadMilk_Release"
 	{
 		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
+	}
+	"Mantreads_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, no airblast push force reduction bonus, no air control bonus when blast jumping"
 	}
 	"Gardener_PreTB"
 	{
