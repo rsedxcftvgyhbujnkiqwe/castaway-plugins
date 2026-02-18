@@ -314,6 +314,10 @@
 	{
 		"en"	"Expert's Ordnance"
 	}
+	"family"
+	{
+		"en"	"Family Business"
+	}
 	"fanowar"
 	{
 		"en"	"Fan O'War"
@@ -904,6 +908,10 @@
 	{
 		"en"	"Restored release item set bonus, +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
 	}
+	"Family_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no faster firing speed bonus"
+	}	
 	"FanOWar_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, does not crit on minicrits, -90%% dmg penalty"
