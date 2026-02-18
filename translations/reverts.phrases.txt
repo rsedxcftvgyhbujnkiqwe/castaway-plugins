@@ -1212,6 +1212,10 @@
 	{
 		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and Holy Mackerel to gain the bonus, the hat is not required"
 	}
+	"SpDelivery_StockMelee"
+	{
+		"en"	"Restored release item set bonus, +25 max health. Equip the Shortstop, Mad Milk and any stock melee/reskin to gain the bonus, the hat is not required"
+	}
 	"Splendid_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash dmg at any range"
