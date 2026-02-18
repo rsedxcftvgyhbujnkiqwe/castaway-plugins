@@ -537,6 +537,7 @@ enum
 	Wep_Mantreads,
 	Wep_MarketGardener,
 	Wep_Natascha,
+	Wep_Overdose,
 	Wep_PanicAttack,
 	Wep_Persian,
 	Wep_Phlogistinator,
@@ -772,6 +773,7 @@ public void OnPluginStart() {
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
 	ItemVariant(Wep_Natascha, "Natascha_PreDec2010");
+	ItemDefine("overdose", "Overdose_PreMYM", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Overdose);
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
@@ -3308,6 +3310,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 			// no distance falloff for natascha slowdown handled elsewhere
 		}}
+		case 412: { if (ItemIsEnabled(Wep_Overdose)) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // -10% damage penalty
+			TF2Items_SetAttribute(itemNew, 1, 792, 1.10); // mult_player_movespeed_resource_level
+		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
 			TF2Items_SetNumAttributes(itemNew, 11);
 			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
@@ -4154,6 +4161,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 222, 1121: player_weapons[client][Wep_MadMilk] = true;
 #endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
+						case 412: player_weapons[client][Wep_Overdose] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
 						case 594: player_weapons[client][Wep_Phlogistinator] = true;
 						case 773: player_weapons[client][Wep_PocketPistol] = true;
