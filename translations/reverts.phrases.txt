@@ -402,6 +402,10 @@
 	{
 		"en"	"Natascha"
 	}
+	"overdose"
+	{
+		"en"	"Overdose"
+	}
 	"panic"
 	{
 		"en"	"Panic Attack"
@@ -1047,6 +1051,10 @@
 	"Natascha_PreDec2010"
 	{
 		"en"	"Reverted to pre-December 17, 2010; full slowdown at any distance, no increased spin up time, no damage resistance when spun up"
+	}
+	"Overdose_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, +10%% movement speed bonus (from +20%%), -10%% dmg penalty (from -15%%)"
 	}
 	"Panic_PreJI"
 	{
