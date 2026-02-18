@@ -532,6 +532,7 @@ enum
 #if defined MEMORY_PATCHES
 	Wep_MadMilk,
 #endif
+	Wep_Mantreads,
 	Wep_MarketGardener,
 	Wep_Natascha,
 	Wep_PanicAttack,
@@ -761,6 +762,7 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
 #endif
+	ItemDefine("mantreads", "Mantreads_PreJI", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Mantreads);
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
 	ItemVariant(Wep_Natascha, "Natascha_PreGM");
@@ -3161,6 +3163,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 444: { if (ItemIsEnabled(Wep_Mantreads)) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 329, 1.00); // -0% reduction in airblast vulnerability
+			TF2Items_SetAttribute(itemNew, 1, 610, 0.00); // 0% increased air control when blast jumping.
+		}}
 		case 416: { if (ItemIsEnabled(Wep_MarketGardener)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 5, 1.0); // fire rate penalty
@@ -4105,6 +4112,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 426: player_weapons[client][Wep_Eviction] = true;
 						case 355: player_weapons[client][Wep_FanOWar] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
+						case 444: player_weapons[client][Wep_Mantreads] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
