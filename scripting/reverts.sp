@@ -5568,18 +5568,17 @@ Action SDKHookCB_OnTakeDamageAlive(
 										damage_type != DMG_BURN &&
 										victim != healer
 									) {
-										health_cur = GetClientHealth(healer);
-										health_max = SDKCall(sdkcall_GetMaxHealth, healer);
-										float resist_heal = (GetItemVariant(Wep_Vaccinator) == 0 ? 0.10 : 0.25); // 10% for pre-TB, 25% for pre-GM
+										float resist_heal = damage * (GetItemVariant(Wep_Vaccinator) == 0 ? 0.10 : 0.25); // 10% for pre-TB, 25% for pre-GM
+										int resist_heal_ceil = RoundToCeil(resist_heal);
 
 										// Fire heal event
 										Handle event = CreateEvent("player_healonhit", true);
-										SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
+										SetEventInt(event, "amount", resist_heal_ceil);
 										SetEventInt(event, "entindex", healer);
 										FireEvent(event);
 
 										// Take health
-										TF2Util_TakeHealth(healer, (damage * resist_heal));
+										TF2Util_TakeHealth(healer, float(resist_heal_ceil));
 									}
 								}
 								// pre-GM vaccinator drain uber on crits
