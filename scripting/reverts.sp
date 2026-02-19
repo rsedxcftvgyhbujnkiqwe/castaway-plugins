@@ -7374,6 +7374,11 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			}
 		}
 
+		if (player_weapons[client][Set_Medieval]) {
+			// Full regen for Medieval Medic set
+			full_regen = true;
+		}
+
 		if (full_regen) {
 			regen_amount = TF2Attrib_HookValueFloat(0.0, "add_health_regen", client);
 			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(client);
