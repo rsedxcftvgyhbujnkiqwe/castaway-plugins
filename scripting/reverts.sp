@@ -1834,15 +1834,12 @@ public void OnGameFrame() {
 							) {
 								max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
 								health_cur = GetClientHealth(idx);
-								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
 
 								int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
-								if (health_max - health_cur >= heal_amt)
-									heal_amt = 0;
-								else if (health_max > health_cur)
-									heal_amt -= health_max - health_cur;
-								
-								heal_amt = intMin(max_overheal - health_cur, heal_amt);
+								heal_amt = intMin(
+									max_overheal - health_cur,
+									heal_amt - (health_cur - players[idx].old_health)
+								);
 
 								if (heal_amt > 0) {
 									// Apply overheal
@@ -3849,6 +3846,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						) {
 							// Save kill tick for applying overheal on next tick
 							players[attacker].powerjack_kill_tick = GetGameTickCount();
+							players[attacker].old_health = GetClientHealth(attacker);
 						}
 
 						if (
