@@ -366,6 +366,10 @@
 	{
 		"en"	"Jag"
 	}
+	"jarate"
+	{
+		"en"	"jarate"
+	}
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -999,7 +1003,11 @@
 	"Jag_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
-	}	
+	}
+	"Jarate_PreTB"	
+	{
+		"en"	"Reverted to pre-toughbreak, extinguishing teammates does not reduce cooldown"
+	}
 	"Liberty_Release"
 	{
 		"en"	"Reverted to release, no dmg penalty, -25%% clip size, no rocket jump resist bonus"
