@@ -558,6 +558,10 @@
 	{
 		"en"	"Warrior's Spirit"
 	}
+	"widowmaker"
+	{
+		"en"	"Widowmaker"
+	}
 	"wrangler"
 	{
 		"en"	"Wrangler"
@@ -1415,7 +1419,15 @@
 	"Warrior_PreGM"
 	{
 		"en"	"Reverted to pre-toughbreak, no damage vuln, -20 max health"
-	}	
+	}
+	"Widowmaker_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, no increased damage to your sentry's target"
+	}
+	"Widowmaker_Release"
+	{
+		"en"	"Reverted to release, no increased damage to your sentry's target, -60 ammo per shot"
+	}
 	"Wrangler_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second on death"
