@@ -683,6 +683,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Bonk, "Bonk_PrePyro");
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
+	ItemVariant(Wep_BrassBeast, "BrassBeast_Release");
 	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
@@ -2951,6 +2952,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 107, 1.10); // move speed bonus
 			TF2Items_SetAttribute(itemNew, 1, 788, 1.00); // move speed bonus shield required
 		}}
+		case 312: { if (GetItemVariant(Wep_BrassBeast) == 1) { // I can do this since it only has two versions
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 738, 1.00); // 0% damage resistance when below 50% health and spun up
+		}}		
 		case 311: { if (ItemIsEnabled(Wep_BuffaloSteak)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			// 0% damage vulnerability while under the effect on release
@@ -5617,7 +5622,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					if (StrEqual(class, "tf_weapon_minigun")) {
 
 						if (
-							ItemIsEnabled(Wep_BrassBeast) &&
+							GetItemVariant(Wep_BrassBeast) == 0 &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
 							GetItemVariant(Wep_Natascha) == 0 &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
