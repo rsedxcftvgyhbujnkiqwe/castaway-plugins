@@ -198,6 +198,10 @@
 	{
 		"en"	"Beggar's Bazooka"
 	}
+	"bigearner"
+	{
+		"en"	"Big Earner"
+	}
 	"blackbox"
 	{
 		"en"	"Black Box"
@@ -699,6 +703,10 @@
 	"Beggars_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no radius penalty"
+	}
+	"BigEarner_Release"
+	{
+		"en"	"Reverted to release, no speedboost on kill"
 	}
 	"BlackBox_PreGM"
 	{

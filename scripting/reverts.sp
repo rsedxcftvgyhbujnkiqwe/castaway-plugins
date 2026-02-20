@@ -481,6 +481,7 @@ enum
 	Wep_BaseJumper,
 	Wep_BazaarBargain,	
 	Wep_Beggars,
+	Wep_BigEarner,
 	Wep_BlackBox,
 	Wep_Blutsauger,
 	Wep_Bonk,
@@ -679,6 +680,7 @@ public void OnPluginStart() {
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
+	ItemDefine("bigearner", "BigEarner_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_BigEarner);
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
 	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Blutsauger);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
@@ -2942,6 +2944,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 100, 1.0); // blast radius decreased
 		}}
+		case 461: { if (ItemIsEnabled(Wep_BigEarner)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 736, 0.00); // Gain a speed boost on kill
+		}}
 		case 228, 1085: { if (ItemIsEnabled(Wep_BlackBox)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 741, 0.0); // falloff-based heal
@@ -4158,6 +4164,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 402: player_weapons[client][Wep_BazaarBargain] = true;
 						case 237: player_weapons[client][Wep_RocketJumper] = true;
 						case 730: player_weapons[client][Wep_Beggars] = true;
+						case 461: player_weapons[client][Wep_BigEarner] = true;
 						case 442: player_weapons[client][Wep_Bison] = true;
 						case 228, 1085: player_weapons[client][Wep_BlackBox] = true;
 						case 36: player_weapons[client][Wep_Blutsauger] = true;
