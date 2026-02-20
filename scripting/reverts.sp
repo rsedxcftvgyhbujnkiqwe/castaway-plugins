@@ -797,6 +797,8 @@ public void OnPluginStart() {
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
+	ItemVariant(Wep_Quickiebomb, "Quickiebomb_PreTB");
+	ItemVariant(Wep_Quickiebomb, "Quickiebomb_Release");
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("redtape", "RedTapeRecorder_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTapeRecorder);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
@@ -3427,11 +3429,29 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 10, 1.25); // +25% ÜberCharge rate
 		}}
 		case 1150: { if (ItemIsEnabled(Wep_Quickiebomb)) {
-			TF2Items_SetNumAttributes(itemNew, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
-			TF2Items_SetAttribute(itemNew, 0, 3, 0.75); // -25% clip size
-			TF2Items_SetAttribute(itemNew, 1, 727, 1.25); // Up to +25% damage based on charge
-			TF2Items_SetAttribute(itemNew, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
-			TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
+			switch (GetItemVariant(Wep_Quickiebomb)) {
+				case 0: { // Pre-Meet your Match Quickiebomb Launcher
+					TF2Items_SetNumAttributes(itemNew, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
+					TF2Items_SetAttribute(itemNew, 0, 3, 0.75); // -25% clip size
+					TF2Items_SetAttribute(itemNew, 1, 727, 1.25); // Up to +25% damage based on charge
+					TF2Items_SetAttribute(itemNew, 2, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
+					TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
+				}
+				case 1: { // Pre-Tough Break Quickiebomb Launcher
+					TF2Items_SetNumAttributes(itemNew, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
+					TF2Items_SetAttribute(itemNew, 0, 3, 0.75); // -25% clip size
+					TF2Items_SetAttribute(itemNew, 1, 727, 1.25); // Up to +25% damage based on charge
+					TF2Items_SetAttribute(itemNew, 2, 669, 2.00); // Stickybombs fizzle 2 seconds after landing
+					TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
+				}
+				case 2: { // Release Quickiebomb Launcher
+					TF2Items_SetNumAttributes(itemNew, 4); // attributes ported from NotnHeavy's pre-Gun Mettle plugin
+					TF2Items_SetAttribute(itemNew, 0, 3, 0.75); // -25% clip size
+					TF2Items_SetAttribute(itemNew, 1, 727, 1.00); // Up to +0% damage based on charge
+					TF2Items_SetAttribute(itemNew, 2, 669, 2.00); // Stickybombs fizzle 2 seconds after landing
+					TF2Items_SetAttribute(itemNew, 3, 670, 0.50); // Max charge time decreased by 50%
+				}
+			}			
 		}}
 		case 810, 831: { if (ItemIsEnabled(Wep_RedTapeRecorder)) {
 			TF2Items_SetNumAttributes(itemNew, 1);

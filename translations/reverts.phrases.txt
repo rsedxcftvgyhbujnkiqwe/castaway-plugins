@@ -1134,8 +1134,16 @@
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"en"	"Reverted to toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
+		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
 	}
+	"Quickiebomb_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 2 seconds after landing"
+	}
+	"Quickiebomb_Release"
+	{
+		"en"	"Reverted to release, max charge time decreased by 50%%, no damage increase based on charge amount, -25%% clip size, stickies fizzle 2 seconds after landing"
+	}	
 	"Razorback_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can be overhealed, shield does not regenerate"
