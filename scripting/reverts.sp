@@ -527,6 +527,7 @@ enum
 	Wep_IronBomber,
 #endif
 	Wep_Jag,
+	Wep_Jarate,
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
 	Wep_LooseCannon,
@@ -759,6 +760,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");
+	ItemDefine("jarate", "Jarate_PreTB", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_Jag);
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemVariant(Wep_LibertyLauncher, "Liberty_PreGM");
 	ItemVariant(Wep_LibertyLauncher, "Liberty_Pre2013");
@@ -3261,6 +3263,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 58, 1083, 554, 1105: { if (ItemIsEnabled(Wep_Jarate)) { // Jarate and Self-Aware Beauty Mark
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 784, 0.00); // Extinguishing teammates reduces cooldown by 0%
+		}}		
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
 			switch (GetItemVariant(Wep_LibertyLauncher)) {
 				case 0: { // Release Liberty Launcher
@@ -4196,6 +4202,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 #endif
 						case 329: player_weapons[client][Wep_Jag] = true;
+						case 58, 1083, 554, 1105: player_weapons[client][Wep_Jarate] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
 #if defined MEMORY_PATCHES
