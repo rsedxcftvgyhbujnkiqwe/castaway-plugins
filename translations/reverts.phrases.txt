@@ -246,6 +246,10 @@
 	{
 		"en"	"Cleaner's Carbine"
 	}
+	"cloakanddagger"
+	{
+		"en"	"Cloak and Dagger"
+	}
 	"concheror"
 	{
 		"en"	"Concheror"
@@ -779,6 +783,10 @@
 	"Carbine_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits for 8 seconds on kill, 35%% slower fire rate (from 25%%)"
+	}
+	"CloakAndDagger_Release"
+	{
+		"en"	"Reverted to release, cannot pick up ammo for cloak"
 	}
 	"Concheror_PreTB"
 	{

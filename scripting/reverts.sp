@@ -493,6 +493,7 @@ enum
 	Wep_CharginTarge,
 	Wep_Claidheamh,
 	Wep_CleanerCarbine,
+	Wep_CloakAndDagger,
 	Wep_Concheror,
 	Wep_CowMangler,
 #if defined MEMORY_PATCHES
@@ -699,6 +700,7 @@ public void OnPluginStart() {
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
+	ItemDefine("cloakanddagger", "CloakAndDagger_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_CloakAndDagger);
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
 	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
@@ -3029,6 +3031,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
 			TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
 		}}
+		case 60: { if (ItemIsEnabled(Wep_CloakAndDagger)) {
+			TF2Items_SetNumAttributes(itemNew, 3);
+			TF2Items_SetAttribute(itemNew, 0, 728, 0.00); // No cloak meter from ammo boxes when invisible
+			TF2Items_SetAttribute(itemNew, 1, 729, 1.00); // -0% cloak meter from ammo boxes
+			TF2Items_SetAttribute(itemNew, 2, 810, 1.00); // mod_cloak_no_regen_from_items (Attrib_NoCloakFromAmmo)
+		}}
 		case 354: { if (ItemIsEnabled(Wep_Concheror)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 57, 2.0); // +2 health regenerated per second on wearer
@@ -4182,6 +4190,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 996: player_weapons[client][Wep_LooseCannon] = true;
 						case 751: player_weapons[client][Wep_CleanerCarbine] = true;
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
+						case 60: player_weapons[client][Wep_CloakAndDagger] = true;
 						case 354: player_weapons[client][Wep_Concheror] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
