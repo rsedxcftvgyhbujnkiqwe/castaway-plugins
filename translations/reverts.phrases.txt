@@ -586,7 +586,7 @@
 	}
 	"Swords_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, no holster and deploy switch speed penalties"
+		"en"	"Reverted to pre-toughbreak, no deploy or holster penalties"
 	}
 	"Ambassador_PreJI"
 	{
@@ -834,11 +834,11 @@
 	}
 	"DragonFury_Release"
 	{
-		"en"	"Reverted to pre-bluemoon, increased projectile size and no center-hit requirement for bonus damage"
+		"en"	"Reverted to pre-bluemoon, increased hitbox size and no center-hit requirement for bonus damage"
 	}
 	"DragonFury_Release_Patchless"
 	{
-		"en"	"Partially reverted to release, increased projectile size"
+		"en"	"Partially reverted to pre-bluemoon, increased hitbox size"
 	}
 	"Enforcer_PreGM"
 	{
@@ -870,7 +870,7 @@
 	}
 	"Eviction_PreMYM"
 	{
-		"en"	"Reverted to gunmettle, +50%% faster firing speed, no health drain penalty and move speed bonus"
+		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain or move speed bonus"
 	}
 	"Expert_Release"
 	{
@@ -990,11 +990,11 @@
 	}
 	"Persuader_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalty, cannot gain ammo from dispensers and carts"
+		"en"	"Reverted to pre-toughbreak, picks up ammo as health, +100%% charge recharge rate, no max ammo penalties, cannot gain ammo from dispensers or carts"
 	}
 	"Persuader_PreMnvy"
 	{
-		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo, 120 HP per drop), +100%% charge recharge rate, no max ammo penalty, can gain ammo from dispensers/carts"
+		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo, 120 HP per drop), +100%% charge recharge rate, no max ammo penalties"
 	}
 	"Phlog_Pyro"
 	{
@@ -1202,7 +1202,7 @@
 	}
 	"Sodapop_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, run to build hype"
+		"en"	"Reverted to pre-matchmaking, builds hype as you run"
 	}
 	"Solemn_PreGM"
 	{
@@ -1250,7 +1250,7 @@
 	}
 	"Sleeper_PreBM"
 	{
-		"en"	"Reverted to pre-bluemoon, headshots and fully charged shots splash jarate, no cooldown reduction"
+		"en"	"Reverted to pre-bluemoon, headshots and fully charged shots splash Jarate in a radius, no Jarate cooldown reduction on headshots"
 	}
 	"Sleeper_PreGM"
 	{
@@ -1258,7 +1258,7 @@
 	}
 	"Sleeper_Release"
 	{
-		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), no headshot bonuses, penetrate targets at full charge, random crits, no charge rate increase"
+		"en"	"Reverted to release, apply jarate for 8 secs when above 50%% charge to target (even if target is invuln), penetrate targets at full charge, random crits, no headshot bonuses, no charge rate increase"
 	}
 	"TankBuster_Release"
 	{
@@ -1298,7 +1298,7 @@
 	}
 	"Caber_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no firing speed and deploy penalties"
+		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no deploy or swing rate penalties"
 	}
 	"Vaccinator_PreTB"
 	{

@@ -3280,24 +3280,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 16, 7.0); // On Hit: Gain up to +7 health
 				}
 				case 2: { // Pre-Jungle Inferno Pocket Pistol
-					TF2Items_SetNumAttributes(itemNew, 8);
+					TF2Items_SetNumAttributes(itemNew, 6);
 					TF2Items_SetAttribute(itemNew, 0, 3, 1.0); // -0% clip size
 					TF2Items_SetAttribute(itemNew, 1, 5, 1.25); // 25% slower firing speed
 					TF2Items_SetAttribute(itemNew, 2, 6, 1.0); // +0% faster firing speed
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 4, 16, 5.0); // On Hit: Gain up to +5 health
+					TF2Items_SetAttribute(itemNew, 3, 16, 5.0); // On Hit: Gain up to +5 health
+					TF2Items_SetAttribute(itemNew, 4, 275, 1.0); // Wearer never takes falling damage
 					TF2Items_SetAttribute(itemNew, 5, 412, 1.20); // 20% damage vulnerability on wearer
-					TF2Items_SetAttribute(itemNew, 7, 275, 1.0); // Wearer never takes falling damage
 				}
 				case 3: { // Pre-Tough Break Pocket Pistol
-					TF2Items_SetNumAttributes(itemNew, 8);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 3, 1.0); // -0% clip size
 					TF2Items_SetAttribute(itemNew, 1, 5, 1.25); // 25% slower firing speed
 					TF2Items_SetAttribute(itemNew, 2, 6, 1.0); // +0% faster firing speed
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 4, 16, 3.0); // On Hit: Gain up to +3 health
-					TF2Items_SetAttribute(itemNew, 5, 412, 1.20); // 20% damage vulnerability on wearer
-					TF2Items_SetAttribute(itemNew, 7, 275, 1.0); // Wearer never takes falling damage
+					TF2Items_SetAttribute(itemNew, 3, 275, 1.0); // Wearer never takes falling damage
+					TF2Items_SetAttribute(itemNew, 4, 412, 1.20); // 20% damage vulnerability on wearer
 				}
 			}
 		}}
