@@ -573,6 +573,7 @@ enum
 	Wep_Vaccinator,
 	Wep_VitaSaw,
 	Wep_WarriorSpirit,
+	Wep_Widowmaker,
 	Wep_Wrangler,
 	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
@@ -859,6 +860,8 @@ public void OnPluginStart() {
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
 	ItemVariant(Wep_WarriorSpirit, "Warrior_PreGM");
+	ItemDefine("widowmaker", "Widowmaker_PreMYM", CLASSFLAG_ENGINEER | ITEMFLAG_DISABLED, Wep_Widowmaker);
+	ItemVariant(Wep_Widowmaker, "Widowmaker_Release");
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
@@ -3799,6 +3802,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 527: { if (ItemIsEnabled(Wep_Widowmaker)) {
+			switch (GetItemVariant(Wep_Widowmaker)) {
+				case 0: { // Pre-Meet your Match Widowmaker
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 789, 1.00); // 0% increased damage to your sentry's target
+				}
+				case 1: { // Release/Pre-Manniversary Widowmaker
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 789, 1.00); // 0% increased damage to your sentry's target
+					TF2Items_SetAttribute(itemNew, 0, 298, 60.0); // Per Shot: -60 ammo; mod_ammo_per_shot
+				}
+			}
+		}}
 		case 357: { if (ItemIsEnabled(Wep_Zatoichi)) {
 			TF2Items_SetNumAttributes(itemNew, 4);
 			TF2Items_SetAttribute(itemNew, 0, 15, 1.0); // crit mod disabled
@@ -4223,6 +4239,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 998: player_weapons[client][Wep_Vaccinator] = true;
 						case 173: player_weapons[client][Wep_VitaSaw] = true;
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
+						case 527: player_weapons[client][Wep_Widowmaker] = true;
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
 					}
