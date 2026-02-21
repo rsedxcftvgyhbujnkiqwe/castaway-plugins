@@ -928,9 +928,9 @@
 	{
 		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
 	}
-	"Eviction_PreMYM"
+	"Eviction_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain or move speed bonus"
+		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain penalty and move speed bonus"
 	}
 	"Eviction_PreGM"
 	{
