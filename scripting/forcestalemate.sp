@@ -55,7 +55,7 @@ bool ShouldStalemate() {
 	int ent = -1;
 	if ((ent = FindEntityByClassname(ent, "team_control_point_master")) != -1) {
 		if (
-			(GetEntProp(ent,Prop_Send,"m_iInvalidCapWinner") == 0) || // Attack/Defend
+			(GetEntProp(ent,Prop_Data,"m_iInvalidCapWinner") == 0) || // Attack/Defend
 			(FindEntityByClassname(-1,"tf_logic_koth") == -1) // KOTH
 		) {
 			return true; // Symmetric control points (3cp/5cp)
