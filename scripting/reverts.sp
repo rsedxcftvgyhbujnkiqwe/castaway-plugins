@@ -96,16 +96,16 @@ public Plugin myinfo = {
 
 enum
 {
-    BAZAAR_LOSE = -1,
-    BAZAAR_IDLE = 0,
-    BAZAAR_GAIN
+	BAZAAR_LOSE = -1,
+	BAZAAR_IDLE = 0,
+	BAZAAR_GAIN
 }
 
 int resistance_mapping[] =
 {
-    DMG_BULLET | DMG_BUCKSHOT,
-    DMG_BLAST,
-    DMG_IGNITE | DMG_BURN
+	DMG_BULLET | DMG_BUCKSHOT,
+	DMG_BLAST,
+	DMG_IGNITE | DMG_BURN
 };
 
 // flags for item definitions
@@ -297,7 +297,7 @@ enum struct Player {
 	int thrown_sandvich_ent_ref; // This is a entity reference and not your normal entity index, see https://wiki.alliedmods.net/Entity_References_(SourceMod)
 	bool has_thrown_sandvich;
 	bool deny_metal_collection;
-    int bazaar_shot;
+	int bazaar_shot;
 	bool using_vaccinator_uber;
 	float vaccinator_charge;
 	float vaccinator_charge_end;
@@ -2449,8 +2449,8 @@ public void OnSandvichThrown(int entity){
 // Keep this mutually exclusive with IsNonSandvichLunchboxDropModel.
 bool IsSandvichDropModel(const char[] model_name)
 {
-    return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false) ||
-    	StrEqual(model_name, LUNCHBOX_DROP_MODEL, false) ||
+	return StrEqual(model_name, LUNCHBOX_STEAK_DROP_MODEL, false) ||
+		StrEqual(model_name, LUNCHBOX_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_ROBOT_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_FESTIVE_DROP_MODEL, false);
 }
@@ -2459,7 +2459,7 @@ bool IsSandvichDropModel(const char[] model_name)
 // These should never allow Heavy to recharge IF they have the Sandvich and revert is ON.
 bool IsNonSandvichLunchboxDropModel(const char[] model_name)
 {
-    return StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false) ||
+	return StrEqual(model_name, LUNCHBOX_CHOCOLATE_BAR_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_BANANA_DROP_MODEL, false) ||
 		StrEqual(model_name, LUNCHBOX_FISHCAKE_DROP_MODEL, false);
 }
@@ -5287,7 +5287,7 @@ Action SDKHookCB_OnTakeDamage(
 					}
 				}
 			}
-        
+		
 			{
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
 				// Somehow even with the "cannot be crit boosted" attribute, 
@@ -6193,12 +6193,12 @@ Action Command_ToggleInfo(int client, int args) {
 // Command used for the Demoman "detonate stickies during taunting" revert.
 public Action Command_DetonateStickies(int client, int args)
 {
-    bool CanAttack = CanAttack_Secondary_Demoman(client, cvar_allow_detonate_stickies_while_taunting.BoolValue);
+	bool CanAttack = CanAttack_Secondary_Demoman(client, cvar_allow_detonate_stickies_while_taunting.BoolValue);
 
-    if (CanAttack) {
-    	DetonateDemomanStickies(client);
-    }
-    return Plugin_Handled;
+	if (CanAttack) {
+		DetonateDemomanStickies(client);
+	}
+	return Plugin_Handled;
 }
 
 void DetonateDemomanStickies(int client) {
@@ -6222,44 +6222,44 @@ void DetonateDemomanStickies(int client) {
 // to blow up stickies.
 bool CanAttack_Secondary_Demoman(int client, bool skipIsTauntingCheck)
 {
-    // Player validity
-    if (client < 1 || client > MaxClients)
-        return false;
+	// Player validity
+	if (client < 1 || client > MaxClients)
+		return false;
 
-    if (TF2_GetPlayerClass(client) != TFClass_DemoMan)
-        return false;
+	if (TF2_GetPlayerClass(client) != TFClass_DemoMan)
+		return false;
 
-    if (!IsClientInGame(client))
-        return false;
+	if (!IsClientInGame(client))
+		return false;
 
-    if (!IsPlayerAlive(client))
-        return false;
+	if (!IsPlayerAlive(client))
+		return false;
 
-    if (!skipIsTauntingCheck && TF2_IsPlayerInCondition(client, TFCond_Taunting)) {
-    	return false;
-    }
+	if (!skipIsTauntingCheck && TF2_IsPlayerInCondition(client, TFCond_Taunting)) {
+		return false;
+	}
 
-    // Viewing ConTracker / CYOA PDA
-    if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
-        return false;
+	// Viewing ConTracker / CYOA PDA
+	if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
+		return false;
 
-    // Halloween kart
-    if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
-        return false;
+	// Halloween kart
+	if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
+		return false;
 
-    // If demoman is not part of winning team, do not allow him to detonate stickies.
-    int roundState = GameRules_GetProp("m_iRoundState");
+	// If demoman is not part of winning team, do not allow him to detonate stickies.
+	int roundState = GameRules_GetProp("m_iRoundState");
 
-    // GR_STATE_TEAM_WIN == 5
-    if (roundState == 5)
-    {
-        int winningTeam = GameRules_GetProp("m_iWinningTeam");
+	// GR_STATE_TEAM_WIN == 5
+	if (roundState == 5)
+	{
+		int winningTeam = GameRules_GetProp("m_iWinningTeam");
 
-        if (GetClientTeam(client) != winningTeam)
-            return false;
-    }
+		if (GetClientTeam(client) != winningTeam)
+			return false;
+	}
 
-    return true;
+	return true;
 }
 #endif
 
@@ -6645,16 +6645,16 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 
 int GetChargeType(int entity)
 {
-    int iTmp = MEDIGUN_CHARGE_INVULN;
-    if (GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998)
-        iTmp += GetEntProp(entity, Prop_Send, "m_nChargeResistType");
-    return iTmp;
+	int iTmp = MEDIGUN_CHARGE_INVULN;
+	if (GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998)
+		iTmp += GetEntProp(entity, Prop_Send, "m_nChargeResistType");
+	return iTmp;
 }
 
 int GetResistType(int entity)
 {
-    // the original code is weird and this does what i want but it's here for the sake of it.
-    return GetChargeType(entity);
+	// the original code is weird and this does what i want but it's here for the sake of it.
+	return GetChargeType(entity);
 }
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
@@ -6805,11 +6805,11 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 /**
  * Removes projectiles and optionally damages players in front of the Short Circuit user.
  *
- * @param owner                Client index of the player using the Short Circuit.
- * @param entity               Entity index of the Short Circuit weapon.
- * @param base_amount          Amount of metal to consume on use (0 for none).
+ * @param owner				Client index of the player using the Short Circuit.
+ * @param entity			   Entity index of the Short Circuit weapon.
+ * @param base_amount		  Amount of metal to consume on use (0 for none).
  * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
- * @param damage               Damage to apply to players hit (default 0.0 for none).
+ * @param damage			   Damage to apply to players hit (default 0.0 for none).
  *
  * @return True if hit a player or destroyed a projectile, false otherwise.
  */
@@ -7335,7 +7335,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 	float regen_scale;
 
 	// Don't proceed if in MvM
-    if (cvar_ref_tf_gamemode_mvm.BoolValue)
+	if (cvar_ref_tf_gamemode_mvm.BoolValue)
 		return MRES_Ignored;
 
 	if (
@@ -7394,7 +7394,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 		}
 	}
 	
-    return MRES_Ignored;
+	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
@@ -7529,14 +7529,14 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookReturn r
 MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters)
 {
 	// Allow metal to be picked up from mini sentry gibs.
-    if (
+	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-        parameters.Set(2, 7);
-        return MRES_ChangedHandled;
-    }
-    return MRES_Ignored;
+		parameters.Set(2, 7);
+		return MRES_ChangedHandled;
+	}
+	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue, DHookParam parameters) {
@@ -8027,42 +8027,42 @@ stock void ParticleShow(const char[] name, float origin[3], float start[3], floa
 
 stock int PrecacheParticleSystem(const char[] particleSystem)
 {
-    static int particleEffectNames = INVALID_STRING_TABLE;
+	static int particleEffectNames = INVALID_STRING_TABLE;
 
-    if (particleEffectNames == INVALID_STRING_TABLE) {
-        if ((particleEffectNames = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
-            return INVALID_STRING_INDEX;
-        }
-    }
+	if (particleEffectNames == INVALID_STRING_TABLE) {
+		if ((particleEffectNames = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
+			return INVALID_STRING_INDEX;
+		}
+	}
 
-    int index = FindStringIndex2(particleEffectNames, particleSystem);
-    if (index == INVALID_STRING_INDEX) {
-        int numStrings = GetStringTableNumStrings(particleEffectNames);
-        if (numStrings >= GetStringTableMaxStrings(particleEffectNames)) {
-            return INVALID_STRING_INDEX;
-        }
-        
-        AddToStringTable(particleEffectNames, particleSystem);
-        index = numStrings;
-    }
-    
-    return index;
+	int index = FindStringIndex2(particleEffectNames, particleSystem);
+	if (index == INVALID_STRING_INDEX) {
+		int numStrings = GetStringTableNumStrings(particleEffectNames);
+		if (numStrings >= GetStringTableMaxStrings(particleEffectNames)) {
+			return INVALID_STRING_INDEX;
+		}
+		
+		AddToStringTable(particleEffectNames, particleSystem);
+		index = numStrings;
+	}
+	
+	return index;
 }
 
 stock int FindStringIndex2(int tableidx, const char[] str)
 {
-    char buf[1024];
-    
-    int numStrings = GetStringTableNumStrings(tableidx);
-    for (int i=0; i < numStrings; i++) {
-        ReadStringTable(tableidx, i, buf, sizeof(buf));
-        
-        if (StrEqual(buf, str)) {
-            return i;
-        }
-    }
-    
-    return INVALID_STRING_INDEX;
+	char buf[1024];
+	
+	int numStrings = GetStringTableNumStrings(tableidx);
+	for (int i=0; i < numStrings; i++) {
+		ReadStringTable(tableidx, i, buf, sizeof(buf));
+		
+		if (StrEqual(buf, str)) {
+			return i;
+		}
+	}
+	
+	return INVALID_STRING_INDEX;
 }
 
 stock int GetEntityOwner(int entityIndex)
@@ -8129,7 +8129,7 @@ stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int 
 
 	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
 	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
-	TE_WriteNum("entindex", entityIndex);           // Attach to the given entity
+	TE_WriteNum("entindex", entityIndex);		   // Attach to the given entity
 
 	TE_SendToAll();
 }
@@ -8235,7 +8235,7 @@ stock float floatMin(float x, float y)
  */
 stock float floatMax(float x, float y)
 {
-    return x > y ? x : y;
+	return x > y ? x : y;
 }
 
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
