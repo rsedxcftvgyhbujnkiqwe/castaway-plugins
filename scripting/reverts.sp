@@ -526,9 +526,7 @@ enum
 	Wep_Gunslinger,
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_Huntsman,
-#if defined MEMORY_PATCHES	
 	Wep_IronBomber,
-#endif
 	Wep_Jag,
 	Wep_Jarate,
 	Wep_LibertyLauncher,
@@ -767,7 +765,13 @@ public void OnPluginStart() {
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES	
-	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_IronBomber, true);
+	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber, true);
+	ItemVariant(Wep_IronBomber, "IronBomber_PreMYM");
+	ItemVariant(Wep_IronBomber, "IronBomber_Release");	
+#else
+	ItemDefine("ironbomber", "IronBomber_Pre2022_Patchless", CLASSFLAG_DEMOMAN, Wep_IronBomber);
+	ItemVariant(Wep_IronBomber, "IronBomber_PreMYM_Patchless");
+	ItemVariant(Wep_IronBomber, "IronBomber_Release_Patchless");	
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");
@@ -3298,6 +3302,20 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
 		}}
+		case 1151: { if (ItemIsEnabled(Wep_IronBomber)) {
+			switch (GetItemVariant(Wep_IronBomber))  {
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 787, 1.00); // -0% fuse time on grenades
+				}
+				case 2: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 787, 1.00); // -0% fuse time on grenades
+					TF2Items_SetAttribute(itemNew, 1, 100, 0.80); // -20% explosion radius
+					TF2Items_SetAttribute(itemNew, 2, 684, 0.90); // -10% damage on grenades that explode on timer
+				}
+			}
+		}}
 		case 329: { if (ItemIsEnabled(Wep_Jag)) {
 			switch (GetItemVariant(Wep_Jag))  {
 				case 1: {
@@ -4250,9 +4268,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
 						case 56, 1005, 1092: player_weapons[client][Wep_Huntsman] = true;
 						case 142: player_weapons[client][Wep_Gunslinger] = true;
-#if defined MEMORY_PATCHES
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
-#endif
 						case 329: player_weapons[client][Wep_Jag] = true;
 						case 58, 1083, 554, 1105: player_weapons[client][Wep_Jarate] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;

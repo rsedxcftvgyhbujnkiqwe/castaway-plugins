@@ -1036,6 +1036,26 @@
 	{
 		"en"	"Reverted to pre-July 7, 2022; ~2x larger grenade hitbox"
 	}
+	"IronBomber_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, 2.0 sec fuse time, ~2x larger grenade hitbox"
+	}
+	"IronBomber_Release"
+	{
+		"en"	"Reverted to release, 2.0 sec fuse time, -10%% dmg penalty on self-detonate, 20%% radius penalty, ~2x larger grenade hitbox"
+	}	
+	"IronBomber_Pre2022_Patchless"
+	{
+		"en"	"Memory patches turned off, pre-July 7, 2022 Iron Bomber is not reverted"
+	}	
+	"IronBomber_PreTB_Patchless"
+	{
+		"en"	"Reverted to pre-toughbreak, 2.0 sec fuse time"
+	}
+	"IronBomber_Release_Patchless"
+	{
+		"en"	"Reverted to release, 2.0 sec fuse time, -10%% dmg penalty on self-detonate, 20%% radius penalty"
+	}
 	"Jag_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
