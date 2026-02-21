@@ -513,7 +513,8 @@ enum
 #endif
 	Wep_DragonFury,
 	Wep_Enforcer,
-	Wep_Pickaxe, // Equalizer
+	Wep_Equalizer,
+	Wep_EscapePlan,
 	Wep_EurekaEffect,
 	Wep_Eviction,
 	Wep_FamilyBusiness,
@@ -737,9 +738,15 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("enforcer", "Enforcer_PreGM", CLASSFLAG_SPY, Wep_Enforcer);
 	ItemVariant(Wep_Enforcer, "Enforcer_Release");
-	ItemDefine("equalizer", "Equalizer_PrePyro", CLASSFLAG_SOLDIER, Wep_Pickaxe);
-	ItemVariant(Wep_Pickaxe, "Equalizer_PreHat");
-	ItemVariant(Wep_Pickaxe, "Equalizer_Release");
+	ItemDefine("equalizer", "Equalizer_PrePyro", CLASSFLAG_SOLDIER, Wep_Equalizer);
+	ItemVariant(Wep_Equalizer, "Equalizer_PreHat");
+	ItemVariant(Wep_Equalizer, "Equalizer_Release");
+	ItemVariant(Wep_Equalizer, "Equalizer_PreGM");
+	ItemDefine("escapeplan", "EscapePlan_PrePyro", CLASSFLAG_SOLDIER, Wep_EscapePlan);
+	ItemVariant(Wep_EscapePlan, "EscapePlan_PreHat");
+	ItemVariant(Wep_EscapePlan, "EscapePlan_Release");
+	ItemVariant(Wep_EscapePlan, "EscapePlan_PreGM");
+	ItemVariant(Wep_EscapePlan, "EscapePlan_PreJuly2013");
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreTB");
@@ -1824,22 +1831,24 @@ public void OnGameFrame() {
 					}
 
 					{
-						// equalizer damage bonus
+						// equalizer & escape plan damage bonus
 
 						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
 
 						if (weapon > 0) {
 							if (
-								ItemIsEnabled(Wep_Pickaxe) &&
-								(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 ||
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775)
+								(ItemIsEnabled(Wep_Equalizer) || ItemIsEnabled(Wep_EscapePlan)) &&
+								(
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 || 	// Equalizer
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775		// Escape Plan
+								)
 							) {
 								health_cur = GetClientHealth(idx);
 								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
 
 								float multiplier = 1.0;
 
-								switch (GetItemVariant(Wep_Pickaxe))
+								switch (GetItemVariant(Wep_Equalizer) || GetItemVariant(Wep_EscapePlan))
 								{
 									case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
 									case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
@@ -3127,15 +3136,41 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-		case 128, 775: { if (ItemIsEnabled(Wep_Pickaxe)) {
-			TF2Items_SetNumAttributes(itemNew, index == 775 ? 5 : 4);
-			TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost
-			TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
-			TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
-			TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
-			if (index == 775)
-				TF2Items_SetAttribute(itemNew, 4, 414, 0.0); // self mark for death
+		case 128: { if (ItemIsEnabled(Wep_Equalizer)) {
+			switch (GetItemVariant(Wep_Equalizer)) {
+				case 3: { // Pre-Gun Mettle Equalizer
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 1, 740, 1.0); // reduced healing from medics
+				}
+				default: { // Pre-Pyromania Equalizer Variants (Pre-Split)
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
+					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
+				}
+			}
 		}}
+		case 775: { if (ItemIsEnabled(Wep_EscapePlan)) {
+			switch (GetItemVariant(Wep_EscapePlan)) {
+				case 3: { // Pre-Gun Mettle Escape Plan
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
+					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
+				}
+				default: { // Pre-Pyromania Escape Plan Variants (Pre-Split) & Pre-July 2013 Escape Plan
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
+					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
+					TF2Items_SetAttribute(itemNew, 4, 414, 0.0); // self mark for death
+				}
+			}
+		}}		
 		case 225, 574: { if (ItemIsEnabled(Wep_EternalReward)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 34, 1.00); // mult cloak meter consume rate
@@ -4200,7 +4235,8 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 127: player_weapons[client][Wep_DirectHit] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
-						case 128, 775: player_weapons[client][Wep_Pickaxe] = true;
+						case 128: player_weapons[client][Wep_Equalizer] = true;
+						case 775: player_weapons[client][Wep_EscapePlan] = true;
 						case 225, 574: player_weapons[client][Wep_EternalReward] = true;
 						case 589: player_weapons[client][Wep_EurekaEffect] = true;
 						case 426: player_weapons[client][Wep_Eviction] = true;
@@ -5858,8 +5894,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 						// The Soldier does not always survive this due to explosive damage jankiness
 						// Historically, this was also the case, this old bug in particular did not work 100% of the time.
 						// This is because this bug relies on the old taunt-switch bug (get healed by a Medic, taunt with pickaxe, then quickswitch to get healed)
-						GetItemVariant(Wep_Pickaxe) >= 1 &&
-						player_weapons[victim][Wep_Pickaxe] &&
+						(
+							(GetItemVariant(Wep_Equalizer) >= 1 && GetItemVariant(Wep_Equalizer) < 3) ||
+							(GetItemVariant(Wep_EscapePlan) >= 1 && GetItemVariant(Wep_EscapePlan) < 3)
+						) &&
+						(player_weapons[victim][Wep_Equalizer] || player_weapons[victim][Wep_EscapePlan]) &&
 						!player_weapons[victim][Wep_Gunboats]
 					) {
 						damage *= 0.80;
