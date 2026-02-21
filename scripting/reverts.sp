@@ -724,8 +724,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_Release");
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
-	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
-	ItemVariant(Wep_DirectHit, "DirectHit_PreDec2009");
+	ItemDefine("directhit", "DirectHit_PreJI_Fix", CLASSFLAG_SOLDIER, Wep_DirectHit);
+	ItemVariant(Wep_DirectHit, "DirectHit_PreJI");
+	ItemVariant(Wep_DirectHit, "DirectHit_PreTB");
+	ItemVariant(Wep_DirectHit, "DirectHit_PreJan2010");
+	ItemVariant(Wep_DirectHit, "DirectHit_Release");
 #if defined MEMORY_PATCHES
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
@@ -3122,6 +3125,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 4, 199, 1.00); // switch from wep deploy time decreased
 			TF2Items_SetAttribute(itemNew, 5, 547, 1.00); // single wep deploy time decreased
 		}}
+		case 127: { if (ItemIsEnabled(Wep_DirectHit)) {
+			switch (GetItemVariant(Wep_DirectHit)) {
+				case 1, 2: { // Pre-JI and Pre-GM Direct Hit Variants - makes minicrit condition more specific. Minicrits handled elsewhere
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 114, 0.00); // Mini-crits targets launched airborne by explosions, grapple hooks or rocket packs.
+				}
+			}
+		}}		
 		case 460: { if (ItemIsEnabled(Wep_Enforcer)) {
 			switch (GetItemVariant(Wep_Enforcer)) {
 				case 1: {
@@ -5523,12 +5534,39 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_rocketlauncher_directhit") &&
 					GetEntityFlags(victim) & FL_ONGROUND == 0
 				) {
-					if (
-						(GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true) ||
-						GetItemVariant(Wep_DirectHit) == 1
-					) {
-						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+					switch (GetItemVariant(Wep_DirectHit)) {
+						case 0:
+						{	// Pre-Jungle Inferno Direct Hit (Fix)
+							if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 && TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
+								TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}
+						case 1: 
+						{	// Pre-Jungle Inferno Direct Hit (Historically accurate)
+							if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 && 
+								(
+									TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true ||
+									TF2_IsPlayerInCondition(victim, TFCond_GrapplingHook) == true ||
+									TF2_IsPlayerInCondition(victim, TFCond_GrapplingHookSafeFall) == true ||
+									TF2_IsPlayerInCondition(victim, TFCond_GrapplingHookLatched) == true
+								) && 
+								TF2_IsPlayerInCondition(victim, TFCond_RocketPack) == false
+							)
+								TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}						
+						case 2:
+						{	// Pre-Tough Break Direct Hit
+							if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 && TF2_IsPlayerInCondition(victim, TFCond_BlastJumping) == true)
+								TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}
+						case 3:
+						{	// Pre-Jan 13, 2010 Direct Hit
+							if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0)
+								TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}
+						case 4:
+						{	// Release Direct Hit
+							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+						}
 					}
 				}
 			}
