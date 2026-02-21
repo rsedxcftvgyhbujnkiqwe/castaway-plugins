@@ -641,6 +641,7 @@ public void OnPluginStart() {
 
 	// Item sets
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
+	ItemVariant(Set_SpDelivery, "SpDelivery_StockMelee");
 	ItemDefine("tankbuster", "TankBuster_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Set_TankBuster);
 	ItemDefine("gasjockey", "GasJockey_Release", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Set_GasJockey);
 	ItemDefine("expert", "Expert_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Set_Expert);
@@ -1833,15 +1834,12 @@ public void OnGameFrame() {
 							) {
 								max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
 								health_cur = GetClientHealth(idx);
-								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
 
 								int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
-								if (health_max - health_cur >= heal_amt)
-									heal_amt = 0;
-								else if (health_max > health_cur)
-									heal_amt -= health_max - health_cur;
-								
-								heal_amt = intMin(max_overheal - health_cur, heal_amt);
+								heal_amt = intMin(
+									max_overheal - health_cur,
+									heal_amt - (health_cur - players[idx].old_health)
+								);
 
 								if (heal_amt > 0) {
 									// Apply overheal
@@ -3282,24 +3280,21 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 16, 7.0); // On Hit: Gain up to +7 health
 				}
 				case 2: { // Pre-Jungle Inferno Pocket Pistol
-					TF2Items_SetNumAttributes(itemNew, 8);
+					TF2Items_SetNumAttributes(itemNew, 6);
 					TF2Items_SetAttribute(itemNew, 0, 3, 1.0); // -0% clip size
 					TF2Items_SetAttribute(itemNew, 1, 5, 1.25); // 25% slower firing speed
 					TF2Items_SetAttribute(itemNew, 2, 6, 1.0); // +0% faster firing speed
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 4, 16, 5.0); // On Hit: Gain up to +5 health
+					TF2Items_SetAttribute(itemNew, 3, 16, 5.0); // On Hit: Gain up to +5 health
+					TF2Items_SetAttribute(itemNew, 4, 275, 1.0); // Wearer never takes falling damage
 					TF2Items_SetAttribute(itemNew, 5, 412, 1.20); // 20% damage vulnerability on wearer
-					TF2Items_SetAttribute(itemNew, 7, 275, 1.0); // Wearer never takes falling damage
 				}
 				case 3: { // Pre-Tough Break Pocket Pistol
-					TF2Items_SetNumAttributes(itemNew, 8);
+					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 3, 1.0); // -0% clip size
 					TF2Items_SetAttribute(itemNew, 1, 5, 1.25); // 25% slower firing speed
 					TF2Items_SetAttribute(itemNew, 2, 6, 1.0); // +0% faster firing speed
-					TF2Items_SetAttribute(itemNew, 3, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 4, 16, 3.0); // On Hit: Gain up to +3 health
-					TF2Items_SetAttribute(itemNew, 5, 412, 1.20); // 20% damage vulnerability on wearer
-					TF2Items_SetAttribute(itemNew, 7, 275, 1.0); // Wearer never takes falling damage
+					TF2Items_SetAttribute(itemNew, 3, 275, 1.0); // Wearer never takes falling damage
+					TF2Items_SetAttribute(itemNew, 4, 412, 1.20); // 20% damage vulnerability on wearer
 				}
 			}
 		}}
@@ -3848,6 +3843,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						) {
 							// Save kill tick for applying overheal on next tick
 							players[attacker].powerjack_kill_tick = GetGameTickCount();
+							players[attacker].old_health = GetClientHealth(attacker);
 						}
 
 						if (
@@ -3926,8 +3922,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 		bool should_display_info_msg = false;
 
-		int wearable_count = TF2Util_GetPlayerWearableCount(client);
-
 		//cache players weapons for later funcs
 		{
 
@@ -3937,7 +3931,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			}
 
 			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
-			for (int i;i < length; i++)
+			for (int i = 0; i < length; i++)
 			{
 				weapon = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons",i);
 				if (weapon != -1)
@@ -4088,156 +4082,203 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					}
 				}
 			}
-			for (int i = 0; i < wearable_count; i++)
+
+			length = TF2Util_GetPlayerWearableCount(client);
+			for (int i = 0; i < length; i++)
 			{
 				weapon = TF2Util_GetPlayerWearable(client, i);
-				index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-				switch (index) {
-					case 405, 608: player_weapons[client][Wep_Booties] = true;
+				if (weapon != -1) {
+					switch (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex")) {
+						case 405, 608: player_weapons[client][Wep_Booties] = true;
 #if defined MEMORY_PATCHES
-					case 642: player_weapons[client][Wep_CozyCamper] = true;
+						case 642: player_weapons[client][Wep_CozyCamper] = true;
 #endif
-					case 1179: player_weapons[client][Wep_ThermalThruster] = true;
-					case 231: player_weapons[client][Wep_Darwin] = true;
-					case 57: player_weapons[client][Wep_Razorback] = true;
-					case 133: player_weapons[client][Wep_Gunboats] = true;
-					case 406: player_weapons[client][Wep_SplendidScreen] = true;
-					case 131, 1144: player_weapons[client][Wep_CharginTarge] = true;
-					case 1099: player_weapons[client][Wep_TideTurner] = true;
+						case 1179: player_weapons[client][Wep_ThermalThruster] = true;
+						case 231: player_weapons[client][Wep_Darwin] = true;
+						case 57: player_weapons[client][Wep_Razorback] = true;
+						case 133: player_weapons[client][Wep_Gunboats] = true;
+						case 406: player_weapons[client][Wep_SplendidScreen] = true;
+						case 131, 1144: player_weapons[client][Wep_CharginTarge] = true;
+						case 1099: player_weapons[client][Wep_TideTurner] = true;
+					}
 				}
 			}
 		}
 
-		//item sets
-		if (
-			ItemIsEnabled(Set_SpDelivery) ||
-			ItemIsEnabled(Set_TankBuster) ||
-			ItemIsEnabled(Set_GasJockey) ||
-			ItemIsEnabled(Set_Expert) ||
-			ItemIsEnabled(Set_Hibernate) ||
-			ItemIsEnabled(Set_Medieval) ||
-			ItemIsEnabled(Set_CrocoStyle) ||
-			ItemIsEnabled(Set_Saharan)
-		) {
-			// reset set bonuses on loadout changes
-			switch (TF2_GetPlayerClass(client))
-			{
-				case TFClass_Scout:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 517); // SET BONUS: max health additive bonus
-				}
-				case TFClass_Soldier:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 169); // SET BONUS: dmg from sentry reduced
-				}
-				case TFClass_Pyro:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 489); // SET BONUS: move speed set bonus
-					TF2Attrib_RemoveByDefIndex(client, 516); // SET BONUS: dmg taken from bullets increased 
-				}
-				case TFClass_DemoMan:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 492); // SET BONUS: dmg taken from fire reduced set bonus
-				}
-				case TFClass_Heavy:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 491); // SET BONUS: dmg taken from crit reduced set bonus
-				}
-				case TFClass_Medic:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 490); // SET BONUS: health regen set bonus
-				}
-				case TFClass_Sniper:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 176); // SET BONUS: no death from headshots
-				}
-				case TFClass_Spy:
-				{
-					TF2Attrib_RemoveByDefIndex(client, 159); // SET BONUS: cloak blink time penalty
-					TF2Attrib_RemoveByDefIndex(client, 160); // SET BONUS: quiet unstealth
-				}
-			}
-
-			//handle item sets
+		{
+			// handle item sets
 			int wep_count = 0;
 			int active_set = 0;
 			int first_wep = -1;
 
 			int length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
-			for (int i;i < length; i++)
+			for (int i = 0; i < length; i++)
 			{
-				weapon = GetEntPropEnt(client,Prop_Send,"m_hMyWeapons",i);
+				weapon = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons", i);
 				if (weapon != -1)
 				{
-					index = GetEntProp(weapon,Prop_Send,"m_iItemDefinitionIndex");
+					GetEntityClassname(weapon, class, sizeof(class));
+					index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 
-					switch(index) {
-						// Special Delivery
-						case 220, 221, 222, 572, 999, 1121: {
-							if(ItemIsEnabled(Set_SpDelivery)) {
-								wep_count++;
-								if(wep_count == 3) active_set = Set_SpDelivery;
-							}
-						}
-						// Tank Buster
-						case 228, 1085, 226: {
-							if(ItemIsEnabled(Set_TankBuster)) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_TankBuster;
-							}
-						}						
-						// Gas Jockey's Gear
-						case 214, 215: {
-							if(ItemIsEnabled(Set_GasJockey)) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_GasJockey;
-							}
-						}
-						// Expert's Ordnance
-						case 307, 308: {
-							if(ItemIsEnabled(Set_Expert)) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_Expert;
-							}
-						}
-						// Hibernating Bear
-						case 310, 311, 312: {
-							if(ItemIsEnabled(Set_Hibernate)) {
-								wep_count++;
-								if(wep_count == 3) active_set = Set_Hibernate;
-							}
-						}
-						// Medieval Medic
-						case 305, 1079, 304: {
-							if(ItemIsEnabled(Set_Medieval)) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_Medieval;
-							}
-						}						
-						// Croc-o-Style Kit
-						case 230, 232: {
-							if(ItemIsEnabled(Set_CrocoStyle)) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_CrocoStyle;
-							}
-						}
-						// Saharan Spy
-						case 224, 225, 574: {
+					switch (TF2_GetPlayerClass(client))
+					{
+						case TFClass_Scout:
+						{
 							if (
-								GetItemVariant(Set_Saharan) == 0 &&
-								index != 574 // exclude Wanga Prick
+								ItemIsEnabled(Set_SpDelivery) &&
+								(
+									StrEqual(class, "tf_weapon_handgun_scout_primary") ||
+									StrEqual(class, "tf_weapon_jar_milk") ||
+									StrEqual(class, "tf_weapon_bat_fish") ||
+									(
+										// variant that allows any stock melee/reskin
+										GetItemVariant(Set_SpDelivery) == 1 &&
+										StrEqual(class, "tf_weapon_bat") &&
+										(
+											// exclude following
+											index != 317 && // candy cane
+											index != 325 && // basher
+											index != 349 && // sun stick
+											index != 355 && // fan o'war
+											index != 450 && // atomizer
+											index != 452 // three rune blade
+										)
+										// somehow multiclass melees for scout are "tf_weapon_bat" now???
+										// leaving the line below just in case
+										|| StrEqual(class, "saxxy")
+									)
+								)
 							) {
-								if (index == 224 && first_wep == -1) {
+								wep_count++;
+								if (wep_count == 3) {
+									active_set = Set_SpDelivery;
+									break;
+								}
+							}
+						}
+						case TFClass_Soldier:
+						{
+							if (
+								ItemIsEnabled(Set_TankBuster) &&
+								(
+									index == 228 || // black box
+									index == 1085 ||
+									index == 226 // battalion's
+								)
+							) {
+								wep_count++;
+								if (wep_count == 2) {
+									active_set = Set_TankBuster;
+									break;
+								}
+							}
+						}
+						case TFClass_Pyro:
+						{
+							if (
+								ItemIsEnabled(Set_GasJockey) &&
+								(
+									index == 215 || // degreaser
+									index == 214 // powerjack
+								)
+							) {
+								wep_count++;
+								if (wep_count == 2) {
+									active_set = Set_GasJockey;
+									break;
+								}
+							}
+						}
+						case TFClass_DemoMan:
+						{
+							if (
+								ItemIsEnabled(Set_Expert) &&
+								(
+									index == 308 || // loch-n-load
+									StrEqual(class, "tf_weapon_stickbomb")
+								)
+							) {
+								wep_count++;
+								if (wep_count == 2) {
+									active_set = Set_Expert;
+									break;
+								}
+							}
+						}
+						case TFClass_Heavy:
+						{
+							if (
+								ItemIsEnabled(Set_Hibernate) &&
+								(
+									index == 312 || // brass beast
+									index == 311 || // steak
+									index == 310 // warrior's spirit
+								)
+							) {
+								wep_count++;
+								if (wep_count == 3) {
+									active_set = Set_Hibernate;
+									break;
+								}
+							}
+						}
+						case TFClass_Medic:
+						{
+							if (
+								ItemIsEnabled(Set_Medieval) &&
+								(
+									StrEqual(class, "tf_weapon_crossbow") ||
+									index == 304 // amputator
+								)
+							) {
+								wep_count++;
+								if (wep_count == 2) {
+									active_set = Set_Medieval;
+									break;
+								}
+							}
+						}
+						case TFClass_Sniper:
+						{
+							if (
+								ItemIsEnabled(Set_CrocoStyle) &&
+								(
+									index == 230 || // sleeper
+									index == 232 // bushwacka
+								)
+							) {
+								wep_count++;
+								if (wep_count == 2) {
+									active_set = Set_CrocoStyle;
+									break;
+								}
+							}
+						}
+						case TFClass_Spy:
+						{
+							if (
+								ItemIsEnabled(Set_Saharan) &&
+								(
+									index == 224 || // l'etranger
+									index == 225 || // yer
+									index == 574 && GetItemVariant(Set_Saharan) == 1 // wanga prick
+								)
+							) {
+								if (
+									GetItemVariant(Set_Saharan) == 0 &&
+									index == 224 && first_wep == -1
+								) {
 									// reset L'Etranger cloak duration
 									first_wep = weapon;
 									TF2Attrib_RemoveByDefIndex(first_wep, 83);
 								}
+
 								wep_count++;
-								if(wep_count == 2) active_set = Set_Saharan;
-							}else if(GetItemVariant(Set_Saharan) == 1) {
-								wep_count++;
-								if(wep_count == 2) active_set = Set_Saharan;
+								if (wep_count == 2) {
+									active_set = Set_Saharan;
+									break;
+								}
 							}
 						}
 					}
@@ -5522,18 +5563,17 @@ Action SDKHookCB_OnTakeDamageAlive(
 										damage_type != DMG_BURN &&
 										victim != healer
 									) {
-										health_cur = GetClientHealth(healer);
-										health_max = SDKCall(sdkcall_GetMaxHealth, healer);
-										float resist_heal = (GetItemVariant(Wep_Vaccinator) == 0 ? 0.10 : 0.25); // 10% for pre-TB, 25% for pre-GM
+										float resist_heal = damage * (GetItemVariant(Wep_Vaccinator) == 0 ? 0.10 : 0.25); // 10% for pre-TB, 25% for pre-GM
+										int resist_heal_ceil = RoundToCeil(resist_heal);
 
 										// Fire heal event
 										Handle event = CreateEvent("player_healonhit", true);
-										SetEventInt(event, "amount", RoundFloat(damage * resist_heal));
+										SetEventInt(event, "amount", resist_heal_ceil);
 										SetEventInt(event, "entindex", healer);
 										FireEvent(event);
 
 										// Take health
-										TF2Util_TakeHealth(healer, (damage * resist_heal));
+										TF2Util_TakeHealth(healer, float(resist_heal_ceil));
 									}
 								}
 								// pre-GM vaccinator drain uber on crits
@@ -6875,7 +6915,7 @@ bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 									vector[1] = -10.0;
 									vector[2] = -20.0;
 
-									RotateVectorAroundZAxis(vector, FixViewAngleY(angles1[1]), vector);
+									RotateVectorAroundZAxis(vector, angles1[1], vector);
 									AddVectors(player_pos, vector, player_pos);
 
 									// show particle effect
@@ -7326,6 +7366,11 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 				// Weapon is an Amputator, increase regen amount for this instance
 				full_regen = true;
 			}
+		}
+
+		if (player_weapons[client][Set_Medieval]) {
+			// Full regen for Medieval Medic set
+			full_regen = true;
 		}
 
 		if (full_regen) {
