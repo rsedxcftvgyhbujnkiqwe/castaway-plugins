@@ -778,7 +778,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");
-	ItemDefine("jarate", "Jarate_PreTB", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_Jag);
+	ItemDefine("jarate", "Jarate_PreTB", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_Jarate);
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemVariant(Wep_LibertyLauncher, "Liberty_PreGM");
 	ItemVariant(Wep_LibertyLauncher, "Liberty_Pre2013");
