@@ -198,6 +198,10 @@
 	{
 		"en"	"Beggar's Bazooka"
 	}
+	"bigearner"
+	{
+		"en"	"Big Earner"
+	}
 	"blackbox"
 	{
 		"en"	"Black Box"
@@ -241,6 +245,10 @@
 	"carbine"
 	{
 		"en"	"Cleaner's Carbine"
+	}
+	"cloakanddagger"
+	{
+		"en"	"Cloak and Dagger"
 	}
 	"concheror"
 	{
@@ -300,8 +308,12 @@
 	}
 	"equalizer"
 	{
-		"en"	"Equalizer & Escape Plan"
+		"en"	"Equalizer"
 	}
+	"escapeplan"
+	{
+		"en"	"Escape Plan"
+	}	
 	"eureka"
 	{
 		"en"	"Eureka Effect"
@@ -313,6 +325,14 @@
 	"expert"
 	{
 		"en"	"Expert's Ordnance"
+	}
+	"family"
+	{
+		"en"	"Family Business"
+	}
+	"fanowar"
+	{
+		"en"	"Fan O'War"
 	}
 	"fiststeel"
 	{
@@ -358,6 +378,10 @@
 	{
 		"en"	"Jag"
 	}
+	"jarate"
+	{
+		"en"	"Jarate"
+	}
 	"liberty"
 	{
 		"en"	"Liberty Launcher"
@@ -378,6 +402,14 @@
 	{
 		"en"	"Medieval Medic"
 	}
+	"manmelter"
+	{
+		"en"	"Manmelter"
+	}
+	"mantreads"
+	{
+		"en"	"Mantreads"
+	}
 	"gardener"
 	{
 		"en"	"Market Gardener"
@@ -385,6 +417,10 @@
 	"natascha"
 	{
 		"en"	"Natascha"
+	}
+	"overdose"
+	{
+		"en"	"Overdose"
 	}
 	"panic"
 	{
@@ -494,6 +530,10 @@
 	{
 		"en"	"Sticky Jumper"
 	}
+	"sunstick"
+	{
+		"en"	"Sun-on-a-Stick"
+	}
 	"sleeper"
 	{
 		"en"	"Sydney Sleeper"
@@ -534,6 +574,10 @@
 	{
 		"en"	"Warrior's Spirit"
 	}
+	"widowmaker"
+	{
+		"en"	"Widowmaker"
+	}
 	"wrangler"
 	{
 		"en"	"Wrangler"
@@ -551,6 +595,10 @@
 	"Airstrike_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no extra blast radius penalty when blast jumping"
+	}
+	"Airstrike_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no extra blast radius penalty when blast jumping, -25%% clip size, -15%% radius penalty, -25%% dmg penalty, -25%% rocket jump blast dmg"
 	}
 	"Flamethrower_PreBM"
 	{
@@ -664,6 +712,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, no radius penalty"
 	}
+	"BigEarner_Release"
+	{
+		"en"	"Reverted to release, no speedboost on kill"
+	}
 	"BlackBox_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
@@ -688,6 +740,10 @@
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
 	}
+	"BrassBeast_Release"
+	{
+		"en"	"Reverted to release, no damage resistance when spun up"
+	}	
 	"Bushwacka_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
@@ -732,6 +788,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, minicrits for 8 seconds on kill, 35%% slower fire rate (from 25%%)"
 	}
+	"CloakAndDagger_Release"
+	{
+		"en"	"Reverted to release, cannot pick up ammo for cloak"
+	}
 	"Concheror_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if user recently took damage"
@@ -744,6 +804,10 @@
 	{
 		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
 	}
+	"CowMangler_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, cannot be crit-boosted"
+	}	
 	"CozyCamper_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, flinch resist at any charge level"
@@ -820,13 +884,25 @@
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
 	}
-	"DirectHit_PreJI"
+	"DirectHit_PreJI_Fix"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
 	}
-	"DirectHit_PreDec2009"
+	"DirectHit_PreJI"
 	{
-		"en"	"Reverted to pre-December 22, 2009; mini-crits all airborne and floating underwater targets regardless of cause; explosive jumps not needed for mini-crits"
+		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets, does not deal minicrits to enemies jumping with jetpacks"
+	}	
+	"DirectHit_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, mini-crits only targets launched airborne by blast damage"
+	}
+	"DirectHit_PreJan2010"
+	{
+		"en"	"Reverted to pre-Jan 13, 2010; mini-crits all airborne targets regardless of cause; explosive jumps not needed for mini-crits"
+	}
+	"DirectHit_Release"
+	{
+		"en"	"Reverted to release, mini-crits all airborne and floating underwater targets regardless of cause; explosive jumps not needed for mini-crits"
 	}
 	"Disciplinary_PreMYM"
 	{
@@ -860,6 +936,30 @@
 	{
 		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
 	}
+	"Equalizer_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, while active: blocks Medic healing, can't call for Medics"
+	}
+	"EscapePlan_PrePyro"
+	{
+		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 HP"
+	}
+	"EscapePlan_PreHat"
+	{
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP, 256 taunt self-damage"
+	}
+	"EscapePlan_Release"
+	{
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
+	}
+	"EscapePlan_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, while active: blocks Medic healing, can't call for Medics"
+	}
+	"EscapePlan_PreJuly2013"
+	{
+		"en"	"Reverted to pre-July 10, 2013; while active: blocks Medic healing, can't call for Medics, no mark-for-death"
+	}	
 	"Eureka_SpawnRefill"
 	{
 		"en"	"Teleporting to spawn refills health and ammo again"
@@ -868,13 +968,29 @@
 	{
 		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
 	}
-	"Eviction_PreMYM"
+	"Eviction_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain or move speed bonus"
+		"en"	"Reverted to pre-toughbreak, +50%% faster firing speed, no health drain penalty and move speed bonus"
 	}
+	"Eviction_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, +50%% faster firing speed, no health drain penalty and move speed bonus, no speedboost on hit"
+	}	
 	"Expert_Release"
 	{
 		"en"	"Restored release item set bonus, +10%% fire resist. Equip the Loch-n-Load and Ullapool Caber to gain the bonus, the hat is not required"
+	}
+	"Family_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no faster firing speed bonus"
+	}	
+	"FanOWar_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, does not crit on minicrits, -90%% dmg penalty"
+	}
+	"FanOWar_Release"
+	{
+		"en"	"Reverted to release, does not crit on minicrits, -90%% dmg penalty, marked-for-death lasts for 10 sec (from 15 sec)"
 	}
 	"FistSteel_PreJI"
 	{
@@ -936,6 +1052,26 @@
 	{
 		"en"	"Reverted to pre-July 7, 2022; ~2x larger grenade hitbox"
 	}
+	"IronBomber_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, 2.0 sec fuse time, ~2x larger grenade hitbox"
+	}
+	"IronBomber_Release"
+	{
+		"en"	"Reverted to release, 2.0 sec fuse time, -10%% dmg penalty on self-detonate, 20%% radius penalty, ~2x larger grenade hitbox"
+	}	
+	"IronBomber_Pre2022_Patchless"
+	{
+		"en"	"Memory patches turned off, pre-July 7, 2022 Iron Bomber is not reverted"
+	}	
+	"IronBomber_PreTB_Patchless"
+	{
+		"en"	"Reverted to pre-toughbreak, 2.0 sec fuse time"
+	}
+	"IronBomber_Release_Patchless"
+	{
+		"en"	"Reverted to release, 2.0 sec fuse time, -10%% dmg penalty on self-detonate, 20%% radius penalty"
+	}
 	"Jag_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
@@ -943,10 +1079,22 @@
 	"Jag_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
-	}	
+	}
+	"Jarate_PreTB"	
+	{
+		"en"	"Reverted to pre-toughbreak, extinguishing teammates does not reduce cooldown"
+	}
 	"Liberty_Release"
 	{
-		"en"	"Reverted to release, +40%% projectile speed, -25%% clip size"
+		"en"	"Reverted to release, no dmg penalty, -25%% clip size, no rocket jump resist bonus"
+	}
+	"Liberty_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no clip size increase"
+	}
+	"Liberty_Pre2013"
+	{
+		"en"	"Reverted to pre-Two Cities Update, no clip size increase, no rocket jump resist bonus"
 	}
 	"LochLoad_PreGM"
 	{
@@ -963,6 +1111,18 @@
 	"MadMilk_Release"
 	{
 		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
+	}
+	"Manmelter_PreJan2016"
+	{
+		"en"	"Reverted to pre-January 7, 2016; no +20 hp bonus when extinguishing teammates, -20%% slower firing speed penalty"
+	}
+	"Manmelter_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, -20%% slower firing speed penalty"
+	}	
+	"Mantreads_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, no airblast push force reduction bonus, no air control bonus when blast jumping"
 	}
 	"Gardener_PreTB"
 	{
@@ -983,6 +1143,10 @@
 	"Natascha_PreDec2010"
 	{
 		"en"	"Reverted to pre-December 17, 2010; full slowdown at any distance, no increased spin up time, no damage resistance when spun up"
+	}
+	"Overdose_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, +10%% movement speed bonus (from +20%%), -10%% dmg penalty (from -15%%)"
 	}
 	"Panic_PreJI"
 	{
@@ -1062,8 +1226,16 @@
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"en"	"Reverted to toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
+		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
 	}
+	"Quickiebomb_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 2 seconds after landing"
+	}
+	"Quickiebomb_Release"
+	{
+		"en"	"Reverted to release, max charge time decreased by 50%%, no damage increase based on charge amount, -25%% clip size, stickies fizzle 2 seconds after landing"
+	}	
 	"Razorback_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can be overhealed, shield does not regenerate"
@@ -1248,6 +1420,18 @@
 	{
 		"en"	"Reverted to October 28, 2010: 8 stickybombs out at once again, wearer can pick up intel, -75 max health, no self blast damage, random crits"
 	}
+	"SunOnAStick_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, no fire dmg resist while deployed"
+	}
+	"SunOnAStick_PreHatless"
+	{
+		"en"	"Reverted to pre-Hatless Update, minicrits vs burning players, -15%% dmg penalty, no fire dmg resist while deployed"
+	}
+	"SunOnAStick_Release"
+	{
+		"en"	"Reverted to release, no crit bonus, +35%% dmg done, -45%% dmg (-25.75%% total dmg) vs non-burning players, no fire dmg resist while deployed"
+	}
 	"Sleeper_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, headshots and fully charged shots splash Jarate in a radius, no Jarate cooldown reduction on headshots"
@@ -1292,6 +1476,10 @@
 	{
 		"en"	"Reverted the firing sounds to pre-love&war, higher pitched weapon sounds"
 	}
+	"Tomislav_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, 10%% faster spinup, no accuracy bonus"
+	}
 	"TribalShiv_Release"
 	{
 		"en"	"Reverted to release, 8 second bleed, 35%% damage penalty"
@@ -1315,6 +1503,18 @@
 	"Warrior_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health"
+	}
+	"Warrior_PreGM"
+	{
+		"en"	"Reverted to pre-toughbreak, no damage vuln, -20 max health"
+	}
+	"Widowmaker_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, no increased damage to your sentry's target"
+	}
+	"Widowmaker_Release"
+	{
+		"en"	"Reverted to release, no increased damage to your sentry's target, -60 ammo per shot"
 	}
 	"Wrangler_PreGM"
 	{
