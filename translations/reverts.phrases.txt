@@ -308,8 +308,12 @@
 	}
 	"equalizer"
 	{
-		"en"	"Equalizer & Escape Plan"
+		"en"	"Equalizer"
 	}
+	"escapeplan"
+	{
+		"en"	"Escape Plan"
+	}	
 	"eureka"
 	{
 		"en"	"Eureka Effect"
@@ -376,7 +380,7 @@
 	}
 	"jarate"
 	{
-		"en"	"jarate"
+		"en"	"Jarate"
 	}
 	"liberty"
 	{
@@ -888,7 +892,7 @@
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets, does not deal minicrits to enemies jumping with jetpacks"
 	}	
-	"DirectHit_PreGM"
+	"DirectHit_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, mini-crits only targets launched airborne by blast damage"
 	}
@@ -1048,9 +1052,9 @@
 	{
 		"en"	"Reverted to pre-July 7, 2022; ~2x larger grenade hitbox"
 	}
-	"IronBomber_PreTB"
+	"IronBomber_PreMYM"
 	{
-		"en"	"Reverted to pre-toughbreak, 2.0 sec fuse time, ~2x larger grenade hitbox"
+		"en"	"Reverted to pre-matchmaking, 2.0 sec fuse time, ~2x larger grenade hitbox"
 	}
 	"IronBomber_Release"
 	{
