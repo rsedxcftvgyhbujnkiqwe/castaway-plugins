@@ -3773,18 +3773,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_SunOnAStick)) {
 				case 0: { // Pre-Meet your Match
 					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+					TF2Items_SetAttribute(itemNew, 0, 794, 1.0); // 0% fire damage resistance while deployed
 				}
 				case 1: { // Pre-Hatless
 					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+					TF2Items_SetAttribute(itemNew, 0, 794, 1.0); // 0% fire damage resistance while deployed
 					TF2Items_SetAttribute(itemNew, 1, 20, 0.0); // no 100% critical hit vs burning players 
 					TF2Items_SetAttribute(itemNew, 2, 209, 1.0); // 100% minicrits vs burning players 
 					TF2Items_SetAttribute(itemNew, 3, 1, 0.85); // -15% dmg penalty
 				}
 				case 2: { // Release
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 794, 0.0); // 0% fire damage resistance while deployed
+					TF2Items_SetAttribute(itemNew, 0, 794, 1.0); // 0% fire damage resistance while deployed
 					TF2Items_SetAttribute(itemNew, 1, 20, 0.0); // no 100% critical hit vs burning players 
 					TF2Items_SetAttribute(itemNew, 2, 21, 0.55); // -45% damage vs non-burning players
 					TF2Items_SetAttribute(itemNew, 3, 1, 1.00); // -0% dmg penalty
