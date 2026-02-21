@@ -870,6 +870,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLW");
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLWSoundOnly");
+	ItemVariant(Wep_Tomislav, "Tomislav_PreGM");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
@@ -3781,7 +3782,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			switch (GetItemVariant(Wep_Tomislav)) {
-				case 0: { // Pre-Pyromania
+				case 0: { // Pre-Pyromania Tomislav
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 87, 0.60); // 40% faster spin up time
 					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
@@ -3789,7 +3790,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 				}
-				case 1: { // Release
+				case 1: { // Release Tomislav
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 87, 0.25); // 75% faster spin up time
 					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
@@ -3797,7 +3798,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}
-				case 2: { // Pre-Love & War
+				case 2: { // Pre-Love & War Tomislav
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
 					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
@@ -3811,6 +3812,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 2, 549, 1.2); // halloween fire rate bonus
 				}
+				case 4: { // Pre-Gun Mettle Tomislav
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
+					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
+				}				
 				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
 			}
 			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!

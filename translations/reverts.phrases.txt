@@ -1460,6 +1460,10 @@
 	{
 		"en"	"Reverted the firing sounds to pre-love&war, higher pitched weapon sounds"
 	}
+	"Tomislav_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, 10%% faster spinup, no accuracy bonus"
+	}
 	"TribalShiv_Release"
 	{
 		"en"	"Reverted to release, 8 second bleed, 35%% damage penalty"
