@@ -17,6 +17,8 @@ ArrayList g_MapsExceptedFromForcedStalemates; // We use this instead of constant
 ConVar cvar_temp_disable_forcestalemate; // If tempDisable true: Current map will not have SD. Resets to 0
 ConVar cvar_use_regex_pattern;
 MemoryPatch patch_ForceAlways_StalemateOrOvertime;
+bool g_shouldStalemate;
+int gamerules;
 
 
 public void OnPluginStart() {
@@ -32,22 +34,22 @@ public void OnPluginStart() {
 	cvar_temp_disable_forcestalemate = CreateConVar("sm_forcestalemate__tempdisable", "0", (PLUGIN_NAME ... " - Temporarily enable/disable forced stalemates (does not disable the plugin itself)."), FCVAR_HIDDEN, true, 0.0, true, 1.0);
 	cvar_use_regex_pattern = CreateConVar("sm_forcestalemate__regex", "0", (PLUGIN_NAME ... " - Use regex patterns when matching map name."), _, true, 0.0, true, 1.0);
 	RegServerCmd("sm_forcestalemate__recheck", Command_RecheckExceptions, "Manually re-check forcestalemate exceptions.");
+
+	HookEvent("teamplay_round_start", Event_RoundStart, EventHookMode_PostNoCopy);
+
 	// Load the exceptions file
 	LoadExceptionsFile();
 
 	AutoExecConfig();
+
+	patch_ForceAlways_StalemateOrOvertime.Enable();
 }
 
 public void OnMapStart() {
-	bool should_patch = ShouldPatchMap();
-	if (should_patch) {
-		patch_ForceAlways_StalemateOrOvertime.Enable();
-	} else {
-		patch_ForceAlways_StalemateOrOvertime.Disable();
-	}
+	g_shouldStalemate = ShouldStalemate();
 }
 
-bool ShouldPatchMap() {
+bool ShouldStalemate() {
 
 	// Control Points
 	int ent = -1;
@@ -74,6 +76,22 @@ bool ShouldPatchMap() {
 		}
 	}
 	return false;
+}
+
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	CreateTimer(0.1, Timer_StalemateConfig);
+}
+
+public Action Timer_StalemateConfig(Handle timer) {
+    gamerules = FindEntityByClassname(-1, "tf_gamerules");
+	if (g_shouldStalemate) {
+		SetVariantString("1");
+	} else {
+		SetVariantString("0");
+	}
+	AcceptEntityInput(gamerules, "SetStalemateOnTimelimit", -1, -1);
+	return Plugin_Continue;
 }
 
 bool ValidateAndNullCheck(MemoryPatch patch) {
