@@ -338,6 +338,7 @@ ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
 ConVar cvar_ref_weapon_medigun_charge_rate;
+ConVar cvar_ref_tf_dev_marked_for_death_lifetime;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -914,6 +915,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 	cvar_ref_weapon_medigun_charge_rate = FindConVar("weapon_medigun_charge_rate");
+	cvar_ref_tf_dev_marked_for_death_lifetime = FindConVar("tf_dev_marked_for_death_lifetime");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -2372,6 +2374,7 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
 			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
+			SetConVarMaybe(cvar_ref_tf_dev_marked_for_death_lifetime, "10.0", GetItemVariant(Wep_FanOWar) == 1);
 		}
 	}
 }
@@ -3230,7 +3233,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 179, 0.0); // Crits whenever it would normally mini-crit
 			TF2Items_SetAttribute(itemNew, 1, 1, 0.1); // 90% damage penalty
-			// Release Fan O'War 10 sec duration revert handled in OnTakeDamage
+			// Release Fan O'War 10 sec duration revert handled with tf_dev_marked_for_death_lifetime cvar
 		}}
 		case 331: { if (ItemIsEnabled(Wep_FistsSteel)) {
 			switch (GetItemVariant(Wep_FistsSteel)) {
@@ -5588,20 +5591,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
-			}
-
-			{
-				// release fan o'war reduce marked-for-death duration from 15 sec to 10 sec
-				if (
-					GetItemVariant(Wep_FanOWar) == 1 &&
-					StrEqual(class, "tf_weapon_bat") &&
-					TF2_GetPlayerClass(attacker) == TFClass_Scout &&
-					TF2_IsPlayerInCondition(victim, TFCond_MarkedForDeath)
-				) {
-					TF2_RemoveCondition(victim, TFCond_MarkedForDeath);
-					TF2_AddCondition(victim, TFCond_MarkedForDeath, 10.0, 0);
-				}
-			}			
+			}		
 
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
