@@ -920,6 +920,30 @@
 	{
 		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
 	}
+	"Equalizer_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, while active: blocks Medic healing, can't call for Medics"
+	}
+	"EscapePlan_PrePyro"
+	{
+		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 HP"
+	}
+	"EscapePlan_PreHat"
+	{
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP, 256 taunt self-damage"
+	}
+	"EscapePlan_Release"
+	{
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
+	}
+	"EscapePlan_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, while active: blocks Medic healing, can't call for Medics"
+	}
+	"EscapePlan_PreJuly2013"
+	{
+		"en"	"Reverted to pre-July 10, 2013; while active: blocks Medic healing, can't call for Medics, no mark-for-death"
+	}	
 	"Eureka_SpawnRefill"
 	{
 		"en"	"Teleporting to spawn refills health and ammo again"
