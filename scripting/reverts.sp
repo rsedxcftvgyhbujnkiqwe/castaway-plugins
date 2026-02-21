@@ -1856,7 +1856,14 @@ public void OnGameFrame() {
 
 								float multiplier = 1.0;
 
-								switch (GetItemVariant(Wep_Equalizer) || GetItemVariant(Wep_EscapePlan))
+								switch (GetItemVariant(Wep_Equalizer))
+								{
+									case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
+									case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
+									case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
+								}
+
+								switch (GetItemVariant(Wep_EscapePlan))
 								{
 									case 0: multiplier = 1.65; // Pre-Pyromania Equalizer (pre-June 27, 2012); 107 dmg at 1 HP
 									case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
