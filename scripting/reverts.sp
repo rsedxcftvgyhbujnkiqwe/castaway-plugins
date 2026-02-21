@@ -1846,12 +1846,9 @@ public void OnGameFrame() {
 						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
 
 						if (weapon > 0) {
-							if (
-								(ItemIsEnabled(Wep_Equalizer) || ItemIsEnabled(Wep_EscapePlan)) &&
-								(
-									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128 || 	// Equalizer
-									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775		// Escape Plan
-								)
+							if ( // Equalizer
+								GetItemVariant(Wep_Equalizer) < 3 &&
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 128
 							) {
 								health_cur = GetClientHealth(idx);
 								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
@@ -1864,6 +1861,18 @@ public void OnGameFrame() {
 									case 1: multiplier = 1.75; // Pre-Hatless Update Equalizer (pre-April 14, 2011); 113 dmg at 1 HP
 									case 2: multiplier = 2.50; // Release Equalizer (pre-April 15, 2010); 162 dmg at 1 HP
 								}
+								
+								TF2Attrib_SetByDefIndex(weapon, 476, ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
+							}
+
+							if ( // Escape Plan
+								GetItemVariant(Wep_EscapePlan) < 3 && 
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 775
+							) {
+								health_cur = GetClientHealth(idx);
+								health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+
+								float multiplier = 1.0;
 
 								switch (GetItemVariant(Wep_EscapePlan))
 								{
@@ -3164,36 +3173,36 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 128: { if (ItemIsEnabled(Wep_Equalizer)) {
 			switch (GetItemVariant(Wep_Equalizer)) {
-				case 3: { // Pre-Gun Mettle Equalizer
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 236, 1.0); // mod weapon blocks healing
-					TF2Items_SetAttribute(itemNew, 1, 740, 1.0); // reduced healing from medics
-				}
-				default: { // Pre-Pyromania Equalizer Variants (Pre-Split)
-					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
-					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
-					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
-					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
-				}
-			}
-		}}
-		case 775: { if (ItemIsEnabled(Wep_EscapePlan)) {
-			switch (GetItemVariant(Wep_EscapePlan)) {
-				case 3: { // Pre-Gun Mettle Escape Plan
+				case 0, 1, 2: { // Pre-Pyromania Equalizer Variants (Pre-Split)
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
 					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
 					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
 					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
+				}				
+				case 3: { // Pre-Gun Mettle Equalizer
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 1, 740, 1.0); // reduced healing from medics
 				}
-				default: { // Pre-Pyromania Escape Plan Variants (Pre-Split) & Pre-July 2013 Escape Plan
+			}
+		}}
+		case 775: { if (ItemIsEnabled(Wep_EscapePlan)) {
+			switch (GetItemVariant(Wep_EscapePlan)) {
+				case 0, 1, 2, 4: { // Pre-Pyromania Escape Plan Variants (Pre-Split) & Pre-July 2013 Escape Plan
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
 					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
 					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
 					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
 					TF2Items_SetAttribute(itemNew, 4, 414, 0.0); // self mark for death
+				}
+				case 3: { // Pre-Gun Mettle Escape Plan
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 115, 0.0); // mod shovel damage boost; dmg mod handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 235, 2.0); // mod shovel speed boost
+					TF2Items_SetAttribute(itemNew, 2, 236, 1.0); // mod weapon blocks healing
+					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
 				}
 			}
 		}}		
