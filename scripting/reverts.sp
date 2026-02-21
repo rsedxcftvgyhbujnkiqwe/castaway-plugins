@@ -742,7 +742,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Pickaxe, "Equalizer_Release");
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
-	ItemVariant(Wep_Eviction, "Eviction_PreMYM");
+	ItemVariant(Wep_Eviction, "Eviction_PreTB");
 	ItemVariant(Wep_Eviction, "Eviction_PreGM");
 	ItemDefine("family", "Family_PreGM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Wep_FamilyBusiness);
 	ItemDefine("fanowar", "FanOWar_PreGM", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_FanOWar);
@@ -3143,18 +3143,18 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 426: { if (ItemIsEnabled(Wep_Eviction)) {
 			switch (GetItemVariant(Wep_Eviction)) {
-				case 0: { // Pre-Inferno
+				case 0: { // Pre-Inferno Eviction Notice
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 852, 1.20); // mult_dmgtaken_active
 					TF2Items_SetAttribute(itemNew, 1, 855, 0.0); // mod maxhealth drain rate
 				}				
-				case 1: { // Pre-MyM
+				case 1: { // Pre-Tough Break Eviction Notice
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 6, 0.50); // +50% faster firing speed
 					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer
 					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
 				}
-				case 2: { // Pre-Gun Mettle
+				case 2: { // Pre-Gun Mettle Eviction Notice
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 6, 0.50); // +50% faster firing speed
 					TF2Items_SetAttribute(itemNew, 1, 851, 1.00); // +0% faster move speed on wearer
