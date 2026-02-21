@@ -4298,7 +4298,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 355: player_weapons[client][Wep_FanOWar] = true;
 						case 331: player_weapons[client][Wep_FistsSteel] = true;
 						case 595: player_weapons[client][Wep_Manmelter] = true;
-						case 444: player_weapons[client][Wep_Mantreads] = true;
 						case 416: player_weapons[client][Wep_MarketGardener] = true;
 						case 239, 1084, 1100: player_weapons[client][Wep_GRU] = true;
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
@@ -4370,6 +4369,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #endif
 						case 1179: player_weapons[client][Wep_ThermalThruster] = true;
 						case 231: player_weapons[client][Wep_Darwin] = true;
+						case 444: player_weapons[client][Wep_Mantreads] = true;
 						case 57: player_weapons[client][Wep_Razorback] = true;
 						case 133: player_weapons[client][Wep_Gunboats] = true;
 						case 406: player_weapons[client][Wep_SplendidScreen] = true;
