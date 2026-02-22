@@ -1232,6 +1232,10 @@
 	{
 		"en"	"Reverted to pre-release, +40%% uber build rate, cannot overheal"
 	}
+	"Quickiebomb_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
+	}
 	"Quickiebomb_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 2 seconds after landing"
