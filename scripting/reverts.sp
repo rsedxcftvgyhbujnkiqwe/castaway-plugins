@@ -2193,6 +2193,25 @@ public void OnGameFrame() {
 							}							
 						}
 					}
+
+					{
+						// release spycicle prevent melting when hit by fire while taunting
+						if (GetItemVariant(Wep_Spycicle) == 1) {
+							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+							if (weapon > 0) {
+								if (
+									GetItemVariant(Wep_Spycicle) == 1 &&
+									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 649 &&
+									TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
+									(TF2_IsPlayerInCondition(idx, TFCond_FireImmune) || TF2_IsPlayerInCondition(idx, TFCond_OnFire))
+								) {
+									SetEntPropFloat(weapon, Prop_Send, "m_flKnifeRegenerateDuration", 0.0);
+									// PrintToChatAll("Hit by fire, regenerated Spycicle while taunting");
+								}
+							}
+						}
+					}						
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
