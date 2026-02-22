@@ -816,8 +816,14 @@ public void OnPluginStart() {
 	ItemVariant(Wep_PocketPistol, "Pocket_PreTB");
 #if defined MEMORY_PATCHES
 	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix, true);
+	ItemVariant(Wep_QuickFix, "Quickfix_PreMYM");
+	ItemVariant(Wep_QuickFix, "Quickfix_Release");
+	ItemVariant(Wep_QuickFix, "Quickfix_PreRelease");
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemVariant(Wep_QuickFix, "Quickfix_PreMYM");
+	ItemVariant(Wep_QuickFix, "Quickfix_Release");
+	ItemVariant(Wep_QuickFix, "Quickfix_PreRelease");	
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemVariant(Wep_Quickiebomb, "Quickiebomb_PreTB");
@@ -3537,8 +3543,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 0, 800, 1.0); // -0% maximum overheal on wearer
 		}}
 		case 411: { if (ItemIsEnabled(Wep_QuickFix)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 10, 1.25); // +25% ÜberCharge rate
+			switch (GetItemVariant(Wep_QuickFix)) {
+				case 0, 1: { // Pre-Meet your Match & Pre-Tough Break Quick-Fix
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.25); // +25% ÜberCharge rate
+				}
+				case 2: { // Pre-Jul 10, 2013 Quick-Fix
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.25); // +25% ÜberCharge rate
+					TF2Items_SetAttribute(itemNew, 1, 105, 0.00); // -100% max overheal penalty (no overheal); mult_medigun_overheal_amount
+				}
+				case 3: { // Pre-Release Quick-Fix
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 10, 1.40); // +40% ÜberCharge rate
+					TF2Items_SetAttribute(itemNew, 1, 105, 0.00); // -100% max overheal penalty (no overheal); mult_medigun_overheal_amount
+				}
+			}
 		}}
 		case 1150: { if (ItemIsEnabled(Wep_Quickiebomb)) {
 			switch (GetItemVariant(Wep_Quickiebomb)) {
