@@ -1112,6 +1112,10 @@
 	{
 		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
 	}
+	"MadMilk_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, extinguishing teammates does not reduce cooldown"
+	}
 	"Manmelter_PreJan2016"
 	{
 		"en"	"Reverted to pre-January 7, 2016; no +20 hp bonus when extinguishing teammates, -20%% slower firing speed penalty"
