@@ -46,7 +46,7 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-	g_shouldStalemate = ShouldStalemate();
+	//g_shouldStalemate = ShouldStalemate();
 }
 
 bool ShouldStalemate() {
