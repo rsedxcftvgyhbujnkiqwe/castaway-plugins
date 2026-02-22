@@ -527,6 +527,7 @@ enum
 	Wep_Gunslinger,
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_Huntsman,
+	Wep_HuoLongHeater,
 	Wep_IronBomber,
 	Wep_Jag,
 	Wep_Jarate,
@@ -765,6 +766,7 @@ public void OnPluginStart() {
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
+	ItemDefine("huolong", "HuoLong_PreMYM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Wep_HuoLongHeater);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES	
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber, true);
@@ -3341,6 +3343,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 437, 65536.0); // crit vs stunned players
 		}}
+		case 811, 832: { if (ItemIsEnabled(Wep_HuoLongHeater)) {
+			TF2Items_SetNumAttributes(itemNew, 3);
+			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
+			TF2Items_SetAttribute(itemNew, 1, 795, 1.00); // 0% damage bonus vs burning players
+			TF2Items_SetAttribute(itemNew, 2, 431, 6.00); // Consumes an additional 6 ammo per second while spun up
+		}}
 		case 1151: { if (ItemIsEnabled(Wep_IronBomber)) {
 			switch (GetItemVariant(Wep_IronBomber))  {
 				case 1: {
@@ -4323,6 +4331,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 812, 833: player_weapons[client][Wep_Cleaver] = true;
 						case 56, 1005, 1092: player_weapons[client][Wep_Huntsman] = true;
 						case 142: player_weapons[client][Wep_Gunslinger] = true;
+						case 811, 832: player_weapons[client][Wep_HuoLongHeater] = true;
 						case 1151: player_weapons[client][Wep_IronBomber] = true;
 						case 329: player_weapons[client][Wep_Jag] = true;
 						case 58, 1083, 554, 1105: player_weapons[client][Wep_Jarate] = true;
@@ -5549,7 +5558,21 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 			}
-		
+
+			{
+				// Huo-Long Heater Fire Pulse Damage Revert imported from NotnHeavy's plugin
+				if (
+					ItemIsEnabled(Wep_HuoLongHeater) &&
+					StrEqual(class, "tf_weapon_minigun") &&
+					(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 811 ||
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 832) && // 832 is for Genuine quality
+					damage_type & DMG_IGNITE
+				) { // Huo-Long Heater Ring of Fire attack.
+					damage = 15.00;
+					return Plugin_Changed;
+				}
+			}
+
 			{
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
 				// Somehow even with the "cannot be crit boosted" attribute, 
