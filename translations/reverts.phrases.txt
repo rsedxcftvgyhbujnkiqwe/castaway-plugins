@@ -366,6 +366,10 @@
 	{
 		"en"	"Hibernating Bear"
 	}
+	"huolong"
+	{
+		"en"	"Huo-Long Heater"
+	}
 	"huntsman"
 	{
 		"en"	"Huntsman"
@@ -1043,6 +1047,10 @@
 	"Hibernate_Release"
 	{
 		"en"	"Restored release item set bonus, +5%% crit resist. Equip the Brass Beast, Buffalo Steak Sandvich and Warrior's Spirit to gain the bonus, the hat is not required"
+	}
+	"HuoLong_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, 15 fire pulse dmg (from 12), no dmg penalty, no dmg bonus against burning players, -6 ammo/sec while spun up"
 	}
 	"Huntsman_Pre2013"
 	{
