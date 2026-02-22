@@ -533,9 +533,7 @@ enum
 	Wep_LibertyLauncher,
 	Wep_LochLoad,
 	Wep_LooseCannon,
-#if defined MEMORY_PATCHES
 	Wep_MadMilk,
-#endif
 	Wep_Manmelter,
 	Wep_Mantreads,
 	Wep_MarketGardener,
@@ -788,6 +786,10 @@ public void OnPluginStart() {
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 #if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
+	ItemVariant(Wep_MadMilk, "MadMilk_PreTB");
+#else
+	ItemDefine("madmilk", "MadMilk_PreTB", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_MadMilk);
+	ItemVariant(Wep_MadMilk, "MadMilk_PreTB");
 #endif
 	ItemDefine("manmelter", "Manmelter_PreJan2016", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_Manmelter);
 	ItemVariant(Wep_Manmelter, "Manmelter_PreMYM");
@@ -4328,9 +4330,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 58, 1083, 554, 1105: player_weapons[client][Wep_Jarate] = true;
 						case 414: player_weapons[client][Wep_LibertyLauncher] = true;
 						case 308: player_weapons[client][Wep_LochLoad] = true;
-#if defined MEMORY_PATCHES
 						case 222, 1121: player_weapons[client][Wep_MadMilk] = true;
-#endif
 						case 41: player_weapons[client][Wep_Natascha] = true;
 						case 412: player_weapons[client][Wep_Overdose] = true;
 						case 1153: player_weapons[client][Wep_PanicAttack] = true;
