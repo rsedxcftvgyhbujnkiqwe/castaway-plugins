@@ -1466,7 +1466,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			}
 		}
 		case Wep_MadMilk: {
-			if (enable) {
+			if (enable && GetItemVariant(Wep_MadMilk) == 0) {
 				patch_RevertMadMilk_ChgFloatAddr.Enable();
 				StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flMadMilkHealTarget), NumberType_Int32);
 			} else {
@@ -3411,12 +3411,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
-#if defined MEMORY_PATCHES
 		case 222, 1121: { if (ItemIsEnabled(Wep_MadMilk)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 784, 1.0); // extinguish_reduces_cooldown
 		}}
-#endif
 		case 41: { if (ItemIsEnabled(Wep_Natascha)) {
 			switch (GetItemVariant(Wep_Natascha)) {
 				case 1: {
