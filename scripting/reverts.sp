@@ -822,10 +822,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_QuickFix, "Quickfix_Release");
 	ItemVariant(Wep_QuickFix, "Quickfix_PreRelease");
 #else
-	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
-	ItemVariant(Wep_QuickFix, "Quickfix_PreMYM");
-	ItemVariant(Wep_QuickFix, "Quickfix_Release");
-	ItemVariant(Wep_QuickFix, "Quickfix_PreRelease");	
+	ItemDefine("quickfix", "Quickfix_PreMYM_Patchless", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemVariant(Wep_QuickFix, "Quickfix_PreMYM_Patchless");
+	ItemVariant(Wep_QuickFix, "Quickfix_Release_Patchless");
+	ItemVariant(Wep_QuickFix, "Quickfix_PreRelease_Patchless");	
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemVariant(Wep_Quickiebomb, "Quickiebomb_PreTB");
@@ -3244,7 +3244,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 425: { if (ItemIsEnabled(Wep_FamilyBusiness)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 1, 6, 1.00); // 0% faster firing speed
+			TF2Items_SetAttribute(itemNew, 0, 6, 1.00); // 0% faster firing speed
 		}}
 		case 355: { if (ItemIsEnabled(Wep_FanOWar)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
@@ -3371,7 +3371,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 58, 1083, 554, 1105: { if (ItemIsEnabled(Wep_Jarate)) { // Jarate and Self-Aware Beauty Mark
 			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 784, 0.00); // Extinguishing teammates reduces cooldown by 0%
+			TF2Items_SetAttribute(itemNew, 0, 784, 1.00); // Extinguishing teammates reduces cooldown by 0%
 		}}		
 		case 414: { if (ItemIsEnabled(Wep_LibertyLauncher)) {
 			switch (GetItemVariant(Wep_LibertyLauncher)) {

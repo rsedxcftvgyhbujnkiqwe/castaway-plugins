@@ -1226,16 +1226,28 @@
 	}
 	"Quickfix_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, +25%% uber build rate"
+		"en"	"Reverted to pre-matchmaking, +25%% uber build rate, can capture objectives when ubered"
 	}
 	"Quickfix_Release"
 	{
-		"en"	"Reverted to release, +25%% uber build rate, cannot overheal"
+		"en"	"Reverted to release, +25%% uber build rate, cannot overheal, can capture objectives when ubered"
 	}	
 	"Quickfix_PreRelease"
 	{
-		"en"	"Reverted to pre-release, +40%% uber build rate, cannot overheal"
+		"en"	"Reverted to pre-release, +40%% uber build rate, cannot overheal, can capture objectives when ubered"
 	}
+	"Quickfix_PreMYM_Patchless"
+	{
+		"en"	"Reverted to pre-matchmaking, +25%% uber build rate"
+	}
+	"Quickfix_Release_Patchless"
+	{
+		"en"	"Reverted to release, +25%% uber build rate, cannot overheal"
+	}	
+	"Quickfix_PreRelease_Patchless"
+	{
+		"en"	"Reverted to pre-release, +40%% uber build rate, cannot overheal"
+	}	
 	"Quickiebomb_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
