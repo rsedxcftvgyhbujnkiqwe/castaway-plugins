@@ -636,7 +636,7 @@ public void OnPluginStart() {
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
-	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
+	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
 	// Item sets
@@ -809,8 +809,8 @@ public void OnPluginStart() {
 	ItemDefine("shortstop", "Shortstop_PreMnvy", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM");
 	ItemVariant(Wep_Shortstop, "Shortstop_Release");
-	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
-	ItemVariant(Wep_SodaPopper, "Sodapop_PreMYM");
+	ItemDefine("sodapop", "Sodapop_PreMYM", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemVariant(Wep_SodaPopper, "Sodapop_Pre2013");
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
@@ -1528,7 +1528,7 @@ public void OnGameFrame() {
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
 							airdash_limit_old = 5;
 
-							if (GetItemVariant(Wep_SodaPopper) != 0) {
+							if (GetItemVariant(Wep_SodaPopper) != 1) {
 								airdash_limit_new = 5;
 							}
 						}
@@ -1682,7 +1682,7 @@ public void OnGameFrame() {
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
 									if (
-										GetItemVariant(Wep_SodaPopper) == 0 &&
+										GetItemVariant(Wep_SodaPopper) == 1 &&
 										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5
 									) {
 										players[idx].is_under_hype = true;
@@ -1709,7 +1709,7 @@ public void OnGameFrame() {
 
 								// hype meter drain
 								if (
-									GetItemVariant(Wep_SodaPopper) == 0 &&
+									GetItemVariant(Wep_SodaPopper) == 1 &&
 									players[idx].is_under_hype
 								) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
@@ -2119,11 +2119,15 @@ public void OnGameFrame() {
 
 					{
 						// "old-style" deadringer feign buff canceling
-						if (
-							players[idx].spy_under_feign_buffs &&
-							GetFeignBuffsEnd(idx) < GetGameTickCount()
-						) {
-							players[idx].spy_under_feign_buffs = false;
+						if (players[idx].spy_under_feign_buffs) {
+							int reduction = 0;
+							if (GetItemVariant(Wep_DeadRinger) == 0) {
+								reduction = RoundFloat(players[idx].damage_taken_during_feign * 1.1);
+							}
+							int buff_end = players[idx].feign_ready_tick + RoundFloat(66.7 * 6) - reduction;
+							if (buff_end < GetGameTickCount()) {
+								players[idx].spy_under_feign_buffs = false;
+							}
 						}
 					}
 
@@ -3504,13 +3508,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			switch (GetItemVariant(Wep_SodaPopper)) {
 				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
+				}
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 15, 0.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 1, 793, 0.0); // hype on damage
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
 				}
 			}
 		}}
@@ -5041,7 +5045,7 @@ Action SDKHookCB_OnTakeDamage(
 				// soda popper minicrits
 
 				if (
-					GetItemVariant(Wep_SodaPopper) == 0 &&
+					GetItemVariant(Wep_SodaPopper) == 1 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -7908,19 +7912,13 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 		int health_cur = GetClientHealth(client);
 		int health_gained = health_cur - players[client].old_health;
 		if (health_gained < 25) {
-			float heal = float(intMin(25 - health_gained, 400 - health_cur));
-			heal = floatMax(heal, 0.0);
-			TF2Util_TakeHealth(client, heal, TAKEHEALTH_IGNORE_MAXHEALTH);
+			int heal_amt = intMin(25 - health_gained, 400 - health_cur);
+			if (heal_amt > 0) {
+				TF2Util_TakeHealth(client, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+			}
 		}
-		//PrintToChat(client, "gained %d health from bite", GetClientHealth(client) - players[client].old_health);
 	}
 	return MRES_Ignored;
-}
-
-stock int GetFeignBuffsEnd(int client)
-{
-	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
-	return players[client].feign_ready_tick + RoundFloat(66.7 * 6) - reduction_by_dmg_taken;
 }
 
 stock bool PlayerIsInvulnerable(int client) {
