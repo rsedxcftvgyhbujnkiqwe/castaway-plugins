@@ -436,7 +436,6 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
-int team_round_timer_entity = 0;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -2432,10 +2431,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 #endif
-
-	else if (StrEqual(class, "team_round_timer")) {
-		team_round_timer_entity = entity;
-	}
 }
 
 
@@ -7814,12 +7809,21 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 	int health_max_boost;
 	int weapon;
 	bool overheal_blocked;
+	static int team_round_timer_entity = -1;
 
 	// No Uber rate penalties from overheal/other healers. Sourced from SDK code
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
 		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998
 	) {
+		if (team_round_timer_entity == -1) {
+			int ent = -1;
+			while ((ent = FindEntityByClassname(ent, "team_round_timer")) != -1) {
+				team_round_timer_entity = ent;
+				break;
+			}
+		}
+
 		divisor = 1.0;
 
 		patient = GetEntPropEnt(entity, Prop_Send, "m_hHealingTarget");
@@ -7849,7 +7853,10 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 			// bypass overheal uber penalty
 			if (
 				(overheal_blocked || health_cur >= health_max_boost) &&
-				!(GameRules_GetProp("m_bInSetup") == 1 && team_round_timer_entity) 
+				!(
+					GameRules_GetProp("m_bInSetup") == 1 &&
+					team_round_timer_entity != -1
+				)
 			) {
 				divisor *= 2.0;
 			}
