@@ -4293,20 +4293,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			{
 				bool validSet = false;
 
-				if (active_set == Set_CrocoStyle)
-				{
-					// This code only checks for Darwin's Danger Shield (231)
-					// this code can also be used if you want cosmetics to be a part of item sets
-					for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); i++)
-					{
-						weapon = TF2Util_GetPlayerWearable(client, i);
-						index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-						if (index == 231) {
-							validSet = true;
-							break;
-						}
-					}
-				} else {
+				if (
+					active_set != Set_CrocoStyle ||
+					active_set == Set_CrocoStyle && player_weapons[client][Wep_Darwin]
+				) {
 					validSet = true;
 				}
 
@@ -5271,26 +5261,6 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 			}
-
-			{
-				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
-				if (
-					GetItemVariant(Wep_Natascha) >= 1 &&
-					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
-				) {
-					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-					// Slow enemy on hit, unless they're being healed by a medic
-					if (
-						!TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
-						GetVectorDistance(pos1, pos2, true) > Pow(512.0, 2.0)
-					) {
-						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
-					}
-				}
-			}
 		
 			{
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
@@ -5729,6 +5699,23 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
 				damage *= 0.40; // will also resist taunt kills!
 				returnValue = Plugin_Changed;
+			}
+		}
+
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+
+			{
+				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
+				if (
+					GetItemVariant(Wep_Natascha) >= 1 &&
+					StrEqual(class, "tf_weapon_minigun") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
+					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+				) {
+					// Slow enemy on hit, unless they're being healed by a medic
+					TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+				}
 			}
 		}
 	}
