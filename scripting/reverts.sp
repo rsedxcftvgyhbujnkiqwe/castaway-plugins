@@ -274,7 +274,6 @@ enum struct Player {
 	float backstab_time;
 	int old_health;
 	int feign_ready_tick;
-	float damage_taken_during_feign;
 	bool is_under_hype;
 	int charge_tick;
 	int fall_dmg_tick;
@@ -282,7 +281,6 @@ enum struct Player {
 	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
-	bool spy_under_feign_buffs;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
@@ -421,6 +419,7 @@ DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 Address CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
+Address CTFPlayerShared_m_flFeignDeathEnd;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -971,6 +970,7 @@ public void OnPluginStart() {
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
 		CWeaponMedigun_m_bReloadDown = view_as<Address>(FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11);
+		CTFPlayerShared_m_flFeignDeathEnd = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -2073,12 +2073,16 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = true;
-								players[idx].damage_taken_during_feign = 0.0;
 								if (
 									GetItemVariant(Wep_DeadRinger) == 0 ||
 									GetItemVariant(Wep_DeadRinger) >= 3
 								) {
-									players[idx].spy_under_feign_buffs = true;
+									TF2_AddCondition(idx, TFCond_DeadRingered, 6.0, idx);
+									StoreToAddress(
+										GetEntityAddress(idx) + CTFPlayerShared_m_flFeignDeathEnd,
+										GetGameTime() + 6.0,
+										NumberType_Int32
+									);
 								}
 							}
 						} else {
@@ -2087,7 +2091,6 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = false;
-								players[idx].spy_under_feign_buffs = false;
 
 								cloak = -1.0;
 
@@ -2112,20 +2115,6 @@ public void OnGameFrame() {
 								) {
 									SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 								}
-							}
-						}
-					}
-
-					{
-						// "old-style" deadringer feign buff canceling
-						if (players[idx].spy_under_feign_buffs) {
-							int reduction = 0;
-							if (GetItemVariant(Wep_DeadRinger) == 0) {
-								reduction = RoundFloat(players[idx].damage_taken_during_feign * 1.1);
-							}
-							int buff_end = players[idx].feign_ready_tick + RoundFloat(66.7 * 6) - reduction;
-							if (buff_end < GetGameTickCount()) {
-								players[idx].spy_under_feign_buffs = false;
 							}
 						}
 					}
@@ -2199,7 +2188,6 @@ public void OnGameFrame() {
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
-					players[idx].spy_under_feign_buffs = false;
 				}
 
 				if (
@@ -2241,7 +2229,6 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
 				players[idx].holding_jump = false;
-				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].deny_metal_collection = false;
@@ -2630,23 +2617,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
-	{
-		// "old-style" dead ringer stuff
-		if (
-			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) >= 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Spy
-		) {
-			// prevent cloak flickering while under feign buffs
-			if (
-				condition == TFCond_CloakFlicker &&
-				players[client].spy_is_feigning &&
-				players[client].spy_under_feign_buffs
-			) {
-				return Plugin_Handled;
-			}
-		}
-	}
 	{
 		// save charge tick (for preventing debuff removal)
 		if (condition == TFCond_Charging) {
@@ -5429,19 +5399,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 		victim <= MaxClients
 	) {
 		{
-			// dead ringer damage modification
-
-			if (
-				players[victim].spy_is_feigning &&
-				players[victim].spy_under_feign_buffs &&
-				TF2_GetPlayerClass(victim) == TFClass_Spy &&
-				resist_damage
-			) {
-				damage *= 0.10;
-				returnValue = Plugin_Changed;
-			}
-		}
-		{
 			// pre-WAR! sandman victims receive 75% of damage dealt
 
 			if (
@@ -5740,21 +5697,24 @@ void SDKHookCB_OnTakeDamagePost(
 
 			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
 				if (
+					GetItemVariant(Wep_DeadRinger) == 0 &&
 					players[victim].spy_is_feigning &&
-					players[victim].spy_under_feign_buffs
+					TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 				) {
-					// dead ringer damage tracking
-					players[victim].damage_taken_during_feign += damage;
+					// dead ringer buff reduction
+					Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
+					float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
+					StoreToAddress(m_flFeignDeathEnd, feign_end - damage * 0.01667, NumberType_Int32);
 				}
 
 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
 				if (
+					charge < 100.0 &&
+					players[victim].feign_ready_tick == GetGameTickCount() &&
 					(
 						GetItemVariant(Wep_DeadRinger) == 0 ||
 						GetItemVariant(Wep_DeadRinger) >= 3
-					) &&
-					charge < 100.0 &&
-					players[victim].feign_ready_tick == GetGameTickCount()
+					)
 				) {
 					// undo 50% drain on activated
 					SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
