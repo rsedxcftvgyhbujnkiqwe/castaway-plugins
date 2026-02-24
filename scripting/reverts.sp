@@ -5749,6 +5749,10 @@ void SDKHookCB_OnTakeDamagePost(
 
 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
 				if (
+					(
+						GetItemVariant(Wep_DeadRinger) == 0 ||
+						GetItemVariant(Wep_DeadRinger) >= 3
+					) &&
 					charge < 100.0 &&
 					players[victim].feign_ready_tick == GetGameTickCount()
 				) {
