@@ -307,6 +307,7 @@ enum struct Entity {
 	int old_shield;
 	float minisentry_health;
 	int patient;
+	char class[MAX_NAME_LENGTH];
 }
 
 ConVar cvar_enable;
@@ -399,6 +400,7 @@ DynamicHook dhook_CObjectSentrygun_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
+DynamicHook dhook_CTFBall_Ornament_Explode;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -577,6 +579,7 @@ enum
 	Wep_WarriorSpirit,
 	Wep_Widowmaker,
 	Wep_Wrangler,
+	Wep_WrapAssassin,
 	Wep_EternalReward, // Your Eternal Reward
 	//must always be at the end of the enum!
 	NUM_ITEMS,
@@ -896,6 +899,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Widowmaker, "Widowmaker_Release");
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
+	ItemDefine("wrapassassin", "WrapAssassin_PreJI", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Wep_WrapAssassin);
+	ItemVariant(Wep_WrapAssassin, "WrapAssassin_Release");
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
 	ItemFinalize();
@@ -1009,6 +1014,7 @@ public void OnPluginStart() {
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
+		dhook_CTFBall_Ornament_Explode = DynamicHook.FromConf(conf, "CTFBall_Ornament::Explode");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1696,7 +1702,7 @@ public void OnGameFrame() {
 					}
 
 					{
-						// sandman recharge
+						// sandman revert base recharge time back to 15 secs
 
 						if (ItemIsEnabled(Wep_Sandman)) {
 							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
@@ -1705,6 +1711,26 @@ public void OnGameFrame() {
 								GetEntityClassname(weapon, class, sizeof(class));
 
 								if (StrEqual(class, "tf_weapon_bat_wood")) {
+									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
+
+									if (timer > 0.1) {
+										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer + GetTickInterval() / 3.0);
+									}
+								}
+							}
+						}
+					}
+
+					{
+						// wrap assassin revert base recharge time back to 15 secs
+
+						if (ItemIsEnabled(Wep_WrapAssassin)) {
+							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (StrEqual(class, "tf_weapon_bat_giftwrap")) {
 									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
 									if (timer > 0.1) {
@@ -2449,8 +2475,15 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
-	} 
-	
+	}
+
+	else if (StrEqual(class, "tf_projectile_ball_ornament") || StrEqual(class, "tf_projectile_stun_ball")) {
+		dhook_CTFBall_Ornament_Explode.HookEntity(Hook_Pre, entity, DHookCallback_CTFBall_Ornament_Explode);
+		dhook_CTFBall_Ornament_Explode.HookEntity(Hook_Post, entity, DHookCallback_CTFBall_Ornament_Explode);
+		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
+	}
+
+
 	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
 
@@ -2511,7 +2544,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
 	}
-
 #if defined MEMORY_PATCHES
 	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
@@ -3948,9 +3980,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 1: { // Release/Pre-Manniversary Widowmaker
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 789, 1.00); // 0% increased damage to your sentry's target
-					TF2Items_SetAttribute(itemNew, 0, 298, 60.0); // Per Shot: -60 ammo; mod_ammo_per_shot
+					TF2Items_SetAttribute(itemNew, 1, 298, 60.0); // Per Shot: -60 ammo; mod_ammo_per_shot
 				}
 			}
+		}}
+		case 648: { if (GetItemVariant(Wep_WrapAssassin) == 1) {
+			// Release/Pre-Tough Break Wrap Assassin
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 1, 0.3); // -70% damage penalty
+			TF2Items_SetAttribute(itemNew, 1, 278, 1.00); // +0% increase in recharge rate; effectbar_recharge_rate
 		}}
 		case 357: { if (ItemIsEnabled(Wep_Zatoichi)) {
 			TF2Items_SetNumAttributes(itemNew, 4);
@@ -4378,6 +4416,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 310: player_weapons[client][Wep_WarriorSpirit] = true;
 						case 527: player_weapons[client][Wep_Widowmaker] = true;
 						case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
+						case 648: player_weapons[client][Wep_WrapAssassin] = true;
 						case 357: player_weapons[client][Wep_Zatoichi] = true;
 					}
 				}
@@ -4931,7 +4970,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				other <= MaxClients
 			) {
 				players[other].projectile_touch_frame = GetGameTickCount();
-				players[other].projectile_touch_entity = entity;
+				players[other].projectile_touch_entity = entity;			
 			}
 		}
 	}
@@ -5018,6 +5057,33 @@ Action SDKHookCB_Touch(int entity, int other) {
 
 					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
 				}
+			}
+		}
+	}
+
+	{
+		// Pick up the Wrap Assassin ornament for usage.
+		if (
+			GetItemVariant(Wep_WrapAssassin) == 1 && 
+			other > 0 && other <= MaxClients
+		) {
+			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+			
+			players[other].projectile_touch_frame = GetGameTickCount();
+			players[other].projectile_touch_entity = entity;
+			
+			if (
+				// StrEqual(entities[entity].class, "tf_projectile_ball_ornament") &&
+				(StrEqual(class, "tf_projectile_ball_ornament")) &&
+				GetEntProp(entity, Prop_Send, "m_bTouched") &&
+				players[other].projectile_touch_frame == GetGameTickCount() &&
+				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime() &&
+				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 44 || 
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648)
+			) {
+				RemoveEntity(entity);
+				SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", 0.01);
 			}
 		}
 	}
@@ -8252,6 +8318,14 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 				TF2Util_TakeHealth(client, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
 			}
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFBall_Ornament_Explode(int entity)
+{
+	if (GetItemVariant(Wep_WrapAssassin) == 1) {
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }

@@ -586,6 +586,10 @@
 	{
 		"en"	"Wrangler"
 	}
+	"wrapassassin"
+	{
+		"en"	"Wrap Assassin"
+	}
 	"eternal"
 	{
 		"en"	"Your Eternal Reward"
@@ -1555,6 +1559,14 @@
 	"Wrangler_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range, damage rampup based on user's position"
+	}
+	"WrapAssassin_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, recharge time increased to 11.25 sec"
+	}
+	"WrapAssassin_Release"
+	{
+		"en"	"Reverted to release, recharge time increased to 15 sec, 70%% dmg penalty, ornament only shatters on enemies, ornament can be picked up"
 	}
 	"Eternal_PreJI"
 	{
