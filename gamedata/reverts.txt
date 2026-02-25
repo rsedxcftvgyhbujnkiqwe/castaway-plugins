@@ -254,6 +254,11 @@
 				"windows"	"273"
 				"linux"		"279"
 			}
+			"CTFBall_Ornament::Explode"
+			{
+				"windows" "236"
+				"linux"   "237"
+			}			
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -751,6 +756,24 @@
 					}
 				}
 			}
+			"CTFBall_Ornament::Explode"
+			{
+				"offset"   "CTFBall_Ornament::Explode"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "void"
+				"arguments"
+				{
+					"pTrace"
+					{
+						"type" "cbaseentity"
+					}
+					"bitsDamageType"
+					{
+						"type" "int"
+					}
+				}
+			}			
 		}
 	}
 }
