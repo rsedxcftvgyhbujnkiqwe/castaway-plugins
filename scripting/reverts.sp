@@ -5705,6 +5705,7 @@ void SDKHookCB_OnTakeDamagePost(
 					Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
 					float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
 					StoreToAddress(m_flFeignDeathEnd, feign_end - damage * 0.01667, NumberType_Int32);
+					// ^ would like to know the exact formula here, this is an approximation of the tick-based formula what was used in the plugin
 				}
 
 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
