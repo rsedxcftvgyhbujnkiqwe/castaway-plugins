@@ -87,7 +87,7 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define MAX_VARIANTS 5 // not including base version
+#define MAX_VARIANTS 6 // not including base version
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.67
@@ -726,6 +726,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PostRelease");
 	ItemVariant(Wep_DeadRinger, "Ringer_Release");
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
+	ItemVariant(Wep_DeadRinger, "Ringer_Pre2013");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemDefine("directhit", "DirectHit_PreJI_Fix", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemVariant(Wep_DirectHit, "DirectHit_PreJI");
@@ -2200,7 +2201,7 @@ public void OnGameFrame() {
 								cloak = -1.0;
 
 								switch (GetItemVariant(Wep_DeadRinger)) {
-									case 0: { // pre-GM
+									case 0, 6: { // pre-GM, 2010-2013 ver
 										// when uncloaking, cloak is drained to 40%
 										cloak = 40.0;
 									}
@@ -3676,7 +3677,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			switch (GetItemVariant(Wep_DeadRinger)) {
-				case 0, 5: {
+				case 0, 5, 6: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
@@ -5069,6 +5070,9 @@ Action SDKHookCB_Touch(int entity, int other) {
 		) {
 			// owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+
+			players[other].projectile_touch_frame = GetGameTickCount();
+			players[other].projectile_touch_entity = entity;		
 
 			if (
 				GetEntProp(entity, Prop_Send, "m_bTouched") &&
@@ -8175,7 +8179,7 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHook
 	) {
 		bool force = parameters.Get(2);
 		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
+			(GetItemVariant(Wep_DeadRinger) == 0 || GetItemVariant(Wep_DeadRinger) == 6) &&
 			player_weapons[client][Wep_DeadRinger] &&
 			!force
 		) {
