@@ -888,6 +888,10 @@
 	{
 		"en"	"Reverted to pre-Jan 6, 2010; can fully pick up ammo, 90%% dmg resist for 6s, no speedboost, up to 40%% drain on early decloak, no afterburn immunity after feign, no debuff reduction when cloaked"
 	}
+	"Ringer_Pre2013"
+	{
+		"en"	"Reverted to pre-July 10, 2013; can pick up ammo, constant 90%% dmg resist for 6s, no speedboost, no afterburn immunity after feign, no debuff reduction when cloaked"
+	}	
 	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
