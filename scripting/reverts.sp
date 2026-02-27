@@ -5067,24 +5067,21 @@ Action SDKHookCB_Touch(int entity, int other) {
 			GetItemVariant(Wep_WrapAssassin) == 1 && 
 			other > 0 && other <= MaxClients
 		) {
-			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+			// owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
-			
-			players[other].projectile_touch_frame = GetGameTickCount();
-			players[other].projectile_touch_entity = entity;
-			
+
 			if (
-				// StrEqual(entities[entity].class, "tf_projectile_ball_ornament") &&
-				(StrEqual(class, "tf_projectile_ball_ornament")) &&
 				GetEntProp(entity, Prop_Send, "m_bTouched") &&
-				players[other].projectile_touch_frame == GetGameTickCount() &&
-				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime() &&
-				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 44 || 
-				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648)
+				StrEqual(class, "tf_projectile_ball_ornament") &&
+				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648) &&
+				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime()
 			) {
 				RemoveEntity(entity);
 				SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", 0.01);
-			}
+				// then play scout found ball voicelines
+				// wrap assassin can pick up ornament and sandman balls
+				// sandman cannot pick up ornament balls but can pickup sandman balls (can't find entity error???)
+			}		
 		}
 	}
 
