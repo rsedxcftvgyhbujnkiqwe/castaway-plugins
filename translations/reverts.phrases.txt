@@ -896,6 +896,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
 	}
+	"Degreaser_PrePyro"
+	{
+		"en"	"Reverted to pre-pyromania, 65%% faster weapon switch, -25%% afterburn dmg penalty, no airblast cost penalty"
+	}
 	"DirectHit_PreJI_Fix"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"

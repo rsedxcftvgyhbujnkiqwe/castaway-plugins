@@ -728,6 +728,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2013");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
+	ItemVariant(Wep_Degreaser, "Degreaser_PrePyro");
 	ItemDefine("directhit", "DirectHit_PreJI_Fix", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemVariant(Wep_DirectHit, "DirectHit_PreJI");
 	ItemVariant(Wep_DirectHit, "DirectHit_PreTB");
@@ -3179,13 +3180,26 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 215: { if (ItemIsEnabled(Wep_Degreaser)) {
-			TF2Items_SetNumAttributes(itemNew, 6);
-			TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // damage penalty
-			TF2Items_SetAttribute(itemNew, 1, 72, 0.75); // weapon burn dmg reduced
-			TF2Items_SetAttribute(itemNew, 2, 170, 1.00); // airblast cost increased
-			TF2Items_SetAttribute(itemNew, 3, 178, 0.35); // deploy time decreased
-			TF2Items_SetAttribute(itemNew, 4, 199, 1.00); // switch from wep deploy time decreased
-			TF2Items_SetAttribute(itemNew, 5, 547, 1.00); // single wep deploy time decreased
+			switch (GetItemVariant(Wep_Degreaser)) {
+				case 0: { // Pre-Tough Break Degreaser
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 72, 0.75); // weapon burn dmg reduced
+					TF2Items_SetAttribute(itemNew, 2, 170, 1.00); // airblast cost increased
+					TF2Items_SetAttribute(itemNew, 3, 178, 0.35); // deploy time decreased
+					TF2Items_SetAttribute(itemNew, 4, 199, 1.00); // switch from wep deploy time decreased
+					TF2Items_SetAttribute(itemNew, 5, 547, 1.00); // single wep deploy time decreased
+				}
+				case 1: { // Pre-Pyromania Degreaser
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 72, 0.75); // weapon burn dmg reduced
+					TF2Items_SetAttribute(itemNew, 1, 170, 1.00); // airblast cost increased
+					TF2Items_SetAttribute(itemNew, 2, 178, 0.35); // deploy time decreased
+					TF2Items_SetAttribute(itemNew, 3, 199, 1.00); // switch from wep deploy time decreased
+					TF2Items_SetAttribute(itemNew, 4, 547, 1.00); // single wep deploy time decreased
+				}
+			}			
+
 		}}
 		case 127: { if (ItemIsEnabled(Wep_DirectHit)) {
 			switch (GetItemVariant(Wep_DirectHit)) {
