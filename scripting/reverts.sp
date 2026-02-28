@@ -274,7 +274,6 @@ enum struct Player {
 	float backstab_time;
 	int old_health;
 	int feign_ready_tick;
-	float damage_taken_during_feign;
 	bool is_under_hype;
 	int charge_tick;
 	int fall_dmg_tick;
@@ -282,7 +281,6 @@ enum struct Player {
 	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
-	bool spy_under_feign_buffs;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
 	int powerjack_kill_tick;
@@ -421,6 +419,7 @@ DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 Address CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
+Address CTFPlayerShared_m_flFeignDeathEnd;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -436,7 +435,6 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
-int team_round_timer_entity = 0;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -636,7 +634,7 @@ public void OnPluginStart() {
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
-	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN, Feat_Stickybomb);
+	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
 	// Item sets
@@ -703,8 +701,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("dalokohsbar", "DalokohsBar_PreJI", CLASSFLAG_HEAVY, Wep_Dalokohs);
 	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreGM");
-	ItemDefine("darwin", "Darwin_Pre2013", CLASSFLAG_SNIPER, Wep_Darwin);
-	ItemVariant(Wep_Darwin, "Darwin_PreJI");
+	ItemDefine("darwin", "Darwin_PreJI", CLASSFLAG_SNIPER, Wep_Darwin);
+	ItemVariant(Wep_Darwin, "Darwin_Pre2013");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
 	ItemVariant(Wep_DeadRinger, "Ringer_PreTB");
@@ -809,8 +807,8 @@ public void OnPluginStart() {
 	ItemDefine("shortstop", "Shortstop_PreMnvy", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_PreGM");
 	ItemVariant(Wep_Shortstop, "Shortstop_Release");
-	ItemDefine("sodapop", "Sodapop_Pre2013", CLASSFLAG_SCOUT, Wep_SodaPopper);
-	ItemVariant(Wep_SodaPopper, "Sodapop_PreMYM");
+	ItemDefine("sodapop", "Sodapop_PreMYM", CLASSFLAG_SCOUT, Wep_SodaPopper);
+	ItemVariant(Wep_SodaPopper, "Sodapop_Pre2013");
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
 	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
@@ -972,6 +970,7 @@ public void OnPluginStart() {
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
 		CWeaponMedigun_m_bReloadDown = view_as<Address>(FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11);
+		CTFPlayerShared_m_flFeignDeathEnd = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4);
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		m_flTauntNextStartTime = -1;
@@ -1528,7 +1527,7 @@ public void OnGameFrame() {
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
 							airdash_limit_old = 5;
 
-							if (GetItemVariant(Wep_SodaPopper) != 0) {
+							if (GetItemVariant(Wep_SodaPopper) != 1) {
 								airdash_limit_new = 5;
 							}
 						}
@@ -1682,7 +1681,7 @@ public void OnGameFrame() {
 									TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false
 								) {
 									if (
-										GetItemVariant(Wep_SodaPopper) == 0 &&
+										GetItemVariant(Wep_SodaPopper) == 1 &&
 										GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter") >= 99.5
 									) {
 										players[idx].is_under_hype = true;
@@ -1709,7 +1708,7 @@ public void OnGameFrame() {
 
 								// hype meter drain
 								if (
-									GetItemVariant(Wep_SodaPopper) == 0 &&
+									GetItemVariant(Wep_SodaPopper) == 1 &&
 									players[idx].is_under_hype
 								) {
 									hype = GetEntPropFloat(idx, Prop_Send, "m_flHypeMeter");
@@ -2074,12 +2073,16 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = true;
-								players[idx].damage_taken_during_feign = 0.0;
 								if (
 									GetItemVariant(Wep_DeadRinger) == 0 ||
 									GetItemVariant(Wep_DeadRinger) >= 3
 								) {
-									players[idx].spy_under_feign_buffs = true;
+									TF2_AddCondition(idx, TFCond_DeadRingered, 6.0, idx);
+									StoreToAddress(
+										GetEntityAddress(idx) + CTFPlayerShared_m_flFeignDeathEnd,
+										GetGameTime() + 6.0,
+										NumberType_Int32
+									);
 								}
 							}
 						} else {
@@ -2088,7 +2091,6 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = false;
-								players[idx].spy_under_feign_buffs = false;
 
 								cloak = -1.0;
 
@@ -2114,16 +2116,6 @@ public void OnGameFrame() {
 									SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
 								}
 							}
-						}
-					}
-
-					{
-						// "old-style" deadringer feign buff canceling
-						if (
-							players[idx].spy_under_feign_buffs &&
-							GetFeignBuffsEnd(idx) < GetGameTickCount()
-						) {
-							players[idx].spy_under_feign_buffs = false;
 						}
 					}
 
@@ -2196,7 +2188,6 @@ public void OnGameFrame() {
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
-					players[idx].spy_under_feign_buffs = false;
 				}
 
 				if (
@@ -2238,7 +2229,6 @@ public void OnGameFrame() {
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
 				players[idx].holding_jump = false;
-				players[idx].spy_under_feign_buffs = false;
 				players[idx].is_eureka_teleporting = false;
 				players[idx].eureka_teleport_target = -1;
 				players[idx].deny_metal_collection = false;
@@ -2428,10 +2418,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 #endif
-
-	else if (StrEqual(class, "team_round_timer")) {
-		team_round_timer_entity = entity;
-	}
 }
 
 
@@ -2631,23 +2617,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
-	{
-		// "old-style" dead ringer stuff
-		if (
-			(GetItemVariant(Wep_DeadRinger) == 0 ||
-			GetItemVariant(Wep_DeadRinger) >= 3) &&
-			TF2_GetPlayerClass(client) == TFClass_Spy
-		) {
-			// prevent cloak flickering while under feign buffs
-			if (
-				condition == TFCond_CloakFlicker &&
-				players[client].spy_is_feigning &&
-				players[client].spy_under_feign_buffs
-			) {
-				return Plugin_Handled;
-			}
-		}
-	}
 	{
 		// save charge tick (for preventing debuff removal)
 		if (condition == TFCond_Charging) {
@@ -3032,7 +3001,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 231: { if (ItemIsEnabled(Wep_Darwin)) {
 			switch (GetItemVariant(Wep_Darwin)) {
-				case 1: {
+				case 0: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 26, 25.0); // +25 max health on wearer
 					TF2Items_SetAttribute(itemNew, 1, 60, 1.0); // +0% fire damage resistance on wearer
@@ -3040,7 +3009,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 66, 0.85); // +15% bullet damage resistance on wearer
 					TF2Items_SetAttribute(itemNew, 4, 527, 0.0); // remove afterburn immunity
 				}
-				default: {
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 26, 25.0); // +25 max health on wearer
 					TF2Items_SetAttribute(itemNew, 1, 60, 1.0); // +0% fire damage resistance on wearer
@@ -3504,13 +3473,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
 			switch (GetItemVariant(Wep_SodaPopper)) {
 				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
+				}
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 15, 0.0); // crit mod disabled
 					TF2Items_SetAttribute(itemNew, 1, 793, 0.0); // hype on damage
-				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 793, 0.0); // hype on damage
 				}
 			}
 		}}
@@ -4289,20 +4258,10 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			{
 				bool validSet = false;
 
-				if (active_set == Set_CrocoStyle)
-				{
-					// This code only checks for Darwin's Danger Shield (231)
-					// this code can also be used if you want cosmetics to be a part of item sets
-					for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); i++)
-					{
-						weapon = TF2Util_GetPlayerWearable(client, i);
-						index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-						if (index == 231) {
-							validSet = true;
-							break;
-						}
-					}
-				} else {
+				if (
+					active_set != Set_CrocoStyle ||
+					active_set == Set_CrocoStyle && player_weapons[client][Wep_Darwin]
+				) {
 					validSet = true;
 				}
 
@@ -5041,7 +5000,7 @@ Action SDKHookCB_OnTakeDamage(
 				// soda popper minicrits
 
 				if (
-					GetItemVariant(Wep_SodaPopper) == 0 &&
+					GetItemVariant(Wep_SodaPopper) == 1 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -5267,26 +5226,6 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 			}
-
-			{
-				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
-				if (
-					GetItemVariant(Wep_Natascha) >= 1 &&
-					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
-				) {
-					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-					// Slow enemy on hit, unless they're being healed by a medic
-					if (
-						!TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
-						GetVectorDistance(pos1, pos2, true) > Pow(512.0, 2.0)
-					) {
-						TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
-					}
-				}
-			}
 		
 			{
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
@@ -5459,19 +5398,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 		victim >= 1 &&
 		victim <= MaxClients
 	) {
-		{
-			// dead ringer damage modification
-
-			if (
-				players[victim].spy_is_feigning &&
-				players[victim].spy_under_feign_buffs &&
-				TF2_GetPlayerClass(victim) == TFClass_Spy &&
-				resist_damage
-			) {
-				damage *= 0.10;
-				returnValue = Plugin_Changed;
-			}
-		}
 		{
 			// pre-WAR! sandman victims receive 75% of damage dealt
 
@@ -5727,6 +5653,23 @@ Action SDKHookCB_OnTakeDamageAlive(
 				returnValue = Plugin_Changed;
 			}
 		}
+
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+
+			{
+				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
+				if (
+					GetItemVariant(Wep_Natascha) >= 1 &&
+					StrEqual(class, "tf_weapon_minigun") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
+					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+				) {
+					// Slow enemy on hit, unless they're being healed by a medic
+					TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+				}
+			}
+		}
 	}
 
 	return returnValue;
@@ -5754,17 +5697,25 @@ void SDKHookCB_OnTakeDamagePost(
 
 			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
 				if (
+					GetItemVariant(Wep_DeadRinger) == 0 &&
 					players[victim].spy_is_feigning &&
-					players[victim].spy_under_feign_buffs
+					TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 				) {
-					// dead ringer damage tracking
-					players[victim].damage_taken_during_feign += damage;
+					// dead ringer buff reduction
+					Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
+					float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
+					StoreToAddress(m_flFeignDeathEnd, feign_end - damage * 0.01667, NumberType_Int32);
+					// ^ would like to know the exact formula here, this is an approximation of the tick-based formula what was used in the plugin
 				}
 
 				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
 				if (
 					charge < 100.0 &&
-					players[victim].feign_ready_tick == GetGameTickCount()
+					players[victim].feign_ready_tick == GetGameTickCount() &&
+					(
+						GetItemVariant(Wep_DeadRinger) == 0 ||
+						GetItemVariant(Wep_DeadRinger) >= 3
+					)
 				) {
 					// undo 50% drain on activated
 					SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
@@ -7823,12 +7774,21 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 	int health_max_boost;
 	int weapon;
 	bool overheal_blocked;
+	static int team_round_timer_entity = -1;
 
 	// No Uber rate penalties from overheal/other healers. Sourced from SDK code
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
 		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998
 	) {
+		if (team_round_timer_entity == -1) {
+			int ent = -1;
+			while ((ent = FindEntityByClassname(ent, "team_round_timer")) != -1) {
+				team_round_timer_entity = ent;
+				break;
+			}
+		}
+
 		divisor = 1.0;
 
 		patient = GetEntPropEnt(entity, Prop_Send, "m_hHealingTarget");
@@ -7858,7 +7818,10 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 			// bypass overheal uber penalty
 			if (
 				(overheal_blocked || health_cur >= health_max_boost) &&
-				!(GameRules_GetProp("m_bInSetup") == 1 && team_round_timer_entity) 
+				!(
+					GameRules_GetProp("m_bInSetup") == 1 &&
+					team_round_timer_entity != -1
+				)
 			) {
 				divisor *= 2.0;
 			}
@@ -7908,19 +7871,13 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 		int health_cur = GetClientHealth(client);
 		int health_gained = health_cur - players[client].old_health;
 		if (health_gained < 25) {
-			float heal = float(intMin(25 - health_gained, 400 - health_cur));
-			heal = floatMax(heal, 0.0);
-			TF2Util_TakeHealth(client, heal, TAKEHEALTH_IGNORE_MAXHEALTH);
+			int heal_amt = intMin(25 - health_gained, 400 - health_cur);
+			if (heal_amt > 0) {
+				TF2Util_TakeHealth(client, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+			}
 		}
-		//PrintToChat(client, "gained %d health from bite", GetClientHealth(client) - players[client].old_health);
 	}
 	return MRES_Ignored;
-}
-
-stock int GetFeignBuffsEnd(int client)
-{
-	int reduction_by_dmg_taken = GetItemVariant(Wep_DeadRinger) == 0 ? RoundFloat(players[client].damage_taken_during_feign * 1.1) : 0;
-	return players[client].feign_ready_tick + RoundFloat(66.7 * 6) - reduction_by_dmg_taken;
 }
 
 stock bool PlayerIsInvulnerable(int client) {
