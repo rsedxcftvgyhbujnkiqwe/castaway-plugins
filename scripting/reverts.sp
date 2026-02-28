@@ -5068,24 +5068,34 @@ Action SDKHookCB_Touch(int entity, int other) {
 			GetItemVariant(Wep_WrapAssassin) == 1 && 
 			other > 0 && other <= MaxClients
 		) {
-			// owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 
-			players[other].projectile_touch_frame = GetGameTickCount();
-			players[other].projectile_touch_entity = entity;		
+			// PrintToChatAll("owner: %i", owner);
+			// PrintToChatAll("weapon: %i", weapon);
+			// PrintToChatAll("entity: %i", entity);
+			// PrintToChatAll("other: %i", other);
 
 			if (
 				GetEntProp(entity, Prop_Send, "m_bTouched") &&
 				StrEqual(class, "tf_projectile_ball_ornament") &&
-				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648) &&
-				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime()
+				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648 || GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 44) &&
+				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime() &&
+				weapon > -1 // sandman cannot pick up ornament balls but can pickup sandman balls (can't find entity error???)
+				// wrap assassin can pick up ornament and sandman balls, but sandman can't pick up ornament balls
+				// i put the weapon > -1 check here so the console stops spitting out "can't find entity" errors
 			) {
 				RemoveEntity(entity);
 				SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", 0.01);
-				// then play scout found ball voicelines
-				// wrap assassin can pick up ornament and sandman balls
-				// sandman cannot pick up ornament balls but can pickup sandman balls (can't find entity error???)
-			}		
+				
+				// play ball pickup sounds when wrap assassin is used
+				if(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648) {
+					int randomSound = GetRandomInt(1, 5);
+					char ballPickupSound[64];
+					Format(ballPickupSound, sizeof(ballPickupSound), "Scout.StunBallPickUp%02d", randomSound);
+					EmitGameSoundToAll(ballPickupSound, owner);
+				}
+			}
 		}
 	}
 
