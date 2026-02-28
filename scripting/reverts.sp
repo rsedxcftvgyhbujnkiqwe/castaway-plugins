@@ -308,6 +308,7 @@ enum struct Player {
 	float vaccinator_charge;
 	float vaccinator_charge_end;
 	bool demo_give_charge_on_kill;
+	int was_in_attack;
 }
 
 enum struct Entity {
@@ -785,10 +786,11 @@ public void OnPluginStart() {
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huolong", "HuoLong_PreMYM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Wep_HuoLongHeater);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
+	ItemVariant(Wep_Huntsman, "Huntsman_PreTB");
 #if defined MEMORY_PATCHES	
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber, true);
 	ItemVariant(Wep_IronBomber, "IronBomber_PreMYM");
-	ItemVariant(Wep_IronBomber, "IronBomber_Release");	
+	ItemVariant(Wep_IronBomber, "IronBomber_Release");
 #else
 	ItemDefine("ironbomber", "IronBomber_Pre2022_Patchless", CLASSFLAG_DEMOMAN, Wep_IronBomber);
 	ItemVariant(Wep_IronBomber, "IronBomber_PreMYM_Patchless");
@@ -6630,6 +6632,34 @@ public Action OnPlayerRunCmd(
 							buttons &= ~(IN_ATTACK | IN_ATTACK2);
 							returnValue = Plugin_Changed;
 						}
+					}
+				}
+			}
+		}
+
+		case TFClass_Sniper:
+		{
+			// Pre-Tough Break Huntsman
+			if (
+				GetItemVariant(Wep_Huntsman) == 1 &&
+				player_weapons[client][Wep_Huntsman] &&
+				IsPlayerAlive(client)
+			) {
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+				if (weapon1 > 0) {
+
+					if (
+						(GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 56 ||
+						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1005 ||
+						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1092) &&						
+						GetEntityFlags(client) & FL_ONGROUND == 0 && 
+						players[client].was_in_attack
+					) {
+						// Do not launch the Huntsman arrow until the player is on the ground. 
+						// This kind of screws up client prediction though.
+						buttons |= IN_ATTACK;
+						return Plugin_Changed;
 					}
 				}
 			}
