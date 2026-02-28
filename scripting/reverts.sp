@@ -171,6 +171,14 @@ TFCond debuffs[] =
 	TFCond_Gas
 };
 
+int charge_on_charge_kill_weapons[][] =
+{
+    { 608, 25 }, // Bootlegger.
+    { 405, 25 }, // Ali Baba's Wee Booties.
+    { 1099, 75 }, // Tide Turner.
+    { 327, 25 } // Claidheamh Mòr.
+};
+
 enum
 {
 	EUREKA_FIRST_TARGET = 0,
@@ -299,6 +307,7 @@ enum struct Player {
 	bool using_vaccinator_uber;
 	float vaccinator_charge;
 	float vaccinator_charge_end;
+	bool demo_give_charge_on_kill;
 }
 
 enum struct Entity {
@@ -689,6 +698,8 @@ public void OnPluginStart() {
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
 	ItemVariant(Wep_Bonk, "Bonk_PrePyro");
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
+	ItemVariant(Wep_Booties, "Booties_PreGM");
+	ItemVariant(Wep_Booties, "Booties_Release");
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemVariant(Wep_BrassBeast, "BrassBeast_Release");
 	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
@@ -700,6 +711,7 @@ public void OnPluginStart() {
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
+	ItemVariant(Wep_Claidheamh, "Claidheamh_PreGM");
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("cloakanddagger", "CloakAndDagger_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_CloakAndDagger);
@@ -884,7 +896,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 	ItemDefine("thermal", "ThermalThrust_May2025", CLASSFLAG_PYRO, Wep_ThermalThruster);
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
-	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");	
+	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");
+	ItemVariant(Wep_TideTurner, "Turner_PreGM");
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
 	ItemVariant(Wep_Tomislav, "Tomislav_PreLW");
@@ -3041,9 +3054,26 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 15, 0.0); // crit mod disabled; mult_crit_chance
 		}}
 		case 405, 608: { if (ItemIsEnabled(Wep_Booties)) {
-			TF2Items_SetNumAttributes(itemNew, 2);
-			TF2Items_SetAttribute(itemNew, 0, 107, 1.10); // move speed bonus
-			TF2Items_SetAttribute(itemNew, 1, 788, 1.00); // move speed bonus shield required
+			switch (GetItemVariant(Wep_Booties)) {
+				case 0: { // Pre-Meet your Match Booties
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 107, 1.10); // move speed bonus
+					TF2Items_SetAttribute(itemNew, 1, 788, 1.00); // move speed bonus shield required
+				}
+				case 1: { // Pre-Gun Mettle Booties
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 788, 1.00); // +0% faster move speed on wearer (shield required)
+					TF2Items_SetAttribute(itemNew, 1, 2034, 0.00); // Melee kills refill 0% of your charge meter.
+					// charge on charge kill attribute handled in OnTakeDamagePost
+				}
+				case 2: { // Release Booties
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 788, 1.00); // +0% faster move speed on wearer (shield required)
+					TF2Items_SetAttribute(itemNew, 1, 2034, 0.00); // Melee kills refill 0% of your charge meter.
+					TF2Items_SetAttribute(itemNew, 2, 246, 2.00); // +100% charge turn control
+					// charge on charge kill attribute handled in OnTakeDamagePost
+				}
+			}
 		}}
 		case 312: { if (GetItemVariant(Wep_BrassBeast) == 1) { // I can do this since it only has two versions
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3106,10 +3136,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
-			TF2Items_SetNumAttributes(itemNew, 3);
-			TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
-			TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
-			TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
+			switch (GetItemVariant(Wep_Claidheamh)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
+					TF2Items_SetAttribute(itemNew, 3, 2034, 0.00); // Melee kills refill 0% of your charge meter
+					// Charge on charge kill attribute handled elsewhere
+				}
+			}
 		}}
 		case 60: { if (ItemIsEnabled(Wep_CloakAndDagger)) {
 			TF2Items_SetNumAttributes(itemNew, 3);
@@ -3934,12 +3976,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 64, 0.75); // 25% explosive damage resistance on wearer
 					TF2Items_SetAttribute(itemNew, 2, 676, 0.0); // Taking damage while shield charging reduces remaining charging time
 				}
-				case 1: {
+				case 1, 2: {
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 60, 0.75); // 25% fire damage resistance on wearer
 					TF2Items_SetAttribute(itemNew, 1, 64, 0.75); // 25% explosive damage resistance on wearer
 					TF2Items_SetAttribute(itemNew, 2, 676, 0.0); // Taking damage while shield charging reduces remaining charging time
-					TF2Items_SetAttribute(itemNew, 3, 2034, 1.0); // 100% charge refill on melee kill; kill_refills_meter					
+					TF2Items_SetAttribute(itemNew, 3, 2034, 0.0); // 0% charge refill on melee kill; kill_refills_meter
+					// charge on charge kill handled elsewhere
 				}
 			}
 		}}
@@ -5252,6 +5295,23 @@ Action SDKHookCB_OnTakeDamage(
 
 				SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
 			}
+
+			// pre-gun mettle tide turner charge loss
+			if (
+				GetItemVariant(Wep_TideTurner) == 2 &&
+				victim != attacker &&
+				((damage_type & DMG_FALL) != 0 || (damage_type & DMG_BLAST) != 0) &&
+				TF2_GetPlayerClass(victim) == TFClass_DemoMan &&
+				TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
+				player_weapons[victim][Wep_TideTurner]
+			) {
+				charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
+
+				charge = (charge - 3.0*damage);
+				charge = (charge < 0.0 ? 0.0 : charge);
+
+				SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
+			}			
 		}
 
 		{
@@ -6260,6 +6320,26 @@ void SDKHookCB_OnTakeDamagePost(
 		) {
 			// Bazaar Bargain: do not gain two heads in one time.
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+		}
+
+		if ( // Award charge on charge kill.
+			TF2_GetPlayerClass(attacker) == TFClass_DemoMan &&
+			IsPlayerAlive(victim)
+		) {
+			GetEntityClassname(weapon, class, sizeof(class));
+
+			if (
+				((weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) && players[attacker].demo_give_charge_on_kill) || 
+				damage_custom == TF_CUSTOM_CHARGE_IMPACT) && 
+				StrEqual(class, "tf_wearable_demoshield")
+			) {
+				if (GetItemVariant(Wep_Booties) == 1 || GetItemVariant(Wep_Booties) == 2)
+					RequestFrame(RewardChargeOnChargeKill, attacker);
+				if (GetItemVariant(Wep_TideTurner) == 1 || GetItemVariant(Wep_TideTurner) == 2)
+					RequestFrame(RewardChargeOnChargeKill, attacker);
+				if (GetItemVariant(Wep_Claidheamh) == 1)
+					RequestFrame(RewardChargeOnChargeKill, attacker);
+			}
 		}
 
 		if (inflictor > MaxClients) {
@@ -8353,6 +8433,17 @@ MRESReturn DHookCallback_CTFBall_Ornament_Explode(int entity)
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
+}
+
+stock void RewardChargeOnChargeKill(int client) // This is called next frame to compensate for charge bash kills.
+{
+    float newCharge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
+    for (int i = 0; i < sizeof(charge_on_charge_kill_weapons); ++i) // Award charge on charge kill.
+    {
+        if (GetEntProp(client, Prop_Send, "m_iItemDefinitionIndex") == charge_on_charge_kill_weapons[i][0])
+            newCharge += charge_on_charge_kill_weapons[i][1];
+    }
+    SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", newCharge > 100.00 ? 100.00 : newCharge);
 }
 
 stock bool PlayerIsInvulnerable(int client) {

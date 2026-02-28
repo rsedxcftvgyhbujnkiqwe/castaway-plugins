@@ -744,6 +744,14 @@
 	{
 		"en"	"Reverted to pre-matchmaking, shield not required for speed bonus"
 	}
+	"Booties_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no walkspeed bonus, charge fills on charge kills instead"
+	}
+	"Booties_Release"
+	{
+		"en"	"Reverted to release, no walkspeed bonus, +100% charge turn control increase, charge fills on charge kills instead"
+	}
 	"BrassBeast_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
@@ -787,6 +795,10 @@
 	"Claidheamh_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, -15 max health, no damage vuln, longer charge is passive"
+	}
+	"Claidheamh_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, -15 max health, no damage vuln, longer charge is passive, 25%% charge on charge kill"
 	}
 	"Carbine_Release"
 	{
@@ -1502,7 +1514,11 @@
 	}
 	"Turner_PreDec2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge, 100%% charge on kill, no charge loss on hit"
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge, 100%% charge on charge kill, no charge loss on hit"
+	}
+	"Turner_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge, 75%% charge on charge kill, -3 charge per dmg point (all sources)"
 	}
 	"Tomislav_PrePyro"
 	{
