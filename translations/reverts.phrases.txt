@@ -1134,7 +1134,11 @@
 	}
 	"LochLoad_2013"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, +20%% damage, -50%% clip size, +25%% self dmg, no radius penalty, grenades tumble"
+		"en"	"Reverted to pre-Smissmas 2014, +20%% damage, -50%% clip size, +25%% self dmg, no radius penalty, grenades tumble (slower projectiles due to air resistance)"
+	}
+	"LochLoad_Release"
+	{
+		"en"	"Reverted to release, +10%% damage, -50%% clip size, +25%% self dmg, no radius penalty, grenades tumble (slower projectiles due to air resistance)"
 	}
 	"Cannon_PreTB"
 	{
