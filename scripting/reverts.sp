@@ -802,6 +802,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_LibertyLauncher, "Liberty_Pre2013");
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
+	ItemVariant(Wep_LochLoad, "LochLoad_Release");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 #if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
@@ -3492,7 +3493,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 308: { if (ItemIsEnabled(Wep_LochLoad)) {
 			switch (GetItemVariant(Wep_LochLoad)) {
-				case 1: {
+				case 0: { // Pre-Gun Mettle Loch-n-Load
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
+				}
+				case 1: { // Pre-Smissmas 2014 Loch-n-Load
 					TF2Items_SetNumAttributes(itemNew, 6);
 					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // +20% damage bonus
 					TF2Items_SetAttribute(itemNew, 1, 3, 0.50); // -50% clip size
@@ -3501,10 +3507,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 4, 207, 1.25); // +25% damage to self
 					TF2Items_SetAttribute(itemNew, 5, 681, 0.00); // grenade no spin
 				}
-				default: {
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 2, 1.20); // damage bonus
-					TF2Items_SetAttribute(itemNew, 1, 137, 1.00); // dmg bonus vs buildings
+				case 2: { // Release Loch-n-Load
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 2, 1.10); // +10% damage bonus
+					TF2Items_SetAttribute(itemNew, 1, 3, 0.50); // -50% clip size
+					TF2Items_SetAttribute(itemNew, 2, 100, 1.00); // -0% explosion radius
+					TF2Items_SetAttribute(itemNew, 3, 137, 1.00); // +0% damage vs buildings
+					TF2Items_SetAttribute(itemNew, 4, 207, 1.25); // +25% damage to self
+					TF2Items_SetAttribute(itemNew, 5, 681, 0.00); // grenade no spin
 				}
 			}
 		}}
