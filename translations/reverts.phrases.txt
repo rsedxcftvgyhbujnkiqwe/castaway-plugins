@@ -832,6 +832,26 @@
 	{
 		"en"	"Reverted to pre-matchmaking, flinch resist at any charge level"
 	}
+	"CozyCamper_PreMYM_Patchless"
+	{
+		"en"	"Memory patches turned off. No flinch resist at any charge level."
+	}
+	"CozyCamper_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, +1 health per second, flinch resist at any charge level"
+	}
+	"CozyCamper_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, +1 health per second, 20%% dmg vuln, flinch resist at any charge level"
+	}
+	"CozyCamper_Pre2013"
+	{
+		"en"	"Reverted to pre-July 10, 2013, +1 health per second, -80%% slower move speed while aiming, flinch resist at any charge level"
+	}
+	"CozyCamper_Release"
+	{
+		"en"	"Reverted to release, no health regen, -90%% slower move speed while aiming, flinch resist at any charge level"
+	}
 	"CritCola_PreMYM"
 	{
 		"en"	"Reverted to pre-matchmaking, +25%% movespeed, +10%% damage taken, no mark-for-death on attack"

@@ -509,9 +509,7 @@ enum
 	Wep_CloakAndDagger,
 	Wep_Concheror,
 	Wep_CowMangler,
-#if defined MEMORY_PATCHES
 	Wep_CozyCamper,
-#endif	
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
 	Wep_Crossbow,
@@ -722,6 +720,14 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CowMangler, "CowMangler_PreJI");
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
+#else
+	ItemDefine("cozycamper", "CozyCamper_PreMYM_Patchless", CLASSFLAG_SNIPER, Wep_CozyCamper);
+#endif
+	ItemVariant(Wep_CozyCamper, "CozyCamper_PreTB");
+	ItemVariant(Wep_CozyCamper, "CozyCamper_PreGM");
+	ItemVariant(Wep_CozyCamper, "CozyCamper_Pre2013");
+	ItemVariant(Wep_CozyCamper, "CozyCamper_Release");
+#if defined MEMORY_PATCHES
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
@@ -787,7 +793,7 @@ public void OnPluginStart() {
 	ItemDefine("huolong", "HuoLong_PreMYM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Wep_HuoLongHeater);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 	ItemVariant(Wep_Huntsman, "Huntsman_PreTB");
-#if defined MEMORY_PATCHES	
+#if defined MEMORY_PATCHES
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN, Wep_IronBomber, true);
 	ItemVariant(Wep_IronBomber, "IronBomber_PreMYM");
 	ItemVariant(Wep_IronBomber, "IronBomber_Release");
@@ -2305,7 +2311,7 @@ public void OnGameFrame() {
 								) {
 									EmitGameSoundToAll("Game.PenetrationKill", idx, SND_STOP);
 								}
-							}							
+							}
 						}
 					}
 
@@ -2419,6 +2425,39 @@ public void OnGameFrame() {
 	// run every 66 frames (~1s)
 	if (frame % 66 == 0) {
 		{
+			for (idx = 1; idx <= MaxClients; idx++) {
+				if (
+					IsClientInGame(idx) &&
+					IsPlayerAlive(idx) &&
+					(GetItemVariant(Wep_CozyCamper) == 1 || GetItemVariant(Wep_CozyCamper) == 2 || GetItemVariant(Wep_CozyCamper) == 3)
+				) {
+					{
+						// +1 hp/s passive heal revert for cozy camper variants
+						health_cur = GetClientHealth(idx);
+						health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+
+						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+						if (weapon > 0) {
+
+							if (
+								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 642 &&
+								health_cur < health_max
+							) {
+								// Show that attacker got healed.
+								Handle event = CreateEvent("player_healonhit", true);
+								SetEventInt(event, "amount", 1);
+								SetEventInt(event, "entindex", idx);
+								FireEvent(event);
+
+								// Set health.
+								SetEntityHealth(idx, intMin(health_cur + 1, health_max));
+							}
+						}
+					}
+				}
+			}
+
 			// set all the convars needed
 
 			// these cvars are changed just-in-time, reset them
@@ -3119,6 +3158,29 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 996: { if (ItemIsEnabled(Wep_LooseCannon)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 103, 1.50); // projectile speed increased
+		}}
+		case 642: { if (ItemIsEnabled(Wep_CozyCamper)) {
+			switch (GetItemVariant(Wep_CozyCamper)) {
+				case 1: { // Pre-Tough Break Cozy Camper
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+				}
+				case 2: { // Pre-Gun Mettle Cozy Camper
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 412, 1.20); // 20% damage vulnerability on wearer
+				}
+				case 3: { // Pre-July 10, 2013 Cozy Camper
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+					TF2Items_SetAttribute(itemNew, 1, 378, 0.20); // -80% slower move speed when aiming; mult_player_aiming_movespeed
+				}
+				case 4: { // Release Cozy Camper
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; absolutely no hp regen
+					TF2Items_SetAttribute(itemNew, 1, 378, 0.10); // -90% slower move speed when aiming; mult_player_aiming_movespeed
+				}
+			}
 		}}
 		case 751: { if (ItemIsEnabled(Wep_CleanerCarbine)) {
 			switch (GetItemVariant(Wep_CleanerCarbine)) {
