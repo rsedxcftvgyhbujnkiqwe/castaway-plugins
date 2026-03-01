@@ -254,6 +254,10 @@
 	{
 		"en"	"Concheror"
 	}
+	"kunai"
+	{
+		"en"	"Conniver's Kunai"
+	}
 	"cowmangler"
 	{
 		"en"	"Cow Mangler 5000"
@@ -827,6 +831,10 @@
 	"Concheror_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if user recently took damage"
+	}
+	"ConniversKunai_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, -65 max health on wearer, max 180 hp overheal, no min health gain cap"
 	}
 	"CowMangler_Release"
 	{
