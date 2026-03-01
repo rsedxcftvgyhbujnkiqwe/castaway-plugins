@@ -714,6 +714,9 @@ public void OnPluginStart() {
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
 	ItemVariant(Wep_Claidheamh, "Claidheamh_PreGM");
+	ItemVariant(Wep_Claidheamh, "Claidheamh_PreJI");
+	ItemVariant(Wep_Claidheamh, "Claidheamh_Release");
+	ItemVariant(Wep_Claidheamh, "Claidheamh_April2011");
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("cloakanddagger", "CloakAndDagger_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_CloakAndDagger);
@@ -3222,19 +3225,40 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 327: { if (ItemIsEnabled(Wep_Claidheamh)) {
 			switch (GetItemVariant(Wep_Claidheamh)) {
-				case 0: {
+				case 0: { // Pre-Tough Break Claidheamh Mor
 					TF2Items_SetNumAttributes(itemNew, 3);
 					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
 					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
 					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
 				}
-				case 1: {
+				case 1: { // Pre-Gun Mettle Claidheamh Mor
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
 					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
 					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
 					TF2Items_SetAttribute(itemNew, 3, 2034, 0.00); // Melee kills refill 0% of your charge meter
 					// Charge on charge kill attribute handled elsewhere
+				}
+				case 2: { // Pre-Jungle Inferno Claidheamh Mor
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 202, 0.0); // 0 sec increase in charge duration; mod_charge_time
+					TF2Items_SetAttribute(itemNew, 1, 180, 25.0); // +25 health restored on kill; heal_on_kill
+				}
+				case 3: { // Release/Pre-Smissmas 2014 Claidheamh Mor
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
+					TF2Items_SetAttribute(itemNew, 3, 2034, 0.00); // Melee kills refill 0% of your charge meter; no charge on kill
+				}
+				case 4: { // April 14-15, 2011 Claidheamh Mor
+					TF2Items_SetNumAttributes(itemNew, 6);
+					TF2Items_SetAttribute(itemNew, 0, 125, -15.0); // -15 max health on wearer
+					TF2Items_SetAttribute(itemNew, 1, 128, 0.0); // When weapon is active:
+					TF2Items_SetAttribute(itemNew, 2, 412, 1.00); // 0% damage vulnerability on wearer
+					TF2Items_SetAttribute(itemNew, 3, 2034, 0.00); // Melee kills refill 0% of your charge meter; no charge on kill
+					TF2Items_SetAttribute(itemNew, 4, 1, 0.75); // mult_dmg; -25% damage penalty
+					TF2Items_SetAttribute(itemNew, 5, 15, 1.00); // enable random crits; mult_crit_chance
 				}
 			}
 		}}

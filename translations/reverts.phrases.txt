@@ -800,6 +800,18 @@
 	{
 		"en"	"Reverted to pre-gunmettle, -15 max health, no damage vuln, longer charge is passive, 25%% charge on charge kill"
 	}
+	"Claidheamh_PreJI"
+	{
+		"en"	"Reverted to pre-inferno, +25 hp on kill, no 0.5 s increase in charge duration"
+	}
+	"Claidheamh_Release"
+	{
+		"en"	"Reverted to release, -15 max health, no damage vuln, longer charge is passive, no charge on melee kill bonus"
+	}
+	"Claidheamh_April2011"
+	{
+		"en"	"Reverted to April 14-15, 2011; -15 max health, no damage vuln, longer charge is passive, no charge on melee kill bonus, random crits, -25%% dmg"
+	}			
 	"Carbine_Release"
 	{
 		"en"	"Reverted to release, crits for 3 seconds on kill, 35%% slower fire rate (from 25%%)"
