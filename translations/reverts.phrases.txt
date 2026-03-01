@@ -746,11 +746,11 @@
 	}
 	"Booties_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, no walkspeed bonus, charge fills on charge kills instead"
+		"en"	"Reverted to pre-gunmettle, no walkspeed bonus, 25%% charge on charge kills"
 	}
 	"Booties_Release"
 	{
-		"en"	"Reverted to release, no walkspeed bonus, +100% charge turn control increase, charge fills on charge kills instead"
+		"en"	"Reverted to release, no walkspeed bonus, +100% charge turn control increase, 25%% charge on charge kills"
 	}
 	"BrassBeast_PreMYM"
 	{
@@ -1102,7 +1102,7 @@
 	}
 	"Huntsman_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, user cannot fire arrows when not on the ground; pre-2013 skewer taunt loop bug is still preserved"
+		"en"	"Reverted to pre-toughbreak, drawn arrows can only fire when on the ground; pre-2013 skewer taunt loop bug is still preserved"
 	}
 	"IronBomber_Pre2022"
 	{

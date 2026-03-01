@@ -307,8 +307,11 @@ enum struct Player {
 	bool using_vaccinator_uber;
 	float vaccinator_charge;
 	float vaccinator_charge_end;
-	bool demo_give_charge_on_kill;
 	int was_in_attack;
+	bool give_charge_on_kill;
+	bool has_cancelled_charge;
+	float time_since_shield_bash;
+	float time_since_charge_cancel;
 }
 
 enum struct Entity {
@@ -2429,30 +2432,27 @@ public void OnGameFrame() {
 				if (
 					IsClientInGame(idx) &&
 					IsPlayerAlive(idx) &&
-					(GetItemVariant(Wep_CozyCamper) == 1 || GetItemVariant(Wep_CozyCamper) == 2 || GetItemVariant(Wep_CozyCamper) == 3)
+					(GetItemVariant(Wep_CozyCamper) == 1 || 
+					GetItemVariant(Wep_CozyCamper) == 2 || 
+					GetItemVariant(Wep_CozyCamper) == 3)
 				) {
 					{
 						// +1 hp/s passive heal revert for cozy camper variants
 						health_cur = GetClientHealth(idx);
 						health_max = SDKCall(sdkcall_GetMaxHealth, idx);
+					
+						if (
+							player_weapons[idx][Wep_CozyCamper] &&
+							health_cur < health_max
+						) {
+							// Show that attacker got healed.
+							Handle event = CreateEvent("player_healonhit", true);
+							SetEventInt(event, "amount", 1);
+							SetEventInt(event, "entindex", idx);
+							FireEvent(event);
 
-						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-						if (weapon > 0) {
-
-							if (
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 642 &&
-								health_cur < health_max
-							) {
-								// Show that attacker got healed.
-								Handle event = CreateEvent("player_healonhit", true);
-								SetEventInt(event, "amount", 1);
-								SetEventInt(event, "entindex", idx);
-								FireEvent(event);
-
-								// Set health.
-								SetEntityHealth(idx, intMin(health_cur + 1, health_max));
-							}
+							// Set health.
+							SetEntityHealth(idx, intMin(health_cur + 1, health_max));
 						}
 					}
 				}
@@ -2601,6 +2601,17 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
 	}
+
+	else if (
+		StrEqual(class, "tf_weapon_bottle") ||
+		StrEqual(class, "tf_weapon_sword") ||
+		StrEqual(class, "tf_weapon_shovel") ||
+		StrEqual(class, "tf_weapon_stickbomb") ||
+		StrEqual(class, "saxxy")
+	) {
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	}	
 #if defined MEMORY_PATCHES
 	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
@@ -2800,6 +2811,15 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 				// Refill player health and ammo
 				TF2_RegeneratePlayer(client);
 			}
+		}
+	}
+	{
+		if ( // tracking for charge on charge kill reverts
+			TF2_GetPlayerClass(client) == TFClass_DemoMan &&
+			condition == TFCond_Charging &&
+			GetGameTime() - players[client].time_since_charge_cancel < 0.5
+		) {
+			players[client].has_cancelled_charge = true;
 		}
 	}
 }
@@ -5761,8 +5781,12 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// crit after shield bash if melee is active weapon
 					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
+					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee)) {
 						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
+						
+						players[attacker].time_since_shield_bash = GetGameTime(); // tracking for charge on charge kill reverts
+							// PrintToChatAll("time_since_shield_bash = %f", players[attacker].time_since_shield_bash);
+					}
 
 					// if using splendid screen, bash damage at any range
 					// other shields can only bash at the end of a charge
@@ -6396,23 +6420,31 @@ void SDKHookCB_OnTakeDamagePost(
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
-		if ( // Award charge on charge kill.
+		if ( // Award charge on charge kill via bashing or melee kills right after charging or melee kills during charging.
 			TF2_GetPlayerClass(attacker) == TFClass_DemoMan &&
-			IsPlayerAlive(victim)
+			!IsPlayerAlive(victim)
 		) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
+				// PrintToChatAll("give_charge_on_kill before if: %b", players[attacker].give_charge_on_kill);
+				// PrintToChatAll("has_cancelled_charge before if: %b", players[attacker].has_cancelled_charge);
 			if (
-				((weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) && players[attacker].demo_give_charge_on_kill) || 
-				damage_custom == TF_CUSTOM_CHARGE_IMPACT) && 
-				StrEqual(class, "tf_wearable_demoshield")
+				(weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) && players[attacker].give_charge_on_kill) || 
+				(weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) && players[attacker].has_cancelled_charge && !TF2_IsPlayerInCondition(attacker, TFCond_Charging)) || 
+				(weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) && !players[attacker].has_cancelled_charge && TF2_IsPlayerInCondition(attacker, TFCond_Charging)) || // for the rare moment in case a demo swings then charges
+				damage_custom == TF_CUSTOM_CHARGE_IMPACT
 			) {
-				if (GetItemVariant(Wep_Booties) == 1 || GetItemVariant(Wep_Booties) == 2)
+					// PrintToChatAll("give_charge_on_kill INSIDE if: %b", players[attacker].give_charge_on_kill);
+					// PrintToChatAll("has_cancelled_charge INSIDE if: %b", players[attacker].has_cancelled_charge);
+				if (GetItemVariant(Wep_Booties) != 0 && (GetItemVariant(Wep_Booties) == 1 || GetItemVariant(Wep_Booties) == 2) && player_weapons[attacker][Wep_Booties])
+					RequestFrame(RewardChargeOnChargeKillWearable, attacker);
+				if (GetItemVariant(Wep_TideTurner) != 0 && (GetItemVariant(Wep_TideTurner) == 1 || GetItemVariant(Wep_TideTurner) == 2) && player_weapons[attacker][Wep_TideTurner])
+					RequestFrame(RewardChargeOnChargeKillWearable, attacker);
+				if (GetItemVariant(Wep_Claidheamh) != 0 && GetItemVariant(Wep_Claidheamh) == 1 && player_weapons[attacker][Wep_Claidheamh])
 					RequestFrame(RewardChargeOnChargeKill, attacker);
-				if (GetItemVariant(Wep_TideTurner) == 1 || GetItemVariant(Wep_TideTurner) == 2)
-					RequestFrame(RewardChargeOnChargeKill, attacker);
-				if (GetItemVariant(Wep_Claidheamh) == 1)
-					RequestFrame(RewardChargeOnChargeKill, attacker);
+
+				players[attacker].give_charge_on_kill = false;
+				players[attacker].has_cancelled_charge = false;
 			}
 		}
 
@@ -6724,6 +6756,8 @@ public Action OnPlayerRunCmd(
 						return Plugin_Changed;
 					}
 				}
+				players[client].was_in_attack = buttons & IN_ATTACK;
+				return Plugin_Continue;
 			}
 		}
 	}
@@ -7287,6 +7321,32 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 		) {
 			// Bazaar Bargain head counter: lose a head.
 			players[owner].bazaar_shot = BAZAAR_LOSE;
+		}
+
+		else if (
+			StrEqual(class, "tf_weapon_bottle") ||
+			StrEqual(class, "tf_weapon_sword") ||
+			StrEqual(class, "tf_weapon_shovel") ||
+			StrEqual(class, "tf_weapon_stickbomb") ||
+			StrEqual(class, "saxxy")
+		) {
+			// Set variables for charge on charge kill reverts
+			players[owner].give_charge_on_kill = false;
+			players[owner].time_since_charge_cancel = GetGameTime();
+			
+			// Give charge on charge kill if less than 0.5 seconds has passed
+			if (GetGameTime() - players[owner].time_since_shield_bash < 0.5 || TF2_IsPlayerInCondition(owner, TFCond_Charging)) {
+				players[owner].give_charge_on_kill = true;
+					// PrintToChatAll("give_charge_on_kill = %b", players[owner].give_charge_on_kill);
+			}
+
+			// Give charge on charge kill right after charge ends via melee swing
+			if (
+				(GetGameTime() - players[owner].time_since_charge_cancel >= 0.5 && players[owner].has_cancelled_charge) ||
+				players[owner].has_cancelled_charge // prevent recharge after first melee swing
+			) {
+				players[owner].has_cancelled_charge = false;
+			}
 		}
 	}
 	
@@ -8540,11 +8600,27 @@ MRESReturn DHookCallback_CTFBall_Ornament_Explode(int entity)
 stock void RewardChargeOnChargeKill(int client) // This is called next frame to compensate for charge bash kills.
 {
     float newCharge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
-    for (int i = 0; i < sizeof(charge_on_charge_kill_weapons); ++i) // Award charge on charge kill.
-    {
-        if (GetEntProp(client, Prop_Send, "m_iItemDefinitionIndex") == charge_on_charge_kill_weapons[i][0])
-            newCharge += charge_on_charge_kill_weapons[i][1];
-    }
+	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	for (int i = 0; i < sizeof(charge_on_charge_kill_weapons); ++i) // Award charge on charge kill.
+	{
+		if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == charge_on_charge_kill_weapons[i][0])
+			newCharge += charge_on_charge_kill_weapons[i][1];
+	}
+    SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", newCharge > 100.00 ? 100.00 : newCharge);
+}
+
+stock void RewardChargeOnChargeKillWearable(int client) // This is called next frame to compensate for charge bash kills.
+{
+    float newCharge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
+
+	for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); i++)
+	{
+		for (int j = 0; j < sizeof(charge_on_charge_kill_weapons); ++j) // Award charge on charge kill.
+		{
+			if (GetEntProp(TF2Util_GetPlayerWearable(client, i), Prop_Send, "m_iItemDefinitionIndex") == charge_on_charge_kill_weapons[j][0])
+				newCharge += charge_on_charge_kill_weapons[j][1];
+		}
+	}
     SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", newCharge > 100.00 ? 100.00 : newCharge);
 }
 
