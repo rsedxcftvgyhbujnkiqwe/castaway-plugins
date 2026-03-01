@@ -93,6 +93,7 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 #define TF_COND_RESIST_OFFSET 58
+#define KUNAI_OVERHEAL 180
 
 enum
 {
@@ -312,6 +313,7 @@ enum struct Player {
 	bool has_cancelled_charge;
 	float time_since_shield_bash;
 	float time_since_charge_cancel;
+	int health_before_kill; // For Conniver's Kunai backstabs.
 }
 
 enum struct Entity {
@@ -511,6 +513,7 @@ enum
 	Wep_CleanerCarbine,
 	Wep_CloakAndDagger,
 	Wep_Concheror,
+	Wep_ConniversKunai,
 	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_CritCola,
@@ -721,6 +724,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("cloakanddagger", "CloakAndDagger_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_CloakAndDagger);
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
+	ItemDefine("kunai", "ConniversKunai_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_ConniversKunai);
 	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
 	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
 	ItemVariant(Wep_CowMangler, "CowMangler_PreJI");
@@ -2614,7 +2618,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
-	}	
+	}
 #if defined MEMORY_PATCHES
 	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
@@ -3272,6 +3276,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 57, 2.0); // +2 health regenerated per second on wearer
 		}}
+		case 356: { if (ItemIsEnabled(Wep_ConniversKunai)) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 125, -65.00); // -0 max health on wearer (so this works on the Kunai but not other weapons? need this in order to get health drain to properly work anyway)
+			TF2Items_SetAttribute(itemNew, 1, 217, 0.00); // On Backstab: Absorbs the health from your victim.; sanguisuge (means "leach" from Latin)
+		}}		
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			switch (GetItemVariant(Wep_CowMangler)) {
 				case 0: { // Release Cow Mangler 5000
@@ -4523,6 +4532,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 327: player_weapons[client][Wep_Claidheamh] = true;
 						case 60: player_weapons[client][Wep_CloakAndDagger] = true;
 						case 354: player_weapons[client][Wep_Concheror] = true;
+						case 356: player_weapons[client][Wep_ConniversKunai] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
 #if defined MEMORY_PATCHES
@@ -5914,7 +5924,21 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
-			}		
+			}
+
+			{
+				// Pre-Gun Mettle Conniver's Kunai attacker HP tracking after backstab
+				if (
+					ItemIsEnabled(Wep_ConniversKunai) &&
+					damage_custom == TF_CUSTOM_BACKSTAB &&
+					StrEqual(class, "tf_weapon_knife") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 356
+				) {
+					// Save the player's HP for the Kunai backstab.
+					players[attacker].old_health = GetClientHealth(attacker);
+					players[victim].health_before_kill = GetClientHealth(victim);
+				}
+			}
 
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
@@ -6470,6 +6494,22 @@ void SDKHookCB_OnTakeDamagePost(
 				players[attacker].give_charge_on_kill = false;
 				players[attacker].has_cancelled_charge = false;
 			}
+		}
+
+		// Conniver's Kunai backstab.
+		if (
+			ItemIsEnabled(Wep_ConniversKunai) &&
+			player_weapons[attacker][Wep_ConniversKunai] && 
+			damage_custom == TF_CUSTOM_BACKSTAB
+		) { 
+			// Show that attacker got healed.
+			Handle event = CreateEvent("player_healonhit", true);
+			SetEventInt(event, "amount", intMin(KUNAI_OVERHEAL - players[attacker].old_health, players[victim].health_before_kill));
+			SetEventInt(event, "entindex", attacker);
+			FireEvent(event);
+
+			// Set health.
+			SetEntityHealth(attacker, intMin(players[attacker].old_health + players[victim].health_before_kill, KUNAI_OVERHEAL));
 		}
 
 		if (inflictor > MaxClients) {
