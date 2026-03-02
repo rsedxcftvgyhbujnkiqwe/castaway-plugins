@@ -258,7 +258,12 @@
 			{
 				"windows" "236"
 				"linux"   "237"
-			}			
+			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"windows" "256"
+				"linux"   "259"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -773,7 +778,21 @@
 						"type" "int"
 					}
 				}
-			}			
+			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"offset"   "CTFProjectile_HealingBolt::ImpactTeamPlayer"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type" "cbaseentity"
+					}
+				}
+			}
 		}
 	}
 }

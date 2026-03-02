@@ -896,6 +896,30 @@
 	{
 		"en"	"Reverted to pre-inferno, full uber gain on heal regardless if target recently took damage"
 	}
+	"CrusadersCrossbow_PreJI_Patchless"
+	{
+		"en"	"Memory patches turned off, pre-inferno Crusader's Crossbow is not reverted"
+	}
+	"CrusadersCrossbow_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, healing does not grant uber"
+	}
+	"CrusadersCrossbow_PreNov212013"
+	{
+		"en"	"Reverted to pre-Nov 21, 2013; healing does not grant uber, 50 max dmg"
+	}
+	"CrusadersCrossbow_PreNov12013"
+	{
+		"en"	"Reverted to pre-Nov 1, 2013; healing does not grant uber, 75 max dmg, 3 sec reload time, no automatic reload while holstered"
+	}
+	"CrusadersCrossbow_PreOct292013"
+	{
+		"en"	"Reverted to pre-Oct 29, 2013; healing does not grant uber, 75 max dmg, 3 sec reload time, no automatic reload while holstered, uses Huntsman arrow model"
+	}
+	"CrusadersCrossbow_Release"
+	{
+		"en"	"Reverted to release, no reload speed reduction, healing does not grant uber, 75 max dmg, 3 sec reload time, no automatic reload while holstered, uses Huntsman arrow model"
+	}
 	"CrocoStyle_Release"
 	{
 		"en"	"Restored release item set bonus, no death from headshots when above 1 HP. Equip the Sydney Sleeper, DDS and Bushwacka to gain the bonus, the hat is not required"
