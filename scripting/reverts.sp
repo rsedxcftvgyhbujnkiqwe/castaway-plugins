@@ -789,6 +789,10 @@ public void OnPluginStart() {
 	ItemVariant(Wep_EscapePlan, "EscapePlan_PreGM");
 	ItemVariant(Wep_EscapePlan, "EscapePlan_PreJuly2013");
 	ItemDefine("eureka", "Eureka_SpawnRefill", CLASSFLAG_ENGINEER, Wep_EurekaEffect);
+	ItemVariant(Wep_EurekaEffect, "Eureka_PreMYM");
+	ItemVariant(Wep_EurekaEffect, "Eureka_PreAug2015");
+	ItemVariant(Wep_EurekaEffect, "Eureka_PreGM");
+	ItemVariant(Wep_EurekaEffect, "Eureka_Release");
 	ItemDefine("eviction", "Eviction_PreJI", CLASSFLAG_HEAVY, Wep_Eviction);
 	ItemVariant(Wep_Eviction, "Eviction_PreTB");
 	ItemVariant(Wep_Eviction, "Eviction_PreGM");
@@ -2822,7 +2826,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			players[client].is_eureka_teleporting = false;
 
 			if (
-				ItemIsEnabled(Wep_EurekaEffect) &&
+				(ItemIsEnabled(Wep_EurekaEffect) && GetItemVariant(Wep_EurekaEffect) != 1) &&
 				(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
 				players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
 				FindBuiltTeleporterExitOwnedByClient(client) == -1)
@@ -3434,7 +3438,31 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 740, 1.0); // reduced healing from medics
 				}
 			}
-		}}		
+		}}
+		case 589: { if (ItemIsEnabled(Wep_EurekaEffect)) {
+			switch (GetItemVariant(Wep_EurekaEffect)) {
+				case 1, 2: { // Pre-MYM and Pre-August 27, 2015 Eureka Effect
+					TF2Items_SetNumAttributes(itemNew, 2);
+					TF2Items_SetAttribute(itemNew, 0, 732, 0.50); // 50% less metal from pickups and dispensers
+					TF2Items_SetAttribute(itemNew, 1, 790, 1.00); // -0% metal cost when constructing or upgrading teleporters
+				}				
+				case 3: { // Pre-Gun Mettle Eureka Effect
+					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetAttribute(itemNew, 0, 93, 1.00); // Construction hit speed boost decreased by 0%
+					TF2Items_SetAttribute(itemNew, 1, 732, 1.00); // 0% less metal from pickups and dispensers
+					TF2Items_SetAttribute(itemNew, 2, 790, 1.00); // -0% metal cost when constructing or upgrading teleporters
+					TF2Items_SetAttribute(itemNew, 3, 95, 0.50); // 50% slower repair rate
+					TF2Items_SetAttribute(itemNew, 4, 2043, 0.50); // 50% slower upgrade rate
+				}
+				case 4: { // Release Eureka Effect
+					TF2Items_SetNumAttributes(itemNew, 4);
+					TF2Items_SetAttribute(itemNew, 0, 93, 1.00); // Construction hit speed boost decreased by 0%
+					TF2Items_SetAttribute(itemNew, 1, 732, 1.00); // 0% less metal from pickups and dispensers
+					TF2Items_SetAttribute(itemNew, 2, 790, 1.00); // -0% metal cost when constructing or upgrading teleporters
+					TF2Items_SetAttribute(itemNew, 3, 353, 1.00); // cannot pick up buildings; cannot_pick_up_buildings
+				}
+			}
+		}}
 		case 225, 574: { if (ItemIsEnabled(Wep_EternalReward)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 34, 1.00); // mult cloak meter consume rate
@@ -4988,6 +5016,10 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 			teleport_target = EUREKA_TELEPORT_HOME;
 		}
 
+		else if (teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT && GetItemVariant(Wep_EurekaEffect) == 4) {
+			// Prevent teleporting to teleporter exit
+			return Plugin_Handled;
+		}
 		players[client].eureka_teleport_target = teleport_target;
 	}
 

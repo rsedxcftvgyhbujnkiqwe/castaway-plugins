@@ -1056,6 +1056,22 @@
 	{
 		"en"	"Teleporting to spawn refills health and ammo again"
 	}
+	"Eureka_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, 50%% slower repair and upgrade rates, no teleporter metal cost bonus"
+	}
+	"Eureka_PreAug2015"
+	{
+		"en"	"Reverted to pre-Aug 27, 2015; 50%% slower repair and upgrade rates, no teleporter metal cost bonus, teleporting to spawn refills health and ammo again"
+	}
+	"Eureka_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, 50%% slower repair and upgrade rates, no construction hit boost decrease, no metal pickup penalty, no teleporter metal cost bonus, teleporting to spawn refills health and ammo again"
+	}			
+	"Eureka_Release"
+	{
+		"en"	"Reverted to release, cannot pickup buildings, no slower repair and upgrade rates, no teleporter metal cost bonus, no metal pickup penalty, teleporting to spawn refills health and ammo again, teleport only to spawn"
+	}
 	"Eviction_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, no health drain, +20%% damage taken"
