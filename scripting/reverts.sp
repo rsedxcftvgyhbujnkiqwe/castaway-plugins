@@ -416,6 +416,7 @@ DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 DynamicHook dhook_CTFBall_Ornament_Explode;
+DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -517,9 +518,7 @@ enum
 	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_CritCola,
-#if defined MEMORY_PATCHES
 	Wep_Crossbow,
-#endif
 	Wep_Dalokohs,
 	Wep_Darwin,
 	Wep_DeadRinger,	
@@ -739,7 +738,14 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CozyCamper, "CozyCamper_Release");
 #if defined MEMORY_PATCHES
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
+#else
+	ItemDefine("crossbow", "CrusadersCrossbow_PreJI_Patchless", CLASSFLAG_MEDIC, Wep_Crossbow);
 #endif
+	ItemVariant(Wep_Crossbow, "CrusadersCrossbow_PreTB");
+	ItemVariant(Wep_Crossbow, "CrusadersCrossbow_PreNov212013");
+	ItemVariant(Wep_Crossbow, "CrusadersCrossbow_PreNov12013");
+	ItemVariant(Wep_Crossbow, "CrusadersCrossbow_PreOct292013");
+	ItemVariant(Wep_Crossbow, "CrusadersCrossbow_Release");
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
 	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
@@ -1049,6 +1055,7 @@ public void OnPluginStart() {
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
 		dhook_CTFBall_Ornament_Explode = DynamicHook.FromConf(conf, "CTFBall_Ornament::Explode");
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1494,7 +1501,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			}
 		}
 		case Wep_Crossbow: {
-			if (enable) {
+			if (enable && GetItemVariant(Wep_Crossbow) == 0) {
 				patch_RevertCrusaderCrossbow_UbergainNerf.Enable();
 			} else {
 				patch_RevertCrusaderCrossbow_UbergainNerf.Disable();
@@ -2618,6 +2625,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	}
+
+	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Pre, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer);
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Post, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	}
 #if defined MEMORY_PATCHES
 	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
@@ -4535,9 +4547,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 356: player_weapons[client][Wep_ConniversKunai] = true;
 						case 441: player_weapons[client][Wep_CowMangler] = true;
 						case 163: player_weapons[client][Wep_CritCola] = true;
-#if defined MEMORY_PATCHES
 						case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
-#endif
 						case 215: player_weapons[client][Wep_Degreaser] = true;
 						case 127: player_weapons[client][Wep_DirectHit] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
@@ -7778,7 +7788,7 @@ MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
 					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_amputator_current_uber);
 					// use the above PrintToChat to check if GetEntPropFloat occurs only when needed
 			}
-		}	
+		}
 	}
 
 	return MRES_Ignored;
@@ -8711,6 +8721,32 @@ MRESReturn DHookCallback_CTFBall_Ornament_Explode(int entity)
 	if (GetItemVariant(Wep_WrapAssassin) == 1) {
 		return MRES_Supercede;
 	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer(int entity, DHookParam parameters)
+{
+	int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	int weapon;
+	char class[64];
+
+	// Do not grant Uber with pre-tough break variants of the Crusader's Crossbow
+	if (
+		GetItemVariant(Wep_Crossbow) > 0 && 
+		player_weapons[client][Wep_Crossbow] &&
+		client > 0
+	) {
+		weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Secondary);
+
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));								
+			
+			if (StrEqual(class, "tf_weapon_medigun")) {
+				SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[client].medic_medigun_charge);
+			}
+		}
+	}
+
 	return MRES_Ignored;
 }
 
