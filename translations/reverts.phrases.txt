@@ -1058,11 +1058,11 @@
 	}
 	"Eureka_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, 50%% slower repair and upgrade rates, no teleporter metal cost bonus"
+		"en"	"Reverted to pre-matchmaking, 50%% less metal from Dispensers and pickups, no teleporter metal cost bonus"
 	}
 	"Eureka_PreAug2015"
 	{
-		"en"	"Reverted to pre-Aug 27, 2015; 50%% slower repair and upgrade rates, no teleporter metal cost bonus, teleporting to spawn refills health and ammo again"
+		"en"	"Reverted to pre-Aug 27, 2015; 50%% less metal from Dispensers and pickups, no teleporter metal cost bonus, teleporting to spawn refills health and ammo again"
 	}
 	"Eureka_PreGM"
 	{
@@ -1070,7 +1070,7 @@
 	}			
 	"Eureka_Release"
 	{
-		"en"	"Reverted to release, cannot pickup buildings, no slower repair and upgrade rates, no teleporter metal cost bonus, no metal pickup penalty, teleporting to spawn refills health and ammo again, teleport only to spawn"
+		"en"	"Reverted to release, cannot pickup buildings, no slower repair and upgrade rates, no teleporter metal cost bonus, no metal pickup penalty, teleporting to spawn refills health and ammo again, cannot teleport to exits"
 	}
 	"Eviction_PreJI"
 	{
