@@ -8768,7 +8768,7 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer(int entity, 
 		player_weapons[client][Wep_Crossbow] &&
 		client > 0
 	) {
-		weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Secondary);
+		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
 
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));								
