@@ -5384,6 +5384,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 		// Pick up the Wrap Assassin ornament for usage.
 		if (
 			GetItemVariant(Wep_WrapAssassin) == 1 && 
+			StrEqual(class, "tf_projectile_ball_ornament") &&
 			other > 0 && other <= MaxClients
 		) {
 			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
@@ -5396,7 +5397,6 @@ Action SDKHookCB_Touch(int entity, int other) {
 
 			if (
 				GetEntProp(entity, Prop_Send, "m_bTouched") &&
-				StrEqual(class, "tf_projectile_ball_ornament") &&
 				(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 648 || GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 44) &&
 				GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime") > GetGameTime() &&
 				weapon > -1 // sandman cannot pick up ornament balls but can pickup sandman balls (can't find entity error???)
