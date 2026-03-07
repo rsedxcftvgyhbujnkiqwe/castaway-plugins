@@ -2418,16 +2418,18 @@ public void OnGameFrame() {
 										GetEntProp(weapon, Prop_Send, "m_iConsecutiveShots") >= 5 && // on the last shot
 										players[idx].is_last_shot == false
 									) {
-										TF2Attrib_SetByDefIndex(weapon, 36, 1.4); // -40% less accurate on worst case shot
+										TF2Attrib_SetByDefIndex(weapon, 36, 1.1); // -40% less accurate on worst case shot (this is an eyeball-based guesstimate from old videos)
+										// i do not truly know how much exactly was the old spread. all i can rely on is visual historical videos for this. 1.1 seems to be a good enough value.
+										// pre-blue moon panic attack spread: https://www.youtube.com/watch?v=gWd0oTe5hVY&t=118s
 										players[idx].is_last_shot = true;
-										PrintToChatAll("increased spread penalty");
+											// PrintToChatAll("increased spread penalty");
 									} else if (
 										GetEntProp(weapon, Prop_Send, "m_iConsecutiveShots") < 5 &&
 										players[idx].is_last_shot == true
 									) {
 										TF2Attrib_SetByDefIndex(weapon, 36, 1.0); // 0% less accurate
 										players[idx].is_last_shot = false;
-										PrintToChatAll("resetted spread penalty");
+											// PrintToChatAll("resetted spread penalty");
 									}
 								}
 							}
