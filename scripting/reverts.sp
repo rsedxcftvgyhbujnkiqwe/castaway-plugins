@@ -313,8 +313,6 @@ enum struct Player {
 	bool has_cancelled_charge;
 	float time_since_shield_bash;
 	float time_since_charge_cancel;
-	int health_before_kill; // For Conniver's Kunai backstabs.
-	int ticks_since_firing; // For Release and Pre-Tough Break Panic Attack variants
 	bool is_last_shot;
 }
 
@@ -1546,7 +1544,6 @@ public void OnMapStart() {
 	PrecacheSound("items/ammo_pickup.wav");
 	PrecacheSound("items/gunpickup2.wav");
 	PrecacheSound("misc/banana_slip.wav");
-	PrecacheSound("weapons/tf2_backshot_shotty.wav");
 	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
@@ -3746,7 +3743,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
 			switch (GetItemVariant(Wep_PanicAttack)) {
-				case 0, 2 : { // Pre-Inferno and Pre-Tough Break Panic Attack Attributes
+				case 0: { // Pre-Inferno Panic Attack
 					TF2Items_SetNumAttributes(itemNew, 11);
 					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
@@ -3764,8 +3761,23 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.70); // -30% damage penalty
 				}
-				case 3: { // Release Panic Attack
+				case 2: { // Pre-Tough Break Panic Attack Attributes
 					TF2Items_SetNumAttributes(itemNew, 12);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
+					TF2Items_SetAttribute(itemNew, 2, 97, 0.50); // 50% faster reload time
+					TF2Items_SetAttribute(itemNew, 3, 394, 0.70); // +30% faster firing speed (hidden)
+					TF2Items_SetAttribute(itemNew, 4, 424, 0.66); // -34% clip size (hidden)
+					TF2Items_SetAttribute(itemNew, 5, 651, 0.50); // Fire rate increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 6, 708, 1.00); // Hold fire to load up to 4 shells
+					TF2Items_SetAttribute(itemNew, 7, 709, 2.5); // Weapon spread increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 8, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+					TF2Items_SetAttribute(itemNew, 9, 808, 0.00); // Successive shots become less accurate
+					TF2Items_SetAttribute(itemNew, 10, 809, 0.00); // Fires a wide, fixed shot pattern
+					TF2Items_SetAttribute(itemNew, 11, 711, 1.00); // Attrib_AutoFiresWhenFull
+				}				
+				case 3: { // Release Panic Attack
+					TF2Items_SetNumAttributes(itemNew, 13);
 					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
 					TF2Items_SetAttribute(itemNew, 2, 97, 0.66); // 33% faster reload time
@@ -3778,6 +3790,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 9, 808, 0.00); // Successive shots become less accurate
 					TF2Items_SetAttribute(itemNew, 10, 809, 0.00); // Fires a wide, fixed shot pattern
 					TF2Items_SetAttribute(itemNew, 11, 547, 1.00); // This weapon deploys 0% faster 
+					TF2Items_SetAttribute(itemNew, 12, 711, 1.00); // Attrib_AutoFiresWhenFull
 				}
 			}
 		}}
@@ -5099,7 +5112,6 @@ Action OnSoundNormal(
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
 ) {
 	int idx;
-	int weapon;
 
 	if (StrContains(sample, "player/pl_impact_stun") == 0) {
 		for (idx = 1; idx <= MaxClients; idx++) {
@@ -5164,28 +5176,6 @@ Action OnSoundNormal(
 					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
 					strcopy(sample, PLATFORM_MAX_PATH, path);
 					return Plugin_Changed;
-				}
-			}
-		}
-	}
-
-	// Stop Release and Pre-Gun Mettle Panic Attack reload sound when reaching full clip.
-	if (StrContains(sample, "weapons\\shotgun_worldreload.wav") != -1)
-	{
-		for (idx = 1; idx <= MaxClients; ++idx)
-		{
-			if (
-				GetItemVariant(Wep_PanicAttack) >= 2 &&
-				player_weapons[idx][Wep_PanicAttack] &&
-				players[idx].ticks_since_firing == GetGameTickCount() + 1 && 
-				IsPlayerAlive(idx)
-			) {
-				weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-				if (weapon > 0) {
-					if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1153) {
-						return Plugin_Stop;
-					}
 				}
 			}
 		}
@@ -5289,7 +5279,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				other <= MaxClients
 			) {
 				players[other].projectile_touch_frame = GetGameTickCount();
-				players[other].projectile_touch_entity = entity;			
+				players[other].projectile_touch_entity = entity;
 			}
 		}
 	}
@@ -6069,7 +6059,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// Save the player's HP for the Kunai backstab.
 					players[attacker].old_health = GetClientHealth(attacker);
-					players[victim].health_before_kill = GetClientHealth(victim);
+					players[victim].old_health = GetClientHealth(victim);
 				}
 			}
 
@@ -6077,7 +6067,7 @@ Action SDKHookCB_OnTakeDamage(
 				GetEntityClassname(inflictor, class, sizeof(class));
 
 				{
-					// bison/pomson stuff
+					players[victim].old_health = GetClientHealth(victim);
 
 					if (StrEqual(class, "tf_projectile_energy_ring")) {
 						GetEntityClassname(weapon, class, sizeof(class));
@@ -6635,14 +6625,15 @@ void SDKHookCB_OnTakeDamagePost(
 			player_weapons[attacker][Wep_ConniversKunai] && 
 			damage_custom == TF_CUSTOM_BACKSTAB
 		) { 
-			// Show that attacker got healed.
-			Handle event = CreateEvent("player_healonhit", true);
-			SetEventInt(event, "amount", intMin(KUNAI_OVERHEAL - players[attacker].old_health, players[victim].health_before_kill));
-			SetEventInt(event, "entindex", attacker);
-			FireEvent(event);
+			int heal_amt = intMin(players[victim].old_health, KUNAI_OVERHEAL - players[attacker].old_health);
 
-			// Set health.
-			SetEntityHealth(attacker, intMin(players[attacker].old_health + players[victim].health_before_kill, KUNAI_OVERHEAL));
+			if (heal_amt > 0) {
+				// Show that attacker got healed.
+				Event event = CreateEvent("player_healonhit", true);
+				event.SetInt("amount", TF2Util_TakeHealth(attacker, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH));
+				event.SetInt("entindex", attacker);
+				event.Fire();
+			}
 		}
 
 		if (inflictor > MaxClients) {
@@ -6958,34 +6949,6 @@ public Action OnPlayerRunCmd(
 			}
 		}
 	}
-
-		// case TFClass_Soldier, TFClass_Pyro, TFClass_Heavy, TFClass_Engineer:
-		// why doesn't this case work, the compiler throws out a "duplicate case" error for some reason???
-		{
-			// Release and Pre-Tough Break Panic Attack Auto-Fire on full clip revert
-			if (
-				GetItemVariant(Wep_PanicAttack) >= 2 &&
-				player_weapons[client][Wep_PanicAttack] &&
-				IsPlayerAlive(client)
-			) {
-				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-				if (weapon1 > 0) {
-
-					if (
-						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1153 &&
-						GetEntProp(weapon1, Prop_Send, "m_iClip1") == 4
-					) {
-						players[client].ticks_since_firing = GetGameTickCount();
-						buttons ^= IN_ATTACK;
-						EmitSoundToAll("weapons/tf2_backshot_shotty.wav", weapon1, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
-						return Plugin_Changed;
-					}
-				}
-				players[client].was_in_attack = buttons & IN_ATTACK;
-				return Plugin_Continue;
-			}		
-		}
 	return returnValue;
 }
 
