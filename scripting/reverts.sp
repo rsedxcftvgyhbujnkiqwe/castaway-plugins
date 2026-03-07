@@ -2488,36 +2488,6 @@ public void OnGameFrame() {
 	// run every 66 frames (~1s)
 	if (frame % 66 == 0) {
 		{
-			for (idx = 1; idx <= MaxClients; idx++) {
-				if (
-					IsClientInGame(idx) &&
-					IsPlayerAlive(idx) &&
-					(GetItemVariant(Wep_CozyCamper) == 1 || 
-					GetItemVariant(Wep_CozyCamper) == 2 || 
-					GetItemVariant(Wep_CozyCamper) == 3)
-				) {
-					{
-						// +1 hp/s passive heal revert for cozy camper variants
-						health_cur = GetClientHealth(idx);
-						health_max = SDKCall(sdkcall_GetMaxHealth, idx);
-					
-						if (
-							player_weapons[idx][Wep_CozyCamper] &&
-							health_cur < health_max
-						) {
-							// Show that attacker got healed.
-							Handle event = CreateEvent("player_healonhit", true);
-							SetEventInt(event, "amount", 1);
-							SetEventInt(event, "entindex", idx);
-							FireEvent(event);
-
-							// Set health.
-							SetEntityHealth(idx, intMin(health_cur + 1, health_max));
-						}
-					}
-				}
-			}
-
 			// set all the convars needed
 
 			// these cvars are changed just-in-time, reset them
@@ -3248,16 +3218,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_CozyCamper)) {
 				case 1: { // Pre-Tough Break Cozy Camper
 					TF2Items_SetNumAttributes(itemNew, 1);
-					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer; full 1 hp regen handled in RegenThink
 				}
 				case 2: { // Pre-Gun Mettle Cozy Camper
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer; full 1 hp regen handled in RegenThink
 					TF2Items_SetAttribute(itemNew, 1, 412, 1.20); // 20% damage vulnerability on wearer
 				}
 				case 3: { // Pre-July 10, 2013 Cozy Camper
 					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 57, 0.00); // +0 health regenerated per second on wearer; hp regen handled elsewhere
+					TF2Items_SetAttribute(itemNew, 0, 57, 1.00); // +1 health regenerated per second on wearer; hp regen handled in RegenThink
 					TF2Items_SetAttribute(itemNew, 1, 378, 0.20); // -80% slower move speed when aiming; mult_player_aiming_movespeed
 				}
 				case 4: { // Release Cozy Camper
@@ -8254,7 +8224,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 				full_regen = true;
 			}
 		}
-	
+
 		// Grab active weapon
 		weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 		
@@ -8271,6 +8241,18 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 		if (player_weapons[client][Set_Medieval]) {
 			// Full regen for Medieval Medic set
 			full_regen = true;
+		}
+
+		if (
+			(GetItemVariant(Wep_CozyCamper) == 1 || 
+			GetItemVariant(Wep_CozyCamper) == 2 || 
+			GetItemVariant(Wep_CozyCamper) == 3) &&
+			weapon > 0
+		) {
+			if (player_weapons[client][Wep_CozyCamper]) {
+				// Full +1 hp regen for Cozy Camper
+				full_regen = true;
+			}
 		}
 
 		if (full_regen) {
