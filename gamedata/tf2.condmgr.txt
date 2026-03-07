@@ -5,21 +5,23 @@
 		"Signatures"
 		{
 			"CTFPlayerShared::AddCond"	// (ETFCond, float, CBaseEntity*)
+			// WINDOWS SIGNATURE: search for "FUN_10519", look for function size of around 325, find a "void __thiscall" function,
+			// find a function with 4 parameters, 5 variables - float fVar1; char cVar2; int iVar3; uint *local_c; uint local_8
 			{
 				"library" 	"server"
-				"windows" 	"\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x8B\x8E\x8C\x01\x00\x00\x85\xC9"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\xF9\x8B\x8F\x2A\x2A\x2A\x2A\x85\xC9\x0F\x84"
 				"linux" 	"@_ZN15CTFPlayerShared7AddCondE7ETFCondfP11CBaseEntity"
 			}
-			"CTFPlayerShared::RemoveCond" 	// (ETFCond, bool)
+			"CTFPlayerShared::RemoveCond" 	// (ETFCond, bool) search string for "damage_prevented"
 			{
 				"library" 	"server"
-				"windows" 	"\x55\x8B\xEC\x83\xEC\x08\x53\x8B\x5D\x08\x56\x53"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x2A\x57\x53"
 				"linux" 	"@_ZN15CTFPlayerShared10RemoveCondE7ETFCondb"
 			}
 			"CTFConditionList::Remove"	// (ETFCond, bool)
 			{
 				"library" 	"server"
-				"windows" 	"\x55\x8B\xEC\xFF\x75\x0C\xFF\x75\x08\xE8\x2A\x2A\x2A\x2A\x83\x7D\x08\x0B"
+				"windows" 	"\x55\x8B\xEC\xFF\x75\x2A\xFF\x75\x2A\xE8\x2A\x2A\x2A\x2A\x8B\xC8\xE8\x2A\x2A\x2A\x2A\x5D\xC2\x08\x00"
 				"linux" 	"@_ZN16CTFConditionList6RemoveE7ETFCondb"
 			}
 		}
