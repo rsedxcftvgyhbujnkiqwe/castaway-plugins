@@ -314,6 +314,8 @@ enum struct Player {
 	float time_since_shield_bash;
 	float time_since_charge_cancel;
 	int health_before_kill; // For Conniver's Kunai backstabs.
+	int ticks_since_firing; // For Release and Pre-Tough Break Panic Attack variants
+	bool is_last_shot;
 }
 
 enum struct Entity {
@@ -331,7 +333,7 @@ ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
-ConVar cvar_allow_cloak_taunt_bug;
+// ConVar cvar_allow_cloak_taunt_bug;
 ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
@@ -373,8 +375,8 @@ MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
-MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
-MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
+// MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
+// MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -633,7 +635,7 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "0", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
-	cvar_allow_cloak_taunt_bug = CreateConVar("sm_reverts__enable_allow_cloak_taunt_bug", "0", (PLUGIN_NAME ... " - Revert cloak behaviour so spy can taunt and cloak (i.e old fence taunt cloak bug)"), _, true, 0.0, true, 1.0);
+	// cvar_allow_cloak_taunt_bug = CreateConVar("sm_reverts__enable_allow_cloak_taunt_bug", "0", (PLUGIN_NAME ... " - Revert cloak behaviour so spy can taunt and cloak (i.e old fence taunt cloak bug)"), _, true, 0.0, true, 1.0);
 	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Revert so demoman can detonate stickies while taunting. Requires "), _, true, 0.0, true, 1.0);
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
@@ -642,7 +644,7 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
-	cvar_allow_cloak_taunt_bug.AddChangeHook(OnAllowCloakTauntBugChange);
+	// cvar_allow_cloak_taunt_bug.AddChangeHook(OnAllowCloakTauntBugChange);
 	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
 #endif
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
@@ -848,6 +850,9 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Natascha, "Natascha_PreDec2010");
 	ItemDefine("overdose", "Overdose_PreMYM", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Overdose);
 	ItemDefine("panic", "Panic_PreJI", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO | CLASSFLAG_HEAVY | CLASSFLAG_ENGINEER, Wep_PanicAttack);
+	ItemVariant(Wep_PanicAttack, "Panic_PreBM");
+	ItemVariant(Wep_PanicAttack, "Panic_PreTB");
+	ItemVariant(Wep_PanicAttack, "Panic_Release");
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
 	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
@@ -1140,12 +1145,12 @@ public void OnPluginStart() {
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
+		// patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
+		// 	MemoryPatch.CreateFromConf(conf,
+		// 	"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
+		// patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
+		// 	MemoryPatch.CreateFromConf(conf,
+		// 	"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1216,14 +1221,14 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertIronBomber_PipeHitbox");
 		}
-		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
-		}
-		if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
-		}
+		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
+		// 	hook_fail=true;
+		// 	LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
+		// }
+		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer)) {
+		// 	hook_fail=true;
+		// 	LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
+		// }
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
 			hook_fail=true;
@@ -1340,15 +1345,15 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		patch_DroppedWeapon.Disable();
 	}
 }
-public void OnAllowCloakTauntBugChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-	if (convar.BoolValue) {
-		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Enable();
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Enable();
-	} else {
-		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Disable();
-		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Disable();
-	}
-}
+// public void OnAllowCloakTauntBugChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+// 	if (convar.BoolValue) {
+// 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Enable();
+// 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Enable();
+// 	} else {
+// 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Disable();
+// 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Disable();
+// 	}
+// }
 #else
 public void OnDroppedWeaponLifetimeCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1409,7 +1414,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
-	OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
+	// OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
 	UpdateStickyLauncherDescription();
 #else
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -1541,6 +1546,7 @@ public void OnMapStart() {
 	PrecacheSound("items/ammo_pickup.wav");
 	PrecacheSound("items/gunpickup2.wav");
 	PrecacheSound("misc/banana_slip.wav");
+	PrecacheSound("weapons/tf2_backshot_shotty.wav");
 	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
@@ -2390,6 +2396,43 @@ public void OnGameFrame() {
 				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
 					// reset if player isn't engineer
 					players[idx].is_eureka_teleporting = false;
+				}
+
+				if (
+					TF2_GetPlayerClass(idx) == TFClass_Soldier ||
+					TF2_GetPlayerClass(idx) == TFClass_Pyro ||
+					TF2_GetPlayerClass(idx) == TFClass_Heavy ||
+					TF2_GetPlayerClass(idx) == TFClass_Engineer
+				) {
+					{
+						// Pre-Blue Moon Panic Attack +40% bullet spread revert on worst-case shot
+
+						if (GetItemVariant(Wep_PanicAttack) == 1) {
+							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+							if (weapon > 0) {
+								GetEntityClassname(weapon, class, sizeof(class));
+
+								if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1153) {
+									if (
+										GetEntProp(weapon, Prop_Send, "m_iConsecutiveShots") >= 5 && // on the last shot
+										players[idx].is_last_shot == false
+									) {
+										TF2Attrib_SetByDefIndex(weapon, 36, 1.4); // -40% less accurate on worst case shot
+										players[idx].is_last_shot = true;
+										PrintToChatAll("increased spread penalty");
+									} else if (
+										GetEntProp(weapon, Prop_Send, "m_iConsecutiveShots") < 5 &&
+										players[idx].is_last_shot == true
+									) {
+										TF2Attrib_SetByDefIndex(weapon, 36, 1.0); // 0% less accurate
+										players[idx].is_last_shot = false;
+										PrintToChatAll("resetted spread penalty");
+									}
+								}
+							}
+						}
+					}
 				}
 			} else {
 				// reset if player is dead
@@ -3700,18 +3743,41 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 1, 792, 1.10); // mult_player_movespeed_resource_level
 		}}
 		case 1153: { if (ItemIsEnabled(Wep_PanicAttack)) {
-			TF2Items_SetNumAttributes(itemNew, 11);
-			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
-			TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
-			TF2Items_SetAttribute(itemNew, 2, 97, 0.50); // 50% faster reload time
-			TF2Items_SetAttribute(itemNew, 3, 394, 0.70); // +30% faster firing speed (hidden)
-			TF2Items_SetAttribute(itemNew, 4, 424, 0.66); // -34% clip size (hidden)
-			TF2Items_SetAttribute(itemNew, 5, 651, 0.50); // Fire rate increases as health decreases.
-			TF2Items_SetAttribute(itemNew, 6, 708, 1.00); // Hold fire to load up to 4 shells
-			TF2Items_SetAttribute(itemNew, 7, 709, 2.5); // Weapon spread increases as health decreases.
-			TF2Items_SetAttribute(itemNew, 8, 710, 1.00); // Attrib_AutoFiresFullClipNegative
-			TF2Items_SetAttribute(itemNew, 9, 808, 0.00); // Successive shots become less accurate
-			TF2Items_SetAttribute(itemNew, 10, 809, 0.00); // Fires a wide, fixed shot pattern
+			switch (GetItemVariant(Wep_PanicAttack)) {
+				case 0, 2 : { // Pre-Inferno and Pre-Tough Break Panic Attack Attributes
+					TF2Items_SetNumAttributes(itemNew, 11);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
+					TF2Items_SetAttribute(itemNew, 2, 97, 0.50); // 50% faster reload time
+					TF2Items_SetAttribute(itemNew, 3, 394, 0.70); // +30% faster firing speed (hidden)
+					TF2Items_SetAttribute(itemNew, 4, 424, 0.66); // -34% clip size (hidden)
+					TF2Items_SetAttribute(itemNew, 5, 651, 0.50); // Fire rate increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 6, 708, 1.00); // Hold fire to load up to 4 shells
+					TF2Items_SetAttribute(itemNew, 7, 709, 2.5); // Weapon spread increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 8, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+					TF2Items_SetAttribute(itemNew, 9, 808, 0.00); // Successive shots become less accurate
+					TF2Items_SetAttribute(itemNew, 10, 809, 0.00); // Fires a wide, fixed shot pattern
+				}
+				case 1: { // Pre-Blue Moon Panic Attack
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.70); // -30% damage penalty
+				}
+				case 3: { // Release Panic Attack
+					TF2Items_SetNumAttributes(itemNew, 12);
+					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // -0% damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 45, 1.00); // +0% bullets per shot
+					TF2Items_SetAttribute(itemNew, 2, 97, 0.66); // 33% faster reload time
+					TF2Items_SetAttribute(itemNew, 3, 394, 0.85); // +15% faster firing speed (hidden)
+					TF2Items_SetAttribute(itemNew, 4, 424, 0.66); // -34% clip size (hidden)
+					TF2Items_SetAttribute(itemNew, 5, 651, 0.50); // Fire rate increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 6, 708, 1.00); // Hold fire to load up to 4 shells
+					TF2Items_SetAttribute(itemNew, 7, 709, 2.5); // Weapon spread increases as health decreases.
+					TF2Items_SetAttribute(itemNew, 8, 710, 1.00); // Attrib_AutoFiresFullClipNegative
+					TF2Items_SetAttribute(itemNew, 9, 808, 0.00); // Successive shots become less accurate
+					TF2Items_SetAttribute(itemNew, 10, 809, 0.00); // Fires a wide, fixed shot pattern
+					TF2Items_SetAttribute(itemNew, 11, 547, 1.00); // This weapon deploys 0% faster 
+				}
+			}
 		}}
 		case 594: { if (ItemIsEnabled(Wep_Phlogistinator)) {
 			switch (GetItemVariant(Wep_Phlogistinator)) {
@@ -5031,6 +5097,7 @@ Action OnSoundNormal(
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
 ) {
 	int idx;
+	int weapon;
 
 	if (StrContains(sample, "player/pl_impact_stun") == 0) {
 		for (idx = 1; idx <= MaxClients; idx++) {
@@ -5095,6 +5162,28 @@ Action OnSoundNormal(
 					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
 					strcopy(sample, PLATFORM_MAX_PATH, path);
 					return Plugin_Changed;
+				}
+			}
+		}
+	}
+
+	// Stop Release and Pre-Gun Mettle Panic Attack reload sound when reaching full clip.
+	if (StrContains(sample, "weapons\\shotgun_worldreload.wav") != -1)
+	{
+		for (idx = 1; idx <= MaxClients; ++idx)
+		{
+			if (
+				GetItemVariant(Wep_PanicAttack) >= 2 &&
+				player_weapons[idx][Wep_PanicAttack] &&
+				players[idx].ticks_since_firing == GetGameTickCount() + 1 && 
+				IsPlayerAlive(idx)
+			) {
+				weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+				if (weapon > 0) {
+					if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1153) {
+						return Plugin_Stop;
+					}
 				}
 			}
 		}
@@ -6867,7 +6956,34 @@ public Action OnPlayerRunCmd(
 			}
 		}
 	}
-	
+
+		// case TFClass_Soldier, TFClass_Pyro, TFClass_Heavy, TFClass_Engineer:
+		// why doesn't this case work, the compiler throws out a "duplicate case" error for some reason???
+		{
+			// Release and Pre-Tough Break Panic Attack Auto-Fire on full clip revert
+			if (
+				GetItemVariant(Wep_PanicAttack) >= 2 &&
+				player_weapons[client][Wep_PanicAttack] &&
+				IsPlayerAlive(client)
+			) {
+				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+
+				if (weapon1 > 0) {
+
+					if (
+						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1153 &&
+						GetEntProp(weapon1, Prop_Send, "m_iClip1") == 4
+					) {
+						players[client].ticks_since_firing = GetGameTickCount();
+						buttons ^= IN_ATTACK;
+						EmitSoundToAll("weapons/tf2_backshot_shotty.wav", weapon1, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_CHANGEPITCH | SND_CHANGEVOL);
+						return Plugin_Changed;
+					}
+				}
+				players[client].was_in_attack = buttons & IN_ATTACK;
+				return Plugin_Continue;
+			}		
+		}
 	return returnValue;
 }
 

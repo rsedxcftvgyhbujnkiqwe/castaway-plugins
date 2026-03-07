@@ -1274,7 +1274,19 @@
 	}
 	"Panic_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower health"
+		"en"	"Reverted to pre-inferno, hold fire to load, let go to release, fire faster with bigger spread on lower hp, 30%% base fire rate, 50%% base reload speed, +50%% switch speed increase"
+	}
+	"Panic_PreBM"
+	{
+		"en"	"Reverted to pre-blue moon, 40%% increase in worst-case shot pattern spread, -30%% dmg penalty"
+	}
+	"Panic_PreTB"
+	{
+		"en"	"Reverted to pre-toughbreak, hold fire to load (auto-fires if full), let go to release, fire faster w/ bigger spread on lower hp, 30%% base fire rate, 50%% base reload speed, +50%% switch speed increase"
+	}
+	"Panic_Release"
+	{
+		"en"	"Reverted to release, hold fire to load (auto-fires if full), let go to release, fire faster w/ bigger spread on lower hp, 15%% base fire rate, 33%% base reload speed, no switch speed increase"
 	}
 	"Persuader_PreTB"
 	{
