@@ -134,6 +134,10 @@
 	{
 		"en"	"All Flamethrowers"
 	}
+	"extinguish"
+	{
+		"en"	"Health on Extinguish"
+	}
 	"grenade"
 	{
 		"en"	"All Grenade Launchers"
@@ -615,6 +619,10 @@
 	"Flamethrower_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, full damage with no density ramp up (around +30%% more flame DPS)"
+	}
+	"PyroExtinguish_PreTB"
+	{
+		"en"	"Reverted to pre-tough break, extinguishing teammates with Flamethrowers does not restore health"
 	}
 	"Grenade_Pre2014"
 	{

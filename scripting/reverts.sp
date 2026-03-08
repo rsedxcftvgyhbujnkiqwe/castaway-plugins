@@ -469,15 +469,16 @@ enum
 #if defined MEMORY_PATCHES
 	Feat_Flamethrower, // All Flamethrowers
 #endif
+	Feat_PyroExtinguish, // Pyro Gain +20 HP on Extinguish revert
 	Feat_Grenade, // All Grenade Launchers
+	Feat_Stickybomb, // All Stickybomb Launchers
+	Feat_Sword, // All Swords	
 	Feat_Minigun, // All Miniguns
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
 	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
-	Feat_Stickybomb, // All Stickybomb Launchers
-	Feat_Sword, // All Swords
 
 	// Item sets
 	Set_SpDelivery,		// Scout
@@ -652,15 +653,16 @@ public void OnPluginStart() {
 #if defined MEMORY_PATCHES
 	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
 #endif
+	ItemDefine("extinguish", "PyroExtinguish_PreTB", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Feat_PyroExtinguish);
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
+	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
+	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
-	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
-	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
 	// Item sets
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
@@ -4287,6 +4289,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, int level, int quality, int entity) {
 	if (
+		ItemIsEnabled(Feat_PyroExtinguish) &&
+		(index != 594) && // Phlogistinator exception
+		(StrEqual(class, "tf_weapon_flamethrower") ||
+		StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
+	) {
+		TF2Attrib_SetByDefIndex(entity, 783, 0.0); // extinguish restores health 
+	}
+	else if (
 		ItemIsEnabled(Feat_Grenade) &&
 		StrEqual(class, "tf_weapon_grenadelauncher")
 	) {
@@ -4566,6 +4576,14 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 #endif
 					else if (StrContains(class, "tf_weapon_rocketpack") == 0) {
 						player_weapons[client][Wep_ThermalThruster] = true;
+					}
+
+					if (
+						(index != 594) &&
+						(StrEqual(class, "tf_weapon_flamethrower") ||
+						StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
+					) {
+						player_weapons[client][Feat_PyroExtinguish] = true;
 					}
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
