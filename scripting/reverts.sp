@@ -5402,6 +5402,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int health_cur;
 	int health_max;
 	int healer;
+	float stun_amt;
+	float pos1[3];
+	float pos2[3];
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -5676,16 +5679,25 @@ Action SDKHookCB_OnTakeDamageAlive(
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
+			// natascha slowdown
 			{
-				// Natascha stun. Stun amount/duration taken from TF2 source code. Imported from NotnHeavy's pre-GM plugin
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
 				) {
-					// Slow enemy on hit, unless they're being healed by a medic
-					TF2_StunPlayer(victim, 0.20, 0.60, TF_STUNFLAG_SLOWDOWN, attacker);
+					stun_amt = 0.0;
+					if (GetItemVariant(Wep_Natascha) == 1) {
+						// reduce stun amount according to distance (from decompiled pre-GM build)
+						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+						stun_amt = GetVectorDistance(pos1, pos2, true) * 4.4444445e-07;
+						stun_amt = -0.2 * clamp(stun_amt, 0.0, 1.0);
+					}
+					stun_amt += 0.60;
+
+					TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);
 				}
 			}
 		}
@@ -8245,6 +8257,10 @@ stock float ValveRemapVal(float val, float a, float b, float c, float d) {
 	if (tmp > 1.0) tmp = 1.0;
 
 	return (c + ((d - c) * tmp));
+}
+
+stock float clamp(float val, float a, float b) {
+	return (val > b ? b : (val < a ? a : val));
 }
 
 stock void RotateVectorAroundZAxis(float vector[3], float angle, float output[3]) {

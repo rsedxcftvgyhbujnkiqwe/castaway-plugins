@@ -978,7 +978,7 @@
 	}
 	"Natascha_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, full slowdown at any distance, 300 max ammo, no damage resistance when spun up"
+		"en"	"Reverted to pre-gunmettle, reduced slowdown distance falloff, 300 max ammo, no damage resistance when spun up"
 	}
 	"Natascha_PreDec2010"
 	{
