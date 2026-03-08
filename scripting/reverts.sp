@@ -5260,20 +5260,6 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
-				// Somehow even with the "cannot be crit boosted" attribute, 
-				// the reverted Cow Mangler still does crits while crit boosted even when the crit boost glow doesn't show up.
-				if (
-					ItemIsEnabled(Wep_CowMangler) &&
-					StrEqual(class, "tf_weapon_particle_cannon") &&
-					damage_type & DMG_CRIT != 0
-				) {
-					damage_type ^= DMG_CRIT;
-					return Plugin_Changed;
-				}
-			}
-
-			{
 				// direct hit minicrits
 				if (
 					ItemIsEnabled(Wep_DirectHit) &&
@@ -5339,6 +5325,31 @@ Action SDKHookCB_OnTakeDamage(
 
 							return Plugin_Changed;
 						}
+					} else if (
+						ItemIsEnabled(Wep_CowMangler) && 
+						StrEqual(class, "tf_projectile_energy_ball")
+					) {
+						// no crits.
+						damage_type &= ~DMG_CRIT;
+
+						// cow mangler old damage ramp
+						if (GetItemVariant(Wep_CowMangler) == 0) {
+							damage *= 0.9;
+
+							GetClientEyePosition(attacker, pos1);
+							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+
+							pos2[2] += PLAYER_CENTER_HEIGHT;
+
+							// ghetto ramp up calculation
+							// current tf2 applies 25% ramp up, apply 20% extra here (old was 50%)
+							float distance = GetVectorDistance(pos1, pos2);
+							if (distance < 512.0) {
+								damage *= 1.0 + (0.20 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)));
+							}
+						}
+
+						return Plugin_Changed;
 					}
 				}
 			}
