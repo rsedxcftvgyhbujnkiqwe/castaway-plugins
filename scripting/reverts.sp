@@ -775,9 +775,11 @@ public void OnPluginStart() {
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury, true);
+	ItemDefine("dragonfury", "DragonFury_PreBM", CLASSFLAG_PYRO, Wep_DragonFury, true);
+	ItemVariant(Wep_DragonFury, "DragonFury_Release");
 #else
-	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemDefine("dragonfury", "DragonFury_PreBM_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
+	ItemVariant(Wep_DragonFury, "DragonFury_Release_Patchless");
 #endif
 	ItemDefine("enforcer", "Enforcer_PreGM", CLASSFLAG_SPY, Wep_Enforcer);
 	ItemVariant(Wep_Enforcer, "Enforcer_Release");
@@ -3398,7 +3400,15 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 114, 0.00); // Mini-crits targets launched airborne by explosions, grapple hooks or rocket packs.
 				}
 			}
-		}}		
+		}}
+		case 1178: { if (ItemIsEnabled(Wep_DragonFury)) {
+			switch (GetItemVariant(Wep_DragonFury)) {
+				case 1: { // Release Dragon's Fury
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 783, 0.00); // extinguish restores health
+				}
+			}
+		}}
 		case 460: { if (ItemIsEnabled(Wep_Enforcer)) {
 			switch (GetItemVariant(Wep_Enforcer)) {
 				case 1: {
@@ -4291,8 +4301,7 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 	if (
 		ItemIsEnabled(Feat_PyroExtinguish) &&
 		(index != 594) && // Phlogistinator exception
-		(StrEqual(class, "tf_weapon_flamethrower") ||
-		StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
+		StrEqual(class, "tf_weapon_flamethrower") // Does not include Dragon's Fury, since it had hp on and no hp on extinguish versions
 	) {
 		TF2Attrib_SetByDefIndex(entity, 783, 0.0); // extinguish restores health 
 	}
@@ -4580,8 +4589,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					if (
 						(index != 594) &&
-						(StrEqual(class, "tf_weapon_flamethrower") ||
-						StrEqual(class, "tf_weapon_rocketlauncher_fireball"))
+						StrEqual(class, "tf_weapon_flamethrower")
 					) {
 						player_weapons[client][Feat_PyroExtinguish] = true;
 					}

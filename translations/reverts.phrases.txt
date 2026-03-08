@@ -1008,14 +1008,22 @@
 	{
 		"en"	"Reverted to pre-matchmaking, give allies 3 seconds of speed buff on hit"
 	}
-	"DragonFury_Release"
+	"DragonFury_PreBM"
 	{
 		"en"	"Reverted to pre-bluemoon, increased hitbox size and no center-hit requirement for bonus damage"
 	}
-	"DragonFury_Release_Patchless"
+	"DragonFury_Release"
+	{
+		"en"	"Reverted to release, increased hitbox size and no center-hit requirement for bonus damage, no hp on extinguish bonus"
+	}	
+	"DragonFury_PreBM_Patchless"
 	{
 		"en"	"Partially reverted to pre-bluemoon, increased hitbox size"
 	}
+	"DragonFury_Release_Patchless"
+	{
+		"en"	"Partially reverted to release, increased hitbox size, no hp on extinguish bonus"
+	}	
 	"Enforcer_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, +20%% damage bonus while undisguised, no piercing"
