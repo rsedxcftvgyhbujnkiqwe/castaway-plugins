@@ -2987,19 +2987,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			switch (GetItemVariant(Wep_CowMangler)) {
 				case 0: {
 					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 288, 1.0); // no_crit_boost; this attribute does not work properly! you still get crits but without the crit glow
-					TF2Items_SetAttribute(itemNew, 1, 335, 1.25); // mult_clipsize_upgrade; increase clip to 5 shots, attrib 4 doesn't work
-					TF2Items_SetAttribute(itemNew, 2, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 0, 288, 1.0); // Cannot be crit boosted
+					TF2Items_SetAttribute(itemNew, 1, 335, 1.25); // +25% clip size
+					TF2Items_SetAttribute(itemNew, 2, 869, 0.0); // Minicrits whenever it would normally crit
 				}
 				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // mult_dmg; -10% damage penalty
-					TF2Items_SetAttribute(itemNew, 1, 96, 1.05); // mult_reload_time; 5% slower reload time
-					TF2Items_SetAttribute(itemNew, 2, 288, 1.0); // no_crit_boost
-					TF2Items_SetAttribute(itemNew, 3, 335, 1.25); // mult_clipsize_upgrade
-					TF2Items_SetAttribute(itemNew, 4, 869, 0.0); // crits_become_minicrits
+					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // -10% damage penalty
+					TF2Items_SetAttribute(itemNew, 1, 96, 1.05); // 5% slower reload time
+					TF2Items_SetAttribute(itemNew, 2, 288, 1.0); // Cannot be crit boosted
+					TF2Items_SetAttribute(itemNew, 3, 335, 1.25); // +25% clip size
+					TF2Items_SetAttribute(itemNew, 4, 869, 0.0); // Minicrits whenever it would normally crit
 				}
-				// no crit boost attribute fix handled elsewhere in SDKHookCB_OnTakeDamage
+				// no crit boost attribute fix handled elsewhere
 			}
 		}}
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
@@ -5245,7 +5245,20 @@ Action SDKHookCB_OnTakeDamage(
 					return Plugin_Changed;
 				}
 			}
-		
+
+			{
+				// temporarily remove natascha slow attrib
+				if (
+					GetItemVariant(Wep_Natascha) >= 1 &&
+					StrEqual(class, "tf_weapon_minigun") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
+					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+				) {
+					TF2Attrib_SetByDefIndex(weapon, 32, 0.0); // On Hit: 0% chance to slow target
+					PrintToChat(attacker, "removed natascha attrib");
+				}
+			}
+
 			{
 				// Cow Mangler Revert No Crit Boost Attribute Fix for all variants
 				// Somehow even with the "cannot be crit boosted" attribute, 
@@ -5698,6 +5711,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					stun_amt += 0.60;
 
 					TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);
+					TF2Attrib_RemoveByDefIndex(weapon, 32); // restore the attribute
 				}
 			}
 		}
@@ -5774,7 +5788,9 @@ void SDKHookCB_OnTakeDamagePost(
 					player_weapons[attacker][Wep_BuffBanner]
 				) {
 					delta *= 0.6; // 600.0 / 1000.0
-				} else if (
+				}
+				
+				if (
 					ItemIsEnabled(Wep_Phlogistinator) &&
 					player_weapons[attacker][Wep_Phlogistinator]
 				) {
@@ -5788,7 +5804,7 @@ void SDKHookCB_OnTakeDamagePost(
 
 		if (
 			victim == attacker &&
-			damage > 0 &&
+			damage > 0.0 &&
 			damage_type & DMG_BLAST != 0
 		) {
 			if (
@@ -5806,17 +5822,6 @@ void SDKHookCB_OnTakeDamagePost(
 		}
 
 		if (
-			GetItemVariant(Wep_SydneySleeper) == 0 &&
-			players[attacker].sleeper_piss_frame == GetGameTickCount() &&
-			weapon > 0
-		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230) {
-				// Restore sleeper attrib
-				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
-			}
-		}
-
-		if (
 			ItemIsEnabled(Wep_BazaarBargain) &&
 			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
 			players[attacker].bazaar_shot == BAZAAR_GAIN &&
@@ -5824,6 +5829,19 @@ void SDKHookCB_OnTakeDamagePost(
 		) {
 			// Bazaar Bargain: do not gain two heads in one time.
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+		}
+
+		if (weapon > 0) {
+			//GetEntityClassname(weapon, class, sizeof(class));
+
+			if (
+				GetItemVariant(Wep_SydneySleeper) == 0 &&
+				players[attacker].sleeper_piss_frame == GetGameTickCount() &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 230
+			) {
+				// Restore sleeper attrib
+				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
+			}
 		}
 
 		if (inflictor > MaxClients) {
