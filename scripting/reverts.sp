@@ -5255,7 +5255,6 @@ Action SDKHookCB_OnTakeDamage(
 					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
 				) {
 					TF2Attrib_SetByDefIndex(weapon, 32, 0.0); // On Hit: 0% chance to slow target
-					PrintToChat(attacker, "removed natascha attrib");
 				}
 			}
 
