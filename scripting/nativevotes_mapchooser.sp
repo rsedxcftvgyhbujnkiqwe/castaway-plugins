@@ -119,6 +119,8 @@ int g_winCount[MAXTEAMS];
 bool g_NativeVotes;
 #define LIBRARY "nativevotes"
 
+char MGE_MAPS[][PLATFORM_MAX_PATH] = { "mge_bball_v2", "mge_chillypunch_final4_fix2", "mge_dueling_v1_fix1", "mge_oihguv_sucks_a12", "mge_oihguv_sucks_b5", "mge_training_v8_beta4b", "mge_triumph_beta7_rc1" };
+
 public void OnPluginStart()
 {
 	LoadTranslations("mapchooser.phrases");
@@ -1318,6 +1320,11 @@ void CreateNextVote()
 	//GetCurrentMap always returns a resolved map
 	GetCurrentMap(map, sizeof(map));
 	RemoveStringFromArray(tempMaps, map);
+
+	//no MGE maps in random selection
+	for (int i = 0; i < sizeof(MGE_MAPS); i++) {
+		RemoveStringFromArray(tempMaps, MGE_MAPS[i]);
+	}
 	
 	if (g_Cvar_ExcludeMaps.IntValue && tempMaps.Length > g_Cvar_ExcludeMaps.IntValue)
 	{
