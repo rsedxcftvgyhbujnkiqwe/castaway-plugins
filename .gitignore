@@ -27,6 +27,7 @@ scripting/nativevotes/*
 !scripting/webshortcuts.sp
 !scripting/supersprayhandler.sp
 !scripting/afkmanager.sp
+!scripting/mgehandler.sp
 
 #includes
 !scripting/include/
