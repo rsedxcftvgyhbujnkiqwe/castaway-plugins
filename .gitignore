@@ -40,6 +40,7 @@ scripting/include/*
 !scripting/include/tf2utils.inc
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
+!scripting/include/afkmanager.inc
 
 !gamedata/
 gamedata/*
