@@ -25,6 +25,12 @@ ConVar g_cvAfkSpecTime;
 ConVar g_cvAfkSpecMovedTime;
 ConVar g_cvMinPlayerCount;
 
+GlobalForward g_fwOnAfkKick;
+
+public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max) {
+    RegPluginLibrary("afkmanager");
+}
+
 public void OnPluginStart()
 {
 	g_cvEnabled = CreateConVar("sm_afkmanager_enabled","1","Enable AFK Manager", _, true, 0.0, true, 1.0);
@@ -33,6 +39,8 @@ public void OnPluginStart()
     g_cvAfkSpecTime = CreateConVar("sm_afkmanager_spec_time", "300", "How long a player must be AFK in spectator before they are kicked, in seconds.", _, true, 60.0);
     g_cvAfkSpecMovedTime = CreateConVar("sm_afkmanager_spec_moved_time", "60", "How long a player must be AFK in spectator for, after being moved to it due to being afk, before they are kicked, in seconds.", _, true, 60.0);
     g_cvMinPlayerCount = CreateConVar("sm_afkmanager_min_player_count", "12", "Minimum number of players on the server before the AFK manager starts taking action on players.");
+
+	g_fwOnAfkKick = new GlobalForward("OnAFKKick", ET_Hook, Param_Cell);
 
 	AutoExecConfig(true, "afkmanager", "sourcemod");
 
@@ -107,8 +115,16 @@ void ClientPressedButton(int client) {
 	g_bMovedToSpec[client] = false;
 }
 
-void Kick(int client) {
-	KickClient(client,"#TF_Idle_kicked");
+bool Kick(int client) {
+	Action result = Plugin_Continue;
+	Call_StartForward(g_fwOnAfkKick);
+	Call_PushCell(client);
+	Call_Finish(result);
+	if (result == Plugin_Continue) {
+		KickClient(client,"#TF_Idle_kicked");
+		return true;
+	}
+	return false;
 }
 
 void AfkManage() {
@@ -152,14 +168,19 @@ void AfkManage() {
 			) {
 				if (action==0) {
 					if (elapsed > spec_time) {
-						Kick(idx);
+						// reset last pressed time when a plugin is tring to block it
+						if (!Kick(idx)) {
+							ClientPressedButton(idx);
+						}
 					}
 				} else if (action==1) {
 					if (
 						(g_bMovedToSpec[idx] && elapsed > spec_moved_time) ||
 						(!g_bMovedToSpec[idx] && elapsed > spec_time)
 					) {
-						Kick(idx);
+						if (!Kick(idx)) {
+							ClientPressedButton(idx);
+						}
 					}
 				}
 			} else if (
@@ -174,7 +195,9 @@ void AfkManage() {
 				}
 				if (elapsed > alive_time) {
 					if (action==0) {
-						Kick(idx);
+						if (!Kick(idx)) {
+							ClientPressedButton(idx);
+						}
 					} else if (action==1) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
 						ClientPressedButton(idx);
