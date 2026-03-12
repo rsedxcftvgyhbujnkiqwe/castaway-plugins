@@ -9,8 +9,8 @@
  * @param client    Client index.
  * @returns         Return Plugin_Continue to continue the kick, return a
  *                  higher value to block the kick. When blocked, it will
- * 					reset the internal AFK time and will get called again
- * 					when the client continues to be AFK.
+ * 					reset the internal AFK time for the client and will 
+ * 					get called again when the client continues to be AFK.
  */
 forward Action OnAFKKick(int client);
 
