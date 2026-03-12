@@ -479,6 +479,7 @@ enum
 	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
+	Feat_SpyWalkSpeed, // Spy 300 HU/s Walk Speed Revert
 
 	// Item sets
 	Set_SpDelivery,		// Scout
@@ -663,6 +664,7 @@ public void OnPluginStart() {
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
+	ItemDefine("spywalkspeed", "SpyWalkSpeed_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyWalkSpeed);
 
 	// Item sets
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
@@ -4387,6 +4389,22 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 				}
 			}
 		}
+
+		{
+			// spy walk speed revert
+
+			if (
+				ItemIsEnabled(Feat_SpyWalkSpeed) &&
+				IsPlayerAlive(client) &&
+				TF2_GetPlayerClass(client) == TFClass_Spy
+			) {
+				TF2Attrib_SetByDefIndex(client, 54, 0.9375);
+			} else if (
+				TF2_GetPlayerClass(client) != TFClass_Spy
+			) {
+				TF2Attrib_RemoveByDefIndex(client, 54); // reset attribute
+			}
+		}
 	}
 
 	if (StrEqual(name, "player_death")) {
@@ -4615,6 +4633,16 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana"))
 					) {
 						player_weapons[client][Feat_Sword] = true;
+					}
+
+					else if ( // check for spy weapons instead to determine if player is a spy
+						StrEqual(class, "tf_weapon_knife") ||
+						StrEqual(class, "tf_weapon_revolver") ||
+						StrEqual(class, "tf_weapon_builder") ||
+						StrEqual(class, "tf_weapon_sapper") ||
+						StrEqual(class, "tf_weapon_invis")
+					) {
+						player_weapons[client][Feat_SpyWalkSpeed] = true;
 					}
 
 					switch (index) {
@@ -7963,6 +7991,19 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
 				float boost = GetEntPropFloat(entity, Prop_Send, "m_flHypeMeter");
 				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
+			}
+		}
+
+		if (TF2_GetPlayerClass(entity) == TFClass_Spy) {
+			if (
+				ItemIsEnabled(Feat_SpyWalkSpeed) &&
+				IsPlayerAlive(entity) &&
+				(
+					TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly) ||
+					TF2_IsPlayerInCondition(entity, TFCond_RegenBuffed)
+				)
+			) {
+				multiplier *= 405.0 / 398.5; // spy walk speed revert cap speed to 405 HU/s when speedboosted
 			}
 		}
 

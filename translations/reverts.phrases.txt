@@ -166,6 +166,10 @@
 	{
 		"en"	"All Swords"
 	}
+	"spywalkspeed"
+	{
+		"en"	"Spy Walk Speed"
+	}
 	"ambassador"
 	{
 		"en"	"Ambassador"
@@ -655,6 +659,10 @@
 	"Swords_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, no deploy or holster penalties"
+	}
+	"SpyWalkSpeed_PreGM"
+	{
+		"en"	"Reverted to pre-July 7, 2015; base walk speed decreased back to 300 HU/s (same speed as Pyro/Engineer/Sniper)"
 	}
 	"Ambassador_PreJI"
 	{
