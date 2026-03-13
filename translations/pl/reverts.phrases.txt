@@ -472,10 +472,6 @@
 	{
 		"pl"	"Sydnejski Usypiacz"
 	}
-	"thermal"
-	{
-		"pl"	"Cieplny Ciąg"
-	}
 	"turner"
 	{
 		"pl"	"Sterburta"
@@ -1125,14 +1121,6 @@
 	"Sleeper_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2010), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę, penetracja pocisków, losowe trafienia krytyczne, brak szybszego ładowania"
-	}
-	// "ThermalThrust_Oct2025"
-	// {
-	// 	"pl"	"Przywrócono do stanu sprzed Aktualizacji z 1 maja 2025 roku, pozwala na utrzymanie efektów pasywnych Miażdżycieli po zmianie na inną broń oraz przy bunnyhoppach"
-	// }
-	"ThermalThrust_May2025"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 1 maja 2025 roku, wszystkie bunnyhoppy po użyciu utrzymują efekty pasywne Miażdżycieli"
 	}
 	"Turner_PreTB"
 	{

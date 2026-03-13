@@ -490,10 +490,6 @@
 	{
 		"en"	"Tank Buster"
 	}
-	"thermal"
-	{
-		"en"	"Thermal Thruster"
-	}	
 	"turner"
 	{
 		"en"	"Tide Turner"
@@ -1211,10 +1207,6 @@
 	"TankBuster_Release"
 	{
 		"en"	"Restored release item set bonus, +20%% sentry damage resist on wearer. Equip the Black Box and Battalion's Backup to gain the bonus, the hat is not required"
-	}
-	"ThermalThrust_May2025"
-	{
-		"en"	"Reverted to pre-May 1, 2025; all bunnyhops when using a charge keeps stomp passives"
 	}
 	"Turner_PreTB"
 	{
