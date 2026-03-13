@@ -498,10 +498,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, crits par derrière, mini-crits par devant, pas de bonus de vitesse en tuant"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"fr"	"Réversion à pré-Blue Moon, crits sur les cibles en feu, déploiement 75%% plus lent, cadence 20%% plus lente, pas de bonus de vitesse en tuant"
-	}
 	"Backburner_PreHat"
 	{
 		"fr"	"Réversion à la mise à jour Sans-Chapeau, +10%% de dégâts"

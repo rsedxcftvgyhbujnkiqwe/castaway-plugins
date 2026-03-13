@@ -592,10 +592,6 @@
 	{
 		"en"	"Reverted to pre-toughbreak, crits from behind, minicrits from front, no speedboost on kill"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"en"	"Reverted to pre-bluemoon, crit vs burning players, 75%% longer deploy time, 20%% slower swing rate, no speedboost on kill"
-	}
 	"Backburner_PreHat"
 	{
 		"en"	"Reverted to Hatless update, +10%% damage bonus"

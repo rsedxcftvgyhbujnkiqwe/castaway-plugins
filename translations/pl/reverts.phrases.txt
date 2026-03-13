@@ -562,10 +562,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zadaje trafienia krytyczne od tyłu, minikrytyczne od przodu, brak premii do szybkości"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"pl"	"Przywrócono do stanu sprzed ak. Błękitnego Księżyca (Blue Moon), krytyczne obrażenia przeciwko płonącym graczom, +75%% do czasu wyciągania, -20%% częstotliwości ataku, brak premii do prędkości"
-	}
 	"Backburner_PreHat"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, +10%% zadawanych obrażeń"

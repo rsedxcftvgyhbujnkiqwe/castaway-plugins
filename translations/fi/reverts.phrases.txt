@@ -568,10 +568,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: kriittisiä osumia takaa, minikriittisiä osumia edestä, ei nopeuslisää taposta"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"fi"	"Ennen Blue Moonia: kriittisiä osumia palaviin pelaajiin, 75%% pidempi esiinvetoaika, 20%% hitaampi lyöntinopeus, ei nopeuslisää taposta"
-	}
 	"Backburner_PreHat"
 	{
 		"fi"	"Hatless-päivitys versio: 10%% vahinkobonus"

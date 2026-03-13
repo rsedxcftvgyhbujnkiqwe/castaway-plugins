@@ -645,7 +645,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Atomizer, "Atomizer_PreBM");
 	ItemDefine("axtinguish", "Axtinguisher_PreLW", CLASSFLAG_PYRO, Wep_Axtinguisher);
 	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreTB");
-	ItemVariant(Wep_Axtinguisher, "Axtinguisher_PreBM");
 	ItemDefine("backburner", "Backburner_PreHat", CLASSFLAG_PYRO, Wep_Backburner);
 	ItemVariant(Wep_Backburner, "Backburner_119");
 	ItemVariant(Wep_Backburner, "Backburner_Release");
@@ -2682,14 +2681,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 1, 21, 0.50); // dmg penalty vs nonburning
 					TF2Items_SetAttribute(itemNew, 2, 638, 1.0); // axtinguisher properties
 					TF2Items_SetAttribute(itemNew, 3, 772, 1.00); // single wep holster time increased
-					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
-				}
-				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 5, 1.2); // fire rate penalty
-					TF2Items_SetAttribute(itemNew, 1, 20, 1.0); // crit vs burning players
-					TF2Items_SetAttribute(itemNew, 2, 772, 1.00); // single wep holster time increased
-					TF2Items_SetAttribute(itemNew, 3, 773, 1.75); // single wep deploy time increased
 					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
 				}
 			}
