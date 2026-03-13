@@ -450,10 +450,6 @@
 	{
 		"en"	"Sandvich"
 	}
-	"scorchshot"
-	{
-		"en"	"Scorch Shot"
-	}
 	"scottish"
 	{
 		"en"	"Scottish Resistance"
@@ -1135,10 +1131,6 @@
 	"Sandvich_Pre2012"
 	{
 		"en"	"Reverted to pre-February 14, 2012: can heal yourself by picking up your own thrown Sandviches"
-	}
-	"ScorchShot_July2015"
-	{
-		"en"	"Reverted to pre-July 6, 2015 patch; no -35%% self damage force penalty (higher blast jumping)"
 	}
 	"Scottish_Release"
 	{

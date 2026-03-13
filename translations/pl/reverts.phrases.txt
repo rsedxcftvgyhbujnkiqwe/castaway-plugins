@@ -436,10 +436,6 @@
 	{
 		"pl"	"Kanapka"
 	}
-	"scorchshot"
-	{
-		"pl"	"Piekąca Palba"
-	}
 	"scottish"
 	{
 		"pl"	"Szkocki Opór"
@@ -1061,10 +1057,6 @@
 	"Sandvich_PreEngineer"
 	{
 		"pl"	"Kanapka może być jedzona w nieskończoność, dopóki nie zostanie rzucona na ziemię, po czym musi być zregenerowana apteczką lub szafką z amunicją. Kanapka rzucona na ziemię leczy grubego za 50%% maks. HP"
-	}
-	"ScorchShot_July2015"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 6 lipca 2015 roku, brak -35%% siły obrażeń własnych (wyższe skoki na flarze)"
 	}
 	"Scottish_Release"
 	{
