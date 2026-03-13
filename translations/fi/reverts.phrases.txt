@@ -1088,10 +1088,6 @@
 	{
 		"fi"	"Ennen Gun Mettleä: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%%, ei pääosumabonuksia"
 	}
-	"Sleeper_Release"
-	{
-		"fi"	"Julkaisuversio: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%% (kohde voi olla haavoittumaton), ei pääosumabonuksia, läpäise kohteet täyslatauksella, sat. kritit, ei nopeampaa latausaikaa"
-	}
 	"Turner_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"

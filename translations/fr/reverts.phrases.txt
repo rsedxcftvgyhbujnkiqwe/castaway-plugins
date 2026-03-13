@@ -950,10 +950,6 @@
 	{
 		"fr"	"Réversion à pré-Gun Mettle, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%%, pas de bonus pour les tirs en pleine tête"
 	}
-	"Sleeper_Release"
-	{
-		"fr"	"Réversion à la version d'origine, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%% (même si la cible est invuln.), pas de bonus pour les tirs en pleine tête, pénétre les cibles à charge max, crits aléatoires, pas d'augmentation de taux de chargement"
-	}	
 	"Turner_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff, dégâts d'impact à 60%% de charge consommée"

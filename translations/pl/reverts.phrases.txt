@@ -1070,10 +1070,6 @@
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Siła Charakteru (Gun Mettle), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę"
 	}
-	"Sleeper_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2010), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę, penetracja pocisków, losowe trafienia krytyczne, brak szybszego ładowania"
-	}
 	"Turner_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odporności na wybuchy i ogień, nie usuwa negatywnych efektów"

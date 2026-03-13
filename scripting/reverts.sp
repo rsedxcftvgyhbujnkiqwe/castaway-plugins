@@ -783,7 +783,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
-	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");	
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
@@ -3269,14 +3268,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 175, 0.0); // jarate duration
 				}
-				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 28, 1.0); // crit mod disabled; doesn't work
-					TF2Items_SetAttribute(itemNew, 1, 41, 1.0); // +0% charge rate
-					TF2Items_SetAttribute(itemNew, 2, 175, 0.0); // jarate duration
-					TF2Items_SetAttribute(itemNew, 3, 308, 1.0); // sniper_penetrate_players_when_charged
-					// temporary penetration attribute used for penetration until a way to penetrate targets when above 75% charge is found
-				}
 			}
 		}}
 		case 448: { if (ItemIsEnabled(Wep_SodaPopper)) {
@@ -4811,8 +4802,7 @@ Action SDKHookCB_OnTakeDamage(
 						GetGameTime() - players[attacker].aiming_cond_time >= 1.0)
 					) {
 						if (
-							GetItemVariant(Wep_SydneySleeper) == 2 ||
-							PlayerIsInvulnerable(victim) == false
+							!PlayerIsInvulnerable(victim)
 						) {
 							players[attacker].sleeper_piss_frame = GetGameTickCount();
 							players[attacker].sleeper_piss_explode = false;
@@ -4833,27 +4823,9 @@ Action SDKHookCB_OnTakeDamage(
 									// Attrib will get restored in OnTakeDamagePost
 									TF2Attrib_SetByDefIndex(weapon, 175, 0.0);
 								}
-								case 1, 2:
+								case 1:
 									players[attacker].sleeper_piss_duration = 8.0;
 							}
-						}
-					}
-
-					if (
-						GetItemVariant(Wep_SydneySleeper) == 2 &&
-						cvar_ref_tf_weapon_criticals.BoolValue
-					) {
-						// random crits on release sydney sleeper
-
-						float crit_mult = ValveRemapVal(float(GetEntProp(attacker, Prop_Send, "m_iCritMult")), 0.0, 255.0, 1.0, 4.0);
-						float crit_threshold = 0.02 * crit_mult;
-						float crit_roll = GetRandomFloat(0.0, 1.0);
-
-						if (crit_roll <= crit_threshold) {
-							damage_type |= DMG_CRIT;
-							// critical hit lightning sound doesn't play, so add it back.
-							EmitGameSoundToAll("Weapon_SydneySleeper.SingleCrit", attacker);
-							return Plugin_Changed;
 						}
 					}
 				}
