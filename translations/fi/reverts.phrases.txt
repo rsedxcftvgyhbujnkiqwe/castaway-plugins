@@ -812,10 +812,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
 	}
-	"GlovesRU_PreJI"
-	{
-		"fi"	"Ennen Jungle Infernoa: ei laske terveyttä, merkkaa kuolemaan, -25%% vahinkoa"
-	}
 	"GlovesRU_PrePyro"
 	{
 		"fi"	"Ennen Pyromaniaa: ei laske enimmäisterveyttä, ei poislaittoheikkoutta, aktiivisena poistaa 6 HP/s, -50%% vahinkoa"

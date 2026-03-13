@@ -713,7 +713,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_FistsSteel, "FistSteel_Release");
 	ItemDefine("guillotine", "Guillotine_PreJI", CLASSFLAG_SCOUT, Wep_Cleaver);
 	ItemDefine("glovesru", "GlovesRU_PreTB", CLASSFLAG_HEAVY, Wep_GRU);
-	ItemVariant(Wep_GRU, "GlovesRU_PreJI");
 	ItemVariant(Wep_GRU, "GlovesRU_PrePyro");
 	ItemDefine("gunboats", "Gunboats_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Gunboats);
 	ItemDefine("gunslinger", "Gunslinger_PreGM", CLASSFLAG_ENGINEER, Wep_Gunslinger);
@@ -3035,13 +3034,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 3, 855, 0.0); // mod maxhealth drain rate
 				}
 				case 1: {
-					// Pre-Jungle Inferno
-					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 1, 0.75); // damage penalty
-					TF2Items_SetAttribute(itemNew, 1, 414, 3.0); // self mark for death
-					TF2Items_SetAttribute(itemNew, 2, 855, 0.0); // mod maxhealth drain rate
-				}
-				case 2: {
 					// Pre-Pyromania
 					TF2Items_SetNumAttributes(itemNew, 4);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.50); // -50% damage penalty

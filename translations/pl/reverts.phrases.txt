@@ -818,10 +818,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak zmniejszania maks. HP oraz szybkości chowania broni, piętno śmierci, -25%% zadawanych obrażeń"
 	}
-	"GlovesRU_PreJI"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak zmniejszania maks. HP, piętno śmierci, -25%% zadawanych obrażeń"
-	}
 	"GlovesRU_PrePyro"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, brak zmniejszania maks. HP oraz szybkości chowania broni, -6 punktów HP na sekundę, -50%% zadawanych obrażeń"

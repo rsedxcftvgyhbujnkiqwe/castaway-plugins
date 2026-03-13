@@ -718,10 +718,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, pas de drain de santé, pas de pénalité de rangement de l'arme, marquage à mort, -25%% de dégâts"
 	}
-	"GlovesRU_PreJI"
-	{
-		"fr"	"Réversion à pré-Inferno, pas de drain de santé, marquage à mort, -25%% de dégâts"
-	}
 	"GlovesRU_PrePyro"
 	{
 		"fr"	"Réversion à pré-Pyromania, pas de drain de santé, pas de pénalité de rangement de l'arme, -6 santé/s quand actif (saute un peu plus haut à chaque tick de dégâts), -50%% de dégâts"

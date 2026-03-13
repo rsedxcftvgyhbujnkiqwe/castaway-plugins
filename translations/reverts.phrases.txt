@@ -848,10 +848,6 @@
 	{
 		"en"	"Reverted to pre-toughbreak, no health drain or holster penalty, marks for death, -25%% damage"
 	}
-	"GlovesRU_PreJI"
-	{
-		"en"	"Reverted to pre-inferno, no health drain, marks for death, -25%% damage"
-	}
 	"GlovesRU_PrePyro"
 	{
 		"en"	"Reverted to pre-pyromania, no health drain or holster penalty, -6 HP/s while active (jump a bit higher on dmg tick), -50%% damage"
