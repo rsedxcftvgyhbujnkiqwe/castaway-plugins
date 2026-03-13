@@ -872,6 +872,10 @@
 	{
 		"fi"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
 	}
+	"Phlog_Pyro"
+	{
+		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
+	}
 	"Phlog_TB"
 	{
 		"fi"	"Tough Break versio: MMMPHin aktivointi täyttää elinmittarin, haavoittumaton hieman pilkan jälkeen, MMMPH vaatii 225 tulivahinkoa"

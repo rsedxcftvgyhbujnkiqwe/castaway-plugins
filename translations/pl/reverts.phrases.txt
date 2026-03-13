@@ -862,6 +862,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), paczki z amunicją odnawiają punkty zdrowia, +100%% do prędkości odnawiania szarży, brak redukcji maks. zapasu amunicji"
 	}
+	"Phlog_Pyro"
+	{
+		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, zadaje -10%% obrażeń, odnawia zdrowie do pełna oraz przyznaje 75%% odporności na obrażenia na czas aktywacji"
+	}
 	"Phlog_TB"
 	{
 		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, odnawia zdrowie do pełna oraz przyznaje Ubercharge na czas aktywacji oraz chwilę po"
