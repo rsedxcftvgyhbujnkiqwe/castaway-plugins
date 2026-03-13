@@ -948,10 +948,6 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: rakennusten parantaminen ei kuluta metallia"
 	}
-	"RescueRanger_Release"
-	{
-		"fi"	"Julkaisuversio: parantaa tasan +50 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia, 35 perusvahinkoa (40:stä)"
-	}
 	"RescueRanger_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: parantaa tasan +75 metallia kuluttamatta"

@@ -950,10 +950,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), naprawianie budynków nie używa metalu"
 	}
-	"RescueRanger_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2012), pocisk odnawia 75HP budynków bez użycia metalu, podnoszenie budynków z daleka kosztuje 130 metalu, zadaje 35 pkt. bazowych obrażeń (zamiast 40)"
-	}
 	"RescueRanger_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), pocisk odnawia 75HP budynków bez użycia metalu"

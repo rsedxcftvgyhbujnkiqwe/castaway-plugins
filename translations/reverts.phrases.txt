@@ -1004,10 +1004,6 @@
 	{
 		"en"	"Reverted to pre-inferno, no metal cost for healing buildings"
 	}
-	"RescueRanger_Release"
-	{
-		"en"	"Reverted to release, heals +50 flat for no metal cost, 130 cost long-range pickups, 35 base dmg (from 40)"
-	}
 	"RescueRanger_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, heals +75 flat for no metal cost"

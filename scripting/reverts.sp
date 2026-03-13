@@ -757,7 +757,6 @@ public void OnPluginStart() {
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
-	ItemVariant(Wep_RescueRanger, "RescueRanger_Release");
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreTB");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
@@ -3220,13 +3219,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
 				}
 				case 2: {
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 469, 130.0); // ranged pickup metal cost
-					TF2Items_SetAttribute(itemNew, 1, 474, 50.0); // repair bolt healing amount
-					TF2Items_SetAttribute(itemNew, 2, 476, 0.875); // -12.5% damage penalty (hidden, for 35 base damage)
-					TF2Items_SetAttribute(itemNew, 3, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
-				}
-				case 3: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 474, 75.0); // repair bolt healing amount
 					TF2Items_SetAttribute(itemNew, 1, 880, 0.0); // repair health to metal ratio DISPLAY ONLY
