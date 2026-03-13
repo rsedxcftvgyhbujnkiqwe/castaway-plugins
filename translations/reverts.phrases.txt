@@ -1108,14 +1108,6 @@
 	{
 		"en"	"Reverted to release, no self blast damage including from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
 	}
-	"RocketJmp_Pre2011"
-	{
-		"en"	"Reverted to December 22, 2010: no self blast damage including from Equalizer/Escape Plan taunt, +100%% bullet, explosive, and fire damage vulns, wearer can pick up intel, random crits"
-	}
-	"RocketJmp_Oct2010"
-	{
-		"en"	"Reverted to October 27, 2010: no self blast damage including from Equalizer/Escape Plan taunt, -100 max health, wearer can pick up intel, random crits"
-	}
 	"Saharan_Release"
 	{
 		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger (removes +40%% cloak) and YER to gain the bonus, the hat is not required."

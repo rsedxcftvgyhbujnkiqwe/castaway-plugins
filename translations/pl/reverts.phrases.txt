@@ -1042,14 +1042,6 @@
 	{
 		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza oraz może podnieść flagę, losowe trafienia krytyczne"
 	}
-	"RocketJmp_Pre2011"
-	{
-		"pl"	"Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, +100%% podatności na wszystkie obraż. z wyjątkiem broni białej"
-	}
-	"RocketJmp_Oct2010"
-	{
-		"pl"	"Przywrócono do stanu z dnia 27.10.10r., Użytkownik jest odporny na zadane sobie obrażenia przez drwiny Planu Ucieczki i Wyrównywacza, może podnieść flagę, -100 maks. HP"
-	}	
 	"Saharan_Release"
 	{
 		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"

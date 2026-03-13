@@ -882,14 +882,6 @@
 	{
 		"fr"	"Réversion à la version d'origine, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel, crits aléatoires"
 	}
-	"RocketJmp_Pre2011"
-	{
-		"fr"	"Réversion au 22 Décembre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
-	}
-	"RocketJmp_Oct2010"
-	{
-		"fr"	"Réversion au 27 Octobre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, santé max -100, porteur peut récupérer l'intel, crits aléatoires"
-	}		
 	"Saharan_Release"
 	{
 		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, moins de son de fin d'invisibilité, silhouette semi-invisible apparaît 0.5s plus longtemps. Equipe L'Étranger (enlève le +40%% de durée d'invisibilité) et Ton Éternelle Récompense pour obtenir le bonus, chapeau non-requis"

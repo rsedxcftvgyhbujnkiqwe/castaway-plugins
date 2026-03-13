@@ -823,10 +823,6 @@
 	{
 		"ru"	"Reverted to release, no self blast damage including from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
 	}
-	"RocketJmp_Pre2011"
-	{
-		"ru"	"Reverted to December 22, 2010: no self blast damage including from Equalizer/Escape Plan taunt, +100%% bullet, explosive, and fire damage vulns, wearer can pick up intel, random crits"
-	}
 	"RocketJmp_Oct2010"
 	{
 		"ru"	"Reverted to October 27, 2010: no self blast damage including from Equalizer/Escape Plan taunt, -100 max health, wearer can pick up intel, random crits"
