@@ -639,8 +639,6 @@ public void OnPluginStart() {
 	// Specific weapons
 	ItemDefine("airstrike", "Airstrike_PreTB", CLASSFLAG_SOLDIER, Wep_Airstrike);
 	ItemDefine("ambassador", "Ambassador_PreJI", CLASSFLAG_SPY, Wep_Ambassador);
-	ItemVariant(Wep_Ambassador, "Ambassador_PreJune2009");
-	ItemVariant(Wep_Ambassador, "Ambassador_Release");
 	ItemDefine("amputator", "Amputator_PreTB", CLASSFLAG_MEDIC, Wep_Amputator);
 	ItemVariant(Wep_Amputator, "Amputator_PreTB_Historical");
 	ItemDefine("atomizer", "Atomizer_PreJI", CLASSFLAG_SCOUT, Wep_Atomizer);
@@ -2086,25 +2084,6 @@ public void OnGameFrame() {
 					}
 
 					{
-						// cancel machina penetration sounds with 2009 ambassador variants
-
-						if (GetItemVariant(Wep_Ambassador) >= 1) {
-							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-
-							if (weapon > 0) {
-
-								if (
-									(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006) &&
-									players[idx].ambassador_kill_frame + 1 == GetGameTickCount()
-								) {
-									EmitGameSoundToAll("Game.PenetrationKill", idx, SND_STOP);
-								}
-							}							
-						}
-					}
-
-					{
 						// release spycicle prevent melting when hit by fire while taunting
 						if (GetItemVariant(Wep_Spycicle) == 1) {
 							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
@@ -2670,11 +2649,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				case 0: { // Pre-Jungle Inferno
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 868, 0.0); // crit dmg falloff
-				}
-				default: { // 2009 variants
-					TF2Items_SetNumAttributes(itemNew, 2);
-					TF2Items_SetAttribute(itemNew, 0, 266, 1.0); // projectile_penetration
-					TF2Items_SetAttribute(itemNew, 1, 868, 0.0); // crit dmg falloff
 				}
 			}
 
@@ -3669,15 +3643,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 					GetEntityClassname(weapon, class, sizeof(class));
 
 					if (StrEqual(class, "tf_weapon_revolver")) {
-						// track ambassador kills for cancelling machina penetration sounds
-						if (
-							GetItemVariant(Wep_Ambassador) >= 1 &&
-							GetEventInt(event, "attacker") != -1 &&
-							GetEventInt(event, "playerpenetratecount") > 0
-						) {
-							players[attacker].ambassador_kill_frame = GetGameTickCount();
-						}
-
 						// ambassador headshot kill icon
 						if (
 							ItemIsEnabled(Wep_Ambassador) &&
@@ -4525,19 +4490,7 @@ Action SDKHookCB_TraceAttack(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
-		if (hitgroup == 1) {
-			if (
-				( // for ambassador
-					damage_type & DMG_USE_HITLOCATIONS != 0 ||
-					GetItemVariant(Wep_Ambassador) >= 1 &&
-					player_weapons[attacker][Wep_Ambassador]
-				) ||
-				TF2_GetPlayerClass(attacker) == TFClass_Sniper // for sydney sleeper and bazaar bargain
-			) {
-				players[attacker].headshot_frame = GetGameTickCount();
-				players[victim].hit_by_headshot = true;
-			}
-		} else {
+		if (hitgroup != 1) {
 			players[victim].hit_by_headshot = false;
 		}
 	}

@@ -542,14 +542,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje pełne obrażenia krytyczne przy trafieniu w głowę niezależnie od dystansu"
 	}
-	"Ambassador_PreJune2009"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 23 czerwca 2009 roku, zadaje 102 pkt. obrażeń przy trafieniu w głowę niezależnie od dystansu oraz bez czasu odnawiania, pociski penetrują przeciwników"
-	}
-	"Ambassador_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2009), zadaje obrażenia minikrytyczne po trafieniu w głowę niezależnie od dystansu oraz bez czasu odnawiania, pociski penetrują przeciwników"
-	}
 	"Amputator_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje dodatkowe 3HP/s"
