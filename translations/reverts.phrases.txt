@@ -908,10 +908,6 @@
 	{
 		"en"	"Reverted to pre-Manniversary, picks up ammo as health (including metal from dropped ammo, 120 HP per drop), +100%% charge recharge rate, no max ammo penalties"
 	}
-	"Phlog_Pyro"
-	{
-		"en"	"Reverted to pre-toughbreak, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
-	}
 	"Phlog_TB"
 	{
 		"en"	"Reverted to post-toughbreak, activating MMMPH instantly restores to full health, Ubered a bit after taunting, MMMPH requires 225 fire damage"
