@@ -968,10 +968,6 @@
 	{
 		"en"	"Reverted to pre-inferno, gain up to +5 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
 	}
-	"Pocket_PreTB"
-	{
-		"en"	"Reverted to pre-toughbreak, gain up to +3 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
-	}	
 	"Quickfix_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +25%% uber build rate, can capture objectives when ubered"
