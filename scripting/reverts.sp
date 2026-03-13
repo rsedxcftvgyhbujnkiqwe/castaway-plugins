@@ -795,8 +795,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");	
 	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
-	ItemVariant(Wep_Tomislav, "Tomislav_PreLW");
-	ItemVariant(Wep_Tomislav, "Tomislav_PreLWSoundOnly");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
 	ItemDefine("vaccinator", "Vaccinator_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Vaccinator);
@@ -3418,20 +3416,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
 					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
 					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
-				}
-				case 2: { // Pre-Love & War
-					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 87, 0.90); // 10% faster spin up time
-					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
-				}				
-				case 3: { // SOUND PITCH REVERT ONLY; essentially Vanilla Tomislav but higher pitched sounds
-					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 1, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 2, 549, 1.2); // halloween fire rate bonus
 				}
 				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
 			}

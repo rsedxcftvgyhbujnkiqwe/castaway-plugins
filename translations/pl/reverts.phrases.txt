@@ -1114,14 +1114,6 @@
 	{
 		"pl"	"Przywrócono do momentu wydania (2011), -75%% czasu rozkręcenia, brak premii do celności"
 	}
-	"Tomislav_PreLW"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), 10%% szybszy czas rozkręcania, brak premii do celności, wyższy dźwięk strzelania"
-	}
-	"Tomislav_PreLWSoundOnly"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), wyższy dźwięk strzelania"
-	}
 	"TribalShiv_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2010), 8 sekund krwawienia, -35%% do zadawanych obrażeń"

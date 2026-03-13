@@ -1188,14 +1188,6 @@
 	{
 		"en"	"Reverted to release, 75%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
 	}
-	"Tomislav_PreLW"
-	{
-		"en"	"Reverted to pre-love&war, 10%% faster spinup, no accuracy bonus, higher pitched weapon sounds"
-	}
-	"Tomislav_PreLWSoundOnly"
-	{
-		"en"	"Reverted the firing sounds to pre-love&war, higher pitched weapon sounds"
-	}
 	"TribalShiv_Release"
 	{
 		"en"	"Reverted to release, 8 second bleed, 35%% damage penalty"
