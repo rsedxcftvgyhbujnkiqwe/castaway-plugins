@@ -922,10 +922,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
 	}
-	"Splendid_Release"
-	{
-		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
-	}
 	"SpyCicle_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, immunité au feu de 2s, tue en silence, ne peut pas se régénérer avec des munitions"

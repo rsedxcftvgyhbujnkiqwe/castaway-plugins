@@ -1038,10 +1038,6 @@
 	{
 		"pl"	"+15%% odporności ana obrażenia wybuchów oraz ognia, brak szybszej regeneracji, trafienie krytyczne po uderzeniu, pełne obrażenia na każdym dystansie, nie usuwa negatywnych efektów"
 	}
-	"Splendid_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2011), 25%% odpor. na ogień, brak szybszego odnawiania szarży, trafienie krytyczny po uderzeniu, nie usuwa negatywnych efektów, zadaje 85 obr. na każdym dystansie"
-	}
 	"SpyCicle_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), 2s odporności na ogień, cichy zabójca, brak możliwości regeneracji paczkami amunicji"
