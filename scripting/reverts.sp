@@ -668,7 +668,6 @@ public void OnPluginStart() {
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_PreMnvy");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Pre2011");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
@@ -2409,9 +2408,9 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 
 	bool sandvich_enabled = ItemIsEnabled(Wep_Sandvich);
 
-	int  steak_variant = GetItemVariant(Wep_BuffaloSteak);
+	int steak_variant = GetItemVariant(Wep_BuffaloSteak);
 	bool steak_enabled = ItemIsEnabled(Wep_BuffaloSteak);
-	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2 || steak_variant == 3);
+	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2);
 
 	char model_name[PLATFORM_MAX_PATH];
 	GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
@@ -2571,17 +2570,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		if (condition == TFCond_Charging) {
 			players[client].charge_tick = GetGameTickCount();
 			return Plugin_Continue;
-		}
-	}
-	{
-		// pre-july 7, 2011 steak restrict to melee duration modification
-		// force heavy to switch to melee first then allow him to switch weapons again to replicate the bug
-		if (
-			GetItemVariant(Wep_BuffaloSteak) == 3 && 
-			condition == TFCond_RestrictToMelee
-		) {
-			time = 0.4; // this is the lowest this can go while forcing the heavy to switch to melee first
-			return Plugin_Changed;
 		}
 	}
 	{
@@ -6920,18 +6908,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 				if (weapon > 0) {
 					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed_active", weapon);
 				}
-			}
-
-			// Heavy still slows down when revved under Steak effects; include additional 4% speed increase from the revert while slowing down
-			if (
-				GetItemVariant(Wep_BuffaloSteak) == 3 &&
-				TF2_IsPlayerInCondition(entity, TFCond_Slowed)
-			) {
-				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
-				if (weapon > 0) {
-					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_aiming_movespeed", weapon); // accounts for brass beast
-				}
-				multiplier *= 0.478; // heavy slows down to 47% of his movespeed when revved
 			}
 		}
 

@@ -684,10 +684,6 @@
 	{
 		"en"	"Reverted to pre-Manniversary, +35%% faster move speed on use, damage taken minicrits, no cooldown at full health, heal yourself by throwing the Steak"
 	}
-	"BuffaloSteak_Pre2011"
-	{
-		"en"	"Reverted to pre-July 7, 2011, +35%% faster move speed on use, damage taken minicrits, switch weapons under effects, no cooldown at full health, heal yourself by throwing the Steak"
-	}
 	"BuffBanner_Release"
 	{
 		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600 dmg)"
