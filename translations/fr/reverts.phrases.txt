@@ -646,14 +646,6 @@
 	{
 		"fr"	"Réversion à pré-Inferno, même stats modernes mais peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
 	}
-	"Ringer_PreTB"
-	{
-		"fr"	"Réversion à pré-Tough Break, même stats modernes mais 50%% initial de resistance aux dégâts, peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
-	}
-	"Ringer_PostRelease"
-	{
-		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
-	}
 	"Degreaser_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, changement d'arme 65%% plus rapide, -10%% de dégâts, -25%% de dégâts de postcombustion, pas de pénalité de coût de tir d'air comprimé"

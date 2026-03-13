@@ -746,22 +746,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), możliwość podnoszenia paczek z amunicją, gdy nie jest się niewidzialnym, -35%% energii z paczek z amunicją"
 	}
-	"Ringer_PreTB"
-	{
-		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), atak aktywujący zegarek zredukowany o 50%%, możliwość podnoszenia paczek, gdy nie jest się niewidzialnym, -35%% energii z paczek"
-	}
-	"Ringer_PostRelease"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 26 maja 2009 roku, 90%% odp. na obrażenia na 6s, brak premii do prędkości, całkowite zużycie energii po wyłączeniu zegarka, brak odporności na podpalenie"
-	}
-	"Ringer_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2009), 90%% odp. na obrażenia na 6s, brak premii do prędkości, brak odporności na podpalenie"
-	}
-	"Ringer_Pre2010"
-	{
-		"pl"	"Maks. +35%% do energii po podniesieniu paczki z amunicją, 90%% odp. na obrażenia na 6s, brak premii do prędkości, brak odporności na podpalenie, maks. 40%% zużytej energii po wyłączeniu zegarka"
-	}
 	"Degreaser_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), +65%% do szybkości zmiany broni, -10%% obrażeń, -25%% obrażeń po podpaleniu, standardowy koszt sprężonego powietrza"

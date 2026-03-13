@@ -736,14 +736,6 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: samat perusominaisuudet, mutta voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
 	}
-	"Ringer_PreTB"
-	{
-		"fi"	"Ennen Tough Breakiä: samat perusominaisuudet, mutta 50%% ensimmäisen osuman vahinkosieto ja voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
-	}
-	"Ringer_PostRelease"
-	{
-		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
-	}
 	"Degreaser_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: 65%% nopeampi aseen vaihto, -10%% vahinkoa ja -25%% jälkipolttovahinkoa, ei lisättyä ilmapuhalluksen kustannusta"

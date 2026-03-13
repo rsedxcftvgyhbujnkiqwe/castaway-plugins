@@ -607,10 +607,6 @@
 	{
 		"ru"	"Reverted to pre-inferno, same modern stats but can pick up ammo while uncloaked, 35%% less cloak from ammo boxes"
 	}
-	"Ringer_PreTB"
-	{
-		"ru"	"Reverted to pre-toughbreak, same modern stats but 50%% initial dmg resist, can pick up ammo while uncloaked, 35%% less cloak from ammo boxes"
-	}
 	"Degreaser_PreTB"
 	{
 		"ru"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties"

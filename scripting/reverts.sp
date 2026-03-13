@@ -356,8 +356,6 @@ MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
-// MemoryPatch patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck;
-// MemoryPatch patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -701,10 +699,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Darwin, "Darwin_Pre2013");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
-	ItemVariant(Wep_DeadRinger, "Ringer_PreTB");
-	ItemVariant(Wep_DeadRinger, "Ringer_PostRelease");
-	ItemVariant(Wep_DeadRinger, "Ringer_Release");
-	ItemVariant(Wep_DeadRinger, "Ringer_Pre2010");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemVariant(Wep_DirectHit, "DirectHit_PreDec2009");
@@ -1017,12 +1011,6 @@ public void OnPluginStart() {
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		// patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
-		// 	MemoryPatch.CreateFromConf(conf,
-		// 	"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
-		// patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer =
-		// 	MemoryPatch.CreateFromConf(conf,
-		// 	"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
 #if !defined WIN32
 		patch_RevertSniperRifles_ScopeJump_linuxextra =
 			MemoryPatch.CreateFromConf(conf,
@@ -1089,14 +1077,6 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertIronBomber_PipeHitbox");
 		}
-		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
-		// 	hook_fail=true;
-		// 	LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
-		// }
-		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer)) {
-		// 	hook_fail=true;
-		// 	LogError("Failed to create patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer");
-		// }
 #if !defined WIN32
 		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
 			hook_fail=true;
@@ -1213,15 +1193,6 @@ public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, cons
 		patch_DroppedWeapon.Disable();
 	}
 }
-// public void OnAllowCloakTauntBugChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-// 	if (convar.BoolValue) {
-// 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Enable();
-// 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Enable();
-// 	} else {
-// 		patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck.Disable();
-// 		patch_RevertSpyFenceCloakBugFix_OnTakeDamage_RemoveInCondTauntingCheck_Deadringer.Disable();
-// 	}
-// }
 #else
 public void OnDroppedWeaponLifetimeCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", cvar_enable.BoolValue);
@@ -2051,8 +2022,7 @@ public void OnGameFrame() {
 							) {
 								players[idx].spy_is_feigning = true;
 								if (
-									GetItemVariant(Wep_DeadRinger) == 0 ||
-									GetItemVariant(Wep_DeadRinger) >= 3
+									GetItemVariant(Wep_DeadRinger) == 0
 								) {
 									TF2_AddCondition(idx, TFCond_DeadRingered, 6.0, idx);
 									StoreToAddress(
@@ -2076,14 +2046,6 @@ public void OnGameFrame() {
 										// when uncloaking, cloak is drained to 40%
 										cloak = 40.0;
 									}
-									case 3: { // post-release
-										// fully drain meter when uncloaking
-										cloak = 0.0;
-									}
-									case 5: { // pre-2010
-										// when uncloaking, cloak is drained to 60%
-										cloak = 60.0;
-									}
 								}
 
 								if (
@@ -2099,8 +2061,7 @@ public void OnGameFrame() {
 					{
 						// no reduced debuff timer for old-style deadringer
 						if (
-							(GetItemVariant(Wep_DeadRinger) == 0 ||
-							GetItemVariant(Wep_DeadRinger) >= 3) &&
+							GetItemVariant(Wep_DeadRinger) == 0 &&
 							players[idx].spy_is_feigning
 						) {
 							for (int i = 0; i < sizeof(debuffs); ++i) {
@@ -3353,20 +3314,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 59: { if (ItemIsEnabled(Wep_DeadRinger)) {
 			switch (GetItemVariant(Wep_DeadRinger)) {
-				case 0, 5: {
+				case 0: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
 					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
 					TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
 					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
 					TF2Items_SetAttribute(itemNew, 4, 810, 0.0); // mod cloak no regen from items
-				}
-				case 3, 4: {
-					TF2Items_SetNumAttributes(itemNew, 4);
-					TF2Items_SetAttribute(itemNew, 0, 35, 1.8); // mult cloak meter regen rate
-					TF2Items_SetAttribute(itemNew, 1, 82, 1.6); // cloak consume rate increased
-					TF2Items_SetAttribute(itemNew, 2, 83, 1.0); // cloak consume rate decreased
-					TF2Items_SetAttribute(itemNew, 3, 726, 1.0); // cloak consume on feign death activate
 				}
 				default: {
 					TF2Items_SetNumAttributes(itemNew, 3);
@@ -4744,14 +4698,6 @@ Action SDKHookCB_OnTakeDamage(
 									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 								}
-								case 2: {
-									// Pre-Tough Break Dead Ringer
-									cvar_ref_tf_feign_death_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.50;
-									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
-								}
 								default: {
 									// "Old-Style" Dead Ringer
 									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
@@ -5715,8 +5661,7 @@ void SDKHookCB_OnTakeDamagePost(
 					charge < 100.0 &&
 					players[victim].feign_ready_tick == GetGameTickCount() &&
 					(
-						GetItemVariant(Wep_DeadRinger) == 0 ||
-						GetItemVariant(Wep_DeadRinger) >= 3
+						GetItemVariant(Wep_DeadRinger) == 0
 					)
 				) {
 					// undo 50% drain on activated
