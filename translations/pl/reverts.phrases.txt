@@ -192,10 +192,6 @@
 	{
 		"pl"	"Czarna Skrzynka"
 	}
-	"blutsauger"
-	{
-		"pl"	"Blutsauger"
-	}
 	"bonk"
 	{
 		"pl"	"Bonk! Atomowy Kop"
@@ -613,10 +609,6 @@
 	"BlackBox_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), +15 HP za każdą trafioną osobę niezależnie od zadanych obrażeń"
-	}
-	"Blutsauger_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2008), standardowa pasywna regeneracja HP, brak losowych trafień krytycznych"
 	}
 	"Bonk_PreJI"
 	{

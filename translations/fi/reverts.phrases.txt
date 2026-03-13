@@ -198,10 +198,6 @@
 	{
 		"fi"	"Musta laatikko"
 	}
-	"blutsauger"
-	{
-		"fi"	"Blutsauger"
-	}
 	"bonk"
 	{
 		"fi"	"Bonk-atomijuoma"
@@ -611,10 +607,6 @@
 	"BlackBox_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: rajoittamaton +15 terveyslisä etäisyydestä riippumatta"
-	}
-	"Blutsauger_Release"
-	{
-		"fi"	"Julkaisuversio: ei passiivista parannusvähennystä, ei kriittisiä osumia"
 	}
 	"Bonk_PreJI"
 	{
