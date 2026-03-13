@@ -1038,10 +1038,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Siła charakteru (Gun Mettle), +40%% podatności do permanentnej siły odrzutu, +20%% leczenia, gdy broń jest aktywna, dzieli amunicję z pistoletem, atak alt popycha wroga"
 	}
-	"Shortstop_PreGM"
-	{
-		"pl"	"Przywrócono do stanu sprzed ak. Siła charakteru (Gun Mettle), +40%% podatności do permanentnej siły odrzutu, +20%% leczenia, gdy broń jest aktywna, dzieli amunicję z pistoletem, brak ataku alt."
-	}
 	"Shortstop_Release_Shove"
 	{
 		"pl"	"Przywrócono do momentu wydania (2010), trafiony cel jest spowolniony o 40%% na 0.5s., szybszy czas przeładowania, brak zwiększonej siły odrzutu, dzieli amunicję z pistoletem, atak alt. popycha wroga"

@@ -1044,10 +1044,6 @@
 	{
 		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
-	"Shortstop_PreGM"
-	{
-		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa, ei tönäisyä"
-	}
 	"Shortstop_Release_Shove"
 	{
 		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
