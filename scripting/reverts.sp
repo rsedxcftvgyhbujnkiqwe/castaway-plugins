@@ -685,7 +685,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
-	ItemVariant(Wep_DirectHit, "DirectHit_PreDec2009");
 #if defined MEMORY_PATCHES
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
 #endif
@@ -5008,8 +5007,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					if (
 						(GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true) ||
-						GetItemVariant(Wep_DirectHit) == 1
+						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
 					) {
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 					}

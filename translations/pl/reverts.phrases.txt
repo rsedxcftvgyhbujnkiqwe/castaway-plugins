@@ -718,10 +718,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zadaje obrażenia minikrytyczne przeciwko graczom odepchniętym przez sprężone powietrze"
 	}
-	"DirectHit_PreDec2009"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 22 grudnia 2009 roku, zadaje obrażenia minikrytyczne przeciwko graczom w powietrzu niezależnie od przyczyny (pływanie pod wodą, skok, rocket jump itd.)"
-	}
 	"Disciplinary_PreMYM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), premia do prędkości poruszania się dla sojuszników wynosi 3 sekundy"
