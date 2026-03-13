@@ -748,10 +748,6 @@
 	{
 		"en"	"Reverted to pre-inferno, can overheal to 400 HP again"
 	}
-	"DalokohsBar_PreGM"
-	{
-		"en"	"Reverted to pre-gunmettle, no cooldown, cannot be dropped via alt-fire"
-	}	
 	"Darwin_Pre2013"
 	{
 		"en"	"Reverted to pre-2013, +25 max health, no damage modifiers or afterburn immunity"		

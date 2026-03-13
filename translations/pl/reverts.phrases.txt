@@ -718,10 +718,6 @@
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Siła charakteru (Gun Mettle), tabliczka może nadleczyć do 400 HP"
 	}
-	"DalokohsBar_PreGM"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), tabliczka odnawia się natychmiast po zjedzeniu, nie może być rzucona na ziemię"
-	}
 	"Darwin_Pre2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, +25 maks. HP, brak jakichkolwiek odporności oraz podatności na obrażenia"

@@ -685,7 +685,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
 	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("dalokohsbar", "DalokohsBar_PreJI", CLASSFLAG_HEAVY, Wep_Dalokohs);
-	ItemVariant(Wep_Dalokohs, "DalokohsBar_PreGM");
 	ItemDefine("darwin", "Darwin_PreJI", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_Pre2013");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
@@ -6573,14 +6572,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 			return MRES_Supercede;
 		}
 		else if (
-			GetItemVariant(Wep_Dalokohs) == 1 &&
-			StrEqual(class, "tf_weapon_lunchbox") &&
-			(index == 159 || index == 433) // dalokohs and fishcake
-		) {
-			// pre-gun mettle dalokohs bar alt-fire drop prevention
-			return MRES_Supercede;
-		}
-		else if (
 			GetItemVariant(Wep_Vaccinator) == 1 &&
 			StrEqual(class, "tf_weapon_medigun") &&
 			index == 998
@@ -6746,13 +6737,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 	
-	if (
-		GetItemVariant(Wep_Dalokohs) == 1 &&
-		(index == 159 || index == 433) // dalokohs and fishcake
-	) {
-		return MRES_Supercede;
-	}
-
 	if (
 		GetItemVariant(Wep_Sandvich) == 0 &&
 		(index == 42 || index == 863 || index == 1002) // Sandvich, Robo-Sandvich, Festive Sandvich
