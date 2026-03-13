@@ -661,7 +661,6 @@ public void OnPluginStart() {
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
 	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Blutsauger);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
-	ItemVariant(Wep_Bonk, "Bonk_PrePyro");
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
@@ -2511,8 +2510,9 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		// bonk and crit-a-cola variant duration modification
 		if (
 			(
-				GetItemVariant(Wep_Bonk) == 1 && condition == TFCond_Bonked && player_weapons[client][Wep_Bonk] ||
-				GetItemVariant(Wep_CritCola) == 4 && condition == TFCond_CritCola && player_weapons[client][Wep_CritCola]
+				GetItemVariant(Wep_CritCola) == 4 &&
+				condition == TFCond_CritCola &&
+				player_weapons[client][Wep_CritCola]
 			) &&
 			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
