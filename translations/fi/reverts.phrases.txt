@@ -660,10 +660,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: palauttaa tasan +2 HP/s riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
 	}
-	"CowMangler_Release"
-	{
-		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
-	}
 	"CowMangler_Pre2013"
 	{
 		"fi"	"Ennen 2013 kesää: 5 ammusta, ei voi kriittisyystehostaa, -10%% vahinkovähennys, 5%% hitaampi latausaika"

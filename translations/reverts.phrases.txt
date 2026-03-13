@@ -684,10 +684,6 @@
 	{
 		"en"	"Reverted to pre-toughbreak, regenerates +2 HP/s flat regardless if user recently took damage"
 	}
-	"CowMangler_Release"
-	{
-		"en"	"Reverted to release, 5 shots, cannot be crit-boosted"
-	}
 	"CowMangler_Pre2013"
 	{
 		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"

@@ -654,10 +654,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje +2HP/s"
 	}
-	"CowMangler_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2011), 5 rakiet w magazynku, nie może uzyskać trafień krytycznych"
-	}
 	"CowMangler_Pre2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Letniej Aktualizacji 2013, 5 rakiet w magazynku, nie może uzyskać trafień krytycznych, -10%% zadawanych obrażeń, +5%% dłuższy czas przeładowania"

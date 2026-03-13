@@ -667,8 +667,7 @@ public void OnPluginStart() {
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
-	ItemDefine("cowmangler", "CowMangler_Release", CLASSFLAG_SOLDIER, Wep_CowMangler);
-	ItemVariant(Wep_CowMangler, "CowMangler_Pre2013");
+	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER, Wep_CowMangler);
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
@@ -2806,12 +2805,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 441: { if (ItemIsEnabled(Wep_CowMangler)) {
 			switch (GetItemVariant(Wep_CowMangler)) {
 				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 3);
-					TF2Items_SetAttribute(itemNew, 0, 288, 1.0); // Cannot be crit boosted
-					TF2Items_SetAttribute(itemNew, 1, 335, 1.25); // +25% clip size
-					TF2Items_SetAttribute(itemNew, 2, 869, 0.0); // Minicrits whenever it would normally crit
-				}
-				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 5);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // -10% damage penalty
 					TF2Items_SetAttribute(itemNew, 1, 96, 1.05); // 5% slower reload time
