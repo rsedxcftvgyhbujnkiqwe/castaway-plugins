@@ -730,7 +730,6 @@ public void OnPluginStart() {
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
 	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
-	ItemVariant(Wep_Phlogistinator, "Phlog_TB");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
@@ -2551,17 +2550,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 				// increase condition time to 3s, TF2 normally applies 2.6s
 				time = 3.0;
 
-				if (GetItemVariant(Wep_Phlogistinator) != 1) {
-					// replace invuln with 75% damage resist
-					if (condition == TFCond_UberchargedCanteen) {
-						condition = TFCond_DefenseBuffMmmph;
-						// 90% damage reduction for release and march variants handled in OnTakeDamageAlive
-					}
-					// Prevent knockback immunity
-					if (condition == TFCond_MegaHeal) {
-						condition = TFCond_InHealRadius; // re-add healing circle visual effect
-					}
-				}
 				return Plugin_Changed;
 			}
 		}
@@ -3065,11 +3053,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 594: { if (ItemIsEnabled(Wep_Phlogistinator)) {
 			switch (GetItemVariant(Wep_Phlogistinator)) {
 			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
-				case 0, 3: { // Pyromania and March 2012 Phlogistinator
+				case 0, 2: { // Pyromania and March 2012 Phlogistinator
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 1, 0.90); // -10% damage penalty
 				}
-				case 2: {
+				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 357, 1.30); // +30% buff duration (hidden)
 				}
@@ -5386,7 +5374,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 		{
 			// 90% damage resistance revert for Release and March 2012 Phlog variants
 			if (
-				(GetItemVariant(Wep_Phlogistinator) == 2 || GetItemVariant(Wep_Phlogistinator) == 3) &&
+				(GetItemVariant(Wep_Phlogistinator) == 1 || GetItemVariant(Wep_Phlogistinator) == 2) &&
 				player_weapons[victim][Wep_Phlogistinator] &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
 				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.

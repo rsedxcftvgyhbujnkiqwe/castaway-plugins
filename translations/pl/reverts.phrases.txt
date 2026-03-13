@@ -866,10 +866,6 @@
 	{
 		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, zadaje -10%% obrażeń, odnawia zdrowie do pełna oraz przyznaje 75%% odporności na obrażenia na czas aktywacji"
 	}
-	"Phlog_TB"
-	{
-		"pl"	"Aktywowanie MMMPH wymaga 225 pkt. obrażeń, odnawia zdrowie do pełna oraz przyznaje Ubercharge na czas aktywacji oraz chwilę po"
-	}
 	"Phlog_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2012), aktywowanie MMMPH wymaga 225 pkt. obrażeń, odnawia zdrowie do pełna oraz przyznaje 90%% odporności na obrażenia na czas aktywacji. Efekt trwa 13 sekund"

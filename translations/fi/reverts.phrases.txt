@@ -876,10 +876,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
 	}
-	"Phlog_TB"
-	{
-		"fi"	"Tough Break versio: MMMPHin aktivointi täyttää elinmittarin, haavoittumaton hieman pilkan jälkeen, MMMPH vaatii 225 tulivahinkoa"
-	}
 	"Phlog_Release"
 	{
 		"fi"	"Julkaisuversio: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, vaikutus kestää 13 sekuntia"
