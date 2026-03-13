@@ -410,10 +410,6 @@
 	{
 		"fi"	"Selkäsuoja"
 	}
-	"redtape"
-	{
-		"fi"	"Punaisen nauhan nauhuri"
-	}
 	"rescueranger"
 	{
 		"fi"	"Pelastuspartiolainen"
@@ -963,10 +959,6 @@
 	"Razorback_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: voi saada yliparannusta, suoja ei uudistu"
-	}
-	"RedTapeRecorder_Release"
-	{
-		"fi"	"Julkaisuversio: nopeampi rakennustason kumoutuminen (1.6 s)"
 	}
 	"RescueRanger_PreGM"
 	{

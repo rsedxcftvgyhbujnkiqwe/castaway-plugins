@@ -360,10 +360,6 @@
 	{
 		"fr"	"Razorback"
 	}
-	"redtape"
-	{
-		"fr"	"Enregistreur de formalités"
-	}
 	"rescueranger"
 	{
 		"fr"	"Ranger du risque"
@@ -837,10 +833,6 @@
 	"Razorback_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, peut recevoir un bonus d'extra-santé, bouclier ne se régénère pas"
-	}
-	"RedTapeRecorder_Release"
-	{
-		"fr"	"Réversion à la version d'origine, 1.6s de vitesse de déconstruction sur les bâtiments améliorés (au lieu de 3s)"
 	}
 	"RescueRanger_PreGM"
 	{

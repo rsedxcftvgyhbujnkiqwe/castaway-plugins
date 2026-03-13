@@ -404,10 +404,6 @@
 	{
 		"pl"	"Antyklinga"
 	}
-	"redtape"
-	{
-		"pl"	"Magnetofon Urzędasa"
-	}
 	"rescueranger"
 	{
 		"pl"	"Ryzykowny Ratunek"
@@ -973,10 +969,6 @@
 	"Razorback_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), tarcza nie odnawia się po dźgnięciu, możliwość nadleczenia do 185 HP"
-	}
-	"RedTapeRecorder_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2012), szybsza prędkość odwracania budowy ulepszonych budynków (1.6s)"
 	}
 	"RescueRanger_PreGM"
 	{

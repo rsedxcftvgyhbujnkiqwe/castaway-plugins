@@ -405,11 +405,6 @@
 		// https://wiki.teamfortress.com/wiki/Razorback/zh-hans
 		"chi"	"电击背脊盾"
 	}
-	"redtape"
-	{
-		// https://wiki.teamfortress.com/wiki/Red-Tape_Recorder/zh-hans
-		"chi"	"官僚式录音机"
-	}
 	"rescueranger"
 	{
 		// https://wiki.teamfortress.com/wiki/Rescue_Ranger/zh-hans
@@ -918,10 +913,6 @@
 	"Razorback_PreJI"
 	{
 		"chi"	"回调到丛林炼狱更新前，可以超量治疗，不能重新充能"
-	}
-	"RedTapeRecorder_Release"
-	{
-		"chi"	"回调到发布，对升级后的敌方建筑降级更快（1.6 秒）"
 	}
 	"RescueRanger_PreGM"
 	{
