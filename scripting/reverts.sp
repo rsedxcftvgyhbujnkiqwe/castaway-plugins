@@ -6681,6 +6681,15 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 		float multiplier = 1.0;
 		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
 			if (
+				ItemIsEnabled(Wep_CritCola) &&
+				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
+				player_weapons[entity][Wep_CritCola]
+			) {
+				// Crit-a-Cola speed boost.
+				multiplier *= 1.25;
+			}
+
+			if (
 				GetItemVariant(Wep_BabyFace) == 1 &&
 				player_weapons[entity][Wep_BabyFace]
 			) {
