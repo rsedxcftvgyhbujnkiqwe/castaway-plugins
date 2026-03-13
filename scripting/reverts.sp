@@ -332,7 +332,6 @@ ConVar cvar_ref_tf_scout_hype_mod;
 ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
-ConVar cvar_ref_tf_weapon_criticals;
 ConVar cvar_ref_weapon_medigun_charge_rate;
 
 #if defined MEMORY_PATCHES
@@ -821,7 +820,6 @@ public void OnPluginStart() {
 	cvar_ref_tf_stealth_damage_reduction = FindConVar("tf_stealth_damage_reduction");
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
-	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 	cvar_ref_weapon_medigun_charge_rate = FindConVar("weapon_medigun_charge_rate");
 
 #if !defined MEMORY_PATCHES
