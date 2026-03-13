@@ -680,10 +680,6 @@
 	{
 		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU), no cooldown at full health, heal yourself by throwing the Steak"
 	}
-	"BuffaloSteak_PreMnvy"
-	{
-		"en"	"Reverted to pre-Manniversary, +35%% faster move speed on use, damage taken minicrits, no cooldown at full health, heal yourself by throwing the Steak"
-	}
 	"BuffBanner_Release"
 	{
 		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600 dmg)"

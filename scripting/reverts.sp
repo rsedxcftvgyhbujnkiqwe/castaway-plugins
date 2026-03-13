@@ -667,7 +667,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
 	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
-	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_PreMnvy");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
 	ItemDefine("claidheamh", "Claidheamh_PreTB", CLASSFLAG_DEMOMAN, Wep_Claidheamh);
@@ -2410,7 +2409,7 @@ public void OnSandvichThrown_NextFrame(int entity_ref)
 
 	int steak_variant = GetItemVariant(Wep_BuffaloSteak);
 	bool steak_enabled = ItemIsEnabled(Wep_BuffaloSteak);
-	bool steak_variant_allowed = (steak_variant == 1 || steak_variant == 2);
+	bool steak_variant_allowed = steak_variant == 1;
 
 	char model_name[PLATFORM_MAX_PATH];
 	GetEntPropString(entity, Prop_Data, "m_ModelName", model_name, sizeof(model_name));
