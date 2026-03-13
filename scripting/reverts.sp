@@ -810,7 +810,6 @@ public void OnPluginStart() {
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2013_Intel");
 	ItemVariant(Wep_StickyJumper, "StkJumper_Pre2011");
-	ItemVariant(Wep_StickyJumper, "StkJumper_ReleaseDay2");
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemVariant(Wep_SydneySleeper, "Sleeper_Release");	
@@ -3505,14 +3504,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 5, 207, 0.0); // remove self blast dmg; blast dmg to self increased (only works for the weapon itself)
 					TF2Items_SetAttribute(itemNew, 6, 400, 0.0); // cannot_pick_up_intelligence
 				}
-				case 3: { // StkJumper_ReleaseDay2 (October 28, 2010 version)
-					TF2Items_SetNumAttributes(itemNew, 5);
-					TF2Items_SetAttribute(itemNew, 0, 15, 1.0); // crit mod disabled
-					TF2Items_SetAttribute(itemNew, 1, 89, 0.0); // max pipebombs decreased
-					TF2Items_SetAttribute(itemNew, 2, 125, -75.0); // max health additive penalty
-					TF2Items_SetAttribute(itemNew, 3, 207, 0.0); // remove self blast dmg; blast dmg to self increased
-					TF2Items_SetAttribute(itemNew, 4, 400, 0.0); // cannot_pick_up_intelligence
-				}																
 			}
 		}}
 		case 131, 1144: { if (ItemIsEnabled(Wep_CharginTarge)) {

@@ -1128,10 +1128,6 @@
 	{
 		"fi"	"22. joulukuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, +100%% luoti-, räjähdys-, ja tulivahinkoalttius, ei räjähdysitsevahinkoa, sat. kritit"
 	}
-	"StkJumper_ReleaseDay2"
-	{
-		"fi"	"28. lokakuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, -75 maksimiterveys, ei räjähdysitsevahinkoa, sat. kritit"
-	}
 	"Sleeper_PreBM"
 	{
 		"fi"	"Ennen Blue Moonia: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"

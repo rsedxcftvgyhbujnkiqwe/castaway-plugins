@@ -978,10 +978,6 @@
 	{
 		"fr"	"Réversion au 22 Décembre 2010, peut déployer jusqu'à 8 bombes collantes en même temps, pas de dégâts personnels par explosifs, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
 	}
-	"StkJumper_ReleaseDay2"
-	{
-		"fr"	"Réversion au 28 Octobre 2010, pas de dégâts personnels par explosifs, santé max -75, porteur peut récupérer l'intel, crits aléatoires"
-	}			
 	"Sleeper_PreBM"
 	{
 		"fr"	"Réversion à pré-Blue Moon, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"

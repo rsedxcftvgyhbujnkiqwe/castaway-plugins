@@ -1138,10 +1138,6 @@
 	{
 		"pl"	"Przywrócono do stanu z dnia 22.12.2010: limit maks. bomb zwiększony do 8, możliwość podniesienia flagi, +100%% podatności na wszystkie obraż., z wyjątkiem borni białej"
 	}
-	"StkJumper_ReleaseDay2"
-	{
-		"pl"	"Przywrócono do stanu z dnia 28.10.2010: limit maks. bomb zwiększony do 8, możliwość podniesienia flagi, -75 maks. HP"
-	}	
 	"Sleeper_PreBM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue Moon), trafienia w głowę oraz w pełni naładowane strzały powodują eksplozję Sikwonda, brak redukcji do czasu regeneracji Sikwonda"
