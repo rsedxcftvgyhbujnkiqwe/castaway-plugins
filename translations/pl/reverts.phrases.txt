@@ -694,10 +694,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, +25%% prędkości poruszania się, piętno śmierci podczas efektu"
 	}
-	"CritCola_Release"
-	{
-		"pl"	"Przywrócono do momentu wydania (2010), piętno śmierci podczas efektu, który trwa 6 sekund"
-	}
 	"CrusadersCrossbow_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), brak redukcji do tempa budowania Ubercharge"

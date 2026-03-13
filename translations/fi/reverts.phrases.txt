@@ -692,10 +692,6 @@
 	{
 		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittisenä"
 	}
-	"CritCola_Release"
-	{
-		"fi"	"Julkaisuversio: vahinko otettu on minikriittisenä, vaikutus kestää 6 sekuntia"
-	}
 	"CrocoStyle_Release"
 	{
 		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun."

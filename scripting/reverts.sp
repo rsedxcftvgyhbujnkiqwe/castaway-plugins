@@ -681,7 +681,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
 	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
-	ItemVariant(Wep_CritCola, "CritCola_Release");
 	ItemDefine("dalokohsbar", "DalokohsBar_PreJI", CLASSFLAG_HEAVY, Wep_Dalokohs);
 	ItemDefine("darwin", "Darwin_PreJI", CLASSFLAG_SNIPER, Wep_Darwin);
 	ItemVariant(Wep_Darwin, "Darwin_Pre2013");
@@ -2501,20 +2500,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 		}
 	}
 	{
-		// bonk and crit-a-cola variant duration modification
-		if (
-			(
-				GetItemVariant(Wep_CritCola) == 4 &&
-				condition == TFCond_CritCola &&
-				player_weapons[client][Wep_CritCola]
-			) &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			// set energy drink meter to 75 such that it drains to 0 in 6 seconds
-			SetEntPropFloat(client, Prop_Send, "m_flEnergyDrinkMeter", 75.0);
-		}
-	}
-	{
 		// spycicle fire immune
 
 		if (
@@ -2903,7 +2888,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 					TF2Items_SetAttribute(itemNew, 0, 798, vuln);
 					TF2Items_SetAttribute(itemNew, 1, 814, 0.0); // no mark-for-death on attack
 				}
-				case 3, 4: {
+				case 3: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
 					// Mini-crit vulnerability handled elsewhere
@@ -6827,16 +6812,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 	) {
 		float multiplier = 1.0;
 		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
-			if (
-				ItemIsEnabled(Wep_CritCola) &&
-				GetItemVariant(Wep_CritCola) != 4 &&
-				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
-				player_weapons[entity][Wep_CritCola]
-			) {
-				// Crit-a-Cola speed boost.
-				multiplier *= 1.25;
-			}
-
 			if (
 				GetItemVariant(Wep_BabyFace) == 1 &&
 				player_weapons[entity][Wep_BabyFace]

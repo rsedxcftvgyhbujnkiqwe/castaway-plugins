@@ -724,10 +724,6 @@
 	{
 		"en"	"Reverted to pre-Summer 2013, +25%% movespeed, damage taken mini-crits"
 	}
-	"CritCola_Release"
-	{
-		"en"	"Reverted to release, damage taken mini-crits, buff lasts 6 seconds"
-	}
 	"CrusadersCrossbow_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, full uber gain on heal regardless if target recently took damage"
