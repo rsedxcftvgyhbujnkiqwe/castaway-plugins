@@ -686,10 +686,6 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło W Dżungli, +25%% prędkości poruszania się, +10%% podatności na obrażenia, 2 sekundy piętna śmierci po przedawnieniu się efektu"
 	}
-	"CritCola_PreDec2013"
-	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2013, +25%% prędkości poruszania się, +25%% podatności na obrażenia, brak piętna śmierci"
-	}
 	"CritCola_PreJuly2013"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, +25%% prędkości poruszania się, piętno śmierci podczas efektu"

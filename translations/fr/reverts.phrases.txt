@@ -606,10 +606,6 @@
 	{
 		"fr"	"Réversion à pré-Inferno, +25%% de vitesse de déplacement, +10%% de dégâts reçus, marqué à mort 2s après expiration du buff"
 	}
-	"CritCola_PreDec2013"
-	{
-		"fr"	"Réversion à pré-Smissmas 2013, +25%% de vitesse de déplacement, +25%% de dégâts reçus, pas marqué à mort en attaquant"
-	}
 	"CritCola_PreJuly2013"
 	{
 		"fr"	"Réversion à pré-Été 2013, +25%% de vitesse de déplacement, dégâts reçus deviennent des mini-crits"

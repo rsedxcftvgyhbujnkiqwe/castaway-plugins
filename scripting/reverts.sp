@@ -679,7 +679,6 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
-	ItemVariant(Wep_CritCola, "CritCola_PreDec2013");
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
 	ItemDefine("dalokohsbar", "DalokohsBar_PreJI", CLASSFLAG_HEAVY, Wep_Dalokohs);
 	ItemDefine("darwin", "Darwin_PreJI", CLASSFLAG_SNIPER, Wep_Darwin);
@@ -1588,7 +1587,7 @@ public void OnGameFrame() {
 						// crit-a-cola damage taken minicrits
 
 						if (
-							GetItemVariant(Wep_CritCola) >= 3 &&
+							GetItemVariant(Wep_CritCola) >= 2 &&
 							player_weapons[idx][Wep_CritCola] &&
 							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
 						) {
@@ -2879,14 +2878,13 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 163: { if (ItemIsEnabled(Wep_CritCola)) {
 			switch (GetItemVariant(Wep_CritCola)) {
-				case 0, 1, 2: {
+				case 0, 1: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					// +25% or +10% damage vulnerability while under the effect, depending on variant
-					float vuln = GetItemVariant(Wep_CritCola) == 2 ? 1.25 : 1.10;
-					TF2Items_SetAttribute(itemNew, 0, 798, vuln);
+					TF2Items_SetAttribute(itemNew, 0, 798, 1.10);
 					TF2Items_SetAttribute(itemNew, 1, 814, 0.0); // no mark-for-death on attack
 				}
-				case 3: {
+				case 2: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 814, 0.0); // no mark-for-death on attack
 					// Mini-crit vulnerability handled elsewhere

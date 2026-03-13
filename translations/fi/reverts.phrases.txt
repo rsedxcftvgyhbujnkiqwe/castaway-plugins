@@ -684,10 +684,6 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: +25%% nopeuslisä, +10%% vahinkoalttius, 2 sekunnin kuolemanmerkkaus vaikutuksen päättyessä"
 	}
-	"CritCola_PreDec2013"
-	{
-		"fi"	"Ennen 2013 joulua: +25%% nopeuslisä, +25%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
-	}
 	"CritCola_PreJuly2013"
 	{
 		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittisenä"
