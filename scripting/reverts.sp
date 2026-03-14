@@ -1171,7 +1171,6 @@ public void OnShortstopShoveCvarChange(ConVar convar, const char[] oldValue, con
 	UpdateShortstopDescription();
 }
 
-// TODO: Why is this here????? Maybe make shove a variant?
 void UpdateShortstopDescription() {
 	int i = Wep_Shortstop;
 	char shove_str[] = "_Shove";
@@ -2548,6 +2547,15 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 				// increase condition time to 3s, TF2 normally applies 2.6s
 				time = 3.0;
 
+				// replace invuln with 75% damage resist
+				if (condition == TFCond_UberchargedCanteen) {
+					condition = TFCond_DefenseBuffMmmph;
+					// 90% damage reduction for release and march variants handled in OnTakeDamageAlive
+				}
+				// Prevent knockback immunity
+				if (condition == TFCond_MegaHeal) {
+					condition = TFCond_InHealRadius; // re-add healing circle visual effect
+				}
 				return Plugin_Changed;
 			}
 		}
