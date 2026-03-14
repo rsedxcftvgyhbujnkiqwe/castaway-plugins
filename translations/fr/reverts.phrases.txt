@@ -360,10 +360,6 @@
 	{
 		"fr"	"Razorback"
 	}
-	"redtape"
-	{
-		"fr"	"Enregistreur de formalités"
-	}
 	"rescueranger"
 	{
 		"fr"	"Ranger du risque"
@@ -502,10 +498,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, crits par derrière, mini-crits par devant, pas de bonus de vitesse en tuant"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"fr"	"Réversion à pré-Blue Moon, crits sur les cibles en feu, déploiement 75%% plus lent, cadence 20%% plus lente, pas de bonus de vitesse en tuant"
-	}
 	"Backburner_PreHat"
 	{
 		"fr"	"Réversion à la mise à jour Sans-Chapeau, +10%% de dégâts"
@@ -590,10 +582,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, regénère toujours +2 santé/s peut-importe si l'utilisateur a récemment prit des dégâts"
 	}
-	"CowMangler_Release"
-	{
-		"fr"	"Réversion à la version d'origine, chargeur de 5 tirs, ne peut pas être crit-boosté"
-	}
 	"CowMangler_Pre2013"
 	{
 		"fr"	"Réversion à pré-Été 2013, chargeur de 5 tirs, ne peut pas être crit-boosté, -10%% de dégâts, recharge 5%% plus lente"
@@ -610,17 +598,9 @@
 	{
 		"fr"	"Réversion à pré-Inferno, +25%% de vitesse de déplacement, +10%% de dégâts reçus, marqué à mort 2s après expiration du buff"
 	}
-	"CritCola_PreDec2013"
-	{
-		"fr"	"Réversion à pré-Smissmas 2013, +25%% de vitesse de déplacement, +25%% de dégâts reçus, pas marqué à mort en attaquant"
-	}
 	"CritCola_PreJuly2013"
 	{
 		"fr"	"Réversion à pré-Été 2013, +25%% de vitesse de déplacement, dégâts reçus deviennent des mini-crits"
-	}
-	"CritCola_Release"
-	{
-		"fr"	"Réversion à la version d'origine, dégâts reçus deviennent des mini-crits, buff actif 6s"
 	}
 	"CrocoStyle_Release"
 	{
@@ -645,14 +625,6 @@
 	"Ringer_PreJI"
 	{
 		"fr"	"Réversion à pré-Inferno, même stats modernes mais peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
-	}
-	"Ringer_PreTB"
-	{
-		"fr"	"Réversion à pré-Tough Break, même stats modernes mais 50%% initial de resistance aux dégâts, peut ramasser des munitions hors-invisibilité, -35%% de recharge par boîtes de munitions"
-	}
-	"Ringer_PostRelease"
-	{
-		"fr"	"Réversion à la version post-ajout, 90%% de résistance aux dégâts pendant 6s, pas de bonus de vitesse, barre d'invisibilité se vide complètement si l'invisibilité est annulée plus tôt, pas d'immunité à la postcombustion après activation"
 	}
 	"Degreaser_PreTB"
 	{
@@ -729,10 +701,6 @@
 	"GlovesRU_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, pas de drain de santé, pas de pénalité de rangement de l'arme, marquage à mort, -25%% de dégâts"
-	}
-	"GlovesRU_PreJI"
-	{
-		"fr"	"Réversion à pré-Inferno, pas de drain de santé, marquage à mort, -25%% de dégâts"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -846,10 +814,6 @@
 	{
 		"fr"	"Réversion à pré-Inferno, peut recevoir un bonus d'extra-santé, bouclier ne se régénère pas"
 	}
-	"RedTapeRecorder_Release"
-	{
-		"fr"	"Réversion à la version d'origine, 1.6s de vitesse de déconstruction sur les bâtiments améliorés (au lieu de 3s)"
-	}
 	"RescueRanger_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, soigne +75 fixe sans coût de métal, récupérations à distance coûtent 130"
@@ -882,14 +846,6 @@
 	{
 		"fr"	"Réversion à la version d'origine, immunité aux dégâts personnels de la raillerie de l'Equalizer/Plan d'Évasion, porteur peut récupérer l'intel, crits aléatoires"
 	}
-	"RocketJmp_Pre2011"
-	{
-		"fr"	"Réversion au 22 Décembre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
-	}
-	"RocketJmp_Oct2010"
-	{
-		"fr"	"Réversion au 27 Octobre 2010, pas de dégâts personnels par explosifs dont raillerie de l'Equalizer/Plan d'Évasion, santé max -100, porteur peut récupérer l'intel, crits aléatoires"
-	}		
 	"Saharan_Release"
 	{
 		"fr"	"Restauration du bonus d'ensemble d'objet d'origine, moins de son de fin d'invisibilité, silhouette semi-invisible apparaît 0.5s plus longtemps. Equipe L'Étranger (enlève le +40%% de durée d'invisibilité) et Ton Éternelle Récompense pour obtenir le bonus, chapeau non-requis"
@@ -934,10 +890,6 @@
 	{
 		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, bousculade est conservée"
 	}
-	"Shortstop_PreGM"
-	{
-		"fr"	"Réversion à pré-Gun Mettle, +20%% de soins par kits de soins quand actif, 40%% de vulnérabilité au recul à tout moment, partage ses munitions avec les pistolets, pas de bousculade"
-	}
 	"Shortstop_Release_Shove"
 	{
 		"fr"	"Réversion à la version d'origine, ralentit la cible de 40%% pendant 0.5s, recharge rapide, pas de vulnérabilité au recul, partage ses munitions avec les pistolets, bousculade est conservée"
@@ -966,10 +918,6 @@
 	{
 		"fr"	"Réversion à pré-Tough Break, 15%% de résistance aux explosions, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
 	}
-	"Splendid_Release"
-	{
-		"fr"	"Réversion à la version d'origine, 25%% de résistance au feu, pas de recharge plus rapide, crit après impact, pas de suppression de debuff, dégâts d'impact max à n'importe quelle portée"
-	}
 	"SpyCicle_PreGM"
 	{
 		"fr"	"Réversion à pré-Gun Mettle, immunité au feu de 2s, tue en silence, ne peut pas se régénérer avec des munitions"
@@ -986,10 +934,6 @@
 	{
 		"fr"	"Réversion au 22 Décembre 2010, peut déployer jusqu'à 8 bombes collantes en même temps, pas de dégâts personnels par explosifs, 100%% de vulnérabilité aux balles, explosifs et feu, porteur peut récupérer l'intel, crits aléatoires"
 	}
-	"StkJumper_ReleaseDay2"
-	{
-		"fr"	"Réversion au 28 Octobre 2010, pas de dégâts personnels par explosifs, santé max -75, porteur peut récupérer l'intel, crits aléatoires"
-	}			
 	"Sleeper_PreBM"
 	{
 		"fr"	"Réversion à pré-Blue Moon, tirs en pleine tête et tirs complètement chargés créent une explosion de Jaraté, pas de réduction de recharge du Jaraté"
@@ -998,10 +942,6 @@
 	{
 		"fr"	"Réversion à pré-Gun Mettle, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%%, pas de bonus pour les tirs en pleine tête"
 	}
-	"Sleeper_Release"
-	{
-		"fr"	"Réversion à la version d'origine, applique du Jaraté pendant 8s à la cible quand la charge est supérieure à 50%% (même si la cible est invuln.), pas de bonus pour les tirs en pleine tête, pénétre les cibles à charge max, crits aléatoires, pas d'augmentation de taux de chargement"
-	}	
 	"Turner_PreTB"
 	{
 		"fr"	"Réversion à pré-Tough Break, peut infliger des crits normaux, 25%% de résistance aux explosions et au feu, crit après impact, pas de suppression de debuff, dégâts d'impact à 60%% de charge consommée"
