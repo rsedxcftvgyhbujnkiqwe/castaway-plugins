@@ -667,7 +667,7 @@ public void OnPluginStart() {
 	ItemDefine("carbine", "Carbine_Release", CLASSFLAG_SNIPER, Wep_CleanerCarbine);
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
-	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER, Wep_CowMangler);
+	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_CowMangler);
 #if defined MEMORY_PATCHES
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
