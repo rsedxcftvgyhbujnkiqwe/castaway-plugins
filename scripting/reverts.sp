@@ -4442,7 +4442,13 @@ Action SDKHookCB_TraceAttack(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
-		if (hitgroup != 1) {
+		if (hitgroup == 1) {
+			if ((damage_type & DMG_USE_HITLOCATIONS != 0 && player_weapons[attacker][Wep_Ambassador]) ||
+				TF2_GetPlayerClass(attacker) == TFClass_Sniper) {
+				players[attacker].headshot_frame = GetGameTickCount();
+				players[victim].hit_by_headshot = true;
+			}
+		} else {
 			players[victim].hit_by_headshot = false;
 		}
 	}
