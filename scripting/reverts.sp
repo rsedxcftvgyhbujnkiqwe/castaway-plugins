@@ -30,6 +30,9 @@
 	For Linux, leave this line commented.
 */
 
+#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR >= 13
+#include <virtual_address>
+#endif
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
