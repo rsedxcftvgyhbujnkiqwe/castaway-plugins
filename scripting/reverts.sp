@@ -480,6 +480,7 @@ enum
 	Feat_SniperRifle, // All Sniper Rifles
 #endif
 	Feat_SpyWalkSpeed, // Spy 300 HU/s Walk Speed Revert
+	Feat_SpyMechanics, // Pre-Gun Mettle Spy Mechanics
 
 	// Item sets
 	Set_SpDelivery,		// Scout
@@ -665,6 +666,7 @@ public void OnPluginStart() {
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("spywalkspeed", "SpyWalkSpeed_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyWalkSpeed);
+	ItemDefine("spymechanics", "SpyMechanics_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyMechanics);
 
 	// Item sets
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
@@ -2513,6 +2515,7 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_dev_marked_for_death_lifetime, "10.0", GetItemVariant(Wep_FanOWar) == 1);
+			SetConVarMaybe(cvar_ref_tf_stealth_damage_reduction, "1.00", ItemIsEnabled(Feat_SpyMechanics));
 		}
 	}
 }

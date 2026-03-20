@@ -168,7 +168,11 @@
 	}
 	"spywalkspeed"
 	{
-		"en"	"Spy Walk Speed"
+		"en"	"Walk Speed"
+	}
+	"spymechanics"
+	{
+		"en"	"Spy Mechanics"
 	}
 	"ambassador"
 	{
@@ -663,6 +667,10 @@
 	"SpyWalkSpeed_PreGM"
 	{
 		"en"	"Reverted to pre-July 7, 2015; base walk speed decreased back to 300 HU/s (same speed as Pyro/Engineer/Sniper)"
+	}
+	"SpyMechanics_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no dmg resist & debuff reduction while cloaked, -66%% (from -33%%) dmg penalty dealt on sapped Sentries, 2 sec disguise duration"
 	}
 	"Ambassador_PreJI"
 	{
