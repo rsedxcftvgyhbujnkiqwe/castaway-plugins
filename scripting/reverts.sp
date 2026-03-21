@@ -440,6 +440,10 @@ Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 Address CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 Address CTFPlayerShared_m_flFeignDeathEnd;
 
+const Address TFPlayerClassData_t_m_flMaxSpeed = view_as<Address>(640); // *((float *)this + 160)
+Address SpyClassData;
+DynamicDetour dhook_GetPlayerClassData;
+
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
 // These offsets are discovered using tools such as IDA and Ghidra.
@@ -1089,6 +1093,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_AddToSpyCloakMeter = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddToSpyCloakMeter");
 		dhook_CWeaponMedigun_FindAndHealTargets = DynamicDetour.FromConf(conf, "CWeaponMedigun::FindAndHealTargets");
 		dhook_CTFLunchBox_ApplyBiteEffects = DynamicDetour.FromConf(conf, "CTFLunchBox::ApplyBiteEffects");
+		dhook_GetPlayerClassData = DynamicDetour.FromConf(conf, "GetPlayerClassData");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
@@ -1313,6 +1318,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayerShared_AddToSpyCloakMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddToSpyCloakMeter");
 	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
 	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
+	if (dhook_GetPlayerClassData == null) SetFailState("Failed to create dhook_GetPlayerClassData");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1333,6 +1339,8 @@ public void OnPluginStart() {
 	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Post, DHookCallback_CWeaponMedigun_FindAndHealTargets_Post);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
+	dhook_GetPlayerClassData.Enable(Hook_Pre, DHookCallback_GetTFClassData);
+	dhook_GetPlayerClassData.Enable(Hook_Post, DHookCallback_GetTFClassData);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -4390,22 +4398,6 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						}
 					}
 				}
-			}
-		}
-
-		{
-			// spy walk speed revert
-
-			if (
-				ItemIsEnabled(Feat_SpyWalkSpeed) &&
-				IsPlayerAlive(client) &&
-				TF2_GetPlayerClass(client) == TFClass_Spy
-			) {
-				TF2Attrib_SetByDefIndex(client, 54, 0.9375);
-			} else if (
-				TF2_GetPlayerClass(client) != TFClass_Spy
-			) {
-				TF2Attrib_RemoveByDefIndex(client, 54); // reset attribute
 			}
 		}
 	}
@@ -7997,19 +7989,6 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			}
 		}
 
-		if (TF2_GetPlayerClass(entity) == TFClass_Spy) {
-			if (
-				ItemIsEnabled(Feat_SpyWalkSpeed) &&
-				IsPlayerAlive(entity) &&
-				(
-					TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly) ||
-					TF2_IsPlayerInCondition(entity, TFCond_RegenBuffed)
-				)
-			) {
-				multiplier *= 405.0 / 398.5; // spy walk speed revert cap speed to 405 HU/s when speedboosted
-			}
-		}
-
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
@@ -8912,6 +8891,35 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer(int entity, 
 		}
 	}
 
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_GetTFClassData(DHookReturn returnValue, DHookParam parameters)
+{
+	// Spy Walk Speed revert. Modify the Spy's default speed to be 300HU/s instead of 320HU/s. Imported from NotnHeavy's plugin
+	// This is called whenever TF2 wants to grab the data of a specific class.
+	// Directly modifying the base class speed is preferred to prevent walk speed not acting as it should when combined with other effects such as disguise walkspeeds.
+	if (
+		ItemIsEnabled(Feat_SpyWalkSpeed) &&
+		(SpyClassData == Address_Null && parameters.Get(1) == TFClass_Spy)
+	) {
+		SpyClassData = view_as<Address>(returnValue.Value);
+		StoreToAddress(SpyClassData + TFPlayerClassData_t_m_flMaxSpeed, 300.0, NumberType_Int32, false);
+	}
+
+	// Reset back Spy's default walk speed to 320.0 HU/s when turned off in real time after respawning. 
+	// I do not understand why do I have to do it like this. 
+	// Also, when the console throws out an invalid address error, that means something is working.
+	if (
+		!ItemIsEnabled(Feat_SpyWalkSpeed) &&
+		(SpyClassData != Address_Null && parameters.Get(1) == TFClass_Spy)
+	) {
+		if (LoadFromAddress(SpyClassData + TFPlayerClassData_t_m_flMaxSpeed, NumberType_Int32) != 300.0) {
+			SpyClassData = view_as<Address>(returnValue.Value);
+			StoreToAddress(SpyClassData + TFPlayerClassData_t_m_flMaxSpeed, 320.0, NumberType_Int32, false);
+		}
+		StoreToAddress(SpyClassData + TFPlayerClassData_t_m_flMaxSpeed, 320.0, NumberType_Int32, false);
+	}
 	return MRES_Ignored;
 }
 

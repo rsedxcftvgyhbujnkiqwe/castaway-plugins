@@ -158,6 +158,12 @@
 				"windows" "\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
 				"linux"	"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
 			}
+			"GetPlayerClassData"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x69\x4D\x08\xF0\x08\x00\x00"
+				"linux"   "@_Z18GetPlayerClassDataj"
+			}
 		}
 
 		"Offsets"
@@ -790,6 +796,19 @@
 					"pOther"
 					{
 						"type" "cbaseentity"
+					}
+				}
+			}
+			"GetPlayerClassData"
+			{
+				"signature" "GetPlayerClassData"
+				"callconv"  "cdecl"
+				"return"    "int"
+				"arguments"
+				{
+					"iClass"
+					{
+						"type" "int"
 					}
 				}
 			}
