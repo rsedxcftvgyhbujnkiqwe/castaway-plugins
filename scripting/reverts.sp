@@ -5709,20 +5709,26 @@ Action SDKHookCB_OnTakeDamageAlive(
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
 					bool stun = true;
+
+					if (TF2_IsPlayerInCondition(victim, TFCond_Disguised)) {
+						// do not slow disguised spies
+						stun = false;
+					}
+
 					switch (GetItemVariant(Wep_Natascha)) {
 						case 1: {
 							if (TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
-								// do not stun enemies who are being healed
+								// do not slow enemies who are being healed
 								stun = false;
 							} else {
-								// old stun falloff
+								// old slow falloff
 								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
 								stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
 							}
 						}
 						case 2: {
-							// full stun amount regardless of range
+							// full slow amount regardless of range
 							stun_amt = 0.75;
 						}
 					}
