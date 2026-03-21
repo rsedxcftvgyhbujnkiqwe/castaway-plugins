@@ -6202,7 +6202,6 @@ Action SDKHookCB_OnTakeDamage_Building(
 		}
 		if (
 			HasEntProp(victim, Prop_Send, "m_nShieldLevel")
-			// StrEqual(class, "m_nShieldLevel")
 		) // Set sentry damage resistances from miniguns and the sapper's owner.
 		{
 			bool changed = false;
@@ -6224,10 +6223,12 @@ Action SDKHookCB_OnTakeDamage_Building(
 					}
 				}
 			}
+			
+			int sapper = FindSapperOwnedByClient(attacker);
 			if (
 				ItemIsEnabled(Feat_SpyMechanics) &&
 				GetEntProp(victim, Prop_Send, "m_bHasSapper") && 
-				GetEntPropEnt(entities[victim].attached_sapper, Prop_Send, "m_hBuilder") == attacker
+				sapper != -1
 			) {
 				damage = damage / 0.67 * 0.34;
 				changed = true;
@@ -9237,6 +9238,23 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
 			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
 		)
+			return ent;
+	}
+
+	return -1;
+}
+
+// Get the Sapper of a specific Spy
+stock int FindSapperOwnedByClient(int client)
+{
+	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
+		return -1;
+
+	int ent = -1;
+	while ((ent = FindEntityByClassname(ent, "obj_attachment_sapper")) != -1)
+	{
+		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
+		if (owner == client)
 			return ent;
 	}
 
