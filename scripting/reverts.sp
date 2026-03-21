@@ -5251,8 +5251,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
 					TF2Attrib_SetByDefIndex(weapon, 32, 0.0); // On Hit: 0% chance to slow target
 				}
@@ -5707,15 +5706,20 @@ Action SDKHookCB_OnTakeDamageAlive(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
+					bool stun = true;
 					switch (GetItemVariant(Wep_Natascha)) {
 						case 1: {
-							// old stun falloff
-							GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-							stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+							if (TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
+								// do not stun enemies who are being healed
+								stun = false;
+							} else {
+								// old stun falloff
+								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+								stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+							}
 						}
 						case 2: {
 							// full stun amount regardless of range
@@ -5723,7 +5727,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 						}
 					}
 
-					TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);
+					if (stun) {
+						TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);	
+					}
 					TF2Attrib_RemoveByDefIndex(weapon, 32); // restore the attribute
 				}
 			}
