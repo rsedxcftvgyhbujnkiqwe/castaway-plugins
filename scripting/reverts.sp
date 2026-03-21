@@ -323,6 +323,7 @@ enum struct Entity {
 	float minisentry_health;
 	int patient;
 	char class[MAX_NAME_LENGTH];
+	int attached_sapper;
 }
 
 ConVar cvar_enable;
@@ -417,6 +418,7 @@ DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 DynamicHook dhook_CTFBall_Ornament_Explode;
 DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
+DynamicHook dhook_CObjectSapper_FinishedBuilding;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -478,6 +480,7 @@ enum
 	Feat_Stickybomb, // All Stickybomb Launchers
 	Feat_Sword, // All Swords	
 	Feat_Minigun, // All Miniguns
+	Feat_Minigun_Sentry, // Minigun Sentry Dmg Penalty
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
 	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
@@ -664,6 +667,7 @@ public void OnPluginStart() {
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
+	ItemDefine("minigunsentry", "Minigun_Sentry_PreGM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Feat_Minigun_Sentry);
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
@@ -1075,6 +1079,7 @@ public void OnPluginStart() {
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
 		dhook_CTFBall_Ornament_Explode = DynamicHook.FromConf(conf, "CTFBall_Ornament::Explode");
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
+		dhook_CObjectSapper_FinishedBuilding = DynamicHook.FromConf(conf, "CObjectSapper::FinishedBuilding");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -2639,6 +2644,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Pre, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Post, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer);
+	}
+	else if (StrEqual(class, "obj_attachment_sapper")) {
+		dhook_CObjectSapper_FinishedBuilding.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSapper_FinishedBuilding);
 	}
 #if defined MEMORY_PATCHES
 	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
@@ -4585,6 +4593,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					if (StrEqual(class, "tf_weapon_minigun")) {
 						player_weapons[client][Feat_Minigun] = true;
+						player_weapons[client][Feat_Minigun_Sentry] = true;
 					}
 
 					else if (StrEqual(class, "tf_weapon_grenadelauncher")) {
@@ -6190,6 +6199,41 @@ Action SDKHookCB_OnTakeDamage_Building(
 				damage = 60.0;
 				return Plugin_Changed;
 			}
+		}
+		if (
+			HasEntProp(victim, Prop_Send, "m_nShieldLevel")
+			// StrEqual(class, "m_nShieldLevel")
+		) // Set sentry damage resistances from miniguns and the sapper's owner.
+		{
+			bool changed = false;
+			if (
+				ItemIsEnabled(Feat_Minigun_Sentry) &&
+				StrEqual(class, "tf_weapon_minigun")
+			) {
+				switch (GetEntProp(victim, Prop_Send, "m_iUpgradeLevel"))
+				{
+					case 2:
+					{
+						damage = damage / 0.85 * 0.80;
+						changed = true;
+					}
+					case 3:
+					{
+						damage = damage / 0.80 * 0.67;
+						changed = true;
+					}
+				}
+			}
+			if (
+				ItemIsEnabled(Feat_SpyMechanics) &&
+				GetEntProp(victim, Prop_Send, "m_bHasSapper") && 
+				GetEntPropEnt(entities[victim].attached_sapper, Prop_Send, "m_hBuilder") == attacker
+			) {
+				damage = damage / 0.67 * 0.34;
+				changed = true;
+			}
+			if (changed)
+				return Plugin_Changed;
 		}
 	}
 
@@ -8909,6 +8953,14 @@ MRESReturn DHookCallback_GetTFClassData(DHookReturn returnValue, DHookParam para
 		StoreToAddress(SpyClassData + TFPlayerClassData_t_m_flMaxSpeed, 320.0, NumberType_Int32, false);
 	}
 	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CObjectSapper_FinishedBuilding(int entity)
+{
+    int building = GetEntPropEnt(entity, Prop_Send, "m_hBuiltOnEntity");
+    if (IsValidEntity(building))
+        entities[building].attached_sapper = entity;
+    return MRES_Ignored;
 }
 
 stock void RewardChargeOnChargeKill(int client) // This is called next frame to compensate for charge bash kills.

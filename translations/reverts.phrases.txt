@@ -146,6 +146,10 @@
 	{
 		"en"	"All Miniguns"
 	}
+	"minigunsentry"
+	{
+		"en"	"Minigun Sentry Dmg Penalty"
+	}
 	"sentry"
 	{
 		"en"	"All Sentry Guns"
@@ -639,6 +643,10 @@
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
+	}
+	"Minigun_Sentry_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, Lvl 2 Sentries have 20%% resist (from 15%%), Lvl 3 Sentries have 33%% resist (from 20%%) penalties against all Miniguns"
 	}
 	"Sentry_PreTB"
 	{

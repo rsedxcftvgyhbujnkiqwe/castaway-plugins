@@ -270,6 +270,11 @@
 				"windows" "256"
 				"linux"   "259"
 			}
+			"CObjectSapper::FinishedBuilding"
+			{
+				"windows" "344"
+				"linux"   "346"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -811,6 +816,13 @@
 						"type" "int"
 					}
 				}
+			}
+			"CObjectSapper::FinishedBuilding"
+			{
+				"offset"   "CObjectSapper::FinishedBuilding"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "void"
 			}
 		}
 	}
