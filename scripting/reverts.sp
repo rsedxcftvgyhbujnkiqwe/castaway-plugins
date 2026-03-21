@@ -2334,6 +2334,51 @@ public void OnGameFrame() {
 								}
 							}
 						}
+
+						// no reduced debuff timer for pre-gun mettle cloak reverts
+						if (
+							ItemIsEnabled(Feat_SpyMechanics) &&
+							TF2_IsPlayerInCondition(idx, TFCond_Cloaked)
+						) {
+							for (int i = 0; i < sizeof(debuffs); ++i) {
+								TFCond cond = debuffs[i];
+
+								if (TF2_IsPlayerInCondition(idx, cond)) {
+									// float flReduction = gpGlobals->frametime * 0.75f;
+									float addition = GetTickInterval() * 0.75;
+									float dur = TF2Util_GetPlayerConditionDuration(idx, cond);
+
+									// jarate, milk and gas
+									if (dur > 0.0) {
+										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
+									}
+
+									// burning and bleed handle expire time separately
+									if (cond == TFCond_OnFire) {
+										dur = TF2Util_GetPlayerBurnDuration(idx);
+										if (dur > 0.0) {
+											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
+										}
+									} else if (cond == TFCond_Bleeding) {
+										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
+
+											dur = TF2Util_GetPlayerBleedDuration(idx, j);
+											if (dur > 0.0) {
+
+												TF2Util_MakePlayerBleed(
+													idx,
+													TF2Util_GetPlayerBleedAttacker(idx, j),
+													dur + addition,
+													TF2Util_GetPlayerBleedWeapon(idx, j),
+													TF2Util_GetPlayerBleedDamage(idx, j),
+													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
+												);
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 
 					{
@@ -2523,7 +2568,6 @@ public void OnGameFrame() {
 			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 			SetConVarMaybe(cvar_ref_tf_dev_marked_for_death_lifetime, "10.0", GetItemVariant(Wep_FanOWar) == 1);
-			SetConVarMaybe(cvar_ref_tf_stealth_damage_reduction, "1.00", ItemIsEnabled(Feat_SpyMechanics));
 		}
 	}
 }
@@ -4638,6 +4682,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						StrEqual(class, "tf_weapon_invis")
 					) {
 						player_weapons[client][Feat_SpyWalkSpeed] = true;
+						player_weapons[client][Feat_SpyMechanics] = true;
 					}
 
 					switch (index) {
@@ -5532,6 +5577,17 @@ Action SDKHookCB_OnTakeDamage(
 								}
 							}
 						} else {
+							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+						}
+						
+						// No damage resist while cloaked with all watches revert. Does not affect Dead Ringer reverts.
+						// Excluding the Dead Ringer is done to prevent bugs from occuring with Dead Ringer reverts.
+						if (
+							ItemIsEnabled(Feat_SpyMechanics) &&
+							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") != 59
+						) {
+							cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
+						} else if (!ItemIsEnabled(Feat_SpyMechanics)) {
 							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 						}
 					}
