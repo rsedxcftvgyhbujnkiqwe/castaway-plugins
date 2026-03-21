@@ -680,6 +680,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, no dmg resist & debuff reduction while cloaked, -66%% (from -33%%) dmg penalty dealt on sapped Sentries, 2 sec disguise duration"
 	}
+	"SpyMechanics_PreGM_Patchless"
+	{
+		"en"	"Reverted to pre-gunmettle, no dmg resist & debuff reduction while cloaked, -66%% (from -33%%) dmg penalty dealt on sapped Sentries"
+	}
 	"Ambassador_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, deals full headshot damage (102) at all ranges"

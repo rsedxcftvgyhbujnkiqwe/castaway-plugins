@@ -391,6 +391,10 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
+MemoryPatch patch_RevertSpyDisguiseAlways2Seconds;
+float g_flSpyChangeDisguiseDuration = 2.0;
+Address AddressOf_g_flSpyChangeDisguiseDuration;
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -674,7 +678,11 @@ public void OnPluginStart() {
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
 #endif
 	ItemDefine("spywalkspeed", "SpyWalkSpeed_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyWalkSpeed);
-	ItemDefine("spymechanics", "SpyMechanics_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyMechanics);
+#if defined MEMORY_PATCHES
+	ItemDefine("spymechanics", "SpyMechanics_PreGM", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyMechanics, true);
+#else
+	ItemDefine("spymechanics", "SpyMechanics_PreGM_Patchless", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Feat_SpyMechanics);
+#endif
 
 	// Item sets
 	ItemDefine("spdelivery", "SpDelivery_Release", CLASSFLAG_SCOUT | ITEMFLAG_DISABLED, Set_SpDelivery);
@@ -1161,6 +1169,9 @@ public void OnPluginStart() {
 		patch_RevertIronBomber_PipeHitbox =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+		patch_RevertSpyDisguiseAlways2Seconds =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFPlayerShared::Disguise_DisguiseTime2SecRevert");
 		// patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
 		// 	MemoryPatch.CreateFromConf(conf,
 		// 	"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
@@ -1237,6 +1248,10 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertIronBomber_PipeHitbox");
 		}
+		if (!ValidateAndNullCheck(patch_RevertSpyDisguiseAlways2Seconds)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSpyDisguiseAlways2Seconds");
+		}
 		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
 		// 	hook_fail=true;
 		// 	LogError("Failed to create patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck");
@@ -1261,7 +1276,7 @@ public void OnPluginStart() {
 		}
 
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-
+		AddressOf_g_flSpyChangeDisguiseDuration = GetAddressOfCell(g_flSpyChangeDisguiseDuration);
 
 		// Sdkcall is needed together with the memorypatch for the "detonate stickies during taunt" revert. DO NOT REMOVE IT.
 		StartPrepSDKCall(SDKCall_Entity);
@@ -1494,6 +1509,14 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertFlamethrowers_Density_OnCollide.Disable();
 			}
 		}
+		case Feat_SpyMechanics: {
+			if (enable) {
+				patch_RevertSpyDisguiseAlways2Seconds.Enable();
+				StoreToAddress(patch_RevertSpyDisguiseAlways2Seconds.Address + view_as<Address>(0x04), view_as<float>(AddressOf_g_flSpyChangeDisguiseDuration), NumberType_Int32);
+			} else {
+				patch_RevertSpyDisguiseAlways2Seconds.Disable();
+			}
+		}		
 		case Feat_SniperRifle: {
 			if (enable) {
 				patch_RevertSniperRifles_ScopeJump.Enable();
@@ -2354,7 +2377,7 @@ public void OnGameFrame() {
 								}
 							}
 						}
-					}						
+					}
 				} else {
 					// reset if player isn't spy
 					players[idx].spy_is_feigning = false;
