@@ -2289,95 +2289,27 @@ public void OnGameFrame() {
 					}
 
 					{
-						// no reduced debuff timer for old-style deadringer
-						if (
-							(GetItemVariant(Wep_DeadRinger) == 0 ||
+						// no reduced debuff timer for old-style deadringer and old-style cloaks
+						bool pre_gm_deadringer =
+							(GetItemVariant(Wep_DeadRinger) == 0 || 
 							GetItemVariant(Wep_DeadRinger) >= 3) &&
-							players[idx].spy_is_feigning
-						) {
-							for (int i = 0; i < sizeof(debuffs); ++i) {
-								TFCond cond = debuffs[i];
+							players[idx].spy_is_feigning;
 
-								if (TF2_IsPlayerInCondition(idx, cond)) {
-									// float flReduction = gpGlobals->frametime * 0.75f;
-									float addition = GetTickInterval() * 0.75;
-									float dur = TF2Util_GetPlayerConditionDuration(idx, cond);
-
-									// jarate, milk and gas
-									if (dur > 0.0) {
-										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
-									}
-
-									// burning and bleed handle expire time separately
-									if (cond == TFCond_OnFire) {
-										dur = TF2Util_GetPlayerBurnDuration(idx);
-										if (dur > 0.0) {
-											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
-										}
-									} else if (cond == TFCond_Bleeding) {
-										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
-
-											dur = TF2Util_GetPlayerBleedDuration(idx, j);
-											if (dur > 0.0) {
-
-												TF2Util_MakePlayerBleed(
-													idx,
-													TF2Util_GetPlayerBleedAttacker(idx, j),
-													dur + addition,
-													TF2Util_GetPlayerBleedWeapon(idx, j),
-													TF2Util_GetPlayerBleedDamage(idx, j),
-													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
-												);
-											}
-										}
-									}
-								}
-							}
-						}
-
-						// no reduced debuff timer for pre-gun mettle cloak reverts
-						if (
+						bool pre_gm_spymechanics =
 							ItemIsEnabled(Feat_SpyMechanics) &&
-							TF2_IsPlayerInCondition(idx, TFCond_Cloaked)
-						) {
-							for (int i = 0; i < sizeof(debuffs); ++i) {
-								TFCond cond = debuffs[i];
+							TF2_IsPlayerInCondition(idx, TFCond_Cloaked) &&
+							(
+								TF2_IsPlayerInCondition(idx, TFCond_OnFire) ||
+								TF2_IsPlayerInCondition(idx, TFCond_Jarated) ||
+								TF2_IsPlayerInCondition(idx, TFCond_Bleeding) ||
+								TF2_IsPlayerInCondition(idx, TFCond_Milked) ||
+								TF2_IsPlayerInCondition(idx, TFCond_Gas)
+							);
 
-								if (TF2_IsPlayerInCondition(idx, cond)) {
-									// float flReduction = gpGlobals->frametime * 0.75f;
-									float addition = GetTickInterval() * 0.75;
-									float dur = TF2Util_GetPlayerConditionDuration(idx, cond);
-
-									// jarate, milk and gas
-									if (dur > 0.0) {
-										TF2Util_SetPlayerConditionDuration(idx, cond, dur + addition);
-									}
-
-									// burning and bleed handle expire time separately
-									if (cond == TFCond_OnFire) {
-										dur = TF2Util_GetPlayerBurnDuration(idx);
-										if (dur > 0.0) {
-											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
-										}
-									} else if (cond == TFCond_Bleeding) {
-										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
-
-											dur = TF2Util_GetPlayerBleedDuration(idx, j);
-											if (dur > 0.0) {
-
-												TF2Util_MakePlayerBleed(
-													idx,
-													TF2Util_GetPlayerBleedAttacker(idx, j),
-													dur + addition,
-													TF2Util_GetPlayerBleedWeapon(idx, j),
-													TF2Util_GetPlayerBleedDamage(idx, j),
-													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
-												);
-											}
-										}
-									}
-								}
-							}
+						if (pre_gm_deadringer || pre_gm_spymechanics)
+						{
+							ExtendDebuffs(idx);
+							// PrintToChatAll("ExtendDebuffs if statement ran");
 						}
 					}
 
@@ -9257,6 +9189,49 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	}
 
 	return -1;
+}
+
+// No debuff reduction revert for Spy's watches. Used for Pre-Gun Mettle Dead Ringer variants and pre-Gun Mettle Spy Mechanics
+stock void ExtendDebuffs(int client)
+{
+	for (int i = 0; i < sizeof(debuffs); ++i) {
+		TFCond cond = debuffs[i];
+
+		if (TF2_IsPlayerInCondition(client, cond)) {
+			// float flReduction = gpGlobals->frametime * 0.75f;
+			float addition = GetTickInterval() * 0.75;
+			float dur = TF2Util_GetPlayerConditionDuration(client, cond);
+
+			// jarate, milk and gas
+			if (dur > 0.0) {
+				TF2Util_SetPlayerConditionDuration(client, cond, dur + addition);
+			}
+
+			// burning and bleed handle expire time separately
+			if (cond == TFCond_OnFire) {
+				dur = TF2Util_GetPlayerBurnDuration(client);
+				if (dur > 0.0) {
+					TF2Util_SetPlayerBurnDuration(client, dur + addition);
+				}
+			} else if (cond == TFCond_Bleeding) {
+				for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(client); ++j) {
+
+					dur = TF2Util_GetPlayerBleedDuration(client, j);
+					if (dur > 0.0) {
+
+						TF2Util_MakePlayerBleed(
+							client,
+							TF2Util_GetPlayerBleedAttacker(client, j),
+							dur + addition,
+							TF2Util_GetPlayerBleedWeapon(client, j),
+							TF2Util_GetPlayerBleedDamage(client, j),
+							TF2Util_GetPlayerBleedCustomDamageType(client, j)
+						);
+					}
+				}
+			}
+		}
+	}
 }
 
 // math stocks
