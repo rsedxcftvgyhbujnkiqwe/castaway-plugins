@@ -5710,15 +5710,18 @@ Action SDKHookCB_OnTakeDamageAlive(
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
 				) {
-					stun_amt = 0.0;
-					if (GetItemVariant(Wep_Natascha) == 1) {
-						// reduce stun amount according to distance (from decompiled pre-GM build)
-						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-						stun_amt = GetVectorDistance(pos1, pos2, true) * 4.4444445e-07;
-						stun_amt = -0.2 * clamp(stun_amt, 0.0, 1.0);
+					switch (GetItemVariant(Wep_Natascha)) {
+						case 1: {
+							// old stun falloff
+							GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+							stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+						}
+						case 2: {
+							// full stun amount regardless of range
+							stun_amt = 0.75;
+						}
 					}
-					stun_amt += 0.60;
 
 					TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);
 					TF2Attrib_RemoveByDefIndex(weapon, 32); // restore the attribute
