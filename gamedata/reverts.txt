@@ -164,6 +164,12 @@
 				"windows" "\x55\x8B\xEC\x69\x4D\x08\xF0\x08\x00\x00"
 				"linux"   "@_Z18GetPlayerClassDataj"
 			}
+			"InternalCalculateObjectCost" // search for "Object descriptions", look for LoadObjectInfos function, label it, scroll up a bit, find a function that references LoadObjectInfos, look for small if statement with 0x30 and 0x28 values
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\x78\x2A\x00\x74\x2A\x33\xC0"
+				"linux"   "@_Z27InternalCalculateObjectCosti"
+			}
 		}
 
 		"Offsets"
@@ -823,6 +829,19 @@
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "void"
+			}
+			"InternalCalculateObjectCost"
+			{
+				"signature" "InternalCalculateObjectCost"
+				"callconv"  "cdecl"
+				"return"    "int"
+				"arguments"
+				{
+					"iObjectType"
+					{
+						"type" "int"
+					}
+				}
 			}
 		}
 	}

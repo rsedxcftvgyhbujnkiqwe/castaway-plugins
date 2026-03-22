@@ -145,6 +145,9 @@ int resistance_mapping[] =
 #define TF_MINIGUN_PENALTY_PERIOD 1.0
 #define SENTRYGUN_ADD_SHELLS 40
 #define SENTRYGUN_MAX_SHELLS_1 150
+#define OBJ_DISPENSER 0
+#define OBJ_TELEPORTER 1
+#define OBJ_SENTRYGUN 2
 #define OBJ_ATTACHMENT_SAPPER 3
 #define LUNCHBOX_DROP_MODEL  "models/items/plate.mdl"
 #define LUNCHBOX_STEAK_DROP_MODEL  "models/workshop/weapons/c_models/c_buffalo_steak/plate_buffalo_steak.mdl"
@@ -314,6 +317,7 @@ enum struct Player {
 	float time_since_shield_bash;
 	float time_since_charge_cancel;
 	bool is_last_shot;
+	int teleporter_metal;
 }
 
 enum struct Entity {
@@ -441,6 +445,7 @@ DynamicDetour dhook_CBaseObject_CreateAmmoPack;
 DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 DynamicDetour dhook_CWeaponMedigun_FindAndHealTargets;
 DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
+DynamicDetour dhook_InternalCalculateObjectCost;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -487,6 +492,7 @@ enum
 	Feat_Minigun, // All Miniguns
 	Feat_Minigun_Sentry, // Minigun Sentry Dmg Penalty
 	Feat_Sentry, // All Sentry Guns
+	Feat_Teleporter, // All Teleporters
 #if defined MEMORY_PATCHES
 	Feat_SniperQuickscope, // Sniper 200ms Quickscope Delay Revert
 	Feat_SniperRifle, // All Sniper Rifles
@@ -675,6 +681,7 @@ public void OnPluginStart() {
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
 	ItemDefine("minigunsentry", "Minigun_Sentry_PreGM", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Feat_Minigun_Sentry);
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
+	ItemDefine("teleporter", "TeleporterCost_PreMYM", CLASSFLAG_ENGINEER | ITEMFLAG_DISABLED, Feat_Teleporter);
 #if defined MEMORY_PATCHES
 	ItemDefine("sniperquickscope", "SniperQuickscope_Pre2008", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Feat_SniperQuickscope, true);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
@@ -1117,6 +1124,7 @@ public void OnPluginStart() {
 		dhook_CWeaponMedigun_FindAndHealTargets = DynamicDetour.FromConf(conf, "CWeaponMedigun::FindAndHealTargets");
 		dhook_CTFLunchBox_ApplyBiteEffects = DynamicDetour.FromConf(conf, "CTFLunchBox::ApplyBiteEffects");
 		dhook_GetPlayerClassData = DynamicDetour.FromConf(conf, "GetPlayerClassData");
+		dhook_InternalCalculateObjectCost = DynamicDetour.FromConf(conf, "InternalCalculateObjectCost");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
@@ -1355,6 +1363,7 @@ public void OnPluginStart() {
 	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
 	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
 	if (dhook_GetPlayerClassData == null) SetFailState("Failed to create dhook_GetPlayerClassData");
+	if (dhook_InternalCalculateObjectCost == null) SetFailState("Failed to create dhook_InternalCalculateObjectCost");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1377,6 +1386,7 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_GetPlayerClassData.Enable(Hook_Pre, DHookCallback_GetTFClassData);
 	dhook_GetPlayerClassData.Enable(Hook_Post, DHookCallback_GetTFClassData);
+	dhook_InternalCalculateObjectCost.Enable(Hook_Pre, DHookCallback_InternalCalculateObjectCost);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2120,6 +2130,40 @@ public void OnGameFrame() {
 							TF2_IsPlayerInCondition(idx, TFCond_CritCola)
 						) {
 							TF2_AddCondition(idx, TFCond_MarkedForDeathSilent, 0.100, 0);
+						}
+					}
+				}
+
+				if (TF2_GetPlayerClass(idx) == TFClass_Engineer) {
+					{
+						// Pre-MYM Teleporter Build Metal Cost Amount GUI Revert
+						// Make build cost say 125 when the construction GUI pops up to prevent confusion
+						// This works by tricking the game by using the teleporter cost attribute bonus
+						// TODO: Need to find a way to make the if statements occur only once instead of every frame to prevent problems!
+						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+
+						if (weapon > 0) {
+							GetEntityClassname(weapon, class, sizeof(class));
+
+							if (ItemIsEnabled(Feat_Teleporter)) {
+								if (StrEqual(class, "tf_weapon_pda_engineer_build")) {
+									TF2Attrib_RemoveByDefIndex(idx, 790);
+										// PrintToChat(idx, "removed attrib 790");
+								}
+								else if (
+									!StrEqual(class, "tf_weapon_pda_engineer_build") &&
+									!StrEqual(class, "tf_weapon_builder")
+								) {
+									TF2Attrib_AddCustomPlayerAttribute(idx, "mod teleporter cost", 2.5, 0.1);
+										// PrintToChat(idx, "applied attrib 790");
+								}
+
+								// Check if metal is less than 125 (or 62) so that the GUI says 'Not Enough Metal'
+								// Not a perfect workaround. Sometimes it bugs out, but its good enough.
+								if ((GetEntProp(idx, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL) < players[idx].teleporter_metal)) {
+									TF2Attrib_AddCustomPlayerAttribute(idx, "mod teleporter cost", 2.5, 0.1);
+								} 
+							}
 						}
 					}
 				}
@@ -4600,6 +4644,32 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 			players[client].thrown_sandvich_ent_ref = INVALID_ENT_REFERENCE;
 		}
 
+		{
+			// eureka effect teleporter metal requirement tracking for teleporter reverts
+
+			if (
+				ItemIsEnabled(Feat_Teleporter) &&
+				(GetItemVariant(Wep_EurekaEffect) != 0 || GetItemVariant(Wep_EurekaEffect) == 0) &&
+				IsPlayerAlive(client) &&
+				TF2_GetPlayerClass(client) == TFClass_Engineer
+			) {
+				weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
+
+				if (weapon > 0) {
+					GetEntityClassname(weapon, class, sizeof(class));
+
+					if (
+						StrEqual(class, "tf_weapon_wrench") &&
+						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 589
+					) {
+						players[client].teleporter_metal = 62;
+					} else {
+						players[client].teleporter_metal = 125;
+					}
+				}
+			}
+		}		
+
 		// apply pre-toughbreak weapon switch if cvar is enabled
 		if (cvar_pre_toughbreak_switch.BoolValue)
 			TF2Attrib_SetByDefIndex(client, 177, 1.34); // 34% longer weapon switch
@@ -4669,6 +4739,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 
 					else if (StrEqual(class, "tf_weapon_pda_engineer_build")) {
 						player_weapons[client][Feat_Sentry] = true;
+						player_weapons[client][Feat_Teleporter] = true;
 					}
 
 					else if (
@@ -9113,6 +9184,16 @@ MRESReturn DHookCallback_CObjectSapper_FinishedBuilding(int entity)
     if (IsValidEntity(building))
         entities[building].attached_sapper = entity;
     return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_InternalCalculateObjectCost(DHookReturn returnValue, DHookParam parameters)
+{
+	if (parameters.Get(1) == OBJ_TELEPORTER) // Revert the teleporter cost to 125. This won't affect the client however...
+	{
+		returnValue.Value = 125;
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
 }
 
 stock void RewardChargeOnChargeKill(int client) // This is called next frame to compensate for charge bash kills.

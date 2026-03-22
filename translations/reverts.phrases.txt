@@ -154,6 +154,10 @@
 	{
 		"en"	"All Sentry Guns"
 	}
+	"teleporter"
+	{
+		"en"	"All Teleporters"
+	}
 	"sniperquickscope"
 	{
 		"en"	"All Sniper Quickscopes"
@@ -655,6 +659,10 @@
 	"Sentry_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, sentry is active immediately after being unsapped"
+	}
+	"TeleporterCost_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, base construction cost of all teleporters is 125 metal"
 	}
 	"SniperQuickscope_Pre2008"
 	{
