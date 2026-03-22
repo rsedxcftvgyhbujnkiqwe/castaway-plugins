@@ -1524,6 +1524,14 @@
 	{
 		"en"	"Reverted to pre-February 14, 2012: can heal yourself by picking up your own thrown Sandviches"
 	}
+	"ScorchShot_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, decreased knockback and no minicrits on burning targets, -16%% blast radius, no -35%% self damage force penalty"
+	}
+	"ScorchShot_PreGM_Patchless"
+	{
+		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, no minicrits on burning targets, -16%% blast radius, no -35%% self damage force penalty"
+	}
 	"ScorchShot_July2015"
 	{
 		"en"	"Reverted to pre-July 6, 2015 patch; no -35%% self damage force penalty (higher blast jumping)"

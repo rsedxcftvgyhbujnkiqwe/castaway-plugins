@@ -180,7 +180,7 @@
 				"windows" "288"
 			}
 
-			"CTFBaseRocket::GetRadius"
+			"CTFBaseRocket::GetRadius" // Also used for CTFProjectile_Flare::GetRadius
 			{
 				"linux" "245"
 				"windows" "244"
@@ -322,7 +322,7 @@
 				"return" "void"
 			}
 
-			"CTFBaseRocket::GetRadius"
+			"CTFBaseRocket::GetRadius" // Also used for CTFProjectile_Flare::GetRadius
 			{
 				"offset" "CTFBaseRocket::GetRadius"
 				"hooktype" "entity"

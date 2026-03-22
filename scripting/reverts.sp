@@ -48,11 +48,11 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_NAME "TF2 Weapon Reverts Extended"
+#define PLUGIN_NAME "TF2 Weapon Reverts Extended Ultimate"
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
-#define PLUGIN_VERSION_NUM "2.0.0"
+#define PLUGIN_VERSION_NUM "3.0.0"
 // Add a OS suffix if Memorypatch reverts are used
 // to make it easier to see which OS the plugin is compiled for. 
 // To server owners, before you raise hell, do: sm plugins list 
@@ -356,6 +356,7 @@ ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_tf_weapon_criticals;
 ConVar cvar_ref_weapon_medigun_charge_rate;
 ConVar cvar_ref_tf_dev_marked_for_death_lifetime;
+ConVar cvar_ref_tf_damageforcescale_pyro_jump;
 
 #if defined MEMORY_PATCHES
 MemoryPatch patch_RevertDisciplinaryAction;
@@ -394,6 +395,8 @@ MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 MemoryPatch patch_RevertSpyDisguiseAlways2Seconds;
 float g_flSpyChangeDisguiseDuration = 2.0;
 Address AddressOf_g_flSpyChangeDisguiseDuration;
+
+MemoryPatch patch_RevertScorchShotKnockbackOnBurningPlayers;
 
 #endif
 
@@ -925,7 +928,13 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Sandman, "Sandman_PreClassless");
 	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
 	ItemVariant(Wep_Sandvich, "Sandvich_Pre2012");
-	ItemDefine("scorchshot", "ScorchShot_July2015", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
+#if defined MEMORY_PATCHES	
+	ItemDefine("scorchshot", "ScorchShot_PreGM", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot, true);
+	ItemVariant(Wep_ScorchShot, "ScorchShot_July2015");
+#else
+	ItemDefine("scorchshot", "ScorchShot_PreGM_Patchless", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_ScorchShot);
+	ItemVariant(Wep_ScorchShot, "ScorchShot_July2015");
+#endif
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -1002,6 +1011,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_weapon_criticals = FindConVar("tf_weapon_criticals");
 	cvar_ref_weapon_medigun_charge_rate = FindConVar("weapon_medigun_charge_rate");
 	cvar_ref_tf_dev_marked_for_death_lifetime = FindConVar("tf_dev_marked_for_death_lifetime");
+	cvar_ref_tf_damageforcescale_pyro_jump = FindConVar("tf_damageforcescale_pyro_jump");
 
 #if !defined MEMORY_PATCHES
 	cvar_ref_tf_dropped_weapon_lifetime.AddChangeHook(OnDroppedWeaponLifetimeCvarChange);
@@ -1172,6 +1182,9 @@ public void OnPluginStart() {
 		patch_RevertSpyDisguiseAlways2Seconds =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPlayerShared::Disguise_DisguiseTime2SecRevert");
+		patch_RevertScorchShotKnockbackOnBurningPlayers =
+			MemoryPatch.CreateFromConf(conf,
+			"CTFProjectile_Flare::Explode_ForceScorchKnockbackTo100");
 		// patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck =
 		// 	MemoryPatch.CreateFromConf(conf,
 		// 	"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck");
@@ -1251,6 +1264,10 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertSpyDisguiseAlways2Seconds)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertSpyDisguiseAlways2Seconds");
+		}
+		if (!ValidateAndNullCheck(patch_RevertScorchShotKnockbackOnBurningPlayers)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertScorchShotKnockbackOnBurningPlayers");
 		}
 		// if (!ValidateAndNullCheck(patch_RevertSpyFenceCloakBugFix_DoClassSpecialSkill_RemoveInCondStealthCheck)) {
 		// 	hook_fail=true;
@@ -1578,6 +1595,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Enable();
 			} else {
 				patch_RevertIronBomber_PipeHitbox.Disable();
+			}
+		}
+		case Wep_ScorchShot: {
+			if (enable && GetItemVariant(Wep_ScorchShot) == 0) {
+				patch_RevertScorchShotKnockbackOnBurningPlayers.Enable();
+			} else {
+				patch_RevertScorchShotKnockbackOnBurningPlayers.Disable();
 			}
 		}
 	}
@@ -2519,6 +2543,7 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 			cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+			cvar_ref_tf_damageforcescale_pyro_jump.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
@@ -2568,7 +2593,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].minisentry_health = 0.0;
 	entities[entity].patient = -1;
 
-	if (StrEqual(class, "tf_projectile_rocket")) {
+	if (StrEqual(class, "tf_projectile_rocket") || StrEqual(class, "tf_projectile_flare")) { // Flare gun projectiles use the same offsets and function
 		rocket_create_entity = entity;
 		rocket_create_frame = GetGameTickCount();
 
@@ -4020,9 +4045,19 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}}
 		case 740: { if (ItemIsEnabled(Wep_ScorchShot)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
-			TF2Items_SetAttribute(itemNew, 0, 59, 1.00); // 0% self damage force
-		}}		
+			switch (GetItemVariant(Wep_ScorchShot)) {
+				case 0: {
+					TF2Items_SetNumAttributes(itemNew, 3);
+					TF2Items_SetAttribute(itemNew, 0, 59, 1.00); // 0% self damage force
+                	TF2Items_SetAttribute(itemNew, 1, 209, 0.00); // 0% minicrits vs burning players
+                	TF2Items_SetAttribute(itemNew, 2, 1, 0.50); // 50% damage penalty
+				}
+				case 1: {
+					TF2Items_SetNumAttributes(itemNew, 1);
+					TF2Items_SetAttribute(itemNew, 0, 59, 1.00); // 0% self damage force
+				}
+			}
+		}}
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 6, 1.0); // fire rate bonus
@@ -5627,6 +5662,29 @@ Action SDKHookCB_OnTakeDamage(
 					damage = damage1;
 
 				return Plugin_Changed;
+			}
+		}
+
+		{
+			// Pre-Gun Mettle Detonator/Scorch Shot Jump Tuning
+			// To do later: refactor this with detonator revert
+			if (
+				victim == attacker &&
+				(
+					(damage_type & DMG_BULLET) != 0 || 
+					(damage_type & DMG_BURN) != 0
+				)
+			) {
+				if (
+					GetItemVariant(Wep_ScorchShot) == 0 &&
+					player_weapons[victim][Wep_ScorchShot]
+				) {
+					cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = 6.50;
+					// PrintToChat(victim, "cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = %f", cvar_ref_tf_damageforcescale_pyro_jump.FloatValue);
+				} else if (GetItemVariant(Wep_ScorchShot) != 0) {
+					cvar_ref_tf_damageforcescale_pyro_jump.RestoreDefault();
+					// PrintToChat(victim, "cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = %f", cvar_ref_tf_damageforcescale_pyro_jump.FloatValue);
+				}
 			}
 		}
 	}
@@ -8007,6 +8065,21 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 				TF2_IsPlayerInCondition(owner, TFCond_BlastJumping)
 			) {
 				returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
+				return MRES_Override;
+			}
+		}
+		
+		// Use old Detonator/Scorch Shot explosion radius.
+		if (StrEqual(class, "tf_projectile_flare")) {
+			GetEntityClassname(weapon, class, sizeof(class));
+			
+			if (
+				GetItemVariant(Wep_ScorchShot) == 0 &&
+				StrEqual(class, "tf_weapon_flaregun") &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 740 &&
+				IsPlayerAlive(owner)
+			) {
+				returnValue.Value = view_as<float>(92.0);
 				return MRES_Override;
 			}
 		}

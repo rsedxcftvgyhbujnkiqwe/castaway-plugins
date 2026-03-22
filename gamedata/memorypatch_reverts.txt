@@ -113,6 +113,12 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x8F"
 				"linux" "@_ZN15CTFPlayerShared8DisguiseEiiP9CTFPlayerb"
 			}
+			"CTFProjectile_Flare::Explode" // search for Rubber.BulletImpact, look for 400.0 and 100.0 values (the function is big)
+			{
+				"library" "server"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x58\x01\x00\x00\x56\x57\x8B\xF9\x8B\x87"
+				"linux" "@_ZN19CTFProjectile_Flare7ExplodeEP10CGameTraceP11CBaseEntity"
+			}
 		}
 
 		"Offsets"
@@ -230,6 +236,26 @@
 						"offset"    "270"
 						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
 						"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
+					}
+				}
+
+				// ================================================
+				//  Revert Scorch Shot Knockback back to pre-Gun Mettle
+
+				"CTFProjectile_Flare::Explode_ForceScorchKnockbackTo100"
+				{
+					"signature" "CTFProjectile_Flare::Explode"
+					"linux"
+					{
+						"offset"    "3128"
+						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ rel32 (to 400.0 path)
+						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP out branch, always fall through to 100.0
+					}
+					"windows"
+					{
+						"offset"    "762"
+						"verify"    "\x74\x0A" // JZ short to 100.0 block
+						"patch"     "\xEB\x0A" // JMP short to same 100.0 block (forcing it so it does not matter if player is on fire or not)
 					}
 				}
 
@@ -477,6 +503,11 @@
 						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
 					}	
 				}
+
+				// ================================================
+				// Reverts Spy's Disguise Time from 0.5 seconds to 2.0 seconds when Spy is already disguised
+				// This is a pre-Gun Mettle change. This causes trippy client-side Spy HUD silhoutte visual glitches
+
 				"CTFPlayerShared::Disguise_DisguiseTime2SecRevert"
 				{
 					"signature"     "CTFPlayerShared::Disguise"
