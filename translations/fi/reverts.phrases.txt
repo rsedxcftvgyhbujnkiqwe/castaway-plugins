@@ -198,10 +198,6 @@
 	{
 		"fi"	"Musta laatikko"
 	}
-	"blutsauger"
-	{
-		"fi"	"Blutsauger"
-	}
 	"bonk"
 	{
 		"fi"	"Bonk-atomijuoma"
@@ -410,10 +406,6 @@
 	{
 		"fi"	"Selkäsuoja"
 	}
-	"redtape"
-	{
-		"fi"	"Punaisen nauhan nauhuri"
-	}
 	"rescueranger"
 	{
 		"fi"	"Pelastuspartiolainen"
@@ -576,10 +568,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: kriittisiä osumia takaa, minikriittisiä osumia edestä, ei nopeuslisää taposta"
 	}
-	"Axtinguisher_PreBM"
-	{
-		"fi"	"Ennen Blue Moonia: kriittisiä osumia palaviin pelaajiin, 75%% pidempi esiinvetoaika, 20%% hitaampi lyöntinopeus, ei nopeuslisää taposta"
-	}
 	"Backburner_PreHat"
 	{
 		"fi"	"Hatless-päivitys versio: 10%% vahinkobonus"
@@ -615,10 +603,6 @@
 	"BlackBox_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: rajoittamaton +15 terveyslisä etäisyydestä riippumatta"
-	}
-	"Blutsauger_Release"
-	{
-		"fi"	"Julkaisuversio: ei passiivista parannusvähennystä, ei kriittisiä osumia"
 	}
 	"Bonk_PreJI"
 	{
@@ -676,10 +660,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: palauttaa tasan +2 HP/s riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
 	}
-	"CowMangler_Release"
-	{
-		"fi"	"Julkaisuversio: 5 ammusta, ei voi kriittisyystehostaa"
-	}
 	"CowMangler_Pre2013"
 	{
 		"fi"	"Ennen 2013 kesää: 5 ammusta, ei voi kriittisyystehostaa, -10%% vahinkovähennys, 5%% hitaampi latausaika"
@@ -696,17 +676,9 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: +25%% nopeuslisä, +10%% vahinkoalttius, 2 sekunnin kuolemanmerkkaus vaikutuksen päättyessä"
 	}
-	"CritCola_PreDec2013"
-	{
-		"fi"	"Ennen 2013 joulua: +25%% nopeuslisä, +25%% vahinkoalttius, ei merkkaa kuolemaan hyökätessä"
-	}
 	"CritCola_PreJuly2013"
 	{
 		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittisenä"
-	}
-	"CritCola_Release"
-	{
-		"fi"	"Julkaisuversio: vahinko otettu on minikriittisenä, vaikutus kestää 6 sekuntia"
 	}
 	"CrocoStyle_Release"
 	{
@@ -735,14 +707,6 @@
 	"Ringer_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: samat perusominaisuudet, mutta voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
-	}
-	"Ringer_PreTB"
-	{
-		"fi"	"Ennen Tough Breakiä: samat perusominaisuudet, mutta 50%% ensimmäisen osuman vahinkosieto ja voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
-	}
-	"Ringer_PostRelease"
-	{
-		"fi"	"Julkaisun jälkeinen versio: 90%% vahingonsieto 6 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, aikainen verhoistapoistuminen tyhjentää verhoutumismittarin"
 	}
 	"Degreaser_PreTB"
 	{
@@ -823,10 +787,6 @@
 	"GlovesRU_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
-	}
-	"GlovesRU_PreJI"
-	{
-		"fi"	"Ennen Jungle Infernoa: ei laske terveyttä, merkkaa kuolemaan, -25%% vahinkoa"
 	}
 	"GlovesRU_PrePyro"
 	{
@@ -912,10 +872,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
 	}
-	"Phlog_TB"
-	{
-		"fi"	"Tough Break versio: MMMPHin aktivointi täyttää elinmittarin, haavoittumaton hieman pilkan jälkeen, MMMPH vaatii 225 tulivahinkoa"
-	}
 	"Phlog_Release"
 	{
 		"fi"	"Julkaisuversio: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, vaikutus kestää 13 sekuntia"
@@ -972,10 +928,6 @@
 	{
 		"fi"	"Ennen Jungle Infernoa: voi saada yliparannusta, suoja ei uudistu"
 	}
-	"RedTapeRecorder_Release"
-	{
-		"fi"	"Julkaisuversio: nopeampi rakennustason kumoutuminen (1.6 s)"
-	}
 	"RescueRanger_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: parantaa tasan +75 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia"
@@ -983,10 +935,6 @@
 	"RescueRanger_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: rakennusten parantaminen ei kuluta metallia"
-	}
-	"RescueRanger_Release"
-	{
-		"fi"	"Julkaisuversio: parantaa tasan +50 metallia kuluttamatta, kaukonostot kuluttavat 130 metallia, 35 perusvahinkoa (40:stä)"
 	}
 	"RescueRanger_PreTB"
 	{
@@ -1019,14 +967,6 @@
 	"RocketJmp_Release"
 	{
 		"fi"	"Julkaisuversio: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; voi kantaa tiedustelusalkkua, sat. kritit"
-	}
-	"RocketJmp_Pre2011"
-	{
-		"fi"	"22. joulukuuta 2010: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; +100%% luoti-, räjähdys- ja tulivahinkoalttius, voi kantaa tiedustelusalkkua, sat. kritit"
-	}
-	"RocketJmp_Oct2010"
-	{
-		"fi"	"27. lokakuuta 2010: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; -100 maksimiterveys, voi kantaa tiedustelusalkkua, sat. kritit"
 	}
 	"Saharan_Release"
 	{
@@ -1084,10 +1024,6 @@
 	{
 		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
-	"Shortstop_PreGM"
-	{
-		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa, ei tönäisyä"
-	}
 	"Shortstop_Release_Shove"
 	{
 		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
@@ -1116,10 +1052,6 @@
 	{
 		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
 	}
-	"Splendid_Release"
-	{
-		"fi"	"Julkaisuversio: 25%% tulensieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
-	}
 	"SpyCicle_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: 2s tuli-immuniteetti, hiljainen tappaja, ammukset eivät lataa puukkoa"
@@ -1136,10 +1068,6 @@
 	{
 		"fi"	"22. joulukuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, +100%% luoti-, räjähdys-, ja tulivahinkoalttius, ei räjähdysitsevahinkoa, sat. kritit"
 	}
-	"StkJumper_ReleaseDay2"
-	{
-		"fi"	"28. lokakuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, -75 maksimiterveys, ei räjähdysitsevahinkoa, sat. kritit"
-	}
 	"Sleeper_PreBM"
 	{
 		"fi"	"Ennen Blue Moonia: pääosumat ja täysin ladatut osumat roiskauttavat Jaratea, ei vähennä Jaraten latausaikaa"
@@ -1147,10 +1075,6 @@
 	"Sleeper_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%%, ei pääosumabonuksia"
-	}
-	"Sleeper_Release"
-	{
-		"fi"	"Julkaisuversio: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%% (kohde voi olla haavoittumaton), ei pääosumabonuksia, läpäise kohteet täyslatauksella, sat. kritit, ei nopeampaa latausaikaa"
 	}
 	"Turner_PreTB"
 	{
