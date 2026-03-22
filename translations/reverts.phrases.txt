@@ -646,15 +646,15 @@
 	}
 	"Bushwacka_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, 20%% fire vuln at all times, random crits enabled"
+		"en"	"Reverted to pre-love&war, +20%% fire vuln at all times, random crits enabled"
 	}
 	"Bushwacka_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, 20%% fire vuln at all times instead of dmg vuln when active"
+		"en"	"Reverted to pre-gunmettle, +20%% fire vuln at all times instead of overall vuln when active"
 	}
 	"BuffaloSteak_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and 10%% dmg vuln while buffed"
+		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and +10%% damage vuln while buffed"
 	}
 	"BuffaloSteak_Release"
 	{
@@ -662,11 +662,11 @@
 	}
 	"BuffBanner_Release"
 	{
-		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600 dmg)"
+		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600)"
 	}
 	"Targe_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, bash dmg at end of charge"
+		"en"	"Reverted to pre-toughbreak, 40%% blast resistance, afterburn immunity, crit after bash, no debuff removal, bash damage at end of charge"
 	}
 	"Claidheamh_PreTB"
 	{
@@ -686,7 +686,7 @@
 	}
 	"CowMangler_Pre2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% dmg penalty, 5%% slower reload time"
+		"en"	"Reverted to pre-Summer 2013, 5 shots, cannot be crit-boosted, -10%% damage penalty, 5%% slower reload time"
 	}
 	"CozyCamper_PreMYM"
 	{
@@ -726,15 +726,15 @@
 	}
 	"Ringer_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, can pick up ammo, 90%% dmg resist for up to 6s (reduced by dmg taken), no speedboost, no afterburn immunity after feign, no debuff reduction when cloaked"
+		"en"	"Reverted to pre-gunmettle, can refill via ammo (35% cap), 90%% damage resist for up to 6s (reduced by damage taken), no speedboost or afterburn immunity, no debuff reduction when cloaked"
 	}
 	"Ringer_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, same modern stats but can pick up ammo while uncloaked, 35%% less cloak from ammo boxes"
+		"en"	"Reverted to pre-inferno, can refill cloak via ammo while uncloaked"
 	}
 	"Degreaser_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% dmg & -25%% afterburn dmg penalties, no airblast cost penalty"
+		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% damage, -25%% afterburn damage, no airblast cost penalty"
 	}
 	"DirectHit_PreJI"
 	{
@@ -762,15 +762,15 @@
 	}
 	"Equalizer_PrePyro"
 	{
-		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 dmg at 1 HP"
+		"en"	"Merged back to pre-Pyromania; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 107 damage at 1 HP"
 	}
 	"Equalizer_PreHat"
 	{
-		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 dmg at 1 HP, 256 taunt self-damage"
+		"en"	"Merged back to pre-Hatless Update; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 113 damage at 1 HP, 256 taunt self-damage"
 	}
 	"Equalizer_Release"
 	{
-		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death; if 200 max HP: 125 dmg at 58 HP, 150 dmg at 20 HP, 162 dmg at 1 HP, 256 taunt self-damage"
+		"en"	"Merged back to release; while active: blocks Medic healing, can't call for Medics, no mark-for-death, 162 damage at 1 HP, 256 taunt self-damage"
 	}
 	"Eureka_SpawnRefill"
 	{
@@ -814,7 +814,7 @@
 	}
 	"GlovesRU_PrePyro"
 	{
-		"en"	"Reverted to pre-pyromania, no health drain or holster penalty, -6 HP/s while active (jump a bit higher on dmg tick), -50%% damage"
+		"en"	"Reverted to release, no health drain or holster penalty, -6 HP/s while active, -50%% damage"
 	}
 	"Gunboats_Release"
 	{
@@ -862,11 +862,11 @@
 	}
 	"LochLoad_2013"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, +20%% damage, -50%% clip size, +25%% self dmg, no radius penalty, grenades tumble"
+		"en"	"Reverted to pre-Smissmas 2014, +20%% damage, -50%% clip size, +25%% self damage, no radius penalty, grenades tumble"
 	}
 	"Cannon_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 dmg impacts"
+		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 damage impacts"
 	}
 	"MadMilk_Release"
 	{
@@ -906,15 +906,15 @@
 	}
 	"Phlog_Pyro"
 	{
-		"en"	"Reverted to pre-toughbreak, activating MMMPH instantly restores to full health with 75%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
+		"en"	"Reverted to pre-toughbreak, activating MMMPH refills health with 75%% damage resist while taunting, MMMPH requires 225 fire damage, -10%% damage penalty"
 	}
 	"Phlog_Release"
 	{
-		"en"	"Reverted to release, activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, longer 13 sec crit buff"
+		"en"	"Reverted to release, activating MMMPH refills health with 90%% damage resist while taunting, MMMPH requires 225 fire damage, crit buff lasts 13 seconds"
 	}
 	"Phlog_March2012"
 	{
-		"en"	"Reverted to March 15, 2012; activating MMMPH instantly restores to full health with 90%% dmg resist and no Uber while taunting, MMMPH requires 225 fire damage, -10%% dmg penalty"
+		"en"	"Reverted to pre-pyromania; activating MMMPH refills health with 90%% damage resist while taunting, MMMPH requires 225 fire damage, -10%% damage penalty"
 	}
 	"Pomson_PreGM"
 	{
@@ -930,15 +930,15 @@
 	}
 	"Powerjack_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, same vanilla stats but kills restore 75 health with overheal"
+		"en"	"Reverted to pre-gunmettle, +75 health restored on kill (can overheal)"
 	}
 	"Powerjack_Release"
 	{
-		"en"	"Reverted to release, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, +25%% dmg bonus, no random crits"
+		"en"	"Reverted to release, no speed bonus or damage vuln, +75 health restored on kill (can overheal), +25%% damage, no random crits"
 	}
 	"Powerjack_Pre2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, no movespeed bonus or dmg vuln, kills restore 75 health with overheal, 20%% melee vuln while active"
+		"en"	"Reverted to pre-Summer 2013, no speed bonus or damage vuln, +75 health restored on kill (can overheal), +20%% melee vuln while active"
 	}
 	"Pocket_Release"
 	{
@@ -1006,11 +1006,11 @@
 	}
 	"RocketJmp_Release"
 	{
-		"en"	"Reverted to release, no self blast damage including from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
+		"en"	"Reverted to release, immune to all self blast damage including from Equalizer/Escape Plan taunt, wearer can pick up intel, random crits"
 	}
 	"Saharan_Release"
 	{
-		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger (removes +40%% cloak) and YER to gain the bonus, the hat is not required."
+		"en"	"Restored release item set bonus, quiet decloak, 0.5s longer cloak blink time. Equip the L'Etranger (removes cloak bonus) and YER to gain the bonus, the hat is not required."
 	}
 	"Saharan_ExtraCloak"
 	{
@@ -1034,7 +1034,7 @@
 	}
 	"Sandvich_Pre2012"
 	{
-		"en"	"Reverted to pre-February 14, 2012: can heal yourself by picking up your own thrown Sandviches"
+		"en"	"Reverted to pre-February 14, 2012; can heal yourself by picking up your own thrown Sandviches"
 	}
 	"Scottish_Release"
 	{
@@ -1059,10 +1059,6 @@
 	"Shortstop_PreMnvy"
 	{
 		"en"	"Reverted to pre-Manniversary, fast reload, no push force penalty, shares pistol ammo, no shove"
-	}
-	"Shortstop_PreGM_Shove"
-	{
-		"en"	"Reverted to pre-gunmettle, +20%% bonus healing from health packs while active, +40%% knockback vuln at all times, shares pistol ammo; modern shove is kept"
 	}
 	"Shortstop_Release_Shove"
 	{
@@ -1094,7 +1090,7 @@
 	}
 	"Splendid_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash dmg at any range"
+		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash damage at any range"
 	}
 	"SpyCicle_PreGM"
 	{
@@ -1106,15 +1102,15 @@
 	}
 	"StkJumper_Pre2013"
 	{
-		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once again"
+		"en"	"Reverted to Pyromania update, can have 8 stickybombs out at once"
 	}
 	"StkJumper_Pre2013_Intel"
 	{
-		"en"	"Reverted to Manniversary update, can have 8 stickybombs out at once again, wearer can pick up intel"
+		"en"	"Reverted to Manniversary update, can have 8 stickybombs out at once, wearer can pick up intel"
 	}
 	"StkJumper_Pre2011"
 	{
-		"en"	"Reverted to December 22, 2010: 8 stickybombs out at once again, wearer can pick up intel, +100%% bullet, explosive, and fire damage vulns, no self blast damage, random crits"
+		"en"	"Reverted to December 22, 2010: can have 8 stickybombs out at once, wearer can pick up intel, +100%% bullet, blast, and fire damage vulns, immune to self blast damage, random crits"
 	}
 	"Sleeper_PreBM"
 	{
@@ -1130,11 +1126,11 @@
 	}
 	"Turner_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge"
+		"en"	"Reverted to pre-toughbreak, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge"
 	}
 	"Turner_PreDec2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash dmg at end of charge, 100%% charge on kill, no charge loss on hit"
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge, 100%% charge on kill, no charge loss on hit"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -1158,7 +1154,7 @@
 	}	
 	"Vaccinator_PreGM"
 	{
-		"en"	"Pre-GM: full crit base resist, bubbles gone when cut off, no overhealed Uber rate penalties, no Uber rate penalty from multiple healers, only 1 resist on patient, 25%% HP regen on proper resist, +50%% Uber rate, -66%% overheal build rate"
+		"en"	"Pre-GM: full crit base resist, bubbles gone when cut off, no Uber rate penalties from overheal or multiple healers, only 1 resist on patient, 25%% HP regen on proper resist, +50%% Uber rate, -66%% overheal build rate"
 	}
 	"VitaSaw_PreJI"
 	{
