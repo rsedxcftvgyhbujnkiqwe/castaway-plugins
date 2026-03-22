@@ -310,6 +310,10 @@
 	{
 		"en"	"Degreaser"
 	}
+	"detonator"
+	{
+		"en"	"Detonator"
+	}
 	"directhit"
 	{
 		"en"	"Direct Hit"
@@ -1012,6 +1016,10 @@
 	{
 		"en"	"Reverted to pre-pyromania, 65%% faster weapon switch, -25%% afterburn dmg penalty, no airblast cost penalty"
 	}
+	"Detonator_PreGM"
+	{
+		"en"	"Reverted to pre-gunmettle, no dmg penalty, only direct hits minicrits burning targets, -25%% damage to self penalty, -16%% blast radius (from 110 HU to 92HU)"
+	}
 	"DirectHit_PreJI_Fix"
 	{
 		"en"	"Reverted to pre-inferno, deals minicrits to airblasted targets again"
@@ -1526,11 +1534,11 @@
 	}
 	"ScorchShot_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, decreased knockback and no minicrits on burning targets, -16%% blast radius, no -35%% self damage force penalty"
+		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, decreased knockback and no minicrits on burning targets, no -35%% self damage force penalty, -16%% blast radius (from 110 HU to 92HU)"
 	}
 	"ScorchShot_PreGM_Patchless"
 	{
-		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, no minicrits on burning targets, -16%% blast radius, no -35%% self damage force penalty"
+		"en"	"Reverted to pre-gunmettle, -50%% dmg penalty, no minicrits on burning targets, no -35%% self damage force penalty, -16%% blast radius (from 110 HU to 92HU)"
 	}
 	"ScorchShot_July2015"
 	{

@@ -538,6 +538,7 @@ enum
 	Wep_Darwin,
 	Wep_DeadRinger,	
 	Wep_Degreaser,
+	Wep_Detonator,
 	Wep_DirectHit,
 #if defined MEMORY_PATCHES
 	Wep_Disciplinary,
@@ -787,6 +788,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_Pre2013");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemVariant(Wep_Degreaser, "Degreaser_PrePyro");
+	ItemDefine("detonator", "Detonator_PreGM", CLASSFLAG_PYRO | ITEMFLAG_DISABLED, Wep_Detonator);
 	ItemDefine("directhit", "DirectHit_PreJI_Fix", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemVariant(Wep_DirectHit, "DirectHit_PreJI");
 	ItemVariant(Wep_DirectHit, "DirectHit_PreTB");
@@ -2599,7 +2601,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
-		StrEqual(class, "tf_projectile_cleaver")
+		StrEqual(class, "tf_projectile_cleaver") ||
+		StrEqual(class, "tf_projectile_flare")
 	) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
@@ -3433,6 +3436,12 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}			
 
+		}}
+		case 351: { if (ItemIsEnabled(Wep_Detonator)) {
+			TF2Items_SetNumAttributes(itemNew, 3);
+			TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // 0% damage penalty
+			TF2Items_SetAttribute(itemNew, 1, 209, 0.00); // 0% minicrits vs burning players
+			TF2Items_SetAttribute(itemNew, 2, 207, 1.25); // +0% damage to self
 		}}
 		case 127: { if (ItemIsEnabled(Wep_DirectHit)) {
 			switch (GetItemVariant(Wep_DirectHit)) {
@@ -4717,6 +4726,7 @@ Action OnGameEvent(Event event, const char[] name, bool dontbroadcast) {
 						case 163: player_weapons[client][Wep_CritCola] = true;
 						case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
 						case 215: player_weapons[client][Wep_Degreaser] = true;
+						case 351: player_weapons[client][Wep_Detonator] = true;
 						case 127: player_weapons[client][Wep_DirectHit] = true;
 						case 460: player_weapons[client][Wep_Enforcer] = true;
 						case 128: player_weapons[client][Wep_Equalizer] = true;
@@ -5676,10 +5686,17 @@ Action SDKHookCB_OnTakeDamage(
 					player_weapons[victim][Wep_ScorchShot]
 				) {
 					cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = 6.50;
-					// PrintToChat(victim, "cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = %f", cvar_ref_tf_damageforcescale_pyro_jump.FloatValue);
 				} else if (GetItemVariant(Wep_ScorchShot) != 0) {
-					cvar_ref_tf_damageforcescale_pyro_jump.RestoreDefault();
-					// PrintToChat(victim, "cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = %f", cvar_ref_tf_damageforcescale_pyro_jump.FloatValue);
+					cvar_ref_tf_damageforcescale_pyro_jump.RestoreDefault(); // default is 8.50
+				}
+
+				if (
+					ItemIsEnabled(Wep_Detonator) &&
+					player_weapons[victim][Wep_Detonator]
+				) {
+					cvar_ref_tf_damageforcescale_pyro_jump.FloatValue = 6.50;
+				} else if (!ItemIsEnabled(Wep_Detonator)) {
+					cvar_ref_tf_damageforcescale_pyro_jump.RestoreDefault(); // default is 8.50
 				}
 			}
 		}
@@ -6151,6 +6168,38 @@ Action SDKHookCB_OnTakeDamage(
 					// Save the player's HP for the Kunai backstab.
 					players[attacker].old_health = GetClientHealth(attacker);
 					players[victim].old_health = GetClientHealth(victim);
+				}
+			}
+
+			{
+				// Pre-Gun Mettle Detonator
+				if (
+					ItemIsEnabled(Wep_Detonator) &&
+					StrEqual(class, "tf_weapon_flaregun") &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 351 &&
+					damage_type & DMG_IGNITE != 0
+				) {
+					// Players hit directly by Detonator flares are dealt mini-crits
+					if (
+						victim != attacker &&
+						players[victim].projectile_touch_frame == GetGameTickCount() && 
+						GetEntPropEnt(players[victim].projectile_touch_frame, Prop_Send, "m_hLauncher") == weapon &&
+						TF2_IsPlayerInCondition(victim, TFCond_OnFire)
+					) {
+						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
+					}
+
+					// Detonator self-damage. The damage also influences the damage force.
+					if (victim == attacker) {
+						if (damage_type & DMG_BLAST) { // Detonator direct hit: set the damage to just be 30.
+							damage = 30.00;
+							return Plugin_Changed;
+						}
+						else { // Self-detonation jump from Detonator.
+							damage = ApplyRadiusDamage(victim, damage_position, 96.00, 30.00, 1.00, 0.5, false) / 1.25;
+							return Plugin_Changed;
+						}
+					}
 				}
 			}
 
@@ -8068,7 +8117,17 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 		// Use old Detonator/Scorch Shot explosion radius.
 		if (StrEqual(class, "tf_projectile_flare")) {
 			GetEntityClassname(weapon, class, sizeof(class));
-			
+
+			if (
+				ItemIsEnabled(Wep_Detonator) &&
+				StrEqual(class, "tf_weapon_flaregun") &&
+				GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 351 &&
+				IsPlayerAlive(owner)
+			) {
+				returnValue.Value = view_as<float>(92.0);
+				return MRES_Override;
+			}
+
 			if (
 				GetItemVariant(Wep_ScorchShot) == 0 &&
 				StrEqual(class, "tf_weapon_flaregun") &&
@@ -9498,4 +9557,34 @@ stock float clamp(float val, float a, float b) {
 stock void RotateVectorAroundZAxis(float vector[3], float angle, float output[3]) {
 	output[0] = vector[0] * Cosine(DegToRad(angle)) - vector[1] * Sine(DegToRad(angle));
 	output[1] = vector[0] * Sine(DegToRad(angle)) + vector[1] * Cosine(DegToRad(angle));
+}
+
+void GetAbsOrigin(int entity, float absOrigin[3], bool center = true)
+{
+	// Create vectors.
+	float mins[3];
+	float maxs[3];
+
+	// Get the absolute origin of the victim.
+	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", absOrigin);
+	if (center)
+	{
+		GetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
+		GetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
+		absOrigin[0] += (mins[0] + maxs[0]) * 0.5;
+		absOrigin[1] += (mins[1] + maxs[1]) * 0.5;
+		absOrigin[2] += (mins[2] + maxs[2]) * 0.5;
+	}
+}
+
+float ApplyRadiusDamage(int victim, float damage_position[3], float radius, float damage, float rampup, float falloff, bool center = true)
+{
+	// Create vectors.
+	float absOrigin[3];
+	float vectorDistance[3];
+	GetAbsOrigin(victim, absOrigin, center);
+
+	// Calculate the damage.
+	SubtractVectors(damage_position, absOrigin, vectorDistance);
+	return ValveRemapVal(GetVectorLength(vectorDistance), 0.00, radius, damage * rampup, damage * falloff);
 }
