@@ -4934,8 +4934,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
 					TF2Attrib_SetByDefIndex(weapon, 32, 0.0); // On Hit: 0% chance to slow target
 				}
@@ -5389,20 +5388,36 @@ Action SDKHookCB_OnTakeDamageAlive(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Healing)
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
-					stun_amt = 0.0;
-					if (GetItemVariant(Wep_Natascha) == 1) {
-						// reduce stun amount according to distance (from decompiled pre-GM build)
-						GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-						GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-						stun_amt = GetVectorDistance(pos1, pos2, true) * 4.4444445e-07;
-						stun_amt = -0.2 * clamp(stun_amt, 0.0, 1.0);
-					}
-					stun_amt += 0.60;
+					bool stun = true;
 
-					TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);
+					if (TF2_IsPlayerInCondition(victim, TFCond_Disguised)) {
+						// do not slow disguised spies
+						stun = false;
+					}
+
+					switch (GetItemVariant(Wep_Natascha)) {
+						case 1: {
+							if (TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
+								// do not slow enemies who are being healed
+								stun = false;
+							} else {
+								// old slow falloff
+								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+								stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+							}
+						}
+						case 2: {
+							// full slow amount regardless of range
+							stun_amt = 0.75;
+						}
+					}
+
+					if (stun) {
+						TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);	
+					}
 					TF2Attrib_RemoveByDefIndex(weapon, 32); // restore the attribute
 				}
 			}
