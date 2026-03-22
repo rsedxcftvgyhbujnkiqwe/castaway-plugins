@@ -393,8 +393,6 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
 MemoryPatch patch_RevertSpyDisguiseAlways2Seconds;
-float g_flSpyChangeDisguiseDuration = 2.0;
-Address AddressOf_g_flSpyChangeDisguiseDuration;
 
 MemoryPatch patch_RevertScorchShotKnockbackOnBurningPlayers;
 
@@ -1293,7 +1291,6 @@ public void OnPluginStart() {
 		}
 
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-		AddressOf_g_flSpyChangeDisguiseDuration = GetAddressOfCell(g_flSpyChangeDisguiseDuration);
 
 		// Sdkcall is needed together with the memorypatch for the "detonate stickies during taunt" revert. DO NOT REMOVE IT.
 		StartPrepSDKCall(SDKCall_Entity);
@@ -1529,7 +1526,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Feat_SpyMechanics: {
 			if (enable) {
 				patch_RevertSpyDisguiseAlways2Seconds.Enable();
-				StoreToAddress(patch_RevertSpyDisguiseAlways2Seconds.Address + view_as<Address>(0x04), view_as<float>(AddressOf_g_flSpyChangeDisguiseDuration), NumberType_Int32);
 			} else {
 				patch_RevertSpyDisguiseAlways2Seconds.Disable();
 			}

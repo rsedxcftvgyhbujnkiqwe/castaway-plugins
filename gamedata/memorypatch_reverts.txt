@@ -247,7 +247,7 @@
 					"signature" "CTFProjectile_Flare::Explode"
 					"linux"
 					{
-						"offset"    "3128"
+						"offset"    "3218"
 						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ rel32 (to 400.0 path)
 						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP out branch, always fall through to 100.0
 					}
@@ -513,15 +513,15 @@
 					"signature"     "CTFPlayerShared::Disguise"
 					"linux"
 					{
-						"offset"    "502"
-						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, dword ptr DAT_011bac18 (0.5, 00d3f376)
-						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
+						"offset"	"502"
+						"verify"	"\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // wildcard 4x; 00d3f376 MOVSS XMM0 ,dword ptr [DAT_011bac18]
+						"patch"		"\x90\x90\x90\x90\x90\x90\x90\x90" // NOP 5x the entire thing to prevent float from changing from 2.0 to 0.5
 					}
 					"windows"
 					{
-						"offset"    "533"
-						"verify"    "\xF3\x0F\x10\x05\x50\x53\x2A\x2A" // movss xmm0, 1051f6c5 (0.5 in flt_1077A508), f3 0f 10 05 50 53 77 10
-						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
+						"offset"    "531"
+						"verify"    "\x74\x0A" // JZ short to 2.0
+						"patch"     "\xEB\x0A" // JMP short to same 2.0 block (forced to go to 2.0 regardless)
 					}
 				}				
 
