@@ -2716,7 +2716,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 15, 1.0); // crit mod disabled
 			TF2Items_SetAttribute(itemNew, 1, 400, 0.0); // cannot_pick_up_intelligence
-			
 		}}
 		case 730: { if (ItemIsEnabled(Wep_Beggars)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -5093,6 +5092,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 		victim <= MaxClients
 	) {
 		{
+			if (
+				GetItemVariant(Wep_DeadRinger) == 0 &&
+				players[victim].spy_is_feigning &&
+				TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+			) {
+				// dead ringer buff reduction (formula reverse-engineered from decompiled build)
+				Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
+				float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
+				float reduction = ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5);
+				StoreToAddress(m_flFeignDeathEnd, feign_end - reduction, NumberType_Int32);
+			}
+		}
+		{
 			// pre-WAR! sandman victims receive 75% of damage dealt
 
 			if (
@@ -5413,32 +5425,18 @@ void SDKHookCB_OnTakeDamagePost(
 		victim >= 1 &&
 		victim <= MaxClients
 	) {
-		{
-
-			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
-				if (
-					GetItemVariant(Wep_DeadRinger) == 0 &&
-					players[victim].spy_is_feigning &&
-					TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-				) {
-					// dead ringer buff reduction
-					Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
-					float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
-					StoreToAddress(m_flFeignDeathEnd, feign_end - damage * 0.01667, NumberType_Int32);
-					// ^ would like to know the exact formula here, this is an approximation of the tick-based formula what was used in the plugin
-				}
-
-				charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
-				if (
-					charge < 100.0 &&
-					players[victim].feign_ready_tick == GetGameTickCount() &&
-					(
-						GetItemVariant(Wep_DeadRinger) == 0
-					)
-				) {
-					// undo 50% drain on activated
-					SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
-				}
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			TF2_GetPlayerClass(victim) == TFClass_Spy
+		) {
+			charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
+			if (
+				charge < 100.0 &&
+				players[victim].feign_ready_tick == GetGameTickCount()
+			) {
+				// undo 50% drain on activated
+				SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
+				players[victim].feign_ready_tick = 0;
 			}
 		}
 	}

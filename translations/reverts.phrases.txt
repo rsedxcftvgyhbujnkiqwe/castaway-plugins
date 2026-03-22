@@ -726,7 +726,7 @@
 	}
 	"Ringer_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, can refill via ammo (35% cap), 90%% damage resist for up to 6s (reduced by damage taken), no speedboost or afterburn immunity, no debuff reduction when cloaked"
+		"en"	"Reverted to pre-gunmettle, can refill via ammo (35%% cap), 90%% damage resist for up to 6s (reduced by damage taken), no speedboost or afterburn immunity, no debuff reduction when cloaked"
 	}
 	"Ringer_PreJI"
 	{
@@ -890,7 +890,7 @@
 	}
 	"Natascha_PreDec2010"
 	{
-		"en"	"Reverted to pre-December 17, 2010; full 75% slowdown at any range, no increased spin up time, no damage resistance when spun up"
+		"en"	"Reverted to pre-December 17, 2010; full 75%% slowdown at any range, no increased spin up time, no damage resistance when spun up"
 	}
 	"Panic_PreJI"
 	{
