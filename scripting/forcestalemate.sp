@@ -7,7 +7,7 @@
 
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
-	author = "random, VerdiusArcana",
+	author = "random",
 	description = "Force stalemates when map time runs out",
 	version = "1.1",
 	url = "https://castaway.tf"
