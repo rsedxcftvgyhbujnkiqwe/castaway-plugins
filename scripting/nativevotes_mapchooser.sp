@@ -119,7 +119,7 @@ int g_winCount[MAXTEAMS];
 bool g_NativeVotes;
 #define LIBRARY "nativevotes"
 
-char MGE_MAPS[][PLATFORM_MAX_PATH] = { "mge_bball_v2", "mge_chillypunch_final4_fix2", "mge_dueling_v1_fix1", "mge_oihguv_sucks_a12", "mge_oihguv_sucks_b5", "mge_training_v8_beta4b", "mge_triumph_beta7_rc1" };
+char MGE_MAPS[][PLATFORM_MAX_PATH] = { "mge_bball_v2", "mge_chillypunch_final4_fix2", "mge_dueling_v1_fix1", "mge_oihguv_sucks_a12", "mge_oihguv_sucks_b5", "mge_training_v8_beta4b", "mge_triumph_beta7_rc1", "mge_castaway_v1" };
 
 public void OnPluginStart()
 {
