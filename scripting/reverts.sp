@@ -6213,6 +6213,8 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 
 			stun_fls = GetItemVariant(Wep_Sandman) >= 2 ? TF_STUNFLAGS_NORMALBONK : TF_STUNFLAGS_SMALLBONK;
 
+			if (GetItemVariant(Wep_Sandman) == 1) stun_fls &= ~(TF_STUNFLAG_SLOWDOWN);
+
 			if (stun_amt >= 1.0) {
 				// moonshot!
 
