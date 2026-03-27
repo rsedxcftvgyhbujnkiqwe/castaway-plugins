@@ -4851,10 +4851,7 @@ Action SDKHookCB_OnTakeDamage(
 					attacker != victim &&
 					!AreEntitiesOnSameTeam(attacker, victim) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-					(
-						!PlayerIsInvulnerable(victim) ||
-						TF2_IsPlayerInCondition(victim, TFCond_Bonked)
-					)
+					!PlayerIsUbered(victim)
 				) {
 					// Show that attacker got healed.
 					Event event = CreateEvent("player_healonhit", true);
@@ -7527,12 +7524,18 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 	return MRES_Ignored;
 }
 
-stock bool PlayerIsInvulnerable(int client) {
+stock bool PlayerIsUbered(int client) {
 	return (
 		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
 		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
 		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage)
+	);
+}
+
+stock bool PlayerIsInvulnerable(int client) {
+	return (
+		PlayerIsUbered(client) ||
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
