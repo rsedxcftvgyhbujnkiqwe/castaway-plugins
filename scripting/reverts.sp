@@ -5377,8 +5377,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 				) {
 					bool stun = true;
 
-					if (TF2_IsPlayerInCondition(victim, TFCond_Disguised)) {
-						// do not slow disguised spies
+					if (
+						PlayerIsInvulnerable(victim) ||
+						TF2_IsPlayerInCondition(victim, TFCond_Disguised)
+					) {
+						// do not slow invuln players or disguised spies
 						stun = false;
 					}
 
