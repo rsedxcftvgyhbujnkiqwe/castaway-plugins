@@ -4876,7 +4876,7 @@ Action SDKHookCB_OnTakeDamage(
 					// crit after shield bash if melee is active weapon
 					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
-						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
+						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.3, 0);
 
 					// if using splendid screen, bash damage at any range
 					// other shields can only bash at the end of a charge
