@@ -4397,6 +4397,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 			) {
 				if (
 					(PlayerIsInvulnerable(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
+					!AreEntitiesOnSameTeam(owner, other) &&
 					players[other].projectile_touch_frame == GetGameTickCount()
 				) {
 					players[other].projectile_touch_frame = 0;
