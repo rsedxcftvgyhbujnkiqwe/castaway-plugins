@@ -1020,6 +1020,10 @@
 	{
 		"en"	"Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time"
 	}
+	"Sandman_PreApr2010"
+	{
+		"en"	"Reverted to pre-April 28, 2010; stuns players on hit with a 10%% speed penalty, 15 sec ball recharge time"
+	}
 	"Sandman_PreWAR"
 	{
 		"en"	"Reverted to pre-WAR! Update, full stuns, stun victims receive 75%% damage, -30 max health, 15 sec ball recharge time"

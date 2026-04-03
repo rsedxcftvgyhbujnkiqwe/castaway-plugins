@@ -758,6 +758,7 @@ public void OnPluginStart() {
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
+	ItemVariant(Wep_Sandman, "Sandman_PreApr2010");
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
 	ItemVariant(Wep_Sandman, "Sandman_PreClassless");
 	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
@@ -3191,11 +3192,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 44: { if (ItemIsEnabled(Wep_Sandman)) {
 			switch (GetItemVariant(Wep_Sandman)) {
-				case 1: {
+				case 2: {
 					TF2Items_SetNumAttributes(itemNew, 1);
 					TF2Items_SetAttribute(itemNew, 0, 125, -30.0); // -30 max health on wearer
 				}
-				case 2: {
+				case 3: {
 					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 49, 1.0); // no double jump
 					TF2Items_SetAttribute(itemNew, 1, 125, 0.0); // -0 max health on wearer
@@ -4389,13 +4390,14 @@ Action SDKHookCB_Touch(int entity, int other) {
 			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
 			if (
-				GetItemVariant(Wep_Sandman) == 2 &&
+				GetItemVariant(Wep_Sandman) == 3 &&
 				!GetEntProp(entity, Prop_Send, "m_bTouched") &&
 				owner >= 1 && owner <= MaxClients &&
 				other >= 1 && other <= MaxClients
 			) {
 				if (
 					(PlayerIsInvulnerable(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
+					!AreEntitiesOnSameTeam(owner, other) &&
 					players[other].projectile_touch_frame == GetGameTickCount()
 				) {
 					players[other].projectile_touch_frame = 0;
@@ -4850,10 +4852,7 @@ Action SDKHookCB_OnTakeDamage(
 					attacker != victim &&
 					!AreEntitiesOnSameTeam(attacker, victim) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-					(
-						!PlayerIsInvulnerable(victim) ||
-						TF2_IsPlayerInCondition(victim, TFCond_Bonked)
-					)
+					!PlayerIsUbered(victim)
 				) {
 					// Show that attacker got healed.
 					Event event = CreateEvent("player_healonhit", true);
@@ -4878,7 +4877,7 @@ Action SDKHookCB_OnTakeDamage(
 					// crit after shield bash if melee is active weapon
 					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
-						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.5, 0);
+						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.3, 0);
 
 					// if using splendid screen, bash damage at any range
 					// other shields can only bash at the end of a charge
@@ -5109,10 +5108,10 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
-			// pre-WAR! sandman victims receive 75% of damage dealt
+			// pre-WAR! sandman victims receive a portion of damage dealt
 
 			if (
-				GetItemVariant(Wep_Sandman) >= 1 &&
+				GetItemVariant(Wep_Sandman) >= 2 &&
 				TF2_IsPlayerInCondition(victim, TFCond_Dazed) &&
 				resist_damage
 			) {
@@ -5121,7 +5120,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
 					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
 				) {
-					damage *= GetItemVariant(Wep_Sandman) == 1 ? 0.75 : 0.50;
+					damage *= GetItemVariant(Wep_Sandman) == 2 ? 0.75 : 0.50;
 					returnValue = Plugin_Changed;
 				}
 			}
@@ -5376,8 +5375,11 @@ Action SDKHookCB_OnTakeDamageAlive(
 				) {
 					bool stun = true;
 
-					if (TF2_IsPlayerInCondition(victim, TFCond_Disguised)) {
-						// do not slow disguised spies
+					if (
+						PlayerIsInvulnerable(victim) ||
+						TF2_IsPlayerInCondition(victim, TFCond_Disguised)
+					) {
+						// do not slow invuln players or disguised spies
 						stun = false;
 					}
 
@@ -5642,7 +5644,7 @@ public Action OnPlayerRunCmd(
 				}
 			}
 			
-			if (GetItemVariant(Wep_Sandman) == 2) {
+			if (GetItemVariant(Wep_Sandman) == 3) {
 				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 
 				if (weapon1 > 0) {
@@ -5693,7 +5695,7 @@ public Action OnPlayerRunCmd(
 		case TFClass_Heavy:
 		{
 			if (
-				GetItemVariant(Wep_Sandman) == 2 &&
+				GetItemVariant(Wep_Sandman) == 3 &&
 				TF2_IsPlayerInCondition(client, TFCond_Dazed)
 			) {
 				int stun_fls = GetEntProp(client, Prop_Send, "m_iStunFlags");
@@ -6210,7 +6212,9 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 				stun_dur += 2.0;
 			}
 
-			stun_fls = GetItemVariant(Wep_Sandman) == 0 ? TF_STUNFLAGS_SMALLBONK : TF_STUNFLAGS_NORMALBONK;
+			stun_fls = GetItemVariant(Wep_Sandman) >= 2 ? TF_STUNFLAGS_NORMALBONK : TF_STUNFLAGS_SMALLBONK;
+
+			if (GetItemVariant(Wep_Sandman) == 1) stun_fls &= ~(TF_STUNFLAG_SLOWDOWN);
 
 			if (stun_amt >= 1.0) {
 				// moonshot!
@@ -6629,19 +6633,35 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn returnValue) {
 	if (
-		entity >= 1 &&
-		entity <= MaxClients &&
-		IsValidEntity(entity) &&
-		IsClientInGame(entity)
+		client >= 1 &&
+		client <= MaxClients &&
+		IsValidEntity(client) &&
+		IsClientInGame(client)
 	) {
 		float multiplier = 1.0;
-		if (TF2_GetPlayerClass(entity) == TFClass_Scout) {
+
+		// Pre-April 2010 Sandman has a 10% speed penalty rather than 50%
+		if (
+			GetItemVariant(Wep_Sandman) == 1 &&
+			TF2_IsPlayerInCondition(client, TFCond_Dazed)
+		) {
+			int stun_fls = GetEntProp(client, Prop_Send, "m_iStunFlags");
+
+			if (
+				stun_fls & TF_STUNFLAG_THIRDPERSON != 0 &&
+				stun_fls & TF_STUNFLAG_GHOSTEFFECT == 0
+			) {
+				multiplier *= 1.8; // 0.90 / 0.50
+			}
+		}
+
+		if (TF2_GetPlayerClass(client) == TFClass_Scout) {
 			if (
 				ItemIsEnabled(Wep_CritCola) &&
-				TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
-				player_weapons[entity][Wep_CritCola]
+				TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
+				player_weapons[client][Wep_CritCola]
 			) {
 				// Crit-a-Cola speed boost.
 				multiplier *= 1.25;
@@ -6649,19 +6669,19 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 
 			if (
 				GetItemVariant(Wep_BabyFace) == 1 &&
-				player_weapons[entity][Wep_BabyFace]
+				player_weapons[client][Wep_BabyFace]
 			) {
 				// Release Baby Face's Blaster proper speed application.
 				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
-				float boost = GetEntPropFloat(entity, Prop_Send, "m_flHypeMeter");
+				float boost = GetEntPropFloat(client, Prop_Send, "m_flHypeMeter");
 				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
 			}
 		}
 
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
-			TF2_IsPlayerInCondition(entity, TFCond_CritCola) &&
-			TF2_GetPlayerClass(entity) == TFClass_Heavy
+			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
+			TF2_GetPlayerClass(client) == TFClass_Heavy
 		) {
 			// Buffalo Steak Sandvich Pre-JI speed boost revert.
 
@@ -6675,13 +6695,13 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int entity, DHookReturn ret
 			if (GetItemVariant(Wep_BuffaloSteak) == 1) {
 				// apply various movespeed modifications
 
-				if (TF2_IsPlayerInCondition(entity, TFCond_SpeedBuffAlly)) {
+				if (TF2_IsPlayerInCondition(client, TFCond_SpeedBuffAlly)) {
 					multiplier *= 1.4;
 				}
 
-				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed", entity);
+				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed", client);
 
-				int weapon = GetEntPropEnt(entity, Prop_Send, "m_hActiveWeapon");
+				int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 				if (weapon > 0) {
 					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed_active", weapon);
 				}
@@ -7505,12 +7525,18 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 	return MRES_Ignored;
 }
 
-stock bool PlayerIsInvulnerable(int client) {
+stock bool PlayerIsUbered(int client) {
 	return (
 		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
 		TF2_IsPlayerInCondition(client, TFCond_UberchargedCanteen) ||
 		TF2_IsPlayerInCondition(client, TFCond_UberchargedHidden) ||
-		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage) ||
+		TF2_IsPlayerInCondition(client, TFCond_UberchargedOnTakeDamage)
+	);
+}
+
+stock bool PlayerIsInvulnerable(int client) {
+	return (
+		PlayerIsUbered(client) ||
 		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
