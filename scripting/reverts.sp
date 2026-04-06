@@ -1156,7 +1156,7 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 public void OnDroppedWeaponCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
-	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", !convar.BoolValue);
+	SetConVarMaybe(cvar_ref_tf_dropped_weapon_lifetime, "0", convar.BoolValue);
 	if (convar.BoolValue) {
 		patch_DroppedWeapon.Enable();
 	} else {
