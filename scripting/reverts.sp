@@ -408,6 +408,7 @@ DynamicDetour dhook_CTFPlayerShared_AddToSpyCloakMeter;
 DynamicDetour dhook_CWeaponMedigun_FindAndHealTargets;
 DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 DynamicDetour dhook_CTFPlayer_PickupWeaponFromOther;
+DynamicDetour dhook_CTFDroppedWeapon_ChargeLevelDegradeThink;
 
 Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
 Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -443,6 +444,7 @@ enum
 	Feat_Flamethrower, // All Flamethrowers
 #endif
 	Feat_Grenade, // All Grenade Launchers
+	Feat_Medigun, // All Mediguns
 	Feat_Minigun, // All Miniguns
 	Feat_Sentry, // All Sentry Guns
 #if defined MEMORY_PATCHES
@@ -615,6 +617,7 @@ public void OnPluginStart() {
 	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
 #endif
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
+	ItemDefine("medigun", "Medigun_PreMYM", CLASSFLAG_MEDIC, Feat_Medigun);
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 #if defined MEMORY_PATCHES
@@ -921,6 +924,7 @@ public void OnPluginStart() {
 		dhook_CWeaponMedigun_FindAndHealTargets = DynamicDetour.FromConf(conf, "CWeaponMedigun::FindAndHealTargets");
 		dhook_CTFLunchBox_ApplyBiteEffects = DynamicDetour.FromConf(conf, "CTFLunchBox::ApplyBiteEffects");
 		dhook_CTFPlayer_PickupWeaponFromOther = DynamicDetour.FromConf(conf, "CTFPlayer::PickupWeaponFromOther");
+		dhook_CTFDroppedWeapon_ChargeLevelDegradeThink = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::ChargeLevelDegradeThink");
 
 		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
 		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
@@ -1125,6 +1129,7 @@ public void OnPluginStart() {
 	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
 	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
 	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
+	if (dhook_CTFDroppedWeapon_ChargeLevelDegradeThink == null) SetFailState("Failed to create dhook_CTFDroppedWeapon_ChargeLevelDegradeThink");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1146,6 +1151,7 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
+	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink);
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -3654,6 +3660,13 @@ void CacheWeapons(int client) {
 					player_weapons[client][Feat_SniperRifle] = true;
 				}
 #endif
+
+				if (
+					StrEqual(class, "tf_weapon_medigun") &&
+					cvar_ref_tf_dropped_weapon_lifetime.FloatValue > 0.0
+				) {
+					player_weapons[client][Feat_Medigun] = true;
+				}
 
 				if (StrEqual(class, "tf_weapon_minigun")) {
 					player_weapons[client][Feat_Minigun] = true;
@@ -7573,6 +7586,14 @@ MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int client, DHookReturn
 		//LogMessage("CTFPlayer::PickupWeaponFromOther(%L, %d) -> %s", client, parameters.Get(1), returnValue.Value ? "true" : "false");
 		
 		CacheWeapons(client);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink(int entity) {
+	if (ItemIsEnabled(Feat_Medigun)) {
+		// Supercede, prevents any think code from running, which drains charge and sets the next think to drain again
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }

@@ -138,6 +138,10 @@
 	{
 		"en"	"All Grenade Launchers"
 	}
+	"medigun"
+	{
+		"en"	"All Mediguns"
+	}
 	"miniramp"
 	{
 		"en"	"All Miniguns"
@@ -539,6 +543,10 @@
 	"Grenade_Pre2014"
 	{
 		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, damage variance on hit location (more damage near player's feet)"
+	}
+	"Medigun_PreMYM"
+	{
+		"en"	"Reverted to pre-matchmaking, dropped Medigun's stored charge does not decay over time"
 	}
 	"Minigun_ramp_PreLW"
 	{
