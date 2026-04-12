@@ -826,7 +826,7 @@
 	}
 	"Gunboats_Release"
 	{
-		"en"	"Reverted to release, -75%% blast damage from rocket jumps, grenade kamikaze taunt deals only 64 self-damage"
+		"en"	"Reverted to release, -75%% blast damage from rocket jumps, damage reduction also applies to kamikaze taunt self-damage"
 	}
 	"Gunslinger_PreGM"
 	{

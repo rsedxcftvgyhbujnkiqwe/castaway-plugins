@@ -5373,25 +5373,22 @@ Action SDKHookCB_OnTakeDamageAlive(
 
 				if (damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) {
 					if (
-						// Kamikaze taunt tanking when release Gunboats are equipped
-						// Self-damage from grenade taunt is 320 dmg in modern TF2 - reduce to historical 64 dmg with gunboats
-						// This should work 100% of the time
-						ItemIsEnabled(Wep_Gunboats) &&
-						player_weapons[victim][Wep_Gunboats]
-					) {
-						damage *= 0.20;
-						returnValue = Plugin_Changed;
-					}
-					if (
 						// Grenade Kamikaze taunt self-damage reduction from modern 320 self-damage to historical 256 self-damage
 						// The Soldier does not always survive this due to explosive damage jankiness
 						// Historically, this was also the case, this old bug in particular did not work 100% of the time.
 						// This is because this bug relies on the old taunt-switch bug (get healed by a Medic, taunt with pickaxe, then quickswitch to get healed)
 						GetItemVariant(Wep_Pickaxe) >= 1 &&
-						player_weapons[victim][Wep_Pickaxe] &&
-						!player_weapons[victim][Wep_Gunboats]
+						player_weapons[victim][Wep_Pickaxe]
 					) {
 						damage *= 0.80;
+						returnValue = Plugin_Changed;
+					}
+					if (
+						// Kamikaze taunt tanking when release Gunboats are equipped
+						ItemIsEnabled(Wep_Gunboats) &&
+						player_weapons[victim][Wep_Gunboats]
+					) {
+						damage *= 0.25;
 						returnValue = Plugin_Changed;
 					}
 				}
