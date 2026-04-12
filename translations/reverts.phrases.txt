@@ -546,7 +546,7 @@
 	}
 	"Medigun_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, dropped Medigun's stored charge does not decay over time"
+		"en"	"Dropped Medigun's stored charge does not decay over time"
 	}
 	"Minigun_ramp_PreLW"
 	{
