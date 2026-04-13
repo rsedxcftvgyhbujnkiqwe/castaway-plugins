@@ -410,17 +410,17 @@ DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 DynamicDetour dhook_CTFPlayer_PickupWeaponFromOther;
 DynamicDetour dhook_CTFDroppedWeapon_ChargeLevelDegradeThink;
 
-Address CBaseObject_m_flHealth; // *((float *)a1 + 652)
-Address CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
-Address CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
-Address CTFPlayerShared_m_flFeignDeathEnd;
+int CBaseObject_m_flHealth; // *((float *)a1 + 652)
+int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
+int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
+int CTFPlayerShared_m_flFeignDeathEnd;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
 // These offsets are discovered using tools such as IDA and Ghidra.
 // It's recommended that you name the int the same as the member.
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
-int m_flTauntNextStartTime;
+int CTFPlayer_m_flTauntNextStartTime;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -923,15 +923,15 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_PickupWeaponFromOther = DynamicDetour.FromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CTFDroppedWeapon_ChargeLevelDegradeThink = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::ChargeLevelDegradeThink");
 
-		CBaseObject_m_flHealth = view_as<Address>(FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4);
-		CObjectSentrygun_m_flShieldFadeTime = view_as<Address>(FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4);
-		CWeaponMedigun_m_bReloadDown = view_as<Address>(FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11);
-		CTFPlayerShared_m_flFeignDeathEnd = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4);
+		CBaseObject_m_flHealth = FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4;
+		CObjectSentrygun_m_flShieldFadeTime = FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4;
+		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
+		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
-		m_flTauntNextStartTime = -1;
-		m_flTauntNextStartTime = GameConfGetOffset(conf, "m_flTauntNextStartTime");
-		if (m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
+		CTFPlayer_m_flTauntNextStartTime = -1;
+		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "m_flTauntNextStartTime");
+		if (CTFPlayer_m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
 
 		delete conf;
 	}
@@ -1988,15 +1988,9 @@ public void OnGameFrame() {
 								player_weapons[idx][Wep_DeadRinger]
 							) {
 								players[idx].spy_is_feigning = true;
-								if (
-									GetItemVariant(Wep_DeadRinger) == 0
-								) {
-									TF2_AddCondition(idx, TFCond_DeadRingered, 6.0, idx);
-									StoreToAddress(
-										GetEntityAddress(idx) + CTFPlayerShared_m_flFeignDeathEnd,
-										GetGameTime() + 6.0,
-										NumberType_Int32
-									);
+								if (GetItemVariant(Wep_DeadRinger) == 0) {
+									TF2_AddCondition(idx, TFCond_DeadRingered);
+									SetEntDataFloat(idx, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
 								}
 							}
 						} else {
@@ -3481,9 +3475,9 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 			if (sentry != -1) {
 
 				if (GetEntProp(sentry, Prop_Send, "m_bPlayerControlled") > 0) {
-					
+
 					// Offset to m_flShieldFadeTime and input our own value.
-					StoreToAddress(GetEntityAddress(sentry) + CObjectSentrygun_m_flShieldFadeTime, GetGameTime() + 1.0, NumberType_Int32);
+					SetEntDataFloat(sentry, CObjectSentrygun_m_flShieldFadeTime, GetGameTime() + 1.0);
 
 					// Set m_bPlayerControlled to 0 such that the original code
 					// wouldn't set the shield fade time to 3 seconds, thus undoing our revert.
@@ -3501,7 +3495,6 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 		IsClientInGame(client) &&
 		IsClientInGame(attacker)
 	) {
-
 		{
 			if (
 				client != attacker &&
@@ -5151,10 +5144,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 				TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 			) {
 				// dead ringer buff reduction (formula reverse-engineered from decompiled build)
-				Address m_flFeignDeathEnd = GetEntityAddress(victim) + CTFPlayerShared_m_flFeignDeathEnd;
-				float feign_end = LoadFromAddress(m_flFeignDeathEnd, NumberType_Int32);
-				float reduction = ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5);
-				StoreToAddress(m_flFeignDeathEnd, feign_end - reduction, NumberType_Int32);
+				float m_flFeignDeathEnd = GetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd);
+				SetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd, m_flFeignDeathEnd - ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5));
 			}
 		}
 		{
@@ -6615,7 +6606,7 @@ MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam 
 		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
 	) {
 		// Set the players m_flTauntNextStartTime to CurrentTime.
-		SetEntDataFloat(entity, m_flTauntNextStartTime, GetGameTime(), true);
+		SetEntDataFloat(entity, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
 	}
 	return MRES_Ignored;
 }
@@ -7113,7 +7104,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn 
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		// Mini sentries always start off at max health.
-		StoreToAddress(GetEntityAddress(entity) + CBaseObject_m_flHealth, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth")), NumberType_Int32);
+		SetEntDataFloat(entity, CBaseObject_m_flHealth, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth")));
 	}
 	return MRES_Ignored;
 }
@@ -7124,8 +7115,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn 
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
-		entities[entity].minisentry_health = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32));
+		entities[entity].minisentry_health = GetEntDataFloat(entity, CBaseObject_m_flHealth);
 	}
 	return MRES_Ignored;
 }
@@ -7136,19 +7126,24 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
-		Address m_flHealth = GetEntityAddress(entity) + CBaseObject_m_flHealth;
-		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity))
-			StoreToAddress(m_flHealth, view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - 0.5, NumberType_Int32);
+		float m_flHealth = GetEntDataFloat(entity, CBaseObject_m_flHealth);
+		if (SDKCall(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed, entity)) {
+			// Sapped by Red-Tape Recorder
+			m_flHealth -= 0.5;
+		}
 		else if (GetItemVariant(Wep_Gunslinger) == 0) {
 			// Pre-GM Gunslinger, prevent mini sentries from gaining health while being built.
-			StoreToAddress(m_flHealth, entities[entity].minisentry_health, NumberType_Int32);
+			m_flHealth = entities[entity].minisentry_health;
 		} else {
 			// Release Gunslinger double heal rate on construction
-			float delta = view_as<float>(LoadFromAddress(m_flHealth, NumberType_Int32)) - entities[entity].minisentry_health;
+			float delta = m_flHealth - entities[entity].minisentry_health;
 			if (delta > 0.0) {
-				StoreToAddress(m_flHealth, floatMin(entities[entity].minisentry_health + 2 * delta, float(GetEntProp(entity, Prop_Send, "m_iMaxHealth"))), NumberType_Int32);
+				float health_max = float(GetEntProp(entity, Prop_Send, "m_iMaxHealth"));
+				m_flHealth = floatMin(entities[entity].minisentry_health + 2 * delta, health_max);
 			}
 		}
+
+		SetEntDataFloat(entity, CBaseObject_m_flHealth, m_flHealth);
 	}
 	return MRES_Ignored;
 }
@@ -7174,7 +7169,8 @@ MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn retu
 	// Allow metal to be picked up from mini sentry gibs.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding") &&
+		!parameters.Get(2)
 	) {
 		parameters.Set(2, 7);
 		return MRES_ChangedHandled;
@@ -7450,7 +7446,7 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 	) {
 		if (players[owner].using_vaccinator_uber) {
 			// Prevent resistance cycling while Ubering with the Vaccinator.
-			StoreToAddress(GetEntityAddress(entity) + CWeaponMedigun_m_bReloadDown, true, NumberType_Int8);
+			SetEntData(entity, CWeaponMedigun_m_bReloadDown, true, 1);
 		}
 	}
 	return MRES_Ignored;
