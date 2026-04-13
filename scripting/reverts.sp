@@ -399,7 +399,6 @@ DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 DynamicDetour dhook_CTFPlayer_Taunt;
-DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
@@ -912,7 +911,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
 		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
-		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
@@ -1117,7 +1115,6 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
-	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
 	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
@@ -1137,7 +1134,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
-	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
@@ -2279,32 +2275,19 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 
 	else if (StrEqual(class, "instanced_scripted_scene")) {
-		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
-	} 
-	
-	else if (
-		StrEqual(class, "tf_weapon_flamethrower") ||
-		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-	) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	} 
-	
-	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	} 
-	
-	else if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-	} 
-	
-	else if (StrEqual(class, "tf_weapon_lunchbox")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 	}
 
-	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
-		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	else if (
+		StrEqual(class, "tf_weapon_handgun_scout_primary") ||
+		StrEqual(class, "tf_weapon_flamethrower") ||
+		StrEqual(class, "tf_weapon_rocketlauncher_fireball") ||
+		StrEqual(class, "tf_weapon_lunchbox") ||
+#if defined MEMORY_PATCHES
+		StrEqual(class, "tf_weapon_pipebomblauncher")
+#endif
+	) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
 
 	else if (StrEqual(class, "tf_weapon_minigun")) {
@@ -2312,11 +2295,20 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
 	}
 
-#if defined MEMORY_PATCHES
-	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
+	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
-#endif
+
+	else if (StrEqual(class, "tf_weapon_medigun")) {
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CWeaponMedigun_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_ItemPostFrame);
+	}
+
+	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
+		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	}
 }
 
 
@@ -3401,13 +3393,6 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 	) {
 		TF2Attrib_SetByDefIndex(entity, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
-	} else if (
-		GetItemVariant(Wep_Vaccinator) == 1 &&
-		StrEqual(class, "tf_weapon_medigun") &&
-		index == 998
-	) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-		dhook_CWeaponMedigun_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_ItemPostFrame);
 	}
 }
 
@@ -4267,8 +4252,6 @@ Action OnSoundNormal(
 
 Action SDKHookCB_Spawn(int entity) {
 	char class[64];
-	char scene[128];
-	int owner;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
@@ -4276,26 +4259,12 @@ Action SDKHookCB_Spawn(int entity) {
 		entities[entity].spawn_time = GetGameTime();
 	}
 
-	if (StrEqual(class, "instanced_scripted_scene")) {
-
-		GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
-		owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
-
-		if (
-			owner >= 1 &&
-			owner <= MaxClients
-		) {
-			if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
-				players[owner].is_eureka_teleporting = true;
-			}
-		}
-	}
-
 	return Plugin_Continue;
 }
 
 void SDKHookCB_SpawnPost(int entity) {
 	char class[64];
+	char scene[128];
 	float maxs[3];
 	float mins[3];
 	int owner;
@@ -4306,40 +4275,57 @@ void SDKHookCB_SpawnPost(int entity) {
 
 	GetEntityClassname(entity, class, sizeof(class));
 
-	{
-		// bison/pomson hitboxes
+	// bison/pomson hitboxes
+	if (StrEqual(class, "tf_projectile_energy_ring")) {
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 
-		if (StrEqual(class, "tf_projectile_energy_ring")) {
-			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+		if (
+			owner > 0 &&
+			weapon > 0
+		) {
+			GetEntityClassname(weapon, class, sizeof(class));
 
 			if (
-				owner > 0 &&
-				weapon > 0
-			) {
-				GetEntityClassname(weapon, class, sizeof(class));
+				(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
+				(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
+			) {	// old pomson/bison projectile hitbox was a cube that was about 48 HU on all sides and only around its center would it collide with world
+				maxs[0] = 2.0;	// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
+				maxs[1] = 2.0;	// 2.0 equals to ~48.0 HU in the Y axis with m_triggerBloat set to 26
+				maxs[2] = 8.0;	// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
+				
+				mins[0] = (0.0 - maxs[0]);
+				mins[1] = (0.0 - maxs[1]);
+				mins[2] = (0.0 - maxs[2]);
+				// m_vecMaxs and m_vecMins is the actual size of the projectile hitbox which can collide with world geometry (bounding box)
+				SetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
+				SetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
+				// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
+				SetEntProp(entity, Prop_Send, "m_usSolidFlags", (GetEntProp(entity, Prop_Send, "m_usSolidFlags") | FSOLID_USE_TRIGGER_BOUNDS));
+				SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true); // m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
+				SetEntProp(entity, Prop_Send, "m_triggerBloat", 26); // using m_triggerBloat ensures that the projectile does not collide with world geometry but still increases the trigger hitbox against players and buildings
+				// setting the maxs values to 2.0 and m_triggerBloat to 26 ensures that the projectile hitbox is a 48 HU cube, just like the old projectile hitbox
+				// as for why its 26, its to account for the default hitbox being a 2 HU cube, and through experimental testing via puppet bots, cl_showpos, getpos, and setpos
+			}
+		}
+	}
+	else if (StrEqual(class, "instanced_scripted_scene")) {
+		GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
+		owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
 
-				if (
-					(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
-					(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-				) {	// old pomson/bison projectile hitbox was a cube that was about 48 HU on all sides and only around its center would it collide with world
-					maxs[0] = 2.0;	// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
-					maxs[1] = 2.0;	// 2.0 equals to ~48.0 HU in the Y axis with m_triggerBloat set to 26
-					maxs[2] = 8.0;	// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
-					
-					mins[0] = (0.0 - maxs[0]);
-					mins[1] = (0.0 - maxs[1]);
-					mins[2] = (0.0 - maxs[2]);
-					// m_vecMaxs and m_vecMins is the actual size of the projectile hitbox which can collide with world geometry (bounding box)
-					SetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
-					SetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
-					// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
-					SetEntProp(entity, Prop_Send, "m_usSolidFlags", (GetEntProp(entity, Prop_Send, "m_usSolidFlags") | FSOLID_USE_TRIGGER_BOUNDS));
-					SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true); // m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
-					SetEntProp(entity, Prop_Send, "m_triggerBloat", 26); // using m_triggerBloat ensures that the projectile does not collide with world geometry but still increases the trigger hitbox against players and buildings
-					// setting the maxs values to 2.0 and m_triggerBloat to 26 ensures that the projectile hitbox is a 48 HU cube, just like the old projectile hitbox
-					// as for why its 26, its to account for the default hitbox being a 2 HU cube, and through experimental testing via puppet bots, cl_showpos, getpos, and setpos
-				}
+		if (
+			owner >= 1 &&
+			owner <= MaxClients
+		) {
+			if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
+				players[owner].is_eureka_teleporting = true;
+			}
+			else if (
+				ItemIsEnabled(Wep_Huntsman) &&
+				StrEqual(scene, "scenes/player/sniper/low/taunt04.vcd")
+			) {
+				// Set the players m_flTauntNextStartTime to CurrentTime.
+				SetEntDataFloat(owner, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
 			}
 		}
 	}
@@ -6591,23 +6577,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 		return MRES_Supercede;
 	}
 	
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
-	char pszSceneName[PLATFORM_MAX_PATH];
-	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
-	int iTauntIndex = parameters.Get(2);
-
-	if (
-		ItemIsEnabled(Wep_Huntsman) &&
-		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
-		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
-		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
-	) {
-		// Set the players m_flTauntNextStartTime to CurrentTime.
-		SetEntDataFloat(entity, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
-	}
 	return MRES_Ignored;
 }
 
