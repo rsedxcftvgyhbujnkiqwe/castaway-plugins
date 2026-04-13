@@ -398,7 +398,7 @@ DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
-DynamicDetour dhook_CTFPlayer_Taunt;
+DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
@@ -910,7 +910,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
-		dhook_CTFPlayer_Taunt = DynamicDetour.FromConf(conf, "CTFPlayer::Taunt");
+		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
@@ -1114,7 +1114,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
-	if (dhook_CTFPlayer_Taunt == null) SetFailState("Failed to create dhook_CTFPlayer_Taunt");
+	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
 	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
@@ -1133,7 +1133,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
-	dhook_CTFPlayer_Taunt.Enable(Hook_Pre, DHookCallback_CTFPlayer_Taunt);
+	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
@@ -1833,8 +1833,8 @@ public void OnGameFrame() {
 								) {
 									if (!players[idx].medic_crossbow_heal) {
 										SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", players[idx].medic_amputator_current_uber);
-										// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in DHookCallback_CTFPlayer_Taunt
-									} else if (players[idx].medic_crossbow_heal) {
+										// Note: Uber tracking upon taunting via medic_amputator_current_uber is done in SDKHookCB_SpawnPost
+									} else {
 										players[idx].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 										players[idx].medic_crossbow_heal = false;
 									}
@@ -2504,7 +2504,6 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 	}
 	{
 		// phlog stuff
-
 		if (
 			ItemIsEnabled(Wep_Phlogistinator) &&
 			TF2_GetPlayerClass(client) == TFClass_Pyro &&
@@ -4321,11 +4320,20 @@ void SDKHookCB_SpawnPost(int entity) {
 				players[owner].is_eureka_teleporting = true;
 			}
 			else if (
-				ItemIsEnabled(Wep_Huntsman) &&
-				StrEqual(scene, "scenes/player/sniper/low/taunt04.vcd")
+				ItemIsEnabled(Wep_Amputator) &&
+				player_weapons[owner][Wep_Amputator] &&
+				StrEqual(scene, "scenes/player/medic/low/taunt03.vcd")
 			) {
-				// Set the players m_flTauntNextStartTime to CurrentTime.
-				SetEntDataFloat(owner, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
+				weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
+			
+				if (weapon > 0) {
+					GetEntityClassname(weapon, class, sizeof(class));								
+			
+					if (StrEqual(class, "tf_weapon_medigun")) {
+						players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+						// PrintToChat(owner, "GetEntPropFloat for m_flChargeLevel = %f", players[owner].medic_amputator_current_uber);
+					}
+				}
 			}
 		}
 	}
@@ -6580,30 +6588,20 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_Taunt(int entity, DHookParam parameters) {
-	int weapon;
-	char class[64];
+MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
+	char pszSceneName[PLATFORM_MAX_PATH];
+	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
+	int iTauntIndex = parameters.Get(2);
 
-	// amputator track uber level right upon taunting, this is done to track uber for amputator only when needed
 	if (
-		GetItemVariant(Wep_Amputator) == 1 && 
-		player_weapons[entity][Wep_Amputator]							
+		ItemIsEnabled(Wep_Huntsman) &&
+		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
+		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
+		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
 	) {
-		weapon = GetPlayerWeaponSlot(entity, TFWeaponSlot_Secondary);
-
-		if (weapon > 0) {
-			GetEntityClassname(weapon, class, sizeof(class));								
-			
-			if (
-				StrEqual(class, "tf_weapon_medigun")
-			) {
-				players[entity].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-					// PrintToChat(entity, "GetEntPropFloat for m_flChargeLevel = %f", players[entity].medic_amputator_current_uber);
-					// use the above PrintToChat to check if GetEntPropFloat occurs only when needed
-			}
-		}	
+		// Set the players m_flTauntNextStartTime to CurrentTime.
+		SetEntDataFloat(entity, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
 	}
-
 	return MRES_Ignored;
 }
 
@@ -6992,7 +6990,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			// apply regen
 			regen_amount *= regen_scale - 1.0; // compensate for original regen source
 			if (regen_amount != 0.0) {
-				TF2Attrib_AddCustomPlayerAttribute(client, "health drain", regen_amount, 0.001);
+				TF2Attrib_AddCustomPlayerAttribute(client, "health drain medic", regen_amount, 0.001);
 			}
 		}
 	}
@@ -7410,6 +7408,7 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
+		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998 &&
 		owner >= 1 &&
 		owner <= MaxClients
 	) {
