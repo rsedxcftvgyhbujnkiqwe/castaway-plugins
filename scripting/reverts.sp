@@ -2279,13 +2279,13 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 
 	else if (
+#if defined MEMORY_PATCHES
+		StrEqual(class, "tf_weapon_pipebomblauncher") ||
+#endif
 		StrEqual(class, "tf_weapon_handgun_scout_primary") ||
 		StrEqual(class, "tf_weapon_flamethrower") ||
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball") ||
-		StrEqual(class, "tf_weapon_lunchbox") ||
-#if defined MEMORY_PATCHES
-		StrEqual(class, "tf_weapon_pipebomblauncher")
-#endif
+		StrEqual(class, "tf_weapon_lunchbox")
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
