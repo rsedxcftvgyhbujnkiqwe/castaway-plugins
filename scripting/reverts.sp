@@ -428,6 +428,7 @@ Handle hudsync;
 // Menu menu_pick;
 int rocket_create_entity;
 int rocket_create_frame;
+int team_round_timer_entity;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -1145,6 +1146,8 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink);
+
+	team_round_timer_entity = -1;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -7404,7 +7407,6 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 	int health_max_boost;
 	int weapon;
 	bool overheal_blocked;
-	static int team_round_timer_entity = -1;
 
 	// No Uber rate penalties from overheal/other healers. Sourced from SDK code
 	if (
@@ -7412,11 +7414,7 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998
 	) {
 		if (team_round_timer_entity == -1) {
-			int ent = -1;
-			while ((ent = FindEntityByClassname(ent, "team_round_timer")) != -1) {
-				team_round_timer_entity = ent;
-				break;
-			}
+			team_round_timer_entity = FindEntityByClassname(-1, "team_round_timer");
 		}
 
 		divisor = 1.0;
