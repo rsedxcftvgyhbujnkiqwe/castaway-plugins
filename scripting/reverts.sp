@@ -154,6 +154,7 @@ int resistance_mapping[] =
 #define LUNCHBOX_FISHCAKE_DROP_MODEL	"models/workshop/weapons/c_models/c_fishcake/plate_fishcake.mdl"
 #define MAX_HEAD_BONUS 6
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
+#define FLIGHT_TIME_TO_MAX_STUN	1.0
 
 enum
 {
@@ -329,6 +330,7 @@ ConVar cvar_ref_tf_parachute_maxspeed_xy;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
 ConVar cvar_ref_tf_scout_hype_mod;
+ConVar cvar_ref_tf_scout_stunball_base_duration;
 ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_tf_sticky_radius_ramp_time;
@@ -819,6 +821,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
+	cvar_ref_tf_scout_stunball_base_duration = FindConVar("tf_scout_stunball_base_duration");
 	cvar_ref_tf_stealth_damage_reduction = FindConVar("tf_stealth_damage_reduction");
 	cvar_ref_tf_sticky_airdet_radius = FindConVar("tf_sticky_airdet_radius");
 	cvar_ref_tf_sticky_radius_ramp_time = FindConVar("tf_sticky_radius_ramp_time");
@@ -4400,7 +4403,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				other >= 1 && other <= MaxClients
 			) {
 				if (
-					(PlayerIsInvulnerable(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
+					(PlayerIsUbered(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
 					!AreEntitiesOnSameTeam(owner, other) &&
 					players[other].projectile_touch_frame == GetGameTickCount()
 				) {
@@ -6194,6 +6197,7 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 }
 
 void DoSandmanStun(int attacker, int victim, bool crit) {
+	float lifetime_ratio;
 	float stun_amt;
 	float stun_dur;
 	int stun_fls;
@@ -6201,11 +6205,10 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 	if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
 		// exact replica of the original stun time formula as far as I can tell (from the source leak)
 
-		stun_amt = (GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time);
-
-		if (stun_amt > 1.0) stun_amt = 1.0;
-		if (stun_amt > 0.1) {
-			stun_dur = stun_amt * 6.0;
+		lifetime_ratio = floatMin(GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
+		if (lifetime_ratio > 0.1) {
+			stun_amt = 0.5;
+			stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
 			if (crit) {
 				stun_dur += 2.0;
@@ -6215,7 +6218,8 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 
 			if (GetItemVariant(Wep_Sandman) == 1) stun_fls &= ~(TF_STUNFLAG_SLOWDOWN);
 
-			if (stun_amt >= 1.0) {
+			bool moonshot = lifetime_ratio >= 1.0;
+			if (moonshot) {
 				// moonshot!
 
 				stun_dur += 1.0;
@@ -6242,7 +6246,23 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 				}
 			}
 
-			TF2_StunPlayer(victim, stun_dur, 0.5, stun_fls, attacker);
+			// MvM bosses
+			if (
+				GameRules_GetProp("m_bPlayingMannVsMachine") &&
+				(
+					GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
+					GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
+				)
+			) {
+				// If max range, freeze them in place -- otherwise adjust it based on distance
+				stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
+				stun_fls = TF_STUNFLAG_SLOWDOWN;
+				if (moonshot) {
+					stun_fls |= TF_STUNFLAG_CHEERSOUND;
+				}
+			}
+
+			TF2_StunPlayer(victim, stun_dur, stun_amt, stun_fls, attacker);
 
 			players[victim].stunball_fix_time_bonk = GetGameTime();
 			players[victim].stunball_fix_time_wear = 0.0;
