@@ -1565,6 +1565,12 @@ public void OnGameFrame() {
 									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
 									if (timer > 0.1) {
+										// m_flEffectBarRegenTime is the timestamp whenever the recharge is complete
+										// nudge the timestamp to get our desired recharge time using the following formula:
+										// new time = old time / ( 1 - nudge constant )
+										// here the desired recharge time is 15 seconds, old time 10 seconds and constant is 1/3
+										// the nudge constant is the division by 3.0 below
+										// => 10 / ( 1 - 1/3 ) = 15
 										SetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime", timer + GetTickInterval() / 3.0);
 									}
 								}
@@ -1657,7 +1663,7 @@ public void OnGameFrame() {
 										}
 
 										if (TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false) {
-											hype -= GetTickInterval() * 0.75 * 12.5; // m_fEnergyDrinkConsumeRate = 12.5
+											hype -= GetTickInterval() * 0.75 * 12.5; // m_flEnergyDrinkConsumeRate = 12.5
 											SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
 										}
 									}
@@ -6643,7 +6649,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 				stun_fls & TF_STUNFLAG_THIRDPERSON != 0 &&
 				stun_fls & TF_STUNFLAG_GHOSTEFFECT == 0
 			) {
-				multiplier *= 2.0;
+				multiplier *= 2.0; // undo 50% speed penalty
 			}
 		}
 
