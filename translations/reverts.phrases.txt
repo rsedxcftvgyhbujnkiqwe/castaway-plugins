@@ -1030,7 +1030,7 @@
 	}
 	"Sandman_PreApr2010"
 	{
-		"en"	"Reverted to pre-April 28, 2010; stuns players on hit with a 10%% speed penalty, 15 sec ball recharge time"
+		"en"	"Reverted to pre-April 28, 2010; stuns players on hit again, 15 sec ball recharge time"
 	}
 	"Sandman_PreWAR"
 	{

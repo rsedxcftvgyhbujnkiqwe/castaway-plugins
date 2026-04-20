@@ -6216,8 +6216,6 @@ void DoSandmanStun(int attacker, int victim, bool crit) {
 
 			stun_fls = GetItemVariant(Wep_Sandman) >= 2 ? TF_STUNFLAGS_NORMALBONK : TF_STUNFLAGS_SMALLBONK;
 
-			if (GetItemVariant(Wep_Sandman) == 1) stun_fls &= ~(TF_STUNFLAG_SLOWDOWN);
-
 			bool moonshot = lifetime_ratio >= 1.0;
 			if (moonshot) {
 				// moonshot!
@@ -6634,7 +6632,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 	) {
 		float multiplier = 1.0;
 
-		// Pre-April 2010 Sandman has a 10% speed penalty rather than 50%
+		// Pre-April 2010 Sandman has no base movement penalty
 		if (
 			GetItemVariant(Wep_Sandman) == 1 &&
 			TF2_IsPlayerInCondition(client, TFCond_Dazed)
@@ -6645,7 +6643,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 				stun_fls & TF_STUNFLAG_THIRDPERSON != 0 &&
 				stun_fls & TF_STUNFLAG_GHOSTEFFECT == 0
 			) {
-				multiplier *= 1.8; // 0.90 / 0.50
+				multiplier *= 2.0;
 			}
 		}
 
