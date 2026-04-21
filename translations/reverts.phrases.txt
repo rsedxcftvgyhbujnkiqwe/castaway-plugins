@@ -138,6 +138,10 @@
 	{
 		"en"	"All Grenade Launchers"
 	}
+	"medigun"
+	{
+		"en"	"All Mediguns"
+	}
 	"miniramp"
 	{
 		"en"	"All Miniguns"
@@ -540,6 +544,10 @@
 	{
 		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, damage variance on hit location (more damage near player's feet)"
 	}
+	"Medigun_PreMYM"
+	{
+		"en"	"Dropped Medigun's stored charge does not decay over time"
+	}
 	"Minigun_ramp_PreLW"
 	{
 		"en"	"Reverted to pre-love&war, full damage and accuracy immediately on spinning up"
@@ -818,7 +826,7 @@
 	}
 	"Gunboats_Release"
 	{
-		"en"	"Reverted to release, -75%% blast damage from rocket jumps, grenade kamikaze taunt deals only 64 self-damage"
+		"en"	"Reverted to release, -75%% blast damage from rocket jumps, damage reduction also applies to kamikaze taunt self-damage"
 	}
 	"Gunslinger_PreGM"
 	{
@@ -1022,7 +1030,7 @@
 	}
 	"Sandman_PreApr2010"
 	{
-		"en"	"Reverted to pre-April 28, 2010; stuns players on hit with a 10%% speed penalty, 15 sec ball recharge time"
+		"en"	"Reverted to pre-April 28, 2010; stuns players on hit again, 15 sec ball recharge time"
 	}
 	"Sandman_PreWAR"
 	{
