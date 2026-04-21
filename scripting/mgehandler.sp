@@ -16,11 +16,11 @@ bool g_timer_active;
 
 #define LIBRARY "nativevotes"
 
-char MGE_MAPS[][PLATFORM_MAX_PATH] = { "mge_bball_v2", "mge_chillypunch_final4_fix2", "mge_dueling_v1_fix1", "mge_oihguv_sucks_a12", "mge_oihguv_sucks_b5", "mge_training_v8_beta4b", "mge_triumph_beta7_rc1", "mge_castaway_v1" };
+#define MGE_PREFIX "mge_"
 
 public void OnPluginStart()
 {
-	cvar_player_threshold = CreateConVar("sm_mgehandler__player_threshold", "10", "Above this number, MGE map switching will occur", FCVAR_HIDDEN, true, 0.0);
+	cvar_player_threshold = CreateConVar("sm_mgehandler__player_threshold", "8", "Above this number, MGE map switching will occur", FCVAR_HIDDEN, true, 0.0);
 	cvar_switch_timer = CreateConVar("sm_mgehandler__switch_timer", "60", "Number of seconds to wait after player threshold is passed to attempt a switch", FCVAR_HIDDEN, true, 0.0);
 }
 
@@ -49,7 +49,7 @@ Action SwitchTimer(Handle timer, any data) {
 		char map[PLATFORM_MAX_PATH];
 		if (GetNextMap(map, sizeof(map)))
 		{
-			if (ArrayContains(MGE_MAPS, sizeof(MGE_MAPS), map)) {
+			if (StrContains(map, MGE_PREFIX)!=-1) {
 				next_map_not_mge = false;
 			}
 		}
@@ -60,9 +60,17 @@ Action SwitchTimer(Handle timer, any data) {
 			PrintToChatAll("[SM] %t", "Changing Maps", map);
 			CreateTimer(5.0, ChangeTimer, _, TIMER_FLAG_NO_MAPCHANGE);
 		} else {
-			for (int i = 0; i < sizeof(MGE_MAPS); i++) {
-				RemoveNominationByMap(MGE_MAPS[i]);
+			ArrayList maparray;
+			GetNominatedMapList(maparray);
+
+			for (int i=0;i<maparray.Length;i++)
+			{
+				maparray.GetString(i, map, sizeof(map));
+				if (StrContains(map, MGE_PREFIX)!=-1) {
+					RemoveNominationByMap(map);
+				}
 			}
+
 			InitiateMapChooserVote(view_as<MapChange>(0))
 		}
 	} else {
@@ -88,7 +96,7 @@ bool IsMgeMap() {
 	char map[PLATFORM_MAX_PATH];
 	GetCurrentMap(map, sizeof(map));
 	if (
-		ArrayContains(MGE_MAPS, sizeof(MGE_MAPS), map)
+		StrContains(map,MGE_PREFIX) != -1
 	 ) {
 		return true;
 	}
@@ -102,13 +110,4 @@ bool IsAboveThreshold() {
 		if (IsClientInGame(idx)) count++;
 	}
 	return count > cvar_player_threshold.IntValue;
-}
-
-bool ArrayContains(const char array[][PLATFORM_MAX_PATH], int size, const char[] value) {
-	for (int i = 0; i < size; i++) {
-		if (StrEqual(array[i], value)) {
-			return true
-		}
-	}
-	return false
 }

@@ -76,7 +76,7 @@ public void OnPluginStart()
 
 	cvarVoteTime = CreateConVar("nano_votescramble_time", "20.0", "Time in seconds the vote menu should last.", 0);
 	cvarVoteTimeDelay = CreateConVar("nano_votescramble_delay", "180.0", "Time in seconds before players can initiate another team scramble vote.", 0);
-	cvarRoundResetDelay = CreateConVar("nano_votescramble_roundreset", "30.0", "Time in seconds after round start where scrambles are delayed until next round.", 0);
+	cvarRoundResetDelay = CreateConVar("nano_votescramble_roundreset", "60.0", "Time in seconds after round start where scrambles are delayed until next round.", 0);
 	cvarVoteChatPercent = CreateConVar("nano_votescramble_chat_percentage", "0.20", "How many players are required for the chat vote to pass? 0.20 = 20%.", 0, true, 0.05, true, 1.0);
 	cvarVoteMenuPercent = CreateConVar("nano_votescramble_menu_percentage", "0.60", "How many players are required for the menu vote to pass? 0.60 = 60%.", 0, true, 0.05, true, 1.0);
 	cvarMinimumVotesNeeded = CreateConVar("nano_votescramble_minimum", "3", "What are the minimum number of votes needed to initiate a chat vote?", 0);

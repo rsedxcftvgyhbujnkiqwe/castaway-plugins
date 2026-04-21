@@ -119,7 +119,7 @@ int g_winCount[MAXTEAMS];
 bool g_NativeVotes;
 #define LIBRARY "nativevotes"
 
-char MGE_MAPS[][PLATFORM_MAX_PATH] = { "mge_bball_v2", "mge_chillypunch_final4_fix2", "mge_dueling_v1_fix1", "mge_oihguv_sucks_a12", "mge_oihguv_sucks_b5", "mge_training_v8_beta4b", "mge_triumph_beta7_rc1", "mge_castaway_v1" };
+#define MGE_PREFIX "mge_"
 
 public void OnPluginStart()
 {
@@ -321,7 +321,7 @@ public void OnMapEnd()
 	char map[PLATFORM_MAX_PATH];
 	GetCurrentMap(map, sizeof(map));
 
-	if (StrContains(map,"mge_")!= -1) {
+	if (StrContains(map,MGE_PREFIX)!= -1) {
 		return;
 	}
 
@@ -1322,8 +1322,11 @@ void CreateNextVote()
 	RemoveStringFromArray(tempMaps, map);
 
 	//no MGE maps in random selection
-	for (int i = 0; i < sizeof(MGE_MAPS); i++) {
-		RemoveStringFromArray(tempMaps, MGE_MAPS[i]);
+	for (int i = tempMaps.Length - 1; i >= 0; i--) {
+		tempMaps.GetString(i,map,sizeof(map));
+		if (StrContains(map,MGE_PREFIX)!= -1) {
+			tempMaps.Erase(i);
+		}
 	}
 	
 	if (g_Cvar_ExcludeMaps.IntValue && tempMaps.Length > g_Cvar_ExcludeMaps.IntValue)
