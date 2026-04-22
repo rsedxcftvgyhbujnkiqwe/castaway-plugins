@@ -800,22 +800,54 @@
         "att_level": "Level 1 Lunch Box",
         "current_attributes": [
             {
+                "type": "att_neutral",
+                "text": "While under the effects:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+30% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Damage done will be mini-crits"
+            },
+            {
                 "type": "att_negative",
-                "text": "+20% damage vulnerability while active"
+                "text": "+20% damage vulnerability on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Player may only use melee weapons"
             },
             {
                 "type": "att_neutral",
-                "text": "After consuming, 30% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+                "text": "Lasts 16 seconds.<br>Alt-fire: Share with a friend (Medium Health Kit)"
             }
         ],
         "reverted_attributes": [
             {
+                "type": "att_neutral",
+                "text": "While under the effects:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+35% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Damage done will be mini-crits"
+            },
+            {
                 "type": "att_negative",
-                "text": "+10% damage vulnerability while active"
+                "text": "Damage taken will be mini-crits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Player may only use melee weapons"
             },
             {
                 "type": "att_neutral",
-                "text": "After consuming, 35% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+                "text": "Lasts 16 seconds.<br>Alt-fire: Throw a Steak on the ground (Medium Health Kit)"
             }
         ]
     },
@@ -3927,19 +3959,23 @@
             },
             {
                 "type": "att_positive",
-                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type.<br>You are healed for 10% of the matched incoming damage on your patient."
+                "text": "Press your reload key to cycle through resist types."
+            },
+            {
+                "type": "att_positive",
+                "text": "While healing, provides you and your target a constant 10% resistance and 100% crit resistance to the selected damage type."
+            },
+            {
+                "type": "att_positive",
+                "text": "You are healed for 25% of the matched incoming damage on your patient."
             },
             {
                 "type": "att_negative",
                 "text": "-66% Overheal build rate"
             },
             {
-                "type": "att_negative",
-                "text": "-66% ÜberCharge rate on Overhealed patients"
-            },
-            {
                 "type": "att_neutral",
-                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
+                "text": "ÜberCharge provides 75% resistance and 100% crit resistance to a selected damage type for 2 seconds."
             }
         ]
     },
