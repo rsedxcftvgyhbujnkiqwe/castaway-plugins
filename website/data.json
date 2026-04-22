@@ -820,6 +820,10 @@
                 "text": "Player may only use melee weapons"
             },
             {
+                "type": "att_negative",
+                "text": "Move speed is capped at 311 Hu/s"
+            },
+            {
                 "type": "att_neutral",
                 "text": "Lasts 16 seconds.<br>Alt-fire: Share with a friend (Medium Health Kit)"
             }
