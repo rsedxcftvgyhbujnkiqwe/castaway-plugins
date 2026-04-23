@@ -787,7 +787,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
 	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");
-	ItemDefine("tomislav", "Tomislav_PreLWSound", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemDefine("tomislav", "Tomislav_PreLWSoundOnly", CLASSFLAG_HEAVY, Wep_Tomislav);
 	ItemVariant(Wep_Tomislav, "Tomislav_PrePyro");
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
@@ -3366,11 +3366,11 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 		// Old radius: 159 Hu, Modern radius: 146 Hu.
 	} else if (
 		ItemIsEnabled(Feat_Sword) &&
-		(StrEqual(class, "tf_weapon_sword") ||
-		(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")))
+		TF2Attrib_HookValueInt(0, "is_a_sword", entity)
 	) {
-		TF2Attrib_SetByDefIndex(entity, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
+		if (!StrEqual(class, "tf_weapon_sword"))
+			TF2Attrib_SetByDefIndex(entity, 264, 1.50); // melee range multiplier
 	}
 }
 
