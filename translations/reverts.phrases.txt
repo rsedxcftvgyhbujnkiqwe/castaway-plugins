@@ -190,6 +190,10 @@
 	{
 		"en"	"Baby Face's Blaster"
 	}
+	"battalions"
+	{
+		"en"	"Battalion's Backup"
+	}
 	"bazaar"
 	{
 		"en"	"Bazaar Bargain"
@@ -623,6 +627,10 @@
 	"BabyFace_Release"
 	{
 		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, boost resets on any jump"
+	}
+	"Battalions_PreHat"
+	{
+		"en"	"Reverted to pre-Hatless Update, rage builds via damage taken (175 damage total), no health bonus, 35%% sentry resistance (from 50%%)"
 	}
 	"Bazaar_PreGM"
 	{

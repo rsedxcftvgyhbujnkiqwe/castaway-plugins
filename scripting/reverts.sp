@@ -474,6 +474,7 @@ enum
 	Wep_BabyFace,
 	Wep_Backburner,
 	Wep_BaseJumper,
+	Wep_Battalions,
 	Wep_BazaarBargain,	
 	Wep_Beggars,
 	Wep_BlackBox,
@@ -655,6 +656,7 @@ public void OnPluginStart() {
 	ItemDefine("basejump", "BaseJumper_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
+	ItemDefine("battalions", "Battalions_PreHat", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Battalions);
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
@@ -2673,6 +2675,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 226: { if (ItemIsEnabled(Wep_Battalions)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 26, 0.0); // +0 max health on wearer
+		}}
 		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 268, 1.20); // Base charge rate decreased by 20%
@@ -3653,6 +3659,7 @@ void CacheWeapons(int client) {
 					case 772: player_weapons[client][Wep_BabyFace] = true;
 					case 40, 1146: player_weapons[client][Wep_Backburner] = true;
 					case 1101: player_weapons[client][Wep_BaseJumper] = true;
+					case 226: player_weapons[client][Wep_Battalions] = true;
 					case 402: player_weapons[client][Wep_BazaarBargain] = true;
 					case 237: player_weapons[client][Wep_RocketJumper] = true;
 					case 730: player_weapons[client][Wep_Beggars] = true;
@@ -4484,6 +4491,9 @@ Action SDKHookCB_OnTakeDamage(
 		{
 			// save fall dmg tick for overriding with old fall dmg sound
 			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
+
+			// save victim's rage meter for modifications
+			players[victim].rage_meter = GetEntPropFloat(victim, Prop_Send, "m_flRageMeter");
 		}
 
 		{
@@ -5095,6 +5105,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	float stun_amt;
 	float pos1[3];
 	float pos2[3];
+	float rage;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -5267,6 +5278,34 @@ Action SDKHookCB_OnTakeDamageAlive(
 						0.001
 					);
 				}
+			}
+		}
+		{
+			// battalion's rage gain from damage taken
+			if (
+				ItemIsEnabled(Wep_Battalions) &&
+				player_weapons[victim][Wep_Battalions] &&
+				victim != attacker &&
+				damage_type & DMG_FALL == 0 &&
+				!GetEntProp(victim, Prop_Send, "m_bRageDraining")
+			) {
+				rage = players[victim].rage_meter;
+				rage += damage * 4.0 / 7.0; // 175 damage total
+				SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
+			}
+		}
+
+		if (inflictor > MaxClients) {
+			GetEntityClassname(inflictor, class, sizeof(class));
+
+			// 35% sentry resistance for battalion's
+			if (
+				ItemIsEnabled(Wep_Battalions) &&
+				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffed) &&
+				StrEqual(class, "obj_sentrygun")
+			) {
+				damage *= 0.65 / 0.50;
+				returnValue = Plugin_Changed;
 			}
 		}
 	}
@@ -5468,15 +5507,20 @@ void SDKHookCB_OnTakeDamagePost(
 			rage = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
 			delta = rage - players[attacker].rage_meter;
 
-			if (
-				delta > 0.0 &&
-				rage < 100.0
-			) {
+			if (delta > 0.0) {
 				if (
 					ItemIsEnabled(Wep_BuffBanner) &&
-					player_weapons[attacker][Wep_BuffBanner]
+					player_weapons[attacker][Wep_BuffBanner] &&
+					rage < 100.0
 				) {
 					delta *= 0.6; // 600.0 / 1000.0
+				}
+
+				if (
+					ItemIsEnabled(Wep_Battalions) &&
+					player_weapons[attacker][Wep_Battalions]
+				) {
+					delta *= 0.0; // no rage gain from damage dealt
 				}
 				
 				if (
