@@ -1034,11 +1034,11 @@
 	}
 	"Sandman_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time"
+		"en"	"Reverted to pre-inferno, stuns players on hit, stun victims' speed is reduced by 50%%, 15 sec ball recharge time"
 	}
 	"Sandman_PreApr2010"
 	{
-		"en"	"Reverted to pre-April 28, 2010; stuns players on hit again, 15 sec ball recharge time"
+		"en"	"Reverted to pre-April 28, 2010; stuns players on hit, stun victims' speed is capped at 225 Hu/s, 15 sec ball recharge time"
 	}
 	"Sandman_PreWAR"
 	{
