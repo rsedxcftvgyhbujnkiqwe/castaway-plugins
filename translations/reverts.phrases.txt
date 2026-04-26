@@ -546,7 +546,7 @@
 	}
 	"Grenade_Pre2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, damage variance on hit location (more damage near player's feet)"
+		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, 112 base damage with hit location variance (more damage near player's feet)"
 	}
 	"Medigun_PreMYM"
 	{
