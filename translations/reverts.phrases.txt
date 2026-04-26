@@ -190,6 +190,10 @@
 	{
 		"en"	"Baby Face's Blaster"
 	}
+	"battalions"
+	{
+		"en"	"Battalion's Backup"
+	}
 	"bazaar"
 	{
 		"en"	"Bazaar Bargain"
@@ -624,6 +628,10 @@
 	{
 		"en"	"Reverted to release, +40%% accuracy, no clip penalty or boost loss on hit, -35%% movespeed, -30%% damage, boost resets on any jump"
 	}
+	"Battalions_PreHat"
+	{
+		"en"	"Reverted to pre-Hatless Update, rage builds via damage taken (175 damage total), no health bonus, 35%% sentry resistance (from 50%%)"
+	}
 	"Bazaar_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +7.5%% charge rate per head up to +45%%, lose heads on scoped bodyshots/misses"
@@ -1026,11 +1034,11 @@
 	}
 	"Sandman_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, stuns players on hit again, 15 sec ball recharge time"
+		"en"	"Reverted to pre-inferno, stuns players on hit, stun victims' speed is reduced by 50%%, 15 sec ball recharge time"
 	}
 	"Sandman_PreApr2010"
 	{
-		"en"	"Reverted to pre-April 28, 2010; stuns players on hit again, 15 sec ball recharge time"
+		"en"	"Reverted to pre-April 28, 2010; stuns players on hit, stun victims' speed is capped at 225 Hu/s, 15 sec ball recharge time"
 	}
 	"Sandman_PreWAR"
 	{
@@ -1143,6 +1151,10 @@
 	"Turner_PreDec2014"
 	{
 		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge, 100%% charge on kill, no charge loss on hit"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"en"	"Reverted the firing sounds to pre-love&war, higher pitched weapon sounds"
 	}
 	"Tomislav_PrePyro"
 	{

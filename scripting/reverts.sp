@@ -474,6 +474,7 @@ enum
 	Wep_BabyFace,
 	Wep_Backburner,
 	Wep_BaseJumper,
+	Wep_Battalions,
 	Wep_BazaarBargain,	
 	Wep_Beggars,
 	Wep_BlackBox,
@@ -655,6 +656,7 @@ public void OnPluginStart() {
 	ItemDefine("basejump", "BaseJumper_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_BaseJumper);
 	ItemDefine("babyface", "BabyFace_PreGM", CLASSFLAG_SCOUT, Wep_BabyFace);
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
+	ItemDefine("battalions", "Battalions_PreHat", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Battalions);
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
@@ -714,11 +716,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Gunslinger, "Gunslinger_Release");
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
-#if defined MEMORY_PATCHES	
+#if defined MEMORY_PATCHES
 	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_IronBomber, true);
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
-	ItemVariant(Wep_Jag, "Jag_PreGM");  
+	ItemVariant(Wep_Jag, "Jag_PreGM");
 	ItemDefine("liberty", "Liberty_Release", CLASSFLAG_SOLDIER, Wep_LibertyLauncher);
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
@@ -786,8 +788,9 @@ public void OnPluginStart() {
 	ItemDefine("sleeper", "Sleeper_PreBM", CLASSFLAG_SNIPER, Wep_SydneySleeper);
 	ItemVariant(Wep_SydneySleeper, "Sleeper_PreGM");
 	ItemDefine("turner", "Turner_PreTB", CLASSFLAG_DEMOMAN, Wep_TideTurner);
-	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");	
-	ItemDefine("tomislav", "Tomislav_PrePyro", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_TideTurner, "Turner_PreDec2014");
+	ItemDefine("tomislav", "Tomislav_PreLWSoundOnly", CLASSFLAG_HEAVY, Wep_Tomislav);
+	ItemVariant(Wep_Tomislav, "Tomislav_PrePyro");
 	ItemVariant(Wep_Tomislav, "Tomislav_Release");
 	ItemDefine("tribalshiv", "TribalShiv_Release", CLASSFLAG_SNIPER, Wep_TribalmansShiv);
 	ItemDefine("caber", "Caber_PreGM", CLASSFLAG_DEMOMAN, Wep_Caber);
@@ -2672,6 +2675,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}}
+		case 226: { if (ItemIsEnabled(Wep_Battalions)) {
+			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetAttribute(itemNew, 0, 26, 0.0); // +0 max health on wearer
+		}}
 		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 268, 1.20); // Base charge rate decreased by 20%
@@ -3260,23 +3267,16 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		}}
 		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
 			switch (GetItemVariant(Wep_Tomislav)) {
-				case 0: { // Pre-Pyromania
-					TF2Items_SetNumAttributes(itemNew, 5);
+				case 1: { // Pre-Pyromania
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 87, 0.60); // 40% faster spin up time
 					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active: (necessary for attrib 549)
-					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
-					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
 				}
-				case 1: { // Release
-					TF2Items_SetNumAttributes(itemNew, 5);
+				case 2: { // Release
+					TF2Items_SetNumAttributes(itemNew, 2);
 					TF2Items_SetAttribute(itemNew, 0, 87, 0.25); // 75% faster spin up time
 					TF2Items_SetAttribute(itemNew, 1, 106, 1.0); // 0% more accurate
-					TF2Items_SetAttribute(itemNew, 2, 128, 1.0); // When weapon is active:
-					TF2Items_SetAttribute(itemNew, 3, 348, 1.0 / 1.2); // fire rate penalty HIDDEN
-					TF2Items_SetAttribute(itemNew, 4, 549, 1.2); // halloween fire rate bonus
 				}
-				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
 			}
 			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
 		}}
@@ -3350,11 +3350,22 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 
 public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, int level, int quality, int entity) {
 	if (
+		ItemIsEnabled(Wep_Tomislav) &&
+		index == 424
+	) {
+		TF2Attrib_SetByDefIndex(entity, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+		TF2Attrib_SetByDefIndex(entity, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
+		TF2Attrib_SetByDefIndex(entity, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
+		// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
+	}
+	else if (
 		ItemIsEnabled(Feat_Grenade) &&
 		StrEqual(class, "tf_weapon_grenadelauncher")
 	) {
 		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
 		// Old radius: 159 Hu, Modern radius: 146 Hu.
+		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
+		// Old grenades had 112 base damage
 	} else if (
 		ItemIsEnabled(Feat_Stickybomb) &&
 		StrEqual(class, "tf_weapon_pipebomblauncher")
@@ -3363,11 +3374,11 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 		// Old radius: 159 Hu, Modern radius: 146 Hu.
 	} else if (
 		ItemIsEnabled(Feat_Sword) &&
-		(StrEqual(class, "tf_weapon_sword") ||
-		(!ItemIsEnabled(Wep_Zatoichi) && StrEqual(class, "tf_weapon_katana")))
+		TF2Attrib_HookValueInt(0, "is_a_sword", entity)
 	) {
-		TF2Attrib_SetByDefIndex(entity, 264, (index == 357) ? 1.50 : 1.0); // melee range multiplier
 		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
+		if (!StrEqual(class, "tf_weapon_sword"))
+			TF2Attrib_SetByDefIndex(entity, 264, 1.50); // melee range multiplier
 	}
 }
 
@@ -3650,6 +3661,7 @@ void CacheWeapons(int client) {
 					case 772: player_weapons[client][Wep_BabyFace] = true;
 					case 40, 1146: player_weapons[client][Wep_Backburner] = true;
 					case 1101: player_weapons[client][Wep_BaseJumper] = true;
+					case 226: player_weapons[client][Wep_Battalions] = true;
 					case 402: player_weapons[client][Wep_BazaarBargain] = true;
 					case 237: player_weapons[client][Wep_RocketJumper] = true;
 					case 730: player_weapons[client][Wep_Beggars] = true;
@@ -4481,6 +4493,9 @@ Action SDKHookCB_OnTakeDamage(
 		{
 			// save fall dmg tick for overriding with old fall dmg sound
 			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
+
+			// save victim's rage meter for modifications
+			players[victim].rage_meter = GetEntPropFloat(victim, Prop_Send, "m_flRageMeter");
 		}
 
 		{
@@ -4656,9 +4671,8 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled(Feat_Grenade) &&
 					StrEqual(class, "tf_weapon_grenadelauncher")
 				) {
-					// Vary damage by up to 10%, with most damage at the player's feet and least at the head
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
-					damage *= ValveRemapVal(FloatAbs(pos1[2] - damage_position[2]), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.1, 0.9);
+					damage *= ValveRemapVal(GetVectorDistance(pos1, damage_position), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.0, 0.8);
 					return Plugin_Changed;
 				}
 			}
@@ -5092,6 +5106,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	float stun_amt;
 	float pos1[3];
 	float pos2[3];
+	float rage;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -5266,6 +5281,34 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+		{
+			// battalion's rage gain from damage taken
+			if (
+				ItemIsEnabled(Wep_Battalions) &&
+				player_weapons[victim][Wep_Battalions] &&
+				victim != attacker &&
+				damage_type & DMG_FALL == 0 &&
+				!GetEntProp(victim, Prop_Send, "m_bRageDraining")
+			) {
+				rage = players[victim].rage_meter;
+				rage += damage * 4.0 / 7.0; // 175 damage total
+				SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
+			}
+		}
+
+		if (inflictor > MaxClients) {
+			GetEntityClassname(inflictor, class, sizeof(class));
+
+			// 35% sentry resistance for battalion's
+			if (
+				ItemIsEnabled(Wep_Battalions) &&
+				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffed) &&
+				StrEqual(class, "obj_sentrygun")
+			) {
+				damage *= 0.65 / 0.50;
+				returnValue = Plugin_Changed;
+			}
+		}
 	}
 
 	if (
@@ -5304,8 +5347,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 					GetEntityClassname(weapon, class, sizeof(class));
 
 					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
-						// values chosen to be approximately +/- 15% random variance in total
-						damage *= GetRandomFloat(0.867, 1.127);
+						// values chosen to be approximately +/- 10% random variance in total
+						damage *= GetRandomFloat(0.918, 1.079);
 						returnValue = Plugin_Changed;
 					}
 				}
@@ -5465,15 +5508,20 @@ void SDKHookCB_OnTakeDamagePost(
 			rage = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
 			delta = rage - players[attacker].rage_meter;
 
-			if (
-				delta > 0.0 &&
-				rage < 100.0
-			) {
+			if (delta > 0.0) {
 				if (
 					ItemIsEnabled(Wep_BuffBanner) &&
-					player_weapons[attacker][Wep_BuffBanner]
+					player_weapons[attacker][Wep_BuffBanner] &&
+					rage < 100.0
 				) {
 					delta *= 0.6; // 600.0 / 1000.0
+				}
+
+				if (
+					ItemIsEnabled(Wep_Battalions) &&
+					player_weapons[attacker][Wep_Battalions]
+				) {
+					delta *= 0.0; // no rage gain from damage dealt
 				}
 				
 				if (
