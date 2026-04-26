@@ -1178,11 +1178,15 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, fully repair and refill while shield is up, sentry active in 1 second on death"
+		"en"	"Reverted to pre-gunmettle, fully repair and refill while shielded, sentry active in 1 second on death"
 	}
 	"Wrangler_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, fully repair and refill while shield is up, sentry active in 1 second on death, no damage falloff beyond scan range, damage rampup based on user's position"
+		"en"	"Reverted to pre-love&war, fully repair and refill while shielded, sentry active in 1 second on death, no damage falloff beyond scan range, damage rampup based on user's position"
+	}
+	"Wrangler_Release"
+	{
+		"en"	"Reverted to release, fully repair and refill while shielded, increased long-range accuracy, no damage falloff beyond scan range, damage rampup based on user's position"
 	}
 	"Eternal_PreJI"
 	{
