@@ -3364,6 +3364,8 @@ public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, i
 	) {
 		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
 		// Old radius: 159 Hu, Modern radius: 146 Hu.
+		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
+		// Old grenades had 112 base damage
 	} else if (
 		ItemIsEnabled(Feat_Stickybomb) &&
 		StrEqual(class, "tf_weapon_pipebomblauncher")
@@ -4669,9 +4671,8 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled(Feat_Grenade) &&
 					StrEqual(class, "tf_weapon_grenadelauncher")
 				) {
-					// Vary damage by up to 10%, with most damage at the player's feet and least at the head
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
-					damage *= ValveRemapVal(FloatAbs(pos1[2] - damage_position[2]), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.1, 0.9);
+					damage *= ValveRemapVal(GetVectorDistance(pos1, damage_position), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.0, 0.8);
 					return Plugin_Changed;
 				}
 			}
@@ -5346,8 +5347,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 					GetEntityClassname(weapon, class, sizeof(class));
 
 					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
-						// values chosen to be approximately +/- 15% random variance in total
-						damage *= GetRandomFloat(0.867, 1.127);
+						// values chosen to be approximately +/- 10% random variance in total
+						damage *= GetRandomFloat(0.918, 1.079);
 						returnValue = Plugin_Changed;
 					}
 				}
