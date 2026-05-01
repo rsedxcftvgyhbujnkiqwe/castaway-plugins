@@ -4627,23 +4627,27 @@ Action SDKHookCB_OnTakeDamage(
 			// wrangler variant no falloff
 			if (
 				GetItemVariant(Wep_Wrangler) >= 1 &&
-				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY &&
-				damage_type & DMG_USEDISTANCEMOD != 0
+				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY
 			) {
-				// calculate rampup based on Engineer's position
-				damage_type ^= DMG_USEDISTANCEMOD;
-				damage1 = damage;
+				damage_type &= ~DMG_USEDISTANCEMOD;
 
-				GetClientEyePosition(attacker, pos1);
+				if (
+					attacker >= 1 &&
+					attacker <= MaxClients
+				) {
+					// calculate rampup based on Engineer's position
+					damage1 = damage;
 
-				GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					GetClientEyePosition(attacker, pos1);
 
-				pos2[2] += PLAYER_CENTER_HEIGHT;
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					pos2[2] += PLAYER_CENTER_HEIGHT;
 
-				damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
+					damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
 
-				if (damage < damage1) // no falloff
-					damage = damage1;
+					if (damage < damage1) // no falloff
+						damage = damage1;
+				}
 
 				return Plugin_Changed;
 			}
