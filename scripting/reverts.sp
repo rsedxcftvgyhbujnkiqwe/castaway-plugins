@@ -392,6 +392,7 @@ DynamicHook dhook_CObjectSentrygun_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
+DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -401,7 +402,6 @@ DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
 DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
-DynamicDetour dhook_CTFRevolver_CanFireCriticalShot;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
@@ -909,6 +909,7 @@ public void OnPluginStart() {
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
+		dhook_CTFRevolver_CanFireCriticalShot = DynamicHook.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -918,7 +919,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
 		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
-		dhook_CTFRevolver_CanFireCriticalShot = DynamicDetour.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
@@ -1113,6 +1113,7 @@ public void OnPluginStart() {
 	if (dhook_CTFMinigun_GetProjectileDamage == null) SetFailState("Failed to create dhook_CTFMinigun_GetProjectileDamage");
 	if (dhook_CTFMinigun_GetWeaponSpread == null) SetFailState("Failed to create dhook_CTFMinigun_GetWeaponSpread");
 	if (dhook_CWeaponMedigun_ItemPostFrame == null) SetFailState("Failed to create dhook_CWeaponMedigun_ItemPostFrame");
+	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
@@ -1122,7 +1123,6 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
 	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
 	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
-	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
 	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
 	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
 	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
@@ -1141,7 +1141,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
-	dhook_CTFRevolver_CanFireCriticalShot.Enable(Hook_Pre, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
@@ -2241,7 +2240,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
 	} 
-	
 	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
@@ -2251,7 +2249,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 	} 
-	
 	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
 
@@ -2263,11 +2260,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 		} 
 	} 
-	
 	else if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
 	} 
-
 	else if (
 		(
 			ItemIsEnabled(Wep_Sandvich) ||
@@ -2277,11 +2272,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		SDKHook(entity, SDKHook_SpawnPost, OnSandvichThrown);
 	}
-
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 	}
-
 	else if (
 #if defined MEMORY_PATCHES
 		StrEqual(class, "tf_weapon_pipebomblauncher") ||
@@ -2293,25 +2286,24 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
-
 	else if (StrEqual(class, "tf_weapon_minigun")) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
 		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
 	}
-
 	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 	}
-
 	else if (StrEqual(class, "tf_weapon_medigun")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
 		dhook_CWeaponMedigun_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_ItemPostFrame);
 	}
-
 	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
 		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	}
+	else if (StrEqual(class, "tf_weapon_revolver")) {
+		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot);
 	}
 }
 
@@ -3524,29 +3516,6 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 				}
 			}
 		}
-
-		{
-			// ambassador stuff
-			int weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-
-			if (weapon > 0) {
-				char class[64];
-				GetEntityClassname(weapon, class, sizeof(class));
-
-				if (StrEqual(class, "tf_weapon_revolver")) {
-					// ambassador headshot kill icon
-					if (
-						ItemIsEnabled(Wep_Ambassador) &&
-						GetEventInt(event, "customkill") != TF_CUSTOM_HEADSHOT &&
-						players[attacker].headshot_frame == GetGameTickCount() &&
-						players[client].hit_by_headshot
-					) {
-						event.SetInt("customkill", TF_CUSTOM_HEADSHOT);
-						return Plugin_Changed;
-					}
-				}
-			}
-		}
 	}
 	return Plugin_Continue;
 }
@@ -4447,8 +4416,10 @@ Action SDKHookCB_TraceAttack(
 		attacker >= 1 && attacker <= MaxClients
 	) {
 		if (hitgroup == 1) {
-			if ((damage_type & DMG_USE_HITLOCATIONS != 0 && player_weapons[attacker][Wep_Ambassador]) ||
-				TF2_GetPlayerClass(attacker) == TFClass_Sniper) {
+			if (
+				damage_type & DMG_USE_HITLOCATIONS != 0 ||
+				TF2_GetPlayerClass(attacker) == TFClass_Sniper
+			) {
 				players[attacker].headshot_frame = GetGameTickCount();
 				players[victim].hit_by_headshot = true;
 			}
@@ -4678,24 +4649,6 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// ambassador headshot crits
-
-				if (
-					ItemIsEnabled(Wep_Ambassador) &&
-					StrEqual(class, "tf_weapon_revolver") &&
-					players[attacker].headshot_frame == GetGameTickCount() &&
-					players[victim].hit_by_headshot &&
-					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 61 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1006
-					)
-				) {
-					damage_type |= DMG_CRIT;
-					return Plugin_Changed;
-				}
-			}
-
-			{
 				// reserve airborne minicrits
 
 				if (
@@ -4794,7 +4747,8 @@ Action SDKHookCB_OnTakeDamage(
 								players[attacker].sleeper_piss_duration = ValveRemapVal(charge, 50.0, 150.0, 2.0, 8.0);
 								if (
 									charge > 149.0 ||
-									players[attacker].headshot_frame == GetGameTickCount()
+									players[attacker].headshot_frame == GetGameTickCount() &&
+									players[victim].hit_by_headshot
 								) {
 									// this should also cause a jarate explosion
 									players[attacker].sleeper_piss_explode = true;
@@ -4958,8 +4912,9 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_BazaarBargain) &&
 					StrEqual(class, "tf_weapon_sniperrifle_decap") &&
-					players[attacker].headshot_frame == GetGameTickCount() && 
-					TF2_IsPlayerInCondition(attacker, TFCond_Slowed)
+					TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
+					players[attacker].headshot_frame == GetGameTickCount() &&
+					players[victim].hit_by_headshot
 				) {
 					players[attacker].bazaar_shot = BAZAAR_GAIN;
 				}
@@ -7337,18 +7292,10 @@ MRESReturn DHookCallback_CHealthKit_MyTouch(int entity, DHookReturn returnValue,
 }
 
 MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn returnValue, DHookParam parameters) {
-	int client = parameters.Get(1);
-
-	// ambassador long range headshot score bug fix, return true so the game thinks a headshot happened and adds a point for a headshot
-	// this also makes the ambassador headshot from any range
-
-	if (
-		ItemIsEnabled(Wep_Ambassador) &&
-		!returnValue.Value &&
-		player_weapons[client][Wep_Ambassador]
-	) {
-		returnValue.Value = true;
-		return MRES_Override;
+	if (ItemIsEnabled(Wep_Ambassador)) {
+		// Set pTarget to NULL such that the distance check for crit fails and allows the Ambassador to headshot from any range.
+		parameters.Set(2, Address_Null);
+		return MRES_ChangedHandled;
 	}
 
 	return MRES_Ignored;
@@ -7730,17 +7677,12 @@ stock int FindStringIndex2(int tableidx, const char[] str)
 	return INVALID_STRING_INDEX;
 }
 
-stock int GetEntityOwner(int entityIndex)
+stock int GetEntityOwner(int entity)
 {
-	if (!IsValidEntity(entityIndex))
-		return -1; // Invalid entity
+	if (!IsValidEntity(entity))
+		return -1;
 
-	int owner = GetEntPropEnt(entityIndex, Prop_Send, "m_hOwnerEntity");
-
-	if (!IsFakeClient(owner) || IsFakeClient(owner))
-		return owner; // Returns the player (or bot) index of the owner
-
-	return -1; // Owner not found
+	return GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 }
 
 stock bool AreEntitiesOnSameTeam(int entity1, int entity2)

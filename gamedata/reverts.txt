@@ -84,24 +84,11 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x3C\x8B\x01"
 				"linux"   "@_ZN10CHealthKit7MyTouchEP11CBasePlayer"
 			}
-			// Left in here if ever needed someday
-			// "GetSceneDuration" // First FUN_ in OnTauntSucceeded (find that one using the string set_taunt_saharan_spy), above mult_gesture_time
-			// {
-			// 	"library" "server"
-			//	"windows" "\x55\x8B\xEC\x83\xEC\x10\x8B\x0D\x2A\x2A\x2A\x2A\x8D\x55\x2A\x56"
-			//	"linux"   "@_Z16GetSceneDurationPKc"
-			// }
 			"CTFPlayer::OnTauntSucceeded" // find using string set_taunt_saharan_spy
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\xFF\x75"
 				"linux"   "@_ZN9CTFPlayer16OnTauntSucceededEPKcii"
-			}
-			"CTFRevolver::CanFireCriticalShot" // find using "set_weapon_mode" and 1.44e+06 value
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x56\xFF\x75"
-				"linux"   "@_ZN11CTFRevolver19CanFireCriticalShotEbP11CBaseEntity"
 			}
 			"AI_CriteriaSet::AppendCriteria" // find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
 											// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
@@ -428,6 +415,31 @@
 				"this"     "entity"
 				"return"   "void"
 			}
+			"CTFRevolver::CanFireCriticalShot"
+			{
+				"offset" "CTFRevolver::CanFireCriticalShot"
+				"hooktype"  "entity"
+				"this"      "entity"
+				"return"    "bool"
+				"arguments"
+				{
+					"bIsHeadshot"
+					{
+						"type" "bool"
+					}
+					"pTarget"
+					{
+						"type" "int"
+					}
+				}
+			}
+			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			{
+				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "float"
+			}
 
 			// Signature
 			"CTFPlayer::CanDisguise"
@@ -604,20 +616,6 @@
 					}
 				}
 			}
-			// Left in here if ever needed someday.
-//			"GetSceneDuration" 
-//			{
-//				"signature" "GetSceneDuration"
-//				"callconv"  "cdecl"
-//				"return"    "float"
-//				"arguments"
-//				{
-//					"pszSceneName"
-//					{
-//						"type" "charptr"
-//					}
-//				}
-//			}
 			"CTFPlayer::OnTauntSucceeded"
 			{
 				"signature"   "CTFPlayer::OnTauntSucceeded"
@@ -639,31 +637,6 @@
 						"type" "int"
 					}
 				}
-			}
-			"CTFRevolver::CanFireCriticalShot"
-			{
-				"signature" "CTFRevolver::CanFireCriticalShot"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
-				"arguments"
-				{
-					"bIsHeadshot"
-					{
-						"type" "bool"
-					}
-					"pTarget"
-					{
-						"type" "cbaseentity"
-					}
-				}
-			}
-			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
-			{
-				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "float"
 			}			
 			"AI_CriteriaSet::AppendCriteria"
 			{
