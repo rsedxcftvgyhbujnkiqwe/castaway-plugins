@@ -5008,24 +5008,6 @@ Action SDKHookCB_OnTakeDamage(
 					) {
 						// no crits.
 						damage_type &= ~DMG_CRIT;
-
-						// cow mangler old damage ramp
-						if (GetItemVariant(Wep_CowMangler) == 0) {
-							damage *= 0.9;
-
-							GetClientEyePosition(attacker, pos1);
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							pos2[2] += PLAYER_CENTER_HEIGHT;
-
-							// ghetto ramp up calculation
-							// current tf2 applies 25% ramp up, apply 20% extra here (old was 50%)
-							float distance = GetVectorDistance(pos1, pos2);
-							if (distance < 512.0) {
-								damage *= 1.0 + (0.20 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)));
-							}
-						}
-
 						return Plugin_Changed;
 					}
 				}
