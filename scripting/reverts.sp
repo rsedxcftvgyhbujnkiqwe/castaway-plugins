@@ -312,7 +312,6 @@ ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
-// ConVar cvar_allow_cloak_taunt_bug;
 ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
@@ -600,7 +599,6 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "0", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
-	// cvar_allow_cloak_taunt_bug = CreateConVar("sm_reverts__enable_allow_cloak_taunt_bug", "0", (PLUGIN_NAME ... " - Revert cloak behaviour so spy can taunt and cloak (i.e old fence taunt cloak bug)"), _, true, 0.0, true, 1.0);
 	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Revert so demoman can detonate stickies while taunting. Requires "), _, true, 0.0, true, 1.0);
 #endif
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
@@ -609,7 +607,6 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
-	// cvar_allow_cloak_taunt_bug.AddChangeHook(OnAllowCloakTauntBugChange);
 	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
 #endif
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
@@ -1225,7 +1222,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
-	// OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
 	UpdateStickyLauncherDescription();
 #endif
 	UpdateShortstopDescription();
@@ -7307,7 +7303,6 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 		ItemIsEnabled(Wep_BazaarBargain) &&
 		owner > 0
 	) {
-		// NotnHeavy: I am not entirely sure whether this is correct or not. Might consider installing SourceMod on one of my older builds of TF2.
 		// Change the recharge rate for the Bazaar Bargain.
 		returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 		return MRES_Supercede;
