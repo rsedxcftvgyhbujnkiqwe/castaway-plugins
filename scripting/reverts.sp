@@ -807,6 +807,8 @@ public void OnPluginStart() {
 
 	AutoExecConfig(true, "reverts", "sourcemod");
 
+	RegServerCmd("sm_reverts__disable_all", Command_DisableAll, (PLUGIN_NAME ... " - Disable all reverts"), 0);
+
 	g_hClientMessageCookie = new Cookie("reverts_messageinfo_cookie","Weapon Reverts Message Info Cookie",CookieAccess_Protected);
 	g_hClientShowMoonshot = new Cookie("reverts_show_moonshot", "Weapon Reverts Show Moonshot Message", CookieAccess_Protected);
 
@@ -5629,6 +5631,13 @@ public Action OnPlayerRunCmd(
 	}
 	
 	return returnValue;
+}
+
+Action Command_DisableAll(int args) {
+	for (int i = 0; i < NUM_ITEMS; i++) {
+		items[i].cvar.IntValue = 0;
+	}
+	return Plugin_Continue;
 }
 
 Action Command_Menu(int client, int args) {
