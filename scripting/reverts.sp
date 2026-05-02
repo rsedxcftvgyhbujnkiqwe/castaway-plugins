@@ -367,6 +367,16 @@ MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
 
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
+float g_flWranglerSpreadTarget = 0.01745;
+#if defined WIN32
+MemoryPatch patch_RevertWranglerSpreadCone_X;
+MemoryPatch patch_RevertWranglerSpreadCone_Y;
+MemoryPatch patch_RevertWranglerSpreadCone_Z;
+#else
+MemoryPatch patch_RevertWranglerSpreadCone_SSE;
+Address AddressOf_g_flWranglerSpreadTarget;
+#endif
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -795,8 +805,11 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM");
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
-	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler);
+	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler, true);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
+#if defined MEMORY_PATCHES
+	ItemVariant(Wep_Wrangler, "Wrangler_Release");
+#endif
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
 	ItemFinalize();
@@ -991,6 +1004,22 @@ public void OnPluginStart() {
 		patch_RevertCannotDetonateStickiesWhileTaunting =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
+#if defined WIN32
+		patch_RevertWranglerSpreadCone_X =
+			MemoryPatch.CreateFromConf(conf,
+			"CObjectSentrygun::Fire_2DegreeConeX");
+		patch_RevertWranglerSpreadCone_Y =
+			MemoryPatch.CreateFromConf(conf,
+			"CObjectSentrygun::Fire_2DegreeConeY");
+		patch_RevertWranglerSpreadCone_Z =
+			MemoryPatch.CreateFromConf(conf,
+			"CObjectSentrygun::Fire_2DegreeConeZ");
+#else
+		patch_RevertWranglerSpreadCone_SSE =
+			MemoryPatch.CreateFromConf(conf,
+			"CObjectSentrygun::Fire_2DegreeConeSSE");
+		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+#endif
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
@@ -1059,6 +1088,25 @@ public void OnPluginStart() {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertCannotDetonateStickiesWhileTaunting");
 		}
+#if defined WIN32
+		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_X)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertWranglerSpreadCone_X");
+		}
+		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_Y)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertWranglerSpreadCone_Y");
+		}
+		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_Z)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertWranglerSpreadCone_Z");
+		}
+#else
+		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_SSE)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertWranglerSpreadCone_SSE");
+		}
+#endif
 
 		if (hook_fail) {
 			SetFailState("Failed to load dhooks/memory patches");
@@ -1222,6 +1270,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 	// OnAllowCloakTauntBugChange(cvar_allow_cloak_taunt_bug, "0", "0");
 	UpdateStickyLauncherDescription();
@@ -1336,6 +1385,29 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertIronBomber_PipeHitbox.Enable();
 			} else {
 				patch_RevertIronBomber_PipeHitbox.Disable();
+			}
+		}
+		case Wep_Wrangler: {
+			if (enable && GetItemVariant(Wep_Wrangler) == 2) {
+#if defined WIN32
+				patch_RevertWranglerSpreadCone_X.Enable();
+				StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
+				patch_RevertWranglerSpreadCone_Y.Enable();
+				StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+				patch_RevertWranglerSpreadCone_Z.Enable();
+				StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+#else
+				patch_RevertWranglerSpreadCone_SSE.Enable();
+				StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
+#endif
+			} else {
+#if defined WIN32
+				patch_RevertWranglerSpreadCone_X.Disable();
+				patch_RevertWranglerSpreadCone_Y.Disable();
+				patch_RevertWranglerSpreadCone_Z.Disable();
+#else
+				patch_RevertWranglerSpreadCone_SSE.Disable();
+#endif
 			}
 		}
 	}
@@ -3426,8 +3498,9 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 	if (
 		client > 0 &&
 		client <= MaxClients &&
-		IsClientInGame(client) && 
-		ItemIsEnabled(Wep_Wrangler)
+		IsClientInGame(client) &&
+		ItemIsEnabled(Wep_Wrangler) &&
+		GetItemVariant(Wep_Wrangler) < 2
 	) {
 		if (TF2_GetPlayerClass(client) == TFClass_Engineer) {
 
@@ -4553,24 +4626,28 @@ Action SDKHookCB_OnTakeDamage(
 		{
 			// wrangler variant no falloff
 			if (
-				GetItemVariant(Wep_Wrangler) == 1 &&
-				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY &&
-				damage_type & DMG_USEDISTANCEMOD != 0
+				GetItemVariant(Wep_Wrangler) >= 1 &&
+				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY
 			) {
-				// calculate rampup based on Engineer's position
-				damage_type ^= DMG_USEDISTANCEMOD;
-				damage1 = damage;
+				damage_type &= ~DMG_USEDISTANCEMOD;
 
-				GetClientEyePosition(attacker, pos1);
+				if (
+					attacker >= 1 &&
+					attacker <= MaxClients
+				) {
+					// calculate rampup based on Engineer's position
+					damage1 = damage;
 
-				GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					GetClientEyePosition(attacker, pos1);
 
-				pos2[2] += PLAYER_CENTER_HEIGHT;
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					pos2[2] += PLAYER_CENTER_HEIGHT;
 
-				damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
+					damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
 
-				if (damage < damage1) // no falloff
-					damage = damage1;
+					if (damage < damage1) // no falloff
+						damage = damage1;
+				}
 
 				return Plugin_Changed;
 			}
