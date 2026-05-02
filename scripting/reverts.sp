@@ -4659,7 +4659,7 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					// always deal 15 impact damage at any range
 					// stun handled elsewhere
-					damage /= 1.5;
+					damage = 15.0;
 					return Plugin_Changed;
 				}
 			}
@@ -5544,11 +5544,9 @@ public Action OnPlayerRunCmd(
 
 					if (
 						buttons & IN_ATTACK &&
-						GetEntProp(client, Prop_Send, "m_iAmmo", 4, TF_AMMO_GRENADES1) &&
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 44
 					) {
-						// Pre-Classless Sandman launches ball on primary fire
-						buttons &= ~IN_ATTACK;
+						// Pre-Classless Sandman launches ball on primary fire too
 						buttons |= IN_ATTACK2;
 						returnValue = Plugin_Changed;
 					}
@@ -7431,7 +7429,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 			override = true;
 
 			lifetime_ratio = floatMin(GetGameTime() - entities[inflictor].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
-			if (lifetime_ratio > 0.1) {
+			if (lifetime_ratio > (GetItemVariant(Wep_Sandman) == 3 ? 0.2 : 0.1)) {
 				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
 				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
