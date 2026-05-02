@@ -296,6 +296,8 @@ enum struct Player {
 	bool using_vaccinator_uber;
 	float vaccinator_charge;
 	float vaccinator_charge_end;
+	int sandman_stun_frame;
+	int stunball_entity;
 }
 
 enum struct Entity {
@@ -392,6 +394,7 @@ DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
+DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -409,6 +412,7 @@ DynamicDetour dhook_CWeaponMedigun_FindAndHealTargets;
 DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 DynamicDetour dhook_CTFPlayer_PickupWeaponFromOther;
 DynamicDetour dhook_CTFDroppedWeapon_ChargeLevelDegradeThink;
+DynamicDetour dhook_CTFPlayerShared_StunPlayer;
 
 int CBaseObject_m_flHealth; // *((float *)a1 + 652)
 int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -907,6 +911,7 @@ public void OnPluginStart() {
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicHook.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
+		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim = DynamicHook.FromConf(conf, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -924,6 +929,7 @@ public void OnPluginStart() {
 		dhook_CTFLunchBox_ApplyBiteEffects = DynamicDetour.FromConf(conf, "CTFLunchBox::ApplyBiteEffects");
 		dhook_CTFPlayer_PickupWeaponFromOther = DynamicDetour.FromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CTFDroppedWeapon_ChargeLevelDegradeThink = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::ChargeLevelDegradeThink");
+		dhook_CTFPlayerShared_StunPlayer = DynamicDetour.FromConf(conf, "CTFPlayerShared::StunPlayer");
 
 		CBaseObject_m_flHealth = FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4;
 		CObjectSentrygun_m_flShieldFadeTime = FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4;
@@ -1111,6 +1117,7 @@ public void OnPluginStart() {
 	if (dhook_CTFMinigun_GetWeaponSpread == null) SetFailState("Failed to create dhook_CTFMinigun_GetWeaponSpread");
 	if (dhook_CWeaponMedigun_ItemPostFrame == null) SetFailState("Failed to create dhook_CWeaponMedigun_ItemPostFrame");
 	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
+	if (dhook_CTFStunBall_ApplyBallImpactEffectOnVictim == null) SetFailState("Failed to create dhook_CTFStunBall_ApplyBallImpactEffectOnVictim");
 
 	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
 	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
@@ -1128,6 +1135,7 @@ public void OnPluginStart() {
 	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
 	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
 	if (dhook_CTFDroppedWeapon_ChargeLevelDegradeThink == null) SetFailState("Failed to create dhook_CTFDroppedWeapon_ChargeLevelDegradeThink");
+	if (dhook_CTFPlayerShared_StunPlayer == null) SetFailState("Failed to create dhook_CTFPlayerShared_StunPlayer");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1148,6 +1156,7 @@ public void OnPluginStart() {
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink);
+	dhook_CTFPlayerShared_StunPlayer.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_StunPlayer);
 
 	team_round_timer_entity = -1;
 
@@ -1511,14 +1520,6 @@ public void OnGameFrame() {
 
 						if (airdash_value != GetEntProp(idx, Prop_Send, "m_iAirDash")) {
 							SetEntProp(idx, Prop_Send, "m_iAirDash", airdash_value);
-						}
-					}
-
-					{
-						// bonk effect
-
-						if (TF2_IsPlayerInCondition(idx, TFCond_Bonked)) {
-							players[idx].bonk_cond_frame = GetGameTickCount();
 						}
 					}
 
@@ -2026,7 +2027,7 @@ public void OnGameFrame() {
 
 								if (TF2_IsPlayerInCondition(idx, cond)) {
 									// float flReduction = gpGlobals->frametime * 0.75f;
-									float addition = GetTickInterval() * 0.75;
+									float addition = GetGameFrameTime() * 0.75;
 									float dur = TF2Util_GetPlayerConditionDuration(idx, cond);
 
 									// jarate, milk and gas
@@ -2244,7 +2245,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
-	} 
+
+		if (StrEqual(class, "tf_projectile_stun_ball")) {
+			dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim);
+		}
+	}
 	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
 
@@ -2403,19 +2408,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	// this function is called on a per-frame basis
 	// if two conds are added within the same game frame,
 	// they will both be present when this is called for each
-
-	{
-		// bonk cancel stun
-
-		if (
-			ItemIsEnabled(Wep_Bonk) &&
-			condition == TFCond_Dazed &&
-			abs(GetGameTickCount() - players[client].bonk_cond_frame) <= 2 &&
-			players[client].bonk_cond_frame > 0 //just in case
-		) {
-			TF2_RemoveCondition(client, TFCond_Dazed);
-		}
-	}
 	{
 		// spycicle fire immune
 
@@ -2539,6 +2531,15 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 			TF2_GetPlayerClass(client) == TFClass_Scout
 		) {
 			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
+		}
+	}
+	{
+		// bonk
+		if (
+			ItemIsEnabled(Wep_Bonk) &&
+			condition == TFCond_Bonked
+		) {
+			players[client].bonk_cond_frame = GetGameTickCount();
 		}
 	}
 	return Plugin_Continue;
@@ -4132,26 +4133,6 @@ Action OnSoundNormal(
 ) {
 	int idx;
 
-	if (StrContains(sample, "player/pl_impact_stun") == 0) {
-		for (idx = 1; idx <= MaxClients; idx++) {
-			if (
-				ItemIsEnabled(Wep_Sandman) &&
-				players[idx].projectile_touch_frame == GetGameTickCount()
-			) {
-				// cancel duplicate sandman stun sounds
-				// we cancel the default stun and apply our own
-				return Plugin_Stop;
-			}
-
-			if (
-				ItemIsEnabled(Wep_Bonk) &&
-				players[idx].bonk_cond_frame == GetGameTickCount()
-			) {
-				// cancel bonk stun sound
-				return Plugin_Stop;
-			}
-		}
-	}
 	if (cvar_old_falldmg_sfx.BoolValue)
 	{
 		if (StrContains(sample, "pl_fallpain") != -1)
@@ -4369,32 +4350,6 @@ Action SDKHookCB_Touch(int entity, int other) {
 							return Plugin_Handled;
 						}
 					}
-				}
-			}
-		}
-	}
-
-	{
-		// pre-classless sandman stun invuln
-		if (StrEqual(class, "tf_projectile_stun_ball")) {
-			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-
-			if (
-				GetItemVariant(Wep_Sandman) == 3 &&
-				!GetEntProp(entity, Prop_Send, "m_bTouched") &&
-				owner >= 1 && owner <= MaxClients &&
-				other >= 1 && other <= MaxClients
-			) {
-				if (
-					(PlayerIsUbered(other) || TF2_IsPlayerInCondition(other, TFCond_UberchargeFading)) &&
-					!AreEntitiesOnSameTeam(owner, other) &&
-					players[other].projectile_touch_frame == GetGameTickCount()
-				) {
-					players[other].projectile_touch_frame = 0;
-
-					DoSandmanStun(owner, other, GetEntProp(entity, Prop_Send, "m_bCritical") != 0);
-
-					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
 				}
 			}
 		}
@@ -4695,24 +4650,17 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// sandman stun
+				// sandman damage
 
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
-					players[victim].projectile_touch_frame == GetGameTickCount()
+					damage == 22.5
 				) {
-					players[victim].projectile_touch_frame = 0;
-
-					GetEntityClassname(players[victim].projectile_touch_entity, class, sizeof(class));
-					if (StrEqual(class, "tf_projectile_stun_ball")) {
-						damage = 15.0; // always deal 15 impact damage at any range
-
-						TF2_RemoveCondition(victim, TFCond_Dazed);
-						DoSandmanStun(attacker, victim, (damage_type & DMG_CRIT) != 0);
-
-						return Plugin_Changed;
-					}				
+					// always deal 15 impact damage at any range
+					// stun handled elsewhere
+					damage /= 1.5;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4794,15 +4742,11 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Cleaver) &&
 					damage > 20.0 && // don't count bleed damage
-					StrEqual(class, "tf_weapon_cleaver")
+					StrEqual(class, "tf_weapon_cleaver") &&
+					players[victim].projectile_touch_frame == GetGameTickCount() &&
+					(GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time) >= 1.0
 				) {
-					if (
-						players[victim].projectile_touch_frame == GetGameTickCount() &&
-						(GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time) >= 1.0
-					) {
-						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-					}
-					return Plugin_Continue;
+					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
 			}
 
@@ -5640,9 +5584,11 @@ public Action OnPlayerRunCmd(
 
 					if (
 						buttons & IN_ATTACK &&
+						GetEntProp(client, Prop_Send, "m_iAmmo", 4, TF_AMMO_GRENADES1) &&
 						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 44
 					) {
-						// Pre-Classless Sandman launches ball on primary fire too
+						// Pre-Classless Sandman launches ball on primary fire
+						buttons &= ~IN_ATTACK;
 						buttons |= IN_ATTACK2;
 						returnValue = Plugin_Changed;
 					}
@@ -6181,78 +6127,6 @@ bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
 
 	return true;
-}
-
-void DoSandmanStun(int attacker, int victim, bool crit) {
-	float lifetime_ratio;
-	float stun_amt;
-	float stun_dur;
-	int stun_fls;
-
-	if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
-		// exact replica of the original stun time formula as far as I can tell (from the source leak)
-
-		lifetime_ratio = floatMin(GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
-		if (lifetime_ratio > 0.1) {
-			stun_amt = 0.5;
-			stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
-
-			if (crit) {
-				stun_dur += 2.0;
-			}
-
-			stun_fls = GetItemVariant(Wep_Sandman) >= 2 ? TF_STUNFLAGS_NORMALBONK : TF_STUNFLAGS_SMALLBONK;
-
-			bool moonshot = lifetime_ratio >= 1.0;
-			if (moonshot) {
-				// moonshot!
-
-				stun_dur += 1.0;
-				stun_fls = TF_STUNFLAGS_BIGBONK;
-
-				if (cvar_show_moonshot.BoolValue) {
-					SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
-
-					char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
-					GetClientName(attacker, attackerName, sizeof(attackerName));
-					GetClientName(victim, victimName, sizeof(victimName));
-
-					for (int idx = 1; idx <= MaxClients; idx++) {
-						if (
-							IsClientInGame(idx) &&
-							!IsFakeClient(idx) &&
-							!IsClientSourceTV(idx) &&
-							!IsClientReplay(idx) &&
-							g_hClientShowMoonshot.GetInt(idx, 1)
-						) {
-							ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
-						}
-					}
-				}
-			}
-
-			// MvM bosses
-			if (
-				GameRules_GetProp("m_bPlayingMannVsMachine") &&
-				(
-					GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
-					GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
-				)
-			) {
-				// If max range, freeze them in place -- otherwise adjust it based on distance
-				stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
-				stun_fls = TF_STUNFLAG_SLOWDOWN;
-				if (moonshot) {
-					stun_fls |= TF_STUNFLAG_CHEERSOUND;
-				}
-			}
-
-			TF2_StunPlayer(victim, stun_dur, stun_amt, stun_fls, attacker);
-
-			players[victim].stunball_fix_time_bonk = GetGameTime();
-			players[victim].stunball_fix_time_wear = 0.0;
-		}
-	}
 }
 
 int GetChargeType(int entity)
@@ -7520,6 +7394,135 @@ MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink(int entity) {
 	if (ItemIsEnabled(Feat_Medigun)) {
 		// Supercede, prevents any think code from running, which drains charge and sets the next think to drain again
 		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim(int entity, DHookParam parameters) {
+	int victim = parameters.Get(1);
+	if (
+		ItemIsEnabled(Wep_Sandman) &&
+		victim >= 1 &&
+		victim <= MaxClients
+	) {
+		//LogMessage("CTFStunBall::ApplyBallImpactEffectOnVictim(%d, %L)", entity, victim);
+		players[victim].sandman_stun_frame = GetGameTickCount();
+		players[victim].stunball_entity = entity;
+		if (
+			GetItemVariant(Wep_Sandman) == 3 &&
+			(PlayerIsUbered(victim) || TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading))
+		) {
+			// apply a fake stun so the hook will override it
+			TF2_StunPlayer(victim, 0.0, 0.0, TF_STUNFLAG_SOUND, GetEntityOwner(entity));
+			SetEntProp(entity, Prop_Send, "m_bTouched", 1);
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam parameters) {
+	int victim = TF2Util_GetPlayerFromSharedAddress(pThis);
+	float stun_dur = parameters.Get(1);
+	float stun_amt = parameters.Get(2);
+	int stun_fls = parameters.Get(3);
+	int attacker = parameters.Get(4);
+	float lifetime_ratio;
+	
+	if (
+		victim >= 1 &&
+		victim <= MaxClients &&
+		attacker >= 1 &&
+		attacker <= MaxClients
+	) {
+		//LogMessage("CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
+		if (
+			ItemIsEnabled(Wep_Bonk) &&
+			victim == attacker &&
+			stun_fls == TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND &&
+			players[victim].bonk_cond_frame == GetGameTickCount()
+		) {
+			// bonk cancel stun
+			players[victim].bonk_cond_frame = 0;
+			//LogMessage("Canceled bonk stun");
+			return MRES_Supercede;
+		}
+		else if (
+			ItemIsEnabled(Wep_Sandman) &&
+			players[victim].sandman_stun_frame == GetGameTickCount() &&
+			(stun_fls & TF_STUNFLAG_SOUND || stun_fls & TF_STUNFLAG_CHEERSOUND)
+		) {
+			// sandman stun override
+			players[victim].sandman_stun_frame = 0;
+			int stunball = players[victim].stunball_entity;
+
+			lifetime_ratio = floatMin(GetGameTime() - entities[stunball].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
+			if (lifetime_ratio > 0.1) {
+				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
+
+				if (GetEntProp(stunball, Prop_Send, "m_bCritical") != 0) {
+					stun_dur += 2.0;
+				}
+
+				stun_fls = GetItemVariant(Wep_Sandman) >= 2 ? TF_STUNFLAGS_NORMALBONK : TF_STUNFLAGS_SMALLBONK;
+
+				bool moonshot = lifetime_ratio >= 1.0;
+				if (moonshot) {
+					// moonshot!
+
+					stun_dur += 1.0;
+					stun_fls = TF_STUNFLAGS_BIGBONK;
+
+					if (cvar_show_moonshot.BoolValue) {
+						SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+
+						char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+						GetClientName(attacker, attackerName, sizeof(attackerName));
+						GetClientName(victim, victimName, sizeof(victimName));
+
+						for (int idx = 1; idx <= MaxClients; idx++) {
+							if (
+								IsClientInGame(idx) &&
+								!IsFakeClient(idx) &&
+								!IsClientSourceTV(idx) &&
+								!IsClientReplay(idx) &&
+								g_hClientShowMoonshot.GetInt(idx, 1)
+							) {
+								ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+							}
+						}
+					}
+				}
+
+				// MvM bosses
+				if (
+					GameRules_GetProp("m_bPlayingMannVsMachine") &&
+					(
+						GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
+						GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
+					)
+				) {
+					// If max range, freeze them in place -- otherwise adjust it based on distance
+					stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
+					stun_fls = TF_STUNFLAG_SLOWDOWN;
+					if (moonshot) {
+						stun_fls |= TF_STUNFLAG_CHEERSOUND;
+					}
+				}
+
+				players[victim].stunball_fix_time_bonk = GetGameTime();
+				players[victim].stunball_fix_time_wear = 0.0;
+
+				//LogMessage("POST: CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
+				parameters.Set(1, stun_dur);
+				parameters.Set(2, stun_amt);
+				parameters.Set(3, stun_fls);
+				return MRES_ChangedHandled;
+			}
+			else {
+				//LogMessage("Canceled close-range stun");
+				return MRES_Supercede;
+			}
+		}
 	}
 	return MRES_Ignored;
 }

@@ -161,6 +161,13 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xF3\x0F\x10\x8F"
 				"linux" "@_ZN16CTFDroppedWeapon23ChargeLevelDegradeThinkEv"
 			}
+			// "player_stunned"
+			"CTFPlayerShared::StunPlayer"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\x40"
+				"linux" "@_ZN15CTFPlayerShared10StunPlayerEffiP9CTFPlayer"
+			}
 		}
 
 		"Offsets"
@@ -256,6 +263,11 @@
 			{
 				"windows"	"273"
 				"linux"		"279"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"windows"	"267"
+				"linux"		"268"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -439,6 +451,20 @@
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "float"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"offset"	"CTFStunBall::ApplyBallImpactEffectOnVictim"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+				}
 			}
 
 			// Signature
@@ -760,6 +786,32 @@
 				"callconv"	"thiscall"
 				"this"		"entity"
 				"return"	"void"
+			}
+			"CTFPlayerShared::StunPlayer"
+			{
+				"signature" "CTFPlayerShared::StunPlayer"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "void"
+				"arguments"
+				{
+					"flTime"
+					{
+						"type" "float"
+					}
+					"flReductionAmount"
+					{
+						"type" "float"
+					}
+					"iStunFlags"
+					{
+						"type" "int"
+					}
+					"pAttacker"
+					{
+						"type" "cbaseentity"
+					}
+				}
 			}
 		}
 	}
