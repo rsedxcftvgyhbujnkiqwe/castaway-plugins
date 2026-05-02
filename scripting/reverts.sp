@@ -296,8 +296,8 @@ enum struct Player {
 	bool using_vaccinator_uber;
 	float vaccinator_charge;
 	float vaccinator_charge_end;
-	int sandman_stun_frame;
-	int stunball_entity;
+	int stun_frame;
+	int stun_inflictor;
 }
 
 enum struct Entity {
@@ -4594,7 +4594,7 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_grenadelauncher")
 				) {
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
-					damage *= ValveRemapVal(GetVectorDistance(pos1, damage_position), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.0, 0.8);
+					damage *= ValveRemapVal(FloatAbs(pos1[2] - damage_position[2]), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.0, 0.8);
 					return Plugin_Changed;
 				}
 			}
@@ -4821,13 +4821,22 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// temporarily remove natascha slow attrib
+				// natascha slowdown tracking
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
 				) {
-					TF2Attrib_SetByDefIndex(weapon, 32, 0.0); // On Hit: 0% chance to slow target
+					if (
+						GetItemVariant(Wep_Natascha) == 2 &&
+						TF2_IsPlayerInCondition(victim, TFCond_Healing)
+					) {
+						// slow players being healed regardless
+						TF2_StunPlayer(victim, 0.20, 0.75, TF_STUNFLAG_SLOWDOWN, attacker);
+					} else {
+						players[victim].stun_frame = GetGameTickCount();
+						players[victim].stun_inflictor = weapon;
+					}
 				}
 			}
 
@@ -4980,9 +4989,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int health_cur;
 	int health_max;
 	int healer;
-	float stun_amt;
-	float pos1[3];
-	float pos2[3];
 	float rage;
 
 	bool resist_damage = false;
@@ -5288,52 +5294,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
 				damage *= 0.40; // will also resist taunt kills!
 				returnValue = Plugin_Changed;
-			}
-		}
-
-		if (weapon > 0) {
-			GetEntityClassname(weapon, class, sizeof(class));
-
-			// natascha slowdown
-			{
-				if (
-					GetItemVariant(Wep_Natascha) >= 1 &&
-					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
-				) {
-					bool stun = true;
-
-					if (
-						PlayerIsInvulnerable(victim) ||
-						TF2_IsPlayerInCondition(victim, TFCond_Disguised)
-					) {
-						// do not slow invuln players or disguised spies
-						stun = false;
-					}
-
-					switch (GetItemVariant(Wep_Natascha)) {
-						case 1: {
-							if (TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
-								// do not slow enemies who are being healed
-								stun = false;
-							} else {
-								// old slow falloff
-								GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-								GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-								stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
-							}
-						}
-						case 2: {
-							// full slow amount regardless of range
-							stun_amt = 0.75;
-						}
-					}
-
-					if (stun) {
-						TF2_StunPlayer(victim, 0.20, stun_amt, TF_STUNFLAG_SLOWDOWN, attacker);	
-					}
-					TF2Attrib_RemoveByDefIndex(weapon, 32); // restore the attribute
-				}
 			}
 		}
 	}
@@ -7406,8 +7366,8 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim(int entity, D
 		victim <= MaxClients
 	) {
 		//LogMessage("CTFStunBall::ApplyBallImpactEffectOnVictim(%d, %L)", entity, victim);
-		players[victim].sandman_stun_frame = GetGameTickCount();
-		players[victim].stunball_entity = entity;
+		players[victim].stun_frame = GetGameTickCount();
+		players[victim].stun_inflictor = entity;
 		if (
 			GetItemVariant(Wep_Sandman) == 3 &&
 			(PlayerIsUbered(victim) || TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading))
@@ -7427,6 +7387,11 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 	int stun_fls = parameters.Get(3);
 	int attacker = parameters.Get(4);
 	float lifetime_ratio;
+	int inflictor = -1;
+	char class[64];
+	float pos1[3];
+	float pos2[3];
+	bool override = false;
 	
 	if (
 		victim >= 1 &&
@@ -7446,20 +7411,30 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 			//LogMessage("Canceled bonk stun");
 			return MRES_Supercede;
 		}
-		else if (
+
+		if (players[victim].stun_frame == GetGameTickCount()) {
+			players[victim].stun_frame = 0;
+
+			inflictor = players[victim].stun_inflictor;
+			if (IsValidEntity(inflictor)) {
+				GetEntityClassname(inflictor, class, sizeof(class));
+			}
+			players[victim].stun_inflictor = -1;
+		}
+
+		if (
 			ItemIsEnabled(Wep_Sandman) &&
-			players[victim].sandman_stun_frame == GetGameTickCount() &&
+			StrEqual(class, "tf_projectile_stun_ball") &&
 			(stun_fls & TF_STUNFLAG_SOUND || stun_fls & TF_STUNFLAG_CHEERSOUND)
 		) {
 			// sandman stun override
-			players[victim].sandman_stun_frame = 0;
-			int stunball = players[victim].stunball_entity;
+			override = true;
 
-			lifetime_ratio = floatMin(GetGameTime() - entities[stunball].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
+			lifetime_ratio = floatMin(GetGameTime() - entities[inflictor].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
 			if (lifetime_ratio > 0.1) {
 				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
-				if (GetEntProp(stunball, Prop_Send, "m_bCritical") != 0) {
+				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
 					stun_dur += 2.0;
 				}
 
@@ -7511,17 +7486,37 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 
 				players[victim].stunball_fix_time_bonk = GetGameTime();
 				players[victim].stunball_fix_time_wear = 0.0;
-
-				//LogMessage("POST: CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
-				parameters.Set(1, stun_dur);
-				parameters.Set(2, stun_amt);
-				parameters.Set(3, stun_fls);
-				return MRES_ChangedHandled;
 			}
 			else {
 				//LogMessage("Canceled close-range stun");
 				return MRES_Supercede;
 			}
+		}
+		else if (
+			GetItemVariant(Wep_Natascha) >= 1 &&
+			StrEqual(class, "tf_weapon_minigun")
+		) {
+			override = true;
+			switch (GetItemVariant(Wep_Natascha)) {
+				case 1: {
+					// old slow falloff
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+				}
+				case 2: {
+					// full slow amount regardless of range
+					stun_amt = 0.75;
+				}
+			}
+		}
+
+		if (override) {
+			//LogMessage("POST: CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
+			parameters.Set(1, stun_dur);
+			parameters.Set(2, stun_amt);
+			parameters.Set(3, stun_fls);
+			return MRES_ChangedHandled;
 		}
 	}
 	return MRES_Ignored;
