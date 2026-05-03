@@ -1046,7 +1046,7 @@
 	}
 	"Sandman_PreClassless"
 	{
-		"en"	"Reverted to pre-Classless Update, full stuns, can stun invuln players, stun victims receive 50%% damage, no health penalty, no double jump, 15 sec ball recharge time, no alt-fire"
+		"en"	"Reverted to pre-Classless Update, full stuns, can stun invuln players, stun victims receive 50%% damage, no health penalty, no double jump, 15 sec ball recharge time"
 	}
 	"Sandvich_PreEngineer"
 	{

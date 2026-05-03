@@ -168,6 +168,20 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\x40"
 				"linux" "@_ZN15CTFPlayerShared10StunPlayerEffiP9CTFPlayer"
 			}
+			// AddCond is ubiquitous; e.g. it's used at the end of StunPlayer, so it should be easy to find.
+			"CTFPlayerShared::AddCond"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\xF9\x8B\x8F\x2A\x2A\x2A\x2A\x85\xC9\x0F\x84"
+				"linux" 	"@_ZN15CTFPlayerShared7AddCondE7ETFCondfP11CBaseEntity"
+			}
+			// "damage_prevented"
+			"CTFPlayerShared::RemoveCond"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x2A\x57\x53"
+				"linux" 	"@_ZN15CTFPlayerShared10RemoveCondE7ETFCondb"
+			}
 		}
 
 		"Offsets"
@@ -809,7 +823,47 @@
 					}
 					"pAttacker"
 					{
-						"type" "cbaseentity"
+						"type" "int"
+					}
+				}
+			}
+			"CTFPlayerShared::AddCond"
+			{
+				"signature"	"CTFPlayerShared::AddCond"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"eCond"
+					{
+						"type"	"int"
+					}
+					"flDuration"
+					{
+						"type"	"float"
+					}
+					"pProvider"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFPlayerShared::RemoveCond"
+			{
+				"signature"	"CTFPlayerShared::RemoveCond"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"eCond"
+					{
+						"type"	"int"
+					}
+					"ignore_duration"
+					{
+						"type"	"bool"
 					}
 				}
 			}

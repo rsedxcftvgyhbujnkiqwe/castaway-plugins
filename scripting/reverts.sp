@@ -39,7 +39,6 @@
 #include <tf2items>
 #include <tf2utils>
 #include <tf2attributes>
-#include <tf2condhooks>
 #include <dhooks>
 #include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
 #undef REQUIRE_PLUGIN
@@ -413,6 +412,8 @@ DynamicDetour dhook_CTFLunchBox_ApplyBiteEffects;
 DynamicDetour dhook_CTFPlayer_PickupWeaponFromOther;
 DynamicDetour dhook_CTFDroppedWeapon_ChargeLevelDegradeThink;
 DynamicDetour dhook_CTFPlayerShared_StunPlayer;
+DynamicDetour dhook_CTFPlayerShared_AddCond;
+DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 
 int CBaseObject_m_flHealth; // *((float *)a1 + 652)
 int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -932,6 +933,8 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_PickupWeaponFromOther = DynamicDetour.FromConf(conf, "CTFPlayer::PickupWeaponFromOther");
 		dhook_CTFDroppedWeapon_ChargeLevelDegradeThink = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::ChargeLevelDegradeThink");
 		dhook_CTFPlayerShared_StunPlayer = DynamicDetour.FromConf(conf, "CTFPlayerShared::StunPlayer");
+		dhook_CTFPlayerShared_AddCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddCond");
+		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
 
 		CBaseObject_m_flHealth = FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4;
 		CObjectSentrygun_m_flShieldFadeTime = FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4;
@@ -1138,6 +1141,8 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
 	if (dhook_CTFDroppedWeapon_ChargeLevelDegradeThink == null) SetFailState("Failed to create dhook_CTFDroppedWeapon_ChargeLevelDegradeThink");
 	if (dhook_CTFPlayerShared_StunPlayer == null) SetFailState("Failed to create dhook_CTFPlayerShared_StunPlayer");
+	if (dhook_CTFPlayerShared_AddCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddCond");
+	if (dhook_CTFPlayerShared_RemoveCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_RemoveCond");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1159,6 +1164,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
 	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink);
 	dhook_CTFPlayerShared_StunPlayer.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_StunPlayer);
+	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond);
+	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
 
 	team_round_timer_entity = -1;
 
@@ -5538,22 +5545,6 @@ public Action OnPlayerRunCmd(
 					TF2Util_UpdatePlayerSpeed(client);
 				}
 			}
-			
-			if (GetItemVariant(Wep_Sandman) == 3) {
-				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-				if (weapon1 > 0) {
-
-					if (
-						buttons & IN_ATTACK &&
-						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 44
-					) {
-						// Pre-Classless Sandman launches ball on primary fire too
-						buttons |= IN_ATTACK2;
-						returnValue = Plugin_Changed;
-					}
-				}
-			}
 
 			if (
 				ItemIsEnabled(Wep_Shortstop) &&
@@ -7392,7 +7383,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 	float stun_dur = parameters.Get(1);
 	float stun_amt = parameters.Get(2);
 	int stun_fls = parameters.Get(3);
-	int attacker = parameters.Get(4);
+	int attacker = GetEntityFromAddress(parameters.Get(4));
 	float lifetime_ratio;
 	int inflictor = -1;
 	char class[64];
@@ -7438,7 +7429,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 			override = true;
 
 			lifetime_ratio = floatMin(GetGameTime() - entities[inflictor].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
-			if (lifetime_ratio > (GetItemVariant(Wep_Sandman) == 3 ? 0.2 : 0.1)) {
+			if (lifetime_ratio > 0.1) {
 				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
 				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
@@ -7525,6 +7516,54 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 			parameters.Set(3, stun_fls);
 			return MRES_ChangedHandled;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayerShared_AddCond(Address pThis, DHookParam parameters) {
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	if (
+		client >= 1 &&
+		client <= MaxClients &&
+		IsClientInGame(client) &&
+		IsPlayerAlive(client)
+	) {
+		TFCond cond = parameters.Get(1);
+		float duration = parameters.Get(2);
+		int provider = GetEntityFromAddress(parameters.Get(3));
+		Action action = TF2_OnAddCond(client, cond, duration, provider);
+
+		if (action == Plugin_Changed)
+		{
+			parameters.Set(1, cond);
+			parameters.Set(2, duration);
+			if (provider == -1 || provider == 0xFFF)
+				provider = 0;
+			parameters.Set(3, provider == 0 ? provider : GetEntityAddress(provider));
+			return MRES_ChangedHandled;
+		}
+		else if (action >= Plugin_Handled)
+			return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayerShared_RemoveCond(Address pThis, DHookParam parameters) {
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	if (
+		client >= 1 &&
+		client <= MaxClients &&
+		IsClientInGame(client) &&
+		IsPlayerAlive(client)
+	) {
+		// This is vastly incomplete for the moment. If other functionality from TF2CondHooks is needed just add it here.
+		TFCond cond = parameters.Get(1);
+		float timeleft = 0.0;
+		int provider = 0;
+		Action action = TF2_OnRemoveCond(client, cond, timeleft, provider);
+
+		if (action >= Plugin_Handled)
+			return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
@@ -7781,6 +7820,15 @@ stock int FindBuiltTeleporterExitOwnedByClient(int client)
 	}
 
 	return -1;
+}
+
+// Props to nosoop
+stock int GetEntityFromAddress(Address pEntity)
+{
+	if (pEntity == Address_Null)
+		return -1;
+
+	return LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32) & 0xFFF;
 }
 
 // math stocks
