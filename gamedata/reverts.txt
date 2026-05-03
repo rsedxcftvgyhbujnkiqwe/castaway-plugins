@@ -84,24 +84,11 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x3C\x8B\x01"
 				"linux"   "@_ZN10CHealthKit7MyTouchEP11CBasePlayer"
 			}
-			// Left in here if ever needed someday
-			// "GetSceneDuration" // First FUN_ in OnTauntSucceeded (find that one using the string set_taunt_saharan_spy), above mult_gesture_time
-			// {
-			// 	"library" "server"
-			//	"windows" "\x55\x8B\xEC\x83\xEC\x10\x8B\x0D\x2A\x2A\x2A\x2A\x8D\x55\x2A\x56"
-			//	"linux"   "@_Z16GetSceneDurationPKc"
-			// }
 			"CTFPlayer::OnTauntSucceeded" // find using string set_taunt_saharan_spy
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\xFF\x75"
 				"linux"   "@_ZN9CTFPlayer16OnTauntSucceededEPKcii"
-			}
-			"CTFRevolver::CanFireCriticalShot" // find using "set_weapon_mode" and 1.44e+06 value
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x56\xFF\x75"
-				"linux"   "@_ZN11CTFRevolver19CanFireCriticalShotEbP11CBaseEntity"
 			}
 			"AI_CriteriaSet::AppendCriteria" // find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
 											// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
@@ -173,6 +160,27 @@
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xF3\x0F\x10\x8F"
 				"linux" "@_ZN16CTFDroppedWeapon23ChargeLevelDegradeThinkEv"
+			}
+			// "player_stunned"
+			"CTFPlayerShared::StunPlayer"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x20\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\x40"
+				"linux" "@_ZN15CTFPlayerShared10StunPlayerEffiP9CTFPlayer"
+			}
+			// AddCond is ubiquitous; e.g. it's used at the end of StunPlayer, so it should be easy to find.
+			"CTFPlayerShared::AddCond"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x57\x8B\xF9\x8B\x8F\x2A\x2A\x2A\x2A\x85\xC9\x0F\x84"
+				"linux" 	"@_ZN15CTFPlayerShared7AddCondE7ETFCondfP11CBaseEntity"
+			}
+			// "damage_prevented"
+			"CTFPlayerShared::RemoveCond"
+			{
+				"library" 	"server"
+				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x2A\x57\x53"
+				"linux" 	"@_ZN15CTFPlayerShared10RemoveCondE7ETFCondb"
 			}
 		}
 
@@ -269,6 +277,11 @@
 			{
 				"windows"	"273"
 				"linux"		"279"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"windows"	"267"
+				"linux"		"268"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -427,6 +440,45 @@
 				"hooktype" "entity"
 				"this"     "entity"
 				"return"   "void"
+			}
+			"CTFRevolver::CanFireCriticalShot"
+			{
+				"offset" "CTFRevolver::CanFireCriticalShot"
+				"hooktype"  "entity"
+				"this"      "entity"
+				"return"    "bool"
+				"arguments"
+				{
+					"bIsHeadshot"
+					{
+						"type" "bool"
+					}
+					"pTarget"
+					{
+						"type" "int"
+					}
+				}
+			}
+			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			{
+				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
+				"hooktype" "entity"
+				"this"     "entity"
+				"return"   "float"
+			}
+			"CTFStunBall::ApplyBallImpactEffectOnVictim"
+			{
+				"offset"	"CTFStunBall::ApplyBallImpactEffectOnVictim"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+				}
 			}
 
 			// Signature
@@ -604,20 +656,6 @@
 					}
 				}
 			}
-			// Left in here if ever needed someday.
-//			"GetSceneDuration" 
-//			{
-//				"signature" "GetSceneDuration"
-//				"callconv"  "cdecl"
-//				"return"    "float"
-//				"arguments"
-//				{
-//					"pszSceneName"
-//					{
-//						"type" "charptr"
-//					}
-//				}
-//			}
 			"CTFPlayer::OnTauntSucceeded"
 			{
 				"signature"   "CTFPlayer::OnTauntSucceeded"
@@ -639,31 +677,6 @@
 						"type" "int"
 					}
 				}
-			}
-			"CTFRevolver::CanFireCriticalShot"
-			{
-				"signature" "CTFRevolver::CanFireCriticalShot"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
-				"arguments"
-				{
-					"bIsHeadshot"
-					{
-						"type" "bool"
-					}
-					"pTarget"
-					{
-						"type" "cbaseentity"
-					}
-				}
-			}
-			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
-			{
-				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "float"
 			}			
 			"AI_CriteriaSet::AppendCriteria"
 			{
@@ -787,6 +800,72 @@
 				"callconv"	"thiscall"
 				"this"		"entity"
 				"return"	"void"
+			}
+			"CTFPlayerShared::StunPlayer"
+			{
+				"signature" "CTFPlayerShared::StunPlayer"
+				"callconv"  "thiscall"
+				"this"      "address"
+				"return"    "void"
+				"arguments"
+				{
+					"flTime"
+					{
+						"type" "float"
+					}
+					"flReductionAmount"
+					{
+						"type" "float"
+					}
+					"iStunFlags"
+					{
+						"type" "int"
+					}
+					"pAttacker"
+					{
+						"type" "int"
+					}
+				}
+			}
+			"CTFPlayerShared::AddCond"
+			{
+				"signature"	"CTFPlayerShared::AddCond"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"eCond"
+					{
+						"type"	"int"
+					}
+					"flDuration"
+					{
+						"type"	"float"
+					}
+					"pProvider"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFPlayerShared::RemoveCond"
+			{
+				"signature"	"CTFPlayerShared::RemoveCond"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
+				"arguments"
+				{
+					"eCond"
+					{
+						"type"	"int"
+					}
+					"ignore_duration"
+					{
+						"type"	"bool"
+					}
+				}
 			}
 		}
 	}
