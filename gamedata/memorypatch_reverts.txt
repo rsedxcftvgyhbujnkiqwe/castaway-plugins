@@ -101,6 +101,12 @@
 				"linux"	"@_ZN19CTFPipebombLauncher15SecondaryAttackEv"
 				"windows" "\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x2A\x2A\xFF\xD0\x84\xC0\x2A\x2A\x2A\x2A\x2A\x2A\x83\xBE\x2A\x2A\x2A\x2A\x00\x0F\x84\x2A\x2A\x2A\x2A"
 			}
+			"CObjectSentrygun::Fire" // search for "mult_engy_sentry_damage", not the one with rocket stuff
+			{
+				"library" "server"
+				"linux" "@_ZN16CObjectSentrygun4FireEv"
+				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x88\x02\x00\x00\x56\x57"
+			}
 		}
 
 		"Offsets"
@@ -288,7 +294,52 @@
 				// ║                  Engineer                    ║
 				// ╚══════════════════════════════════════════════╝
 
-				// No patches for Engineer at the moment.
+				// Increased accuracy for release Wrangler.
+				// Change VECTOR_CONE_3DEGREES -> VECTOR_CONE_2DEGREES
+				// https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/basecombatweapon_shared.h#L100
+
+				// Linux uses one SSE instruction for the float constant
+				"CObjectSentrygun::Fire_2DegreeConeSSE"
+				{
+					"signature" "CObjectSentrygun::Fire"
+					"linux"
+					{
+						"offset"	"1450"
+						"verify"	"\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, [dat_xxxxxxxx]
+						"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
+					}
+				}
+				// Windows has three instructions for the float constant for each axis
+				"CObjectSentrygun::Fire_2DegreeConeX"
+				{
+					"signature" "CObjectSentrygun::Fire"
+					"windows"
+					{
+						"offset"	"1080"
+						"verify"	"\xc7\x85\x7c\xff\xff\xff\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+						"patch"		"\xc7\x85\x7c\xff\xff\xff\x00\x00\x00\x00" // retrieve from plugin
+					}
+				}
+				"CObjectSentrygun::Fire_2DegreeConeY"
+				{
+					"signature" "CObjectSentrygun::Fire"
+					"windows"
+					{
+						"offset"	"1090"
+						"verify"	"\xc7\x45\x80\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+						"patch"		"\xc7\x45\x80\x00\x00\x00\x00" // retrieve from plugin
+					}
+				}
+				"CObjectSentrygun::Fire_2DegreeConeZ"
+				{
+					"signature" "CObjectSentrygun::Fire"
+					"windows"
+					{
+						"offset"	"1097"
+						"verify"	"\xc7\x45\x84\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+						"patch"		"\xc7\x45\x84\x00\x00\x00\x00" // retrieve from plugin
+					}
+				}
 				
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Medic                     ║
