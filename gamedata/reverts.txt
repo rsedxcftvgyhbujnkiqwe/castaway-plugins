@@ -182,6 +182,13 @@
 				"windows" 	"\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x2A\x57\x53"
 				"linux" 	"@_ZN15CTFPlayerShared10RemoveCondE7ETFCondb"
 			}
+			// "aiming_no_flinch"
+			"CTFPlayer::ApplyPunchImpulseX"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
+				"linux"   "@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
+			}
 		}
 
 		"Offsets"
@@ -864,6 +871,20 @@
 					"ignore_duration"
 					{
 						"type"	"bool"
+					}
+				}
+			}
+			"CTFPlayer::ApplyPunchImpulseX"
+			{
+				"signature"	"CTFPlayer::ApplyPunchImpulseX"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"flImpulse"
+					{
+						"type"	"float"
 					}
 				}
 			}

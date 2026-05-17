@@ -344,7 +344,6 @@ Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
-MemoryPatch patch_RevertCozyCamper_FlinchNerf;
 MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
@@ -420,6 +419,7 @@ DynamicDetour dhook_CTFDroppedWeapon_ChargeLevelDegradeThink;
 DynamicDetour dhook_CTFPlayerShared_StunPlayer;
 DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
+DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 
 int CBaseObject_m_flHealth; // *((float *)a1 + 652)
 int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -501,9 +501,7 @@ enum
 	Wep_CleanerCarbine,
 	Wep_Concheror,
 	Wep_CowMangler,
-#if defined MEMORY_PATCHES
 	Wep_CozyCamper,
-#endif	
 	Wep_CritCola,
 #if defined MEMORY_PATCHES
 	Wep_Crossbow,
@@ -686,8 +684,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_CleanerCarbine, "Carbine_PreTB");
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
 	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_CowMangler);
+	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
 #if defined MEMORY_PATCHES
-	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper, true);
 	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
 #endif
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
@@ -947,6 +945,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_StunPlayer = DynamicDetour.FromConf(conf, "CTFPlayerShared::StunPlayer");
 		dhook_CTFPlayerShared_AddCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddCond");
 		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
+		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		CTFPlayer_m_flTauntNextStartTime = -1;
@@ -980,9 +979,6 @@ public void OnPluginStart() {
 		patch_RevertFlamethrowers_Density_OnCollide =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertCozyCamper_FlinchNerf =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition");
 		patch_RevertCrusaderCrossbow_UbergainNerf =
 			MemoryPatch.CreateFromConf(conf,
 			"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
@@ -1054,10 +1050,6 @@ public void OnPluginStart() {
 		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
-		}
-		if (!ValidateAndNullCheck(patch_RevertCozyCamper_FlinchNerf)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertCozyCamper_FlinchNerf");
 		}
 		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) {
 			hook_fail=true;
@@ -1193,6 +1185,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayerShared_StunPlayer == null) SetFailState("Failed to create dhook_CTFPlayerShared_StunPlayer");
 	if (dhook_CTFPlayerShared_AddCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddCond");
 	if (dhook_CTFPlayerShared_RemoveCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_RemoveCond");
+	if (dhook_CTFPlayer_ApplyPunchImpulseX == null) SetFailState("Failed to create dhook_CTFPlayer_ApplyPunchImpulseX");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1216,6 +1209,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_StunPlayer.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_StunPlayer);
 	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond);
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
+	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 
 	team_round_timer_entity = -1;
 
@@ -1284,7 +1278,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_CozyCamper),Wep_CozyCamper);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
@@ -1367,13 +1360,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertCannotDetonateStickiesWhileTaunting.Enable();
 			} else {
 				patch_RevertCannotDetonateStickiesWhileTaunting.Disable();
-			}
-		}
-		case Wep_CozyCamper: {
-			if (enable) {
-				patch_RevertCozyCamper_FlinchNerf.Enable();
-			} else {
-				patch_RevertCozyCamper_FlinchNerf.Disable();
 			}
 		}
 		case Wep_Crossbow: {
@@ -3684,9 +3670,7 @@ void CacheWeapons(int client) {
 			if (weapon != -1) {
 				switch (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex")) {
 					case 405, 608: player_weapons[client][Wep_Booties] = true;
-#if defined MEMORY_PATCHES
 					case 642: player_weapons[client][Wep_CozyCamper] = true;
-#endif
 					case 231: player_weapons[client][Wep_Darwin] = true;
 					case 57: player_weapons[client][Wep_Razorback] = true;
 					case 133: player_weapons[client][Wep_Gunboats] = true;
@@ -7459,6 +7443,24 @@ MRESReturn DHookCallback_CTFPlayerShared_RemoveCond(Address pThis, DHookParam pa
 
 		if (action >= Plugin_Handled)
 			return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn returnValue, DHookParam parameters) {
+	if (
+		ItemIsEnabled(Wep_CozyCamper) &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		if (
+			TF2_GetPlayerClass(client) == TFClass_Sniper &&
+			TF2_IsPlayerInCondition(client, TFCond_Slowed) &&
+			TF2Attrib_HookValueInt(0, "aiming_no_flinch", client) > 0
+		) {
+			returnValue.Value = false;
+			return MRES_Supercede;
+		}
 	}
 	return MRES_Ignored;
 }
