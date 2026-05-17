@@ -1702,14 +1702,7 @@ public void OnGameFrame() {
 									else
 									{
 										// Apply minicrit condition
-										bool has_lunchbox = false;
-										weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Secondary);
-										if (weapon > 0) {
-											GetEntityClassname(weapon, class, sizeof(class));
-											if (StrEqual(class, "tf_weapon_lunchbox_drink")) {
-												has_lunchbox = true;
-											}	
-										}
+										bool has_lunchbox = player_weapons[idx][Wep_Bonk] || player_weapons[idx][Wep_CritCola];
 										TF2_AddCondition(idx, has_lunchbox ? TFCond_CritHype : TFCond_CritCola, 0.100, 0);
 
 										if (
@@ -3646,6 +3639,13 @@ void CacheWeapons(int client) {
 					case 310: player_weapons[client][Wep_WarriorSpirit] = true;
 					case 140, 1086, 30668: player_weapons[client][Wep_Wrangler] = true;
 					case 357: player_weapons[client][Wep_Zatoichi] = true;
+				}
+
+				if (
+					ItemIsEnabled(Wep_Sandvich) && player_weapons[client][Wep_Sandvich] ||
+					GetItemVariant(Wep_BuffaloSteak) >= 1 && player_weapons[client][Wep_BuffaloSteak]
+				) {
+					player_weapons[client][Feat_Lunchbox] = false;
 				}
 			}
 		}
