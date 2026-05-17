@@ -258,7 +258,6 @@ enum struct Player {
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
 	float stunball_fix_time_wear;
-	bool spy_is_feigning;
 	int bonk_cond_frame;
 	int beggars_ammo;
 	int sleeper_piss_frame;
@@ -273,7 +272,6 @@ enum struct Player {
 	int scout_airdash_count;
 	float backstab_time;
 	int old_health;
-	int feign_ready_tick;
 	bool is_under_hype;
 	int charge_tick;
 	int fall_dmg_tick;
@@ -1449,7 +1447,7 @@ public void OnMapStart() {
 public void OnGameFrame() {
 	int idx;
 	char class[64];
-	float cloak;
+	//float cloak;
 	int weapon;
 	int ammo;
 	int clip;
@@ -2045,50 +2043,11 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Spy) {
 					{
-						// "old-style" dead ringer cloak meter mechanics
-
-						if (players[idx].spy_is_feigning == false) {
-							if (
-								TF2_IsPlayerInCondition(idx, TFCond_Cloaked) &&
-								player_weapons[idx][Wep_DeadRinger]
-							) {
-								players[idx].spy_is_feigning = true;
-								if (GetItemVariant(Wep_DeadRinger) == 0) {
-									TF2_AddCondition(idx, TFCond_DeadRingered);
-									SetEntDataFloat(idx, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
-								}
-							}
-						} else {
-							if (
-								TF2_IsPlayerInCondition(idx, TFCond_Cloaked) == false &&
-								player_weapons[idx][Wep_DeadRinger]
-							) {
-								players[idx].spy_is_feigning = false;
-
-								cloak = -1.0;
-
-								switch (GetItemVariant(Wep_DeadRinger)) {
-									case 0: { // pre-GM
-										// when uncloaking, cloak is drained to 40%
-										cloak = 40.0;
-									}
-								}
-
-								if (
-									cloak != -1.0 &&
-									GetEntPropFloat(idx, Prop_Send, "m_flCloakMeter") > cloak
-								) {
-									SetEntPropFloat(idx, Prop_Send, "m_flCloakMeter", cloak);
-								}
-							}
-						}
-					}
-
-					{
 						// no reduced debuff timer for old-style deadringer
 						if (
 							GetItemVariant(Wep_DeadRinger) == 0 &&
-							players[idx].spy_is_feigning
+							player_weapons[idx][Wep_DeadRinger] &&
+							TF2_IsPlayerInCondition(idx, TFCond_Cloaked)
 						) {
 							for (int i = 0; i < sizeof(debuffs); ++i) {
 								TFCond cond = debuffs[i];
@@ -2138,7 +2097,6 @@ public void OnGameFrame() {
 
 							if (weapon > 0) {
 								if (
-									GetItemVariant(Wep_Spycicle) == 1 &&
 									GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 649 &&
 									TF2_IsPlayerInCondition(idx, TFCond_Taunting) &&
 									(TF2_IsPlayerInCondition(idx, TFCond_FireImmune) || TF2_IsPlayerInCondition(idx, TFCond_OnFire))
@@ -2149,9 +2107,6 @@ public void OnGameFrame() {
 							}
 						}
 					}						
-				} else {
-					// reset if player isn't spy
-					players[idx].spy_is_feigning = false;
 				}
 
 				if (
@@ -2188,7 +2143,6 @@ public void OnGameFrame() {
 				}
 			} else {
 				// reset if player is dead
-				players[idx].spy_is_feigning = false;
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
@@ -2393,7 +2347,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	// they will both be present when this is called for each
 	{
 		// spycicle fire immune
-
 		if (
 			ItemIsEnabled(Wep_Spycicle) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy &&
@@ -2417,6 +2370,30 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	{
 		if (
+			ItemIsEnabled(Wep_DeadRinger) &&
+			player_weapons[client][Wep_DeadRinger] &&
+			TF2_GetPlayerClass(client) == TFClass_Spy &&
+			condition == TFCond_Cloaked
+		) {
+			float cloak = -1.0;
+
+			switch (GetItemVariant(Wep_DeadRinger)) {
+				case 0: { // pre-GM
+					// when uncloaking, cloak is drained to 40%
+					cloak = 40.0;
+				}
+			}
+
+			if (
+				cloak != -1.0 &&
+				GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") > cloak
+			) {
+				SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak);
+			}
+		}
+	}
+	{
+		if (
 			TF2_GetPlayerClass(client) == TFClass_Engineer &&
 			condition == TFCond_Taunting &&
 			players[client].is_eureka_teleporting == true
@@ -2436,7 +2413,23 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 }
 
+void SetFeignDeathEnd(int client) {
+	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
+}
+
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
+	{
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			TF2_GetPlayerClass(client) == TFClass_Spy &&
+			condition == TFCond_DeadRingered
+		) {
+			// undo 50% drain on activated
+			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", floatMin(GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") + 50.0, 100.0));
+			RequestFrame(SetFeignDeathEnd, client);
+			return Plugin_Continue;
+		}
+	}
 	{
 		// save charge tick (for preventing debuff removal)
 		if (condition == TFCond_Charging) {
@@ -4412,7 +4405,7 @@ Action SDKHookCB_OnTakeDamage(
 								}
 								default: {
 									// "Old-Style" Dead Ringer
-									cvar_ref_tf_feign_death_duration.FloatValue = 0.0;
+									cvar_ref_tf_feign_death_duration.FloatValue = -1.0;
 									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
 									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
 									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
@@ -4423,14 +4416,6 @@ Action SDKHookCB_OnTakeDamage(
 							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 						}
 					}
-				}
-
-				// "old-style" dead ringer track when feign begins
-				if (
-					GetEntProp(victim, Prop_Send, "m_bFeignDeathReady") &&
-					players[victim].spy_is_feigning == false
-				) {
-					players[victim].feign_ready_tick = GetGameTickCount();
 				}
 			}
 		}
@@ -4980,7 +4965,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 		{
 			if (
 				GetItemVariant(Wep_DeadRinger) == 0 &&
-				players[victim].spy_is_feigning &&
 				TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
 			) {
 				// dead ringer buff reduction (formula reverse-engineered from decompiled build)
@@ -5286,26 +5270,6 @@ void SDKHookCB_OnTakeDamagePost(
 	int weapon1;
 	float rage;
 	float delta;
-
-	if (
-		victim >= 1 &&
-		victim <= MaxClients
-	) {
-		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
-			TF2_GetPlayerClass(victim) == TFClass_Spy
-		) {
-			charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
-			if (
-				charge < 100.0 &&
-				players[victim].feign_ready_tick == GetGameTickCount()
-			) {
-				// undo 50% drain on activated
-				SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", floatMin(charge + 50.0, 100.0));
-				players[victim].feign_ready_tick = 0;
-			}
-		}
-	}
 
 	if (
 		victim >= 1 && victim <= MaxClients &&
