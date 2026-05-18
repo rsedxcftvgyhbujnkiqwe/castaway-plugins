@@ -6952,29 +6952,12 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 // Sandvich revert specific MyTouch hook.
 MRESReturn DHookCallback_CHealthKit_MyTouch_Sandvich(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
-	int res;
-	int health_cur;
-	int health_max;
-
 	if (
 		client >= 1 &&
 		client <= MaxClients
 	) {
 		if (TF2_GetPlayerClass(client) == TFClass_Heavy) {
-			res = GetPlayerResourceEntity();
-			if (res == -1 || !IsValidEntity(res))
-			{
-				// Something is wrong with the resource manager, default to MRES_Ignored.
-				LogMessage("WARNING: Something went terribly wrong when trying to fetch the player/resource manager entity in DHookCallback_CHealthKit_Sandvich_MyTouch!");
-				LogMessage("If you see this warning, disable Wep_Sandvich/Buffalo Steak variants above 0, tell any sandvich using heavy to respawn and try to figure out why GetPlayerResourceEntity is not being obtained as expected!");
-				return MRES_Ignored;
-			}
-
-			health_cur = GetClientHealth(client);
-			// We want the dynamic max health of the heavy due to things like Dalokohs and Max-health draining versions of the GRU.
-			// If we went for the m_iMaxHealth in Prop_Data, we would simply get 300 no matter what.
-			health_max = GetEntProp(res, Prop_Send, "m_iMaxHealth", _, client);
-			if (health_cur >= health_max) {
+			if (GetClientHealth(client) >= SDKCall(sdkcall_GetMaxHealth, client)) {
 				// If currenthealth above or at max health, do not allow the sandvich to recharge by denying pickup.
 				// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
 				returnValue.Value = false;
