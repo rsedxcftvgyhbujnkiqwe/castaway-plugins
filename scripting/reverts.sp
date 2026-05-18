@@ -6294,10 +6294,15 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Post(int entity) {
 
 MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	
+	int lunchbox_type = TF2Attrib_HookValueInt(0, "set_weapon_mode", entity);
+
 	if (
 		GetItemVariant(Wep_Sandvich) == 0 &&
-		player_weapons[owner][Wep_Sandvich]
+		(
+			lunchbox_type == LUNCHBOX_STANDARD ||
+			lunchbox_type == LUNCHBOX_STANDARD_ROBO ||
+			lunchbox_type == LUNCHBOX_STANDARD_FESTIVE
+		)
 	) {
 		return MRES_Supercede;
 	}
@@ -6305,7 +6310,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
 	// no cooldown when steak is eaten at full health for pre-Manniversary variants
 	if (
 		GetItemVariant(Wep_BuffaloSteak) >= 1 &&
-		player_weapons[owner][Wep_BuffaloSteak] &&
+		lunchbox_type == LUNCHBOX_ADDS_MINICRITS &&
 		GetClientHealth(owner) >= SDKCall(sdkcall_GetMaxHealth, owner)
 	) {
 		return MRES_Supercede;
