@@ -1831,18 +1831,6 @@ public void OnGameFrame() {
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Heavy) {
 					{
-						// Pre-Engineer Update Sandvich: prevent the meter from recharging itself.
-
-						if (
-							GetItemVariant(Wep_Sandvich) == 0 &&
-							player_weapons[idx][Wep_Sandvich] &&
-							GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) < 100.0
-						) {
-							SetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", 0.0, LOADOUT_POSITION_SECONDARY);
-						}
-					}
-
-					{
 						// buffalo steak damage taken minicrits
 
 						if (
@@ -3100,6 +3088,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 				}
 			}
 		}
+		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 0) {
+			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetAttribute(itemNew, 0, 801, 0.0); // item_meter_charge_rate: 0
+			TF2Items_SetAttribute(itemNew, 1, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
+		}}
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 6, 1.0); // fire rate bonus
