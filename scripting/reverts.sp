@@ -1957,8 +1957,8 @@ public void OnGameFrame() {
 					}
 
 					{
-						// razorback no recharge
-
+						// razorback remove nodraw when resupplied
+						// the game checks for nodraw if it should block a backstab
 						if (
 							ItemIsEnabled(Wep_Razorback) &&
 							player_weapons[idx][Wep_Razorback]
@@ -1969,13 +1969,14 @@ public void OnGameFrame() {
 
 								if (weapon > 0) {
 
-									if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 57) {
-	
-										timer = GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY);
-										if (timer < 1.0) {
-											RemoveEntity(weapon);
-											player_weapons[idx][Wep_Razorback] = false;
-										}
+									int effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+									if (
+										TF2Attrib_HookValueInt(0, "set_blockbackstab_once", weapon) &&
+										GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) >= 100.0 &&
+										effects & EF_NODRAW
+									) {
+										SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
+										break;
 									}
 								}
 							}
@@ -3005,8 +3006,11 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 5, 782, 0.0); // Ammo boxes collected also (don't) give Charge
 		}}
 		case 57: { if (ItemIsEnabled(Wep_Razorback)) {
-			TF2Items_SetNumAttributes(itemNew, 1);
+			TF2Items_SetNumAttributes(itemNew, 2);
 			TF2Items_SetAttribute(itemNew, 0, 800, 1.0); // -0% maximum overheal on wearer
+			TF2Items_SetAttribute(itemNew, 1, 801, 0.0); // item_meter_charge_rate: 0
+			// Line below removes HUD meter
+			// TF2Items_SetAttribute(itemNew, 2, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
 		case 411: { if (ItemIsEnabled(Wep_QuickFix)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3089,9 +3093,10 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			}
 		}
 		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 0) {
-			TF2Items_SetNumAttributes(itemNew, 2);
+			TF2Items_SetNumAttributes(itemNew, 1);
 			TF2Items_SetAttribute(itemNew, 0, 801, 0.0); // item_meter_charge_rate: 0
-			TF2Items_SetAttribute(itemNew, 1, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
+			// Line below removes HUD meter
+			// TF2Items_SetAttribute(itemNew, 1, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Items_SetNumAttributes(itemNew, 2);
