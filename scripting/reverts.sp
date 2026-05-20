@@ -362,6 +362,13 @@ MemoryPatch patch_RevertWranglerSpreadCone_SSE;
 Address AddressOf_g_flWranglerSpreadTarget;
 #endif
 
+float g_flSteakCapTarget = 10.0; // arbitrary
+float g_flSteakBoostTarget = 1.35;
+Address AddressOf_g_flSteakCapTarget;
+Address AddressOf_g_flSteakBoostTarget;
+MemoryPatch patch_RevertSteakCapValue;
+MemoryPatch patch_RevertSteakBoostValue;
+
 #endif
 
 Handle sdkcall_JarExplode;
@@ -665,7 +672,7 @@ public void OnPluginStart() {
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
-	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak);
+	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak, true);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
@@ -951,66 +958,38 @@ public void OnPluginStart() {
 
 		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
 
-		patch_RevertDisciplinaryAction =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
+		patch_RevertDisciplinaryAction = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
 #if defined WIN32
 		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
 		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
 #endif
 
-		patch_RevertDragonsFury_CenterHitForBonusDmg =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
+		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
 
-		patch_RevertFlamethrowers_Density_DmgScale =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
-		patch_RevertFlamethrowers_Density_OnCollide =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertCrusaderCrossbow_UbergainNerf =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
-		patch_RevertQuickFix_Uber_CannotCapturePoint =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
-		patch_RevertMadMilk_ChgFloatAddr =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
-		patch_DroppedWeapon =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPlayer::DropAmmoPack");
-		patch_RevertSniperRifles_ScopeJump =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
-		patch_RevertIronBomber_PipeHitbox =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
+		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
+		patch_RevertCrusaderCrossbow_UbergainNerf = MemoryPatch.CreateFromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
+		patch_RevertQuickFix_Uber_CannotCapturePoint = MemoryPatch.CreateFromConf(conf, "CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
+		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
+		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		patch_RevertSniperRifles_ScopeJump = MemoryPatch.CreateFromConf(conf, "CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
+		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
 #if !defined WIN32
-		patch_RevertSniperRifles_ScopeJump_linuxextra =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFSniperRifle::Fire_SniperScopeJump");
+		patch_RevertSniperRifles_ScopeJump_linuxextra = MemoryPatch.CreateFromConf(conf, "CTFSniperRifle::Fire_SniperScopeJump");
 #endif
-		patch_RevertCannotDetonateStickiesWhileTaunting =
-			MemoryPatch.CreateFromConf(conf,
-			"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
+		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
 #if defined WIN32
-		patch_RevertWranglerSpreadCone_X =
-			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::Fire_2DegreeConeX");
-		patch_RevertWranglerSpreadCone_Y =
-			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::Fire_2DegreeConeY");
-		patch_RevertWranglerSpreadCone_Z =
-			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::Fire_2DegreeConeZ");
+		patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
+		patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
+		patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
 #else
-		patch_RevertWranglerSpreadCone_SSE =
-			MemoryPatch.CreateFromConf(conf,
-			"CObjectSentrygun::Fire_2DegreeConeSSE");
+		patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
 		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
 #endif
+		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
+		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
+		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
+		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
@@ -1094,6 +1073,14 @@ public void OnPluginStart() {
 			LogError("Failed to create patch_RevertWranglerSpreadCone_SSE");
 		}
 #endif
+		if (!ValidateAndNullCheck(patch_RevertSteakCapValue)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSteakCapValue");
+		}
+		if (!ValidateAndNullCheck(patch_RevertSteakBoostValue)) {
+			hook_fail=true;
+			LogError("Failed to create patch_RevertSteakBoostValue");
+		}
 
 		if (hook_fail) {
 			SetFailState("Failed to load dhooks/memory patches");
@@ -1273,6 +1260,7 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
+	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_BuffaloSteak),Wep_BuffaloSteak);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
 	UpdateStickyLauncherDescription();
 #endif
@@ -1402,6 +1390,21 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #else
 				patch_RevertWranglerSpreadCone_SSE.Disable();
 #endif
+			}
+		}
+		case Wep_BuffaloSteak: {
+			if (enable) {
+				patch_RevertSteakBoostValue.Enable();
+				StoreToAddress(patch_RevertSteakBoostValue.Address + view_as<Address>(4), AddressOf_g_flSteakBoostTarget, NumberType_Int32);
+				if (GetItemVariant(Wep_BuffaloSteak) == 1) {
+					patch_RevertSteakCapValue.Enable();
+					StoreToAddress(patch_RevertSteakCapValue.Address + view_as<Address>(4), AddressOf_g_flSteakCapTarget, NumberType_Int32);
+				} else {
+					patch_RevertSteakCapValue.Disable();
+				}
+			} else {
+				patch_RevertSteakCapValue.Disable();
+				patch_RevertSteakBoostValue.Disable();
 			}
 		}
 	}
@@ -6414,6 +6417,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 			}
 		}
 
+#if !defined MEMORY_PATCHES
 		if (
 			ItemIsEnabled(Wep_BuffaloSteak) &&
 			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
@@ -6443,6 +6447,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 				}
 			}
 		}
+#endif
 
 		if (multiplier != 1.0)
 		{
