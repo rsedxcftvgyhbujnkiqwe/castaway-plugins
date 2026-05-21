@@ -1076,6 +1076,10 @@
 	{
 		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed), no metal from dispensers when active"
 	}
+	"Circuit_PreFeb2014"
+	{
+		"en"	"Reverted to pre-February 7, 2014; primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed)"
+	}
 	"Circuit_Dec2013"
 	{
 		"en"	"Reverted to Smissmas 2013, primary fire destroys projectiles (fires rapidly, costs 5 metal)"

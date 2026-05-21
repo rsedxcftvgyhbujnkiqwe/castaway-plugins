@@ -779,6 +779,7 @@ public void OnPluginStart() {
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
+	ItemVariant(Wep_ShortCircuit, "Circuit_PreFeb2014");
 	ItemVariant(Wep_ShortCircuit, "Circuit_Dec2013");
 	ItemDefine("shortstop", "Shortstop_PreMnvy", CLASSFLAG_SCOUT, Wep_Shortstop);
 	ItemVariant(Wep_Shortstop, "Shortstop_Release");
@@ -6016,10 +6017,10 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 			// short circuit primary fire
 			// Base amount is 0 because we rely on the default primary fire metal consumption (5)
 			switch (GetItemVariant(Wep_ShortCircuit)) {
-				case 1: {
+				case 1, 2: {
 					DoShortCircuitProjectileRemoval(owner, entity, 0, 15);
 				}
-				case 2: {
+				case 3: {
 					DoShortCircuitProjectileRemoval(owner, entity, 0, 0);
 				}
 			}
