@@ -86,7 +86,7 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-#define MAX_VARIANTS 5 // not including base version
+#define MAX_VARIANTS 3 // not including base version, increase as needed
 #define BALANCE_CIRCUIT_METAL 15
 #define BALANCE_CIRCUIT_DAMAGE 20.0
 #define BALANCE_CIRCUIT_RECOVERY 0.67
@@ -5737,7 +5737,7 @@ void ItemVariant(int wep_enum, const char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
 
 	if (items[wep_enum].num_variants > MAX_VARIANTS) {
-		SetFailState("Tried to define more than %d variants", MAX_VARIANTS);
+		SetFailState("Tried to define more than %d variants. Try increasing MAX_VARIANTS define in the source code", MAX_VARIANTS);
 	}
 
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
