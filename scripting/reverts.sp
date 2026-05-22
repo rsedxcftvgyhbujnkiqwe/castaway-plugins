@@ -6931,6 +6931,7 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 					// remove afterburn and bleed debuffs on heal
 					TF2_RemoveCondition(client, TFCond_OnFire);
 					TF2_RemoveCondition(client, TFCond_Bleeding);
+					TF2_RemoveCondition(client, TFCond_Plague);
 				}
 				returnValue.Value = iTakenHealth;
 				return MRES_Supercede;
