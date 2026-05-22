@@ -2544,12 +2544,14 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 		case 38, 457, 1000: {
 			switch (GetItemVariant(Wep_Axtinguisher)) {
 				case 0: {
-					TF2Items_SetNumAttributes(itemNew, 5);
+					TF2Items_SetNumAttributes(itemNew, 7);
 					TF2Items_SetAttribute(itemNew, 0, 1, 1.00); // damage penalty
-					TF2Items_SetAttribute(itemNew, 1, 20, 1.0); // crit vs burning players
-					TF2Items_SetAttribute(itemNew, 2, 21, 0.50); // dmg penalty vs nonburning
-					TF2Items_SetAttribute(itemNew, 3, 772, 1.00); // single wep holster time increased
-					TF2Items_SetAttribute(itemNew, 4, 2067, 0.0); // attack minicrits and consumes burning
+					TF2Items_SetAttribute(itemNew, 1, 15, 1.0); // crit mod disabled
+					TF2Items_SetAttribute(itemNew, 2, 20, 1.0); // crit vs burning players
+					TF2Items_SetAttribute(itemNew, 3, 21, 0.50); // dmg penalty vs nonburning
+					TF2Items_SetAttribute(itemNew, 4, 22, 1.0); // no crit vs nonburning
+					TF2Items_SetAttribute(itemNew, 5, 772, 1.00); // single wep holster time increased
+					TF2Items_SetAttribute(itemNew, 6, 2067, 0.0); // attack minicrits and consumes burning
 				}
 				case 1: {
 					TF2Items_SetNumAttributes(itemNew, 5);
@@ -3560,7 +3562,7 @@ void CacheWeapons(int client) {
 					case 61, 1006: player_weapons[client][Wep_Ambassador] = true;
 					case 304: player_weapons[client][Wep_Amputator] = true;
 					case 450: player_weapons[client][Wep_Atomizer] = true;
-					case 38, 47, 1000: player_weapons[client][Wep_Axtinguisher] = true;
+					case 38, 457, 1000: player_weapons[client][Wep_Axtinguisher] = true;
 					case 772: player_weapons[client][Wep_BabyFace] = true;
 					case 40, 1146: player_weapons[client][Wep_Backburner] = true;
 					case 1101: player_weapons[client][Wep_BaseJumper] = true;
