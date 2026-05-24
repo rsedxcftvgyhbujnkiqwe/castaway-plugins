@@ -138,6 +138,10 @@
 	{
 		"en"	"All Grenade Launchers"
 	}
+	"lunchbox"
+	{
+		"en"	"All Lunchbox Items"
+	}
 	"medigun"
 	{
 		"en"	"All Mediguns"
@@ -547,6 +551,10 @@
 	"Grenade_Pre2014"
 	{
 		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, 112 base damage with hit location variance (more damage near player's feet)"
+	}
+	"Lunchbox_Pre2012"
+	{
+		"en"	"Reverted to pre-February 14, 2012; can heal yourself by picking up your own thrown lunchboxes"
 	}
 	"Medigun_PreMYM"
 	{
@@ -1067,6 +1075,10 @@
 	"Circuit_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed), no metal from dispensers when active"
+	}
+	"Circuit_PreFeb2014"
+	{
+		"en"	"Reverted to pre-February 7, 2014; primary fire destroys projectiles (costs 5 metal + 15 per projectile destroyed)"
 	}
 	"Circuit_Dec2013"
 	{

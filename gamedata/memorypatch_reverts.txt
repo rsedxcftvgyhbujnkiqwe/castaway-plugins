@@ -22,12 +22,6 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F"
 				"linux"   "@_ZN24CTFProjectile_BallOfFire4BurnEP11CBaseEntity"
 			}
-			"CTFPlayer::ApplyPunchImpulseX"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
-				"linux"   "@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
-			}
 			"CTFGameRules::PlayerMayCapturePoint"
 			{
 				"library" "server"
@@ -106,6 +100,12 @@
 				"library" "server"
 				"linux" "@_ZN16CObjectSentrygun4FireEv"
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x88\x02\x00\x00\x56\x57"
+			}
+			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
+				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
 			}
 		}
 
@@ -288,7 +288,39 @@
 				// ║                    Heavy                     ║
 				// ╚══════════════════════════════════════════════╝
 
-				// No patches for Heavy at the moment.
+				// Direct modification of steak boost/cap values
+				"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue"
+				{
+					"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+					"linux"
+					{
+						"offset"	"1957"
+						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+					}
+					"windows"
+					{
+						"offset"	"1620"
+						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+					}
+				}
+				"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue"
+				{
+					"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+					"linux"
+					{
+						"offset"	"1949"
+						"verify"	"\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+						"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
+					}
+					"windows"
+					{
+						"offset"	"1653"
+						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+					}
+				}
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                  Engineer                    ║
@@ -392,27 +424,6 @@
 				// ╔══════════════════════════════════════════════╗
 				// ║                   Sniper                     ║
 				// ╚══════════════════════════════════════════════╝
-
-				// ================================================
-				// Cozy Camper requires a full sniper charge
-				// to provide the full flinch resistance, removal.
-
-				"CTFPlayer::ApplyPunchImpulseX_FakeFullyChargedCondition"
-				{
-					"signature" "CTFPlayer::ApplyPunchImpulseX"
-					"linux"
-					{
-						"offset"    "149"
-						"verify"    "\x83\xEC\x0C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10" // SUB ESP, 0xC; PUSH EDI; CALL rel32; ADD ESP, 0x10
-						"patch"     "\x90\x90\x90\x90\xB0\x01\x90\x90\x90\x90\x90\x90" // NOP x4; MOV AL, 1; NOP x6 — force success return
-					}
-					"windows"
-					{
-						"offset"    "84"
-						"verify"    "\xE8\x2A\x2A\x2A\x2A" // CALL rel32
-						"patch"     "\xB0\x01\x90\x90\x90" // MOV AL, 1; NOP x3 — skip call, return true
-					}
-				}
 
 				// ================================================
 				//	Jumping after firing scoped shots revert for all Sniper Rifles
