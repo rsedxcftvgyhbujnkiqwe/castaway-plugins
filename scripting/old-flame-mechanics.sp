@@ -553,12 +553,11 @@ static void DoAnimationEvent(int pThis, PlayerAnimEvent_t event, int mData = 0)
     SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pThis, event, mData);
 }
 
-static int GetEquippedDemoShield(int pThis)
+static int GetEquippedDemoShield(int client)
 {
-    any m_hMyWearables = view_as<any>(GetEntityAddress(pThis)) + FindSendPropInfo("CTFPlayer", "m_hMyWearables");
-    for (int i = 0, size = Dereference(m_hMyWearables + view_as<Address>(12)); i < size; ++i)
+    for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
     {
-        int wearable = LoadEntityHandleFromAddress(view_as<Address>(Dereference(m_hMyWearables) + i * 4));
+        int wearable = TF2Util_GetPlayerWearable(client, i);
         char class[MAX_NAME_LENGTH];
         GetEntityClassname(wearable, class, sizeof(class));
         if (StrEqual(class, "tf_wearable_demoshield"))
@@ -1013,37 +1012,59 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
     )
         return MRES_Ignored;
 
-    int m_pOuter = TF2Util_GetPlayerFromSharedAddress(pThis);
+    int client = TF2Util_GetPlayerFromSharedAddress(pThis);
     int pWeapon = parameters.Get(2);
     float flBurningTime = parameters.Get(3);
-    if (!IsPlayerAlive(m_pOuter) || TF2_IsPlayerInCondition(m_pOuter, TFCond_Bonked) || TF2_IsPlayerInCondition(m_pOuter, TFCond_PasstimeInterception))
+    if (
+        !IsPlayerAlive(client) ||
+        TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
+        TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
+    )
         return MRES_Ignored;
 
-    bool bVictimIsPyro = TF2_GetPlayerClass(m_pOuter) == TFClass_Pyro;
+    int nAfterburnImmunity = TF2_GetPlayerClass(client) == TFClass_Pyro;
 
-    int nAfterburnImmunity = 0;
-
-    int pMyWeapon = GetEntPropEnt(m_pOuter, Prop_Send, "m_hActiveWeapon");
-    if (IsValidEntity(pMyWeapon))
-        nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", pMyWeapon);
-
-    if (TF2_IsPlayerInCondition(m_pOuter, TFCond_AfterburnImmune))
-    {
-        nAfterburnImmunity = 1;
-        TF2Util_SetPlayerBurnDuration(m_pOuter, 0.00);
+    if (
+        nAfterburnImmunity &&
+        TF2_IsPlayerInCondition(client, TFCond_BurningPyro)
+    ) {
+        nAfterburnImmunity = 0;
     }
 
-    int shield = GetEquippedDemoShield(m_pOuter);
+    int pMyWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+    if (IsValidEntity(pMyWeapon))
+    {
+        nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", pMyWeapon);
+    }
+
+    if (TF2_IsPlayerInCondition(client, TFCond_AfterburnImmune))
+    {
+        nAfterburnImmunity = 1;
+    }
+
+    int shield = GetEquippedDemoShield(client);
     if (!nAfterburnImmunity && IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
+    {
         nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
+    }
+    
+    if (!nAfterburnImmunity && TF2_GetPlayerClass(client) == TFClass_Sniper)
+    {
+        for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
+        {
+            shield = TF2Util_GetPlayerWearable(client, i);
+            if (IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
+                nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
+        }
+    }
 
     if (sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
     {
         float flFlameLife;
-        if (bVictimIsPyro || nAfterburnImmunity)
+        if (nAfterburnImmunity)
         {
             flFlameLife = TF_BURNING_FLAME_LIFE;
-            PlayerData[m_pOuter].m_flRemoveBurn = GetGameTime() + TF_BURNING_FLAME_LIFE_PYRO;
+            PlayerData[client].m_flRemoveBurn = GetGameTime() + TF_BURNING_FLAME_LIFE_PYRO;
         }
         else if (flBurningTime > 0.00)
             flFlameLife = flBurningTime;
@@ -1061,8 +1082,8 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
         }
         flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
 
-        if (flFlameLife > TF2Util_GetPlayerBurnDuration(m_pOuter))
-            TF2Util_SetPlayerBurnDuration(m_pOuter, flFlameLife);
+        if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
+            TF2Util_SetPlayerBurnDuration(client, flFlameLife);
     }
 
     return MRES_Ignored;
