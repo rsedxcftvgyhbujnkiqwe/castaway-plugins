@@ -16,7 +16,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
-#include <smmem>
+#include <sourcescramble>
 #include <tf2attributes>
 #include <dhooks>
 #include <sdkhooks>
@@ -248,14 +248,14 @@ static ConVar notnheavy_flamethrower_oldafterburn_duration;
 static ConVar notnheavy_flamethrower_oldafterburn_damage;
 static ConVar notnheavy_flamethrower_falloff;
 
-static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
-static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old;
-static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
+// static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
+// static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old;
+// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
 
-static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff2;
-static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old;
-static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New;
-static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+// static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff2;
+// static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old;
+// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New;
+// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
 
 //////////////////////////////////////////////////////////////////////////////
 // PLUGIN INFO                                                              //
@@ -323,6 +323,9 @@ public void OnPluginStart()
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int mData = 0;
     SDKCall_CTFPlayer_DoAnimationEvent = EndPrepSDKCall();
 
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
+
     if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
     if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
     if (DHooks_CTFFlameManager_OnCollide == null) SetFailState("Failed to create DHooks_CTFFlameManager_OnCollide");
@@ -333,24 +336,23 @@ public void OnPluginStart()
     if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
     if (SDKCall_CTFWeaponBase_SendWeaponAnim == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_SendWeaponAnim");
     if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
+    // if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
+    // if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
 
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, Pre_PrimaryAttack); // just because i don't want to re-write ammo management entirely.
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, Post_PrimaryAttack);
-    DHookEnableDetour(DHooks_CTFFlameThrower_FireAirBlast, true, FireAirBlast);
-    DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, OnCollide);
-    DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, Burn);
+    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
+    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, DHookCallback_PrimaryAttack_Post);
+    DHookEnableDetour(DHooks_CTFFlameThrower_FireAirBlast, true, DHookCallback_FireAirBlast);
+    DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, DHookCallback_OnCollide);
+    DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, DHookCallback_Burn);
 
     CTFFlameEntity_Base = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
-    CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8; // view_as<Address>(config.GetOffset("CTFWeaponBase::m_iWeaponMode"));
-    CTFPlayerShared_m_pOuter = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 8 - FindSendPropInfo("CTFPlayer", "m_Shared"); // view_as<Address>(config.GetOffset("CTFPlayerShared::m_pOuter"));
-    CTFPlayerShared_m_flBurnDuration = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 100 - FindSendPropInfo("CTFPlayer", "m_Shared"); // view_as<Address>(config.GetOffset("CTFPlayerShared::m_flBurnDuration"));
+    CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
+    CTFPlayerShared_m_pOuter = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 8 - FindSendPropInfo("CTFPlayer", "m_Shared");
+    CTFPlayerShared_m_flBurnDuration = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 100 - FindSendPropInfo("CTFPlayer", "m_Shared");
 
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff = view_as<any>(config.GetMemSig("CTFFlameEntity::OnCollide()")) + config.GetOffset("MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff);
-    
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = view_as<any>(config.GetMemSig("CTFFlameEntity::OnCollide()")) + config.GetOffset("MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier"));
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2);
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address);
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address);
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
 
     delete config;
 
@@ -366,7 +368,7 @@ public void OnPluginStart()
     notnheavy_flamethrower_damage = CreateConVar("notnheavy_flamethrower_damage", "6.80", "tf_flame damage number", FCVAR_CHEAT);
     notnheavy_flamethrower_falloff = CreateConVar("notnheavy_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage", FCVAR_CHEAT);
     notnheavy_flamethrower_falloff.AddChangeHook(AdjustFalloff);
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
 
     // Setup hooks for each client.
     for (int i = 1; i <= MaxClients; ++i)
@@ -384,16 +386,16 @@ public void OnPluginStart()
 
 public void OnPluginEnd()
 {
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old);
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old);
+    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old);
+    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old);
 }
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 {
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = notnheavy_flamethrower_falloff.FloatValue;
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - notnheavy_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = notnheavy_flamethrower_falloff.FloatValue;
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - notnheavy_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
+    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -700,8 +702,8 @@ public void OnGameFrame()
 
 public void AdjustFalloff(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
-    PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff)));
+    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    // PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff)));
 }
 
 static void SetupPlayerHooks(int entity)
@@ -736,7 +738,7 @@ public Action PostInventoryApplication(Event event, const char[] name, bool dont
 
 // pre-call CTFFlameThrower::PrimaryAttack();
 // This is only just so I don't have to re-write ammo management with the flamethrowers.
-MRESReturn Pre_PrimaryAttack(int entity)
+MRESReturn DHookCallback_PrimaryAttack_Pre(int entity)
 {
     // Get the owner of this weapon.
     int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
@@ -753,7 +755,7 @@ MRESReturn Pre_PrimaryAttack(int entity)
 // spawns the stream of tf_flame entities.
 //
 // This hook emits certain things, either things that I find unnecessary at this moment, or are already handled in the internal function.
-MRESReturn Post_PrimaryAttack(int entity)
+MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 {
     if (notnheavy_flamethrower_enable_flames.BoolValue)
     {
@@ -878,7 +880,7 @@ MRESReturn Post_PrimaryAttack(int entity)
 
 // CTFFlameThrower::FireAirblast();
 // Fix the next primary attack timer in this detour.
-MRESReturn FireAirBlast(int entity, DHookParam parameters)
+MRESReturn DHookCallback_FireAirBlast(int entity, DHookParam parameters)
 {
     // Get the owner of this weapon.
     int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
@@ -905,7 +907,7 @@ MRESReturn FireAirBlast(int entity, DHookParam parameters)
 
 // CTFFlameManager::OnCollide();
 // Supercede this just to prevent damage-dealing.
-MRESReturn OnCollide(int entity, DHookParam parameters)
+MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 {
     if (notnheavy_flamethrower_enable_flames.BoolValue)
         return MRES_Supercede;
@@ -914,7 +916,7 @@ MRESReturn OnCollide(int entity, DHookParam parameters)
 
 // post-call CTFPlayerShared::Burn();
 // Adjust afterburn duration, if notnheavy_flamethrower_oldafterburn_duration is on.
-MRESReturn Burn(Address aThis, DHookParam parameters)
+MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
 {   
     bool preJI = notnheavy_flamethrower_oldafterburn_duration.BoolValue;
     bool JIparticlecannon = notnheavy_jungleinferno_particlecannon.BoolValue;

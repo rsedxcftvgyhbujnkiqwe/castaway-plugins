@@ -74,17 +74,7 @@
         }
         "Offsets"
         {
-            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff" // find the 0.69999999
-            {
-                "windows" "357"
-                "linux"   "1065"
-            }
-            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff2" // find the 0.30000001
-            {
-                "windows" "412"
-                "linux"   "305"
-            }
-            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier"
+            "CTFFlameEntity::OnCollide_Falloff2_Multiplier"
             {
                 "windows" "1"
                 "linux"   "-1"
@@ -192,6 +182,41 @@
                     {
                         "type" "int"
                     }
+                }
+            }
+        }
+        "MemPatches"
+        {
+            "CTFFlameEntity::OnCollide_Falloff"
+            {
+                "signature" "CTFFlameEntity::OnCollide()"
+                "linux"
+                {
+                    "offset"    "1065"
+                    "verify"    ""
+                    "patch"     ""
+                }
+                "windows"
+                {
+                    "offset"    "357"
+                    "verify"    ""
+                    "patch"     ""
+                }
+            }
+            "CTFFlameEntity::OnCollide_Falloff2"
+            {
+                "signature" "CTFFlameEntity::OnCollide()"
+                "linux"
+                {
+                    "offset"    "305"
+                    "verify"    ""
+                    "patch"     ""
+                }
+                "windows"
+                {
+                    "offset"    "412"
+                    "verify"    ""
+                    "patch"     ""
                 }
             }
         }
