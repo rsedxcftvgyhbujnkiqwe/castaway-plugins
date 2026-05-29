@@ -478,7 +478,7 @@ static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 // MATHLIB                                                                  //
 //////////////////////////////////////////////////////////////////////////////
 
-float min(float x, float y)
+stock float min(float x, float y)
 {
     return (x < y) ? x : y;
 }
