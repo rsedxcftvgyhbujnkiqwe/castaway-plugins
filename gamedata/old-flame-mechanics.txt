@@ -7,39 +7,39 @@
             "CBaseEntity::Create()"
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x56\x6A\xFF\xFF\x75\x08\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x83\xC4\x08\x85\xF6\x75\x2A\x6A\x01" // offset aPlayerManager ; "player_manager", go to call below it
+                "windows" "\x55\x8B\xEC\x56\x6A\xFF\xFF\x75\x2A\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x83\xC4\x08\x85\xF6\x75\x2A\x6A\x01" // offset aPlayerManager ; "player_manager", go to call below it
                 "linux"   "@_ZN11CBaseEntity6CreateEPKcRK6VectorRK6QAnglePS_"
             }
             "CBaseEntity::CalcAbsoluteVelocity()"
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\x75\x08\x57\x8B\xF9\xF3\x0F\x10\x06"
+                "windows" "\x56\x8B\xF1\x8B\x8E\x2A\x2A\x2A\x2A\x8B\xC1\xC1\xE8\x0C"
                 "linux"   "@_ZN11CBaseEntity20CalcAbsoluteVelocityEv"
             }
             "CBaseEntity::CalcAbsolutePosition()" // when still in SetAbsAngles, find under & 0x800 if statements
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x56\x8B\xF1\x8B\x86\x3C\x01\x00\x00"
+                "windows" "\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x56\x8B\xF1\x8B\x86"
                 "linux"   "@_ZN11CBaseEntity20CalcAbsolutePositionEv"
             }
 
             "CTFFlameEntity::OnCollide()" // offset aFlameTouchDmg1 ; "Flame touch dmg: %.1f\n"
             {
                 "library" "server"
-                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xF4"
+                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x58\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\x2A\x8B\x87"
                 "linux"   "@_ZN14CTFFlameEntity9OnCollideEP11CBaseEntity"
             }
 
             "CTFFlameThrower::PrimaryAttack()" // offset aSetFlamethrowe ; "set_flamethrower_back_crit"
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x81\xEC\xBC\x00\x00\x00\xD9\xEE"
+                "windows" "\x55\x8B\xEC\x81\xEC\xB4\x00\x00\x00\xD9\xEE"
                 "linux"   "@_ZN15CTFFlameThrower13PrimaryAttackEv"
             }
             "CTFFlameThrower::FireAirBlast()" // offset aAirblastDashes ; "airblast_dashes"
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xF8"
+                "windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xF8\x85\xFF\x0F\x84\x2A\x2A\x2A\x2A\x83\xBE\x2A\x2A\x2A\x2A\x03"
                 "linux"   "@_ZN15CTFFlameThrower12FireAirBlastEi"
             }
 
@@ -47,28 +47,28 @@
             "Signature::CTFFlameManager::OnCollide()"
             {
                 "library" "server"
-                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x78\x01\x00\x00\x56\x57\x8B\xF9\x33\xD2"
+                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x78\x01\x00\x00"
                 "linux"   "@_ZN15CTFFlameManager9OnCollideEP11CBaseEntityi"
             }
 
             "CTFWeaponBase::CalcIsAttackCritical()" // offset aStickybombChar_0 ; "stickybomb_charge_damage_increase", call after ::GetPlayerOwner()
             {
                 "library" "server"
-                "windows" "\x53\x57\x6A\x00\x68\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\x6A\x00\x8B\xF9"
+                "windows" "\x53\x57\x6A\x00\x68\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\x6A\x00\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x50\xE8\x2A\x2A\x2A\x2A\x8B\xD8\x83\xC4\x14\x85\xDB"
                 "linux"   "@_ZN13CTFWeaponBase20CalcIsAttackCriticalEv"
             }
 
             "CTFPlayer::DoAnimationEvent()" // offset aSpyIncoming0I ; "Spy.Incoming0%i", go to 2nd function call at top
             {
                 "library" "server"
-                "windows" "\x55\x8B\xEC\x51\x53\x56\x8B\x35\x2A\x2A\x2A\x2A\x8B\xD9\x8B\xCE"
+                "windows" "\x55\x8B\xEC\x83\xEC\x2C\x53\x56\x8B\x35"
                 "linux"   "@_ZN9CTFPlayer16DoAnimationEventE17PlayerAnimEvent_ti"
             }
 
             "CTFPlayerShared::Burn()"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x8B\x8E\x8C\x01\x00\x00\x8B\x01" // offset aMultWpnBurntim ; "mult_wpn_burntime"
+				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x8E\x2A\x2A\x2A\x2A\x8B\x01" // offset aMultWpnBurntim ; "mult_wpn_burntime"
 				"linux"	  "@_ZN15CTFPlayerShared4BurnEP9CTFPlayerP13CTFWeaponBasef"
 			}
         }
@@ -82,8 +82,8 @@
 
             "CBaseCombatCharacter::Weapon_ShootPosition()"
             {
-                "windows" "275"
-                "linux"   "276"
+                "windows" "276"
+                "linux"   "277"
             }
 
             "CTFFlameEntity::m_vecInitialPos" // after "CBaseEntity::CalcAbsolutePosition(this);" in pseudocode for CTFFlameEntity::OnCollide(), use offsets of vector used as rightmost value for subtraction
@@ -94,30 +94,14 @@
 
             "CTFWeaponBase::CanAttack()"
             {
-                "windows" "425"
-                "linux"   "432"
+                "windows" "428"
+                "linux"   "435"
             }
             "CTFWeaponBase::SendWeaponAnim()"
             {
-                "windows" "249"
-                "linux"   "255"
+                "windows" "250"
+                "linux"   "256"
             }
-            "CTFWeaponBase::m_iWeaponMode" // first statement in pseudocode for CTFWeaponBase::PrimaryAttack()
-			{
-				"windows" "1728"
-				"linux"   "1752"
-			}
-
-            "CTFPlayerShared::m_pOuter" // CTFPlayerShared::Init()
-			{
-				"windows" "396"
-				"linux"	  "396"
-			}
-			"CTFPlayerShared::m_flBurnDuration" // xref to mult_wpn_burntime
-			{
-				"windows" "516"
-				"linux"   "516"
-			}
         }
         "Functions"
         {
