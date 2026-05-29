@@ -304,7 +304,6 @@ static ConVar tf_flamethrower_vecrand;
 
 static ConVar sm_oldflames_enable;
 static ConVar sm_oldflames_flamethrower_flames;
-static ConVar sm_oldflames_jungleinferno_particlecannon; // Only works if notnheavy_flamethrower_enable is not set. Used for Meet the Team Fortress.
 static ConVar sm_oldflames_flamethrower_damage;
 static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
 static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
@@ -421,7 +420,6 @@ public void OnPluginStart()
     sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?");
     sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)");
     sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)");
-    sm_oldflames_jungleinferno_particlecannon = CreateConVar("sm_oldflames_jungleinferno_particlecannon", "0", "used for meet the team fortress");
     sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
     sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
 
@@ -449,8 +447,7 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
     else
     {
         PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
-        MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
-        MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
+        OnPluginEnd();
     }
 }
 
@@ -466,6 +463,9 @@ public void OnPluginEnd()
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 {
+    if (!sm_oldflames_enable.BoolValue)
+        return;
+
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_flamethrower_falloff.FloatValue;
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
@@ -1007,12 +1007,10 @@ MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 // Adjust afterburn duration, if notnheavy_flamethrower_oldafterburn_duration is on.
 MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return MRES_Ignored;
-
-    bool preJI = sm_oldflames_flamethrower_oldafterburn_duration.BoolValue;
-    bool JIparticlecannon = sm_oldflames_jungleinferno_particlecannon.BoolValue;
-    if (!preJI && !JIparticlecannon)
+    if (
+        !sm_oldflames_enable.BoolValue ||
+        !sm_oldflames_flamethrower_oldafterburn_duration.BoolValue
+    )
         return MRES_Ignored;
 
     int m_pOuter = TF2Util_GetPlayerFromSharedAddress(pThis);
@@ -1039,8 +1037,7 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
     if (!nAfterburnImmunity && IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
         nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
 
-    // pre-JI
-    if (preJI)
+    if (sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
     {
         float flFlameLife;
         if (bVictimIsPyro || nAfterburnImmunity)
@@ -1066,22 +1063,6 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 
         if (flFlameLife > TF2Util_GetPlayerBurnDuration(m_pOuter))
             TF2Util_SetPlayerBurnDuration(m_pOuter, flFlameLife);
-    }
-
-    // JI particle cannon
-    else if (JIparticlecannon)
-    {
-        float flFlameLife;
-        if (IsValidEntity(pWeapon) && flBurningTime < 0.00)
-        {
-            char class[MAX_NAME_LENGTH];
-            GetEntityClassname(pWeapon, class, sizeof(class));
-            if (StrEqual(class, "tf_weapon_particle_cannon"))
-            {
-                flFlameLife = TF2Attrib_HookValueFloat(10.00, "mult_wpn_burntime", pWeapon);
-                TF2Util_SetPlayerBurnDuration(m_pOuter, min(TF2Util_GetPlayerBurnDuration(m_pOuter) + flFlameLife, 10.00));
-            }
-        }
     }
 
     return MRES_Ignored;
