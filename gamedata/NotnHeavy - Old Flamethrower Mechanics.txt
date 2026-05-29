@@ -1,0 +1,199 @@
+"Games"
+{
+    "tf"
+    {
+        "Signatures"
+        {
+            "CBaseEntity::Create()"
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x56\x6A\xFF\xFF\x75\x08\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x83\xC4\x08\x85\xF6\x75\x2A\x6A\x01" // offset aPlayerManager ; "player_manager", go to call below it
+                "linux"   "@_ZN11CBaseEntity6CreateEPKcRK6VectorRK6QAnglePS_"
+            }
+            "CBaseEntity::CalcAbsoluteVelocity()"
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\x75\x08\x57\x8B\xF9\xF3\x0F\x10\x06"
+                "linux"   "@_ZN11CBaseEntity20CalcAbsoluteVelocityEv"
+            }
+            "CBaseEntity::CalcAbsolutePosition()" // when still in SetAbsAngles, find under & 0x800 if statements
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x56\x8B\xF1\x8B\x86\x3C\x01\x00\x00"
+                "linux"   "@_ZN11CBaseEntity20CalcAbsolutePositionEv"
+            }
+
+            "CTFFlameEntity::OnCollide()" // offset aFlameTouchDmg1 ; "Flame touch dmg: %.1f\n"
+            {
+                "library" "server"
+                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xF4"
+                "linux"   "@_ZN14CTFFlameEntity9OnCollideEP11CBaseEntity"
+            }
+
+            "CTFFlameThrower::PrimaryAttack()" // offset aSetFlamethrowe ; "set_flamethrower_back_crit"
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x81\xEC\xBC\x00\x00\x00\xD9\xEE"
+                "linux"   "@_ZN15CTFFlameThrower13PrimaryAttackEv"
+            }
+            "CTFFlameThrower::FireAirBlast()" // offset aAirblastDashes ; "airblast_dashes"
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF1\xE8\x2A\x2A\x2A\x2A\x8B\xF8"
+                "linux"   "@_ZN15CTFFlameThrower12FireAirBlastEi"
+            }
+
+            // look up "CTFFlameManager::OnCollide" in strings, xref to string
+            "Signature::CTFFlameManager::OnCollide()"
+            {
+                "library" "server"
+                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x78\x01\x00\x00\x56\x57\x8B\xF9\x33\xD2"
+                "linux"   "@_ZN15CTFFlameManager9OnCollideEP11CBaseEntityi"
+            }
+
+            "CTFWeaponBase::CalcIsAttackCritical()" // offset aStickybombChar_0 ; "stickybomb_charge_damage_increase", call after ::GetPlayerOwner()
+            {
+                "library" "server"
+                "windows" "\x53\x57\x6A\x00\x68\x2A\x2A\x2A\x2A\x68\x2A\x2A\x2A\x2A\x6A\x00\x8B\xF9"
+                "linux"   "@_ZN13CTFWeaponBase20CalcIsAttackCriticalEv"
+            }
+
+            "CTFPlayer::DoAnimationEvent()" // offset aSpyIncoming0I ; "Spy.Incoming0%i", go to 2nd function call at top
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x51\x53\x56\x8B\x35\x2A\x2A\x2A\x2A\x8B\xD9\x8B\xCE"
+                "linux"   "@_ZN9CTFPlayer16DoAnimationEventE17PlayerAnimEvent_ti"
+            }
+
+            "CTFPlayerShared::Burn()"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x8B\x8E\x8C\x01\x00\x00\x8B\x01" // offset aMultWpnBurntim ; "mult_wpn_burntime"
+				"linux"	  "@_ZN15CTFPlayerShared4BurnEP9CTFPlayerP13CTFWeaponBasef"
+			}
+        }
+        "Offsets"
+        {
+            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff" // find the 0.69999999
+            {
+                "windows" "357"
+                "linux"   "1065"
+            }
+            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff2" // find the 0.30000001
+            {
+                "windows" "412"
+                "linux"   "305"
+            }
+            "MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier"
+            {
+                "windows" "1"
+                "linux"   "-1"
+            }
+
+            "CBaseCombatCharacter::Weapon_ShootPosition()"
+            {
+                "windows" "275"
+                "linux"   "276"
+            }
+
+            "CTFFlameEntity::m_vecInitialPos" // after "CBaseEntity::CalcAbsolutePosition(this);" in pseudocode for CTFFlameEntity::OnCollide(), use offsets of vector used as rightmost value for subtraction
+            {
+                "windows" "904"
+                "linux"   "928"
+            }
+
+            "CTFWeaponBase::CanAttack()"
+            {
+                "windows" "425"
+                "linux"   "432"
+            }
+            "CTFWeaponBase::SendWeaponAnim()"
+            {
+                "windows" "249"
+                "linux"   "255"
+            }
+            "CTFWeaponBase::m_iWeaponMode" // first statement in pseudocode for CTFWeaponBase::PrimaryAttack()
+			{
+				"windows" "1728"
+				"linux"   "1752"
+			}
+
+            "CTFPlayerShared::m_pOuter" // CTFPlayerShared::Init()
+			{
+				"windows" "396"
+				"linux"	  "396"
+			}
+			"CTFPlayerShared::m_flBurnDuration" // xref to mult_wpn_burntime
+			{
+				"windows" "516"
+				"linux"   "516"
+			}
+        }
+        "Functions"
+        {
+            "CTFFlameThrower::PrimaryAttack()"
+            {
+                "signature" "CTFFlameThrower::PrimaryAttack()"
+                "callconv"  "thiscall"
+				"this"      "entity"
+                "return"    "void"
+            }
+            "CTFFlameThrower::FireAirBlast()"
+            {
+                "signature" "CTFFlameThrower::FireAirBlast()"
+                "callconv"  "thiscall"
+				"this"      "entity"
+                "return"    "void"
+                "arguments"
+                {
+                    "iAmmoPerShot"
+                    {
+                        "type" "int"
+                    }
+                }
+            }
+
+            "CTFPlayerShared::Burn()"
+			{
+				"signature" "CTFPlayerShared::Burn()"
+                "callconv"  "thiscall"
+				"this"      "address"
+				"return"    "void"
+                "arguments"
+                {
+                    "pAttacker"
+                    {
+                        "type" "cbaseentity"
+                    }
+                    "pWeapon"
+                    {
+                        "type" "cbaseentity"
+                    }
+                    "flBurningTime"
+                    {
+                        "type" "float"
+                    }
+                }
+			}
+
+            "Signature::CTFFlameManager::OnCollide()"
+            {
+                "signature" "Signature::CTFFlameManager::OnCollide()"
+                "callconv"  "thiscall"
+				"this"      "entity"
+                "return"    "void"
+                "arguments"
+                {
+                    "pCollidedWith"
+                    {
+                        "type" "cbaseentity"
+                    }
+                    "iScale"
+                    {
+                        "type" "int"
+                    }
+                }
+            }
+        }
+    }
+}
