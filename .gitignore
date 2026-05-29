@@ -28,7 +28,7 @@ scripting/nativevotes/*
 !scripting/supersprayhandler.sp
 !scripting/afkmanager.sp
 !scripting/mgehandler.sp
-!scripting/NotnHeavy - Old Flamethrower Mechanics.sp
+!scripting/old-flame-mechanics.sp
 
 #includes
 !scripting/include/
@@ -50,7 +50,7 @@ gamedata/*
 !gamedata/memorypatch_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*
-!gamedata/NotnHeavy - Old Flamethrower Mechanics.txt
+!gamedata/old-flame-mechanics.txt
 
 !translations/
 translations/*

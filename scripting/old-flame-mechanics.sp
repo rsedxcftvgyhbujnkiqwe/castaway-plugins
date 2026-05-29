@@ -25,7 +25,7 @@
 
 //#include "SMTC/tf_shareddefs"
 
-#define PLUGIN_NAME "NotnHeavy - Old Flamethrower Mechanics"
+#define PLUGIN_NAME "old-flame-mechanics"
 
 #define TF_FLAMETHROWER_MUZZLEPOS_FORWARD		70.00
 #define TF_FLAMETHROWER_MUZZLEPOS_RIGHT			12.00
