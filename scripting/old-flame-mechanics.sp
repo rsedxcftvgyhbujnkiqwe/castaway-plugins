@@ -22,6 +22,7 @@
 #include <sdkhooks>
 #include <tf2>
 #include <tf2_stocks>
+#include <tf2utils>
 
 #define PLUGIN_NAME "old-flame-mechanics"
 
@@ -51,7 +52,8 @@
 #define	DAMAGE_YES				2
 #define	DAMAGE_AIM				3
 
-#define TF_BURNING_DMG 3.00
+#define TF_BURNING_DMG_OLD 3.00
+#define TF_BURNING_DMG_NEW 4.00
 #define TF_BURNING_FLAME_LIFE_PYRO	0.25		// pyro only displays burning effect momentarily
 #define TF_BURNING_FLAME_LIFE		10.0
 #define TF_BURNING_FLAME_LIFE_PLASMA 6.0
@@ -294,21 +296,19 @@ static Handle SDKCall_CTFWeaponBase_CalcIsAttackCritical;
 static Handle SDKCall_CTFWeaponBase_SendWeaponAnim;
 static Handle SDKCall_CTFPlayer_DoAnimationEvent;
 
-static any CTFFlameEntity_Base;
-
+static any CTFFlameEntity_m_vecInitialPos;
 static any CTFWeaponBase_m_iWeaponMode;
-static any CTFPlayerShared_m_pOuter;
-static any CTFPlayerShared_m_flBurnDuration;
 
 static ConVar tf_flamethrower_velocity;
 static ConVar tf_flamethrower_vecrand;
 
-static ConVar notnheavy_flamethrower_enable_flames;
-static ConVar notnheavy_jungleinferno_particlecannon; // Only works if notnheavy_flamethrower_enable is not set. Used for Meet the Team Fortress.
-static ConVar notnheavy_flamethrower_damage;
-static ConVar notnheavy_flamethrower_oldafterburn_duration;
-static ConVar notnheavy_flamethrower_oldafterburn_damage;
-static ConVar notnheavy_flamethrower_falloff;
+static ConVar sm_oldflames_enable;
+static ConVar sm_oldflames_flamethrower_flames;
+static ConVar sm_oldflames_jungleinferno_particlecannon; // Only works if notnheavy_flamethrower_enable is not set. Used for Meet the Team Fortress.
+static ConVar sm_oldflames_flamethrower_damage;
+static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
+static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
+static ConVar sm_oldflames_flamethrower_falloff;
 
 // static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
 // static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old;
@@ -407,10 +407,8 @@ public void OnPluginStart()
     DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, DHookCallback_OnCollide);
     DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, DHookCallback_Burn);
 
-    CTFFlameEntity_Base = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
+    CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
     CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
-    CTFPlayerShared_m_pOuter = FindSendPropInfo("CTFPlayer", "m_nNumHealers") + 8 - FindSendPropInfo("CTFPlayer", "m_Shared");
-    CTFPlayerShared_m_flBurnDuration = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 100 - FindSendPropInfo("CTFPlayer", "m_Shared");
 
     // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address);
     // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address);
@@ -423,14 +421,17 @@ public void OnPluginStart()
     tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
     // Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-    notnheavy_flamethrower_enable_flames = CreateConVar("notnheavy_flamethrower_enable_flames", "1", "use old flamethrower mechanics flames?", FCVAR_CHEAT);
-    notnheavy_flamethrower_oldafterburn_damage = CreateConVar("notnheavy_flamethrower_oldafterburn_damage", "0", "use old afterburn damage (3 per tick)", FCVAR_CHEAT);
-    notnheavy_flamethrower_oldafterburn_duration = CreateConVar("notnheavy_flamethrower_oldafterburn_duration", "0", "use old afterburn duration (constant 10s, 6s with cow mangler)", FCVAR_CHEAT);
-    notnheavy_jungleinferno_particlecannon = CreateConVar("notnheavy_jungleinferno_particlecannon", "0", "used for meet the team fortress", FCVAR_CHEAT);
-    notnheavy_flamethrower_damage = CreateConVar("notnheavy_flamethrower_damage", "6.80", "tf_flame damage number", FCVAR_CHEAT);
-    notnheavy_flamethrower_falloff = CreateConVar("notnheavy_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage", FCVAR_CHEAT);
-    notnheavy_flamethrower_falloff.AddChangeHook(AdjustFalloff);
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "0", "enable old flame mechanics?");
+    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?");
+    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)");
+    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)");
+    sm_oldflames_jungleinferno_particlecannon = CreateConVar("sm_oldflames_jungleinferno_particlecannon", "0", "used for meet the team fortress");
+    sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
+    sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
+
+    sm_oldflames_enable.AddChangeHook(OnEnableChanged);
+    sm_oldflames_flamethrower_falloff.AddChangeHook(AdjustFalloff);
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
 
     // Setup hooks for each client.
     for (int i = 1; i <= MaxClients; ++i)
@@ -440,6 +441,21 @@ public void OnPluginStart()
     }
 
     PrintToServer("----------------------------------------------------------\n\"%s\" has loaded.\n----------------------------------------------------------", PLUGIN_NAME);
+}
+
+public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    if (newValue[0] == '1')
+    {
+        PrintToServer("\"%s\" enabled.", PLUGIN_NAME);
+        MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    }
+    else
+    {
+        PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
+        // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old);
+        // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -634,7 +650,7 @@ static void SetWeaponState(int pThis, FlameThrowerState_t nWeaponState)
 
 static void SetCritFromBehind(any pThis, bool bState)
 {
-    WriteToValue(pThis + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND, bState, false, NumberType_Int8);
+    WriteToValue(pThis + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND, bState, false, NumberType_Int8);
 }
 
 static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner, float flSpeed, int iDmgType, float m_flDmgAmount, bool bAlwaysCritFromBehind, bool bRandomize = true)
@@ -645,9 +661,9 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
 
     any flamePointer = GetEntityAddress(pFlame);
     if (HasEntProp(pOwner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity") != -1)
-        StoreEntityHandleToAddress(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
+        StoreEntityHandleToAddress(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
     else
-        StoreEntityHandleToAddress(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER, pOwner); // pFlame->m_hAttacker = pOwner;
+        StoreEntityHandleToAddress(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, pOwner); // pFlame->m_hAttacker = pOwner;
     
     // this is not apparent anymore?
     // 2024.04.28: pre-smtc removal code, this is old however so i'm leaving it as a relic :)
@@ -657,8 +673,8 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
 
     // Set team.
     SetEntProp(pFlame, Prop_Send, "m_iTeamNum", GetEntProp(pOwner, Prop_Send, "m_iTeamNum")); // pFlame->ChangeTeam( pOwner->GetTeamNumber() );
-    WriteToValue(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_IDMGTYPE, iDmgType); // pFlame->m_iDmgType = iDmgType;
-    WriteToValue(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT, m_flDmgAmount); // pFlame->m_flDmgAmount = flDmgAmount;
+    WriteToValue(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_IDMGTYPE, iDmgType); // pFlame->m_iDmgType = iDmgType;
+    WriteToValue(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT, m_flDmgAmount); // pFlame->m_flDmgAmount = flDmgAmount;
 
     // Setup the initial velocity.
     float m_vecBaseVelocity[3];
@@ -667,14 +683,14 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
     GetAngleVectors(vecAngles, m_vecBaseVelocity, vecRight, vecUp);
 
     float flFlameLifeMult = 1.00;
-    flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", LoadEntityHandleFromAddress(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER)); // CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, flFlameLifeMult, mult_flame_life );
+    flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", LoadEntityHandleFromAddress(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER)); // CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, flFlameLifeMult, mult_flame_life );
     float velocity = flFlameLifeMult * flSpeed;
     
     // pFlame->m_vecBaseVelocity = vecForward * velocity;
     ScaleVector(m_vecBaseVelocity, velocity);
 
     float iFlameSizeMult = 1.00;
-    iFlameSizeMult = TF2Attrib_HookValueFloat(iFlameSizeMult, "mult_flame_size", LoadEntityHandleFromAddress(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER)); // CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, iFlameSizeMult, mult_flame_size );
+    iFlameSizeMult = TF2Attrib_HookValueFloat(iFlameSizeMult, "mult_flame_size", LoadEntityHandleFromAddress(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER)); // CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, iFlameSizeMult, mult_flame_size );
 
     // pFlame->m_vecBaseVelocity += RandomVector( -velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat(), velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat() );
     if (bRandomize)
@@ -693,7 +709,7 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
     {
         float vel[3];
         GetAbsVelocity(GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity"), vel);
-        WriteVector(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
+        WriteVector(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
     }
 
     // pFlame->SetAbsVelocity( pFlame->m_vecBaseVelocity );	
@@ -701,7 +717,7 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
     TeleportEntity(pFlame, NULL_VECTOR, vecAngles, m_vecBaseVelocity);
 
     SetCritFromBehind(flamePointer, bAlwaysCritFromBehind); // pFlame->SetCritFromBehind( bAlwaysCritFromBehind );
-    WriteVector(flamePointer + CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY, m_vecBaseVelocity, false);
+    WriteVector(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY, m_vecBaseVelocity, false);
     return pFlame;
 }
 
@@ -717,7 +733,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
-    if (notnheavy_flamethrower_enable_flames.BoolValue)
+    if (!sm_oldflames_enable.BoolValue)
+        return Plugin_Continue;
+
+    if (sm_oldflames_flamethrower_flames.BoolValue)
     {
         int flamethrower = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
         if (flamethrower == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") && IsValidEntity(flamethrower))
@@ -748,9 +767,12 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 public void OnGameFrame()
 {
+    if (!sm_oldflames_enable.BoolValue)
+        return;
+
     for (int client = 1; client <= MaxClients; ++client)
     {
-        if (IsClientInGame(client) && PlayerData[client].m_flRemoveBurn < GetGameTime() && PlayerData[client].m_flRemoveBurn != 0.00 && notnheavy_flamethrower_oldafterburn_duration.BoolValue)
+        if (IsClientInGame(client) && PlayerData[client].m_flRemoveBurn < GetGameTime() && PlayerData[client].m_flRemoveBurn != 0.00 && sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
         {
             PlayerData[client].m_flRemoveBurn = 0.00;
             TF2_RemoveCondition(client, TFCond_OnFire);
@@ -764,7 +786,7 @@ public void OnGameFrame()
 
 public void AdjustFalloff(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
     // PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff)));
 }
 
@@ -772,18 +794,19 @@ static void SetupPlayerHooks(int entity)
 {
     PlayerData[entity].index = entity; // dumb shortcut but whatever
     PlayerData[entity].m_flNextPrimaryAttack = 0.00;
-    SDKHook(entity, SDKHook_OnTakeDamage, Pre_OnTakeDamage);
+    SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 }
 
 // pre-call CTFPlayer::OnTakeDamage(), using SDKHooks.
 // Re-write afterburn damage, if the convar notnheavy_flamethrower_oldafterburn_damage is true.
-Action Pre_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+Action SDKHookCB_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-    if (notnheavy_flamethrower_oldafterburn_damage.BoolValue && damagetype == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
+    if (!sm_oldflames_enable.BoolValue)
+        return Plugin_Continue;
+
+    if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damagetype & (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
     {
-        damage = TF_BURNING_DMG;
-        if (IsValidEntity(weapon))
-            damage = TF2Attrib_HookValueFloat(damage, "mult_wpn_burndmg", weapon);
+        damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
         return Plugin_Changed;
     }
     return Plugin_Continue;
@@ -819,7 +842,10 @@ MRESReturn DHookCallback_PrimaryAttack_Pre(int entity)
 // This hook emits certain things, either things that I find unnecessary at this moment, or are already handled in the internal function.
 MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 {
-    if (notnheavy_flamethrower_enable_flames.BoolValue)
+    if (!sm_oldflames_enable.BoolValue)
+        return MRES_Ignored;
+
+    if (sm_oldflames_flamethrower_flames.BoolValue)
     {
         // Get the pointer for this CTFFlameThrower entity.
         any pEntity = GetEntityAddress(entity);
@@ -904,7 +930,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
                 iDmgType |= DMG_CRIT;
 
             // Create the flame entity.
-            float flDamage = notnheavy_flamethrower_damage.FloatValue; // 6.80 by default
+            float flDamage = sm_oldflames_flamethrower_damage.FloatValue; // 6.80 by default
             flDamage = TF2Attrib_HookValueFloat(flDamage, "mult_dmg", entity);
 
             int iCritFromBehind = 0;
@@ -971,22 +997,27 @@ MRESReturn DHookCallback_FireAirBlast(int entity, DHookParam parameters)
 // Supercede this just to prevent damage-dealing.
 MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 {
-    if (notnheavy_flamethrower_enable_flames.BoolValue)
+    if (!sm_oldflames_enable.BoolValue)
+        return MRES_Ignored;
+
+    if (sm_oldflames_flamethrower_flames.BoolValue)
         return MRES_Supercede;
     return MRES_Ignored;
 }
 
 // post-call CTFPlayerShared::Burn();
 // Adjust afterburn duration, if notnheavy_flamethrower_oldafterburn_duration is on.
-MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
-{   
-    bool preJI = notnheavy_flamethrower_oldafterburn_duration.BoolValue;
-    bool JIparticlecannon = notnheavy_jungleinferno_particlecannon.BoolValue;
+MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
+{
+    if (!sm_oldflames_enable.BoolValue)
+        return MRES_Ignored;
+
+    bool preJI = sm_oldflames_flamethrower_oldafterburn_duration.BoolValue;
+    bool JIparticlecannon = sm_oldflames_jungleinferno_particlecannon.BoolValue;
     if (!preJI && !JIparticlecannon)
         return MRES_Ignored;
 
-    any pThis = aThis;
-    int m_pOuter = GetEntityFromAddress(Dereference(pThis + CTFPlayerShared_m_pOuter));
+    int m_pOuter = TF2Util_GetPlayerFromSharedAddress(pThis);
     int pWeapon = parameters.Get(2);
     float flBurningTime = parameters.Get(3);
     if (!IsPlayerAlive(m_pOuter) || TF2_IsPlayerInCondition(m_pOuter, TFCond_Bonked) || TF2_IsPlayerInCondition(m_pOuter, TFCond_PasstimeInterception))
@@ -1003,7 +1034,7 @@ MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
     if (TF2_IsPlayerInCondition(m_pOuter, TFCond_AfterburnImmune))
     {
         nAfterburnImmunity = 1;
-        WriteToValue(pThis + CTFPlayerShared_m_flBurnDuration, 0);
+        TF2Util_SetPlayerBurnDuration(m_pOuter, 0.00);
     }
 
     int shield = GetEquippedDemoShield(m_pOuter);
@@ -1035,8 +1066,8 @@ MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
         }
         flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
 
-        if (flFlameLife > Dereference(pThis + CTFPlayerShared_m_flBurnDuration))
-            WriteToValue(pThis + CTFPlayerShared_m_flBurnDuration, flFlameLife);
+        if (flFlameLife > TF2Util_GetPlayerBurnDuration(m_pOuter))
+            TF2Util_SetPlayerBurnDuration(m_pOuter, flFlameLife);
     }
 
     // JI particle cannon
@@ -1050,7 +1081,7 @@ MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
             if (StrEqual(class, "tf_weapon_particle_cannon"))
             {
                 flFlameLife = TF2Attrib_HookValueFloat(10.00, "mult_wpn_burntime", pWeapon);
-                WriteToValue(pThis + CTFPlayerShared_m_flBurnDuration, min(view_as<float>(Dereference(pThis + CTFPlayerShared_m_flBurnDuration)) + flFlameLife, 10.00));
+                TF2Util_SetPlayerBurnDuration(m_pOuter, min(TF2Util_GetPlayerBurnDuration(m_pOuter) + flFlameLife, 10.00));
             }
         }
     }
