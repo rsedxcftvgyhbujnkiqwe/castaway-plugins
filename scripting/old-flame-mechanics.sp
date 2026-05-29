@@ -23,8 +23,6 @@
 #include <tf2>
 #include <tf2_stocks>
 
-//#include "SMTC/tf_shareddefs"
-
 #define PLUGIN_NAME "old-flame-mechanics"
 
 #define TF_FLAMETHROWER_MUZZLEPOS_FORWARD		70.00
@@ -57,6 +55,9 @@
 #define TF_BURNING_FLAME_LIFE_PYRO	0.25		// pyro only displays burning effect momentarily
 #define TF_BURNING_FLAME_LIFE		10.0
 #define TF_BURNING_FLAME_LIFE_PLASMA 6.0
+
+#define TF_WEAPON_PRIMARY_MODE		0
+#define TF_WEAPON_SECONDARY_MODE	1
 
 //////////////////////////////////////////////////////////////////////////////
 // GLOBALS                                                                  //
@@ -195,6 +196,67 @@ enum PlayerAnimEvent_t
 	PLAYERANIMEVENT_ATTACK_PRIMARY_SUPER,
 
 	PLAYERANIMEVENT_COUNT
+};
+
+enum RuneTypes_t
+{
+	RUNE_NONE = -1,
+	RUNE_STRENGTH,
+	RUNE_HASTE,
+	RUNE_REGEN,
+	RUNE_RESIST,
+	RUNE_VAMPIRE,
+	RUNE_REFLECT,
+	RUNE_PRECISION,
+	RUNE_AGILITY,
+	RUNE_KNOCKOUT,
+	RUNE_KING,
+	RUNE_PLAGUE,
+	RUNE_SUPERNOVA,
+
+	// ADD NEW RUNE TYPE HERE, DO NOT RE-ORDER
+
+	RUNE_TYPES_MAX
+};
+
+TFCond GetConditionFromRuneType( RuneTypes_t rt )
+{
+	switch ( rt )
+	{ 
+	case RUNE_NONE:			return view_as<TFCond>(-1);
+	case RUNE_STRENGTH:		return TFCond_RuneStrength;
+	case RUNE_HASTE:		return TFCond_RuneHaste;
+	case RUNE_REGEN:		return TFCond_RuneRegen;
+	case RUNE_RESIST:		return TFCond_RuneResist;
+	case RUNE_VAMPIRE:		return TFCond_RuneVampire;
+	case RUNE_REFLECT:		return TFCond_RuneWarlock;
+	case RUNE_PRECISION:	return TFCond_RunePrecision;
+	case RUNE_AGILITY:		return TFCond_RuneAgility;
+	case RUNE_KNOCKOUT:		return TFCond_RuneKnockout;
+	case RUNE_KING:			return TFCond_KingRune;
+	case RUNE_PLAGUE:		return TFCond_PlagueRune;
+	case RUNE_SUPERNOVA:	return TFCond_SupernovaRune;
+	default:
+		LogError("Unexpected rune_type rt (%d) in GetConditionFromRuneType", rt);	
+	}
+
+	return view_as<TFCond>(-1);
+}
+
+enum ETFAmmoType
+{
+	TF_AMMO_DUMMY = 0,	// Dummy index to make the CAmmoDef indices correct for the other ammo types.
+	TF_AMMO_PRIMARY,
+	TF_AMMO_SECONDARY,
+	TF_AMMO_METAL,
+	TF_AMMO_GRENADES1,
+	TF_AMMO_GRENADES2,
+	TF_AMMO_GRENADES3,	// Utility Slot Grenades
+	TF_AMMO_COUNT,
+
+	//
+	// ADD NEW ITEMS HERE TO AVOID BREAKING DEMOS
+	//
 };
 
 enum struct player_t
@@ -552,14 +614,14 @@ static void SetWeaponState(int pThis, FlameThrowerState_t nWeaponState)
             float flFiringForwardPull = 0.00;
             flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", pThis);
             if (flFiringForwardPull)
-                TF2_RemoveCondition(pOwner, view_as<TFCond>(TF_COND_SPEED_BOOST));
+                TF2_RemoveCondition(pOwner, TFCond_SpeedBuffAlly);
         }
         case FT_STATE_STARTFIRING:
         {
             float flFiringForwardPull = 0.00;
             flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", pThis);
             if (flFiringForwardPull)
-                TF2_AddCondition(pOwner, view_as<TFCond>(TF_COND_SPEED_BOOST));
+                TF2_AddCondition(pOwner, TFCond_SpeedBuffAlly);
         }
     }
 
@@ -927,7 +989,7 @@ MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
     int m_pOuter = GetEntityFromAddress(Dereference(pThis + CTFPlayerShared_m_pOuter));
     int pWeapon = parameters.Get(2);
     float flBurningTime = parameters.Get(3);
-    if (!IsPlayerAlive(m_pOuter) || TF2_IsPlayerInCondition(m_pOuter, view_as<TFCond>(TF_COND_PHASE)) || TF2_IsPlayerInCondition(m_pOuter, view_as<TFCond>(TF_COND_PASSTIME_INTERCEPTION)))
+    if (!IsPlayerAlive(m_pOuter) || TF2_IsPlayerInCondition(m_pOuter, TFCond_Bonked) || TF2_IsPlayerInCondition(m_pOuter, TFCond_PasstimeInterception))
         return MRES_Ignored;
 
     bool bVictimIsPyro = TF2_GetPlayerClass(m_pOuter) == TFClass_Pyro;
@@ -938,7 +1000,7 @@ MRESReturn DHookCallback_Burn(Address aThis, DHookParam parameters)
     if (IsValidEntity(pMyWeapon))
         nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", pMyWeapon);
 
-    if (TF2_IsPlayerInCondition(m_pOuter, view_as<TFCond>(TF_COND_AFTERBURN_IMMUNE)))
+    if (TF2_IsPlayerInCondition(m_pOuter, TFCond_AfterburnImmune))
     {
         nAfterburnImmunity = 1;
         WriteToValue(pThis + CTFPlayerShared_m_flBurnDuration, 0);
