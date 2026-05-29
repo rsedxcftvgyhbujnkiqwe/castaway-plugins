@@ -171,36 +171,36 @@
         }
         "MemPatches"
         {
-            "CTFFlameEntity::OnCollide_Falloff"
+            "CTFFlameEntity::OnCollide_Falloff" // find the 0.69999999
             {
                 "signature" "CTFFlameEntity::OnCollide()"
                 "linux"
                 {
-                    "offset"    "1065"
-                    "verify"    ""
-                    "patch"     ""
+                    "offset"    "1069"
+                    "verify"    "\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx]
+                    "patch"     "\xf3\x0f\x59\x0d\x00\x00\x00\x00" // retrieve from plugin
                 }
                 "windows"
                 {
-                    "offset"    "357"
-                    "verify"    ""
-                    "patch"     ""
+                    "offset"    "353"
+                    "verify"    "\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, dword ptr [float_xxxxxxxx]
+                    "patch"     "\xf3\x0f\x10\x05\x00\x00\x00\x00" // retrieve from plugin
                 }
             }
-            "CTFFlameEntity::OnCollide_Falloff2"
+            "CTFFlameEntity::OnCollide_Falloff2" // find the +/-0.3
             {
                 "signature" "CTFFlameEntity::OnCollide()"
                 "linux"
                 {
-                    "offset"    "305"
-                    "verify"    ""
-                    "patch"     ""
+                    "offset"    "301"
+                    "verify"    "\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx]
+                    "patch"     "\xf3\x0f\x59\x05\x00\x00\x00\x00" // retrieve from plugin
                 }
                 "windows"
                 {
-                    "offset"    "412"
-                    "verify"    ""
-                    "patch"     ""
+                    "offset"    "408"
+                    "verify"    "\xf3\x0f\x59\x0d\x48\x53\x77\x10" // mulss xmm1, dword ptr [float_xxxxxxxx]
+                    "patch"     "\xf3\x0f\x59\x0d\x00\x00\x00\x00" // retrieve from plugin
                 }
             }
         }

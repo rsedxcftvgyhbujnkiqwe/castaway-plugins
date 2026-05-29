@@ -310,14 +310,12 @@ static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
 static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
 static ConVar sm_oldflames_flamethrower_falloff;
 
-// static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
-// static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old;
-// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
+static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
+static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
 
-// static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff2;
-// static any MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old;
-// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New;
-// static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff2;
+static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New;
+static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
 
 //////////////////////////////////////////////////////////////////////////////
 // PLUGIN INFO                                                              //
@@ -385,8 +383,8 @@ public void OnPluginStart()
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int mData = 0;
     SDKCall_CTFPlayer_DoAnimationEvent = EndPrepSDKCall();
 
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
 
     if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
     if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
@@ -398,8 +396,8 @@ public void OnPluginStart()
     if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
     if (SDKCall_CTFWeaponBase_SendWeaponAnim == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_SendWeaponAnim");
     if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
-    // if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
-    // if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
+    if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
+    if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
 
     DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
     DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, DHookCallback_PrimaryAttack_Post);
@@ -410,9 +408,7 @@ public void OnPluginStart()
     CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
     CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
 
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address);
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old = Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address);
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
 
     delete config;
 
@@ -421,7 +417,7 @@ public void OnPluginStart()
     tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
     // Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "0", "enable old flame mechanics?");
+    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?");
     sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?");
     sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)");
     sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)");
@@ -453,8 +449,8 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
     else
     {
         PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
-        // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old);
-        // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old);
+        MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
+        MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
     }
 }
 
@@ -464,16 +460,18 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
 
 public void OnPluginEnd()
 {
-    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Old);
-    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Old);
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
 }
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 {
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = notnheavy_flamethrower_falloff.FloatValue;
-    // MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - notnheavy_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
-    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
-    // WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, AddressOf(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_flamethrower_falloff.FloatValue;
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
+    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
+    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
+    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -787,7 +785,7 @@ public void OnGameFrame()
 public void AdjustFalloff(ConVar convar, const char[] oldValue, const char[] newValue)
 {
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
-    // PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff)));
+    PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4))));
 }
 
 static void SetupPlayerHooks(int entity)
