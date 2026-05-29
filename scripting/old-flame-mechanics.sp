@@ -219,10 +219,10 @@ enum struct player_t
 }
 static player_t PlayerData[MAXPLAYERS + 1];
 
-static DHookSetup DHooks_CTFFlameThrower_PrimaryAttack;
-static DHookSetup DHooks_CTFFlameThrower_FireAirBlast;
-static DHookSetup DHooks_CTFFlameManager_OnCollide;
-static DHookSetup DHooks_CTFPlayerShared_Burn;
+static DynamicDetour DHooks_CTFFlameThrower_PrimaryAttack;
+static DynamicDetour DHooks_CTFFlameThrower_FireAirBlast;
+static DynamicDetour DHooks_CTFFlameManager_OnCollide;
+static DynamicDetour DHooks_CTFPlayerShared_Burn;
 
 static Handle SDKCall_CBaseEntity_Create;
 //static Handle SDKCall_CBaseEntity_CalcAbsoluteVelocity;
@@ -283,18 +283,10 @@ public void OnPluginStart()
     // Load config data!
     GameData config = LoadGameConfigFile(PLUGIN_NAME);
 
-    DHooks_CTFFlameThrower_PrimaryAttack = DHookCreateFromConf(config, "CTFFlameThrower::PrimaryAttack()");
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, Pre_PrimaryAttack); // just because i don't want to re-write ammo management entirely.
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, Post_PrimaryAttack);
-
-    DHooks_CTFFlameThrower_FireAirBlast = DHookCreateFromConf(config, "CTFFlameThrower::FireAirBlast()");
-    DHookEnableDetour(DHooks_CTFFlameThrower_FireAirBlast, true, FireAirBlast);
-
-    DHooks_CTFFlameManager_OnCollide = DHookCreateFromConf(config, "Signature::CTFFlameManager::OnCollide()");
-    DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, OnCollide);
-
-    DHooks_CTFPlayerShared_Burn = DHookCreateFromConf(config, "CTFPlayerShared::Burn()");
-    DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, Burn);
+    DHooks_CTFFlameThrower_PrimaryAttack = DynamicDetour.FromConf(config, "CTFFlameThrower::PrimaryAttack()");
+    DHooks_CTFFlameThrower_FireAirBlast = DynamicDetour.FromConf(config, "CTFFlameThrower::FireAirBlast()");
+    DHooks_CTFFlameManager_OnCollide = DynamicDetour.FromConf(config, "Signature::CTFFlameManager::OnCollide()");
+    DHooks_CTFPlayerShared_Burn = DynamicDetour.FromConf(config, "CTFPlayerShared::Burn()");
 
     StartPrepSDKCall(SDKCall_Static);
     PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CBaseEntity::Create()");
@@ -330,6 +322,23 @@ public void OnPluginStart()
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // PlayerAnimEvent_t event;
     PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int mData = 0;
     SDKCall_CTFPlayer_DoAnimationEvent = EndPrepSDKCall();
+
+    if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
+    if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
+    if (DHooks_CTFFlameManager_OnCollide == null) SetFailState("Failed to create DHooks_CTFFlameManager_OnCollide");
+    if (DHooks_CTFPlayerShared_Burn == null) SetFailState("Failed to create DHooks_CTFPlayerShared_Burn");
+    if (SDKCall_CBaseEntity_Create == null) SetFailState("Failed to create SDKCall_CBaseEntity_Create");
+    if (SDKCall_CBaseCombatCharacter_Weapon_ShootPosition == null) SetFailState("Failed to create SDKCall_CBaseCombatCharacter_Weapon_ShootPosition");
+    if (SDKCall_CTFWeaponBase_CanAttack == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CanAttack");
+    if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
+    if (SDKCall_CTFWeaponBase_SendWeaponAnim == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_SendWeaponAnim");
+    if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
+
+    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, Pre_PrimaryAttack); // just because i don't want to re-write ammo management entirely.
+    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, Post_PrimaryAttack);
+    DHookEnableDetour(DHooks_CTFFlameThrower_FireAirBlast, true, FireAirBlast);
+    DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, OnCollide);
+    DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, Burn);
 
     CTFFlameEntity_Base = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
     CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8; // view_as<Address>(config.GetOffset("CTFWeaponBase::m_iWeaponMode"));
