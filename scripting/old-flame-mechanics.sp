@@ -398,11 +398,11 @@ public void OnPluginStart()
     if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
     if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
 
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, false, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
-    DHookEnableDetour(DHooks_CTFFlameThrower_PrimaryAttack, true, DHookCallback_PrimaryAttack_Post);
-    DHookEnableDetour(DHooks_CTFFlameThrower_FireAirBlast, true, DHookCallback_FireAirBlast);
-    DHookEnableDetour(DHooks_CTFFlameManager_OnCollide, false, DHookCallback_OnCollide);
-    DHookEnableDetour(DHooks_CTFPlayerShared_Burn, true, DHookCallback_Burn);
+    DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Pre, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
+    DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Post, DHookCallback_PrimaryAttack_Post);
+    DHooks_CTFFlameThrower_FireAirBlast.Enable(Hook_Post, DHookCallback_FireAirBlast);
+    DHooks_CTFFlameManager_OnCollide.Enable(Hook_Pre, DHookCallback_OnCollide);
+    DHooks_CTFPlayerShared_Burn.Enable(Hook_Post, DHookCallback_Burn);
 
     CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
     CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
