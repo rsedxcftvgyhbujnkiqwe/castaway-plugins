@@ -10,18 +10,6 @@
                 "windows" "\x55\x8B\xEC\x56\x6A\xFF\xFF\x75\x2A\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x83\xC4\x08\x85\xF6\x75\x2A\x6A\x01" // offset aPlayerManager ; "player_manager", go to call below it
                 "linux"   "@_ZN11CBaseEntity6CreateEPKcRK6VectorRK6QAnglePS_"
             }
-            "CBaseEntity::CalcAbsoluteVelocity()"
-            {
-                "library" "server"
-                "windows" "\x56\x8B\xF1\x8B\x8E\x2A\x2A\x2A\x2A\x8B\xC1\xC1\xE8\x0C"
-                "linux"   "@_ZN11CBaseEntity20CalcAbsoluteVelocityEv"
-            }
-            "CBaseEntity::CalcAbsolutePosition()" // when still in SetAbsAngles, find under & 0x800 if statements
-            {
-                "library" "server"
-                "windows" "\x55\x8B\xEC\x81\xEC\x80\x00\x00\x00\x56\x8B\xF1\x8B\x86"
-                "linux"   "@_ZN11CBaseEntity20CalcAbsolutePositionEv"
-            }
 
             "CTFFlameEntity::OnCollide()" // offset aFlameTouchDmg1 ; "Flame touch dmg: %.1f\n"
             {

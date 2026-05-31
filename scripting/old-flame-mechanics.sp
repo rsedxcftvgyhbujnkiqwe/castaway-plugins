@@ -289,7 +289,6 @@ static DynamicDetour DHooks_CTFFlameManager_OnCollide;
 static DynamicDetour DHooks_CTFPlayerShared_Burn;
 
 static Handle SDKCall_CBaseEntity_Create;
-//static Handle SDKCall_CBaseEntity_CalcAbsoluteVelocity;
 static Handle SDKCall_CBaseCombatCharacter_Weapon_ShootPosition;
 static Handle SDKCall_CTFWeaponBase_CanAttack;
 static Handle SDKCall_CTFWeaponBase_CalcIsAttackCritical;
@@ -528,10 +527,6 @@ static bool IsEFlagSet(int pThis, int nEFlagMask)
 
 static void GetAbsVelocity(int pThis, float buffer[3])
 {
-    /*
-    if (IsEFlagSet(pThis, EFL_DIRTY_ABSVELOCITY))
-        SDKCall(SDKCall_CBaseEntity_CalcAbsoluteVelocity, pThis);
-    */
     GetEntPropVector(pThis, Prop_Data, "m_vecAbsVelocity", buffer);
 }
 
