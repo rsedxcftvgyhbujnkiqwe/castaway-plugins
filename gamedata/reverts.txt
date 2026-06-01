@@ -10,26 +10,19 @@
 				"linux" "@_Z10JarExplodeiP9CTFPlayerP11CBaseEntityS2_RK6Vectorif7ETFCondfPKcS8_"
 				"windows" "\x2A\x2A\x2A\x2A\x2A\x2A\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xE8\x02\x00\x00"
 			}
-
-			"CTFPlayer::CanDisguise" // contains string 'set_cannot_disguise'
+			// "set_cannot_disguise"
+			"CTFPlayer::CanDisguise"
 			{
 				"library" "server"
 				"linux" "@_ZN9CTFPlayer11CanDisguiseEv"
 				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x06\x8B\x80\x0C\x01\x00\x00"
 			}
-
+			// "mult_player_aiming_movespeed"
 			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 			{
 				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
+				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A"
 				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
-			}
-
-			"CTFAmmoPack::PackTouch"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x24\x56\x8B\x75\x2A\x57\x8B\xF9\x8B\x46"
-				"linux"   "@_ZN11CTFAmmoPack9PackTouchEP11CBaseEntity"
 			}
 
 			"CTFPlayer::AddToSpyKnife"
@@ -38,7 +31,7 @@
 				"windows" "\x55\x8B\xEC\x6A\x07"
 				"linux"   "@_ZN9CTFPlayer13AddToSpyKnifeEfb"
 			}
-
+			// "arrow_heals_buildings"
 			"CTFProjectile_Arrow::BuildingHealingArrow"
 			{
 				"library" "server"
@@ -52,8 +45,8 @@
 				"linux"	  "@_ZN22CBaseMultiplayerPlayer16AwardAchievementEii"
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\xF1\x8D\x4D\x2A\xE8\x2A\x2A\x2A\x2A\x56\x8D\x4D\x2A\xC7\x45\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8D\x45\x2A\x68\x2A\x2A\x2A\x2A\x50\xE8\x2A\x2A\x2A\x2A\xFF\x75" // Loooong signature.
 			}
-
-			"CTFPlayer::RegenThink" // offset aAddHealthRegen ; "add_health_regen"
+			// "add_health_regen"
+			"CTFPlayer::RegenThink"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
@@ -66,80 +59,79 @@
 				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
 				"linux"   "@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
 			}
-			"CTFLunchBox::DrainAmmo" // xref to ??_R0?AVCTFLunchBox@@@8, find function that doesn't have a bunch of strings following, and just get lucky i guess?
+			// "enables_aoe_heal" leads to CTFPlayerShared::OnAddTaunting, which has a call to DrainAmmo
+			"CTFLunchBox::DrainAmmo"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
 				"linux"   "@_ZN11CTFLunchBox9DrainAmmoEb"
 			}
-			"CTFPlayer::Taunt" // offset aCosmeticTauntS ; "cosmetic_taunt_sound"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x81\xEC\xD0\x00\x00\x00\x53\x56\x57\x8B\xF9\xE8"
-				"linux"   "@_ZN9CTFPlayer5TauntE8taunts_ti"
-			}
-			"CHealthKit::MyTouch" 
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x3C\x8B\x01"
-				"linux"   "@_ZN10CHealthKit7MyTouchEP11CBasePlayer"
-			}
-			"CTFPlayer::OnTauntSucceeded" // find using string set_taunt_saharan_spy
+			// "set_taunt_saharan_spy"
+			"CTFPlayer::OnTauntSucceeded"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\xFF\x75"
 				"linux"   "@_ZN9CTFPlayer16OnTauntSucceededEPKcii"
 			}
-			"AI_CriteriaSet::AppendCriteria" // find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
-											// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
+			// find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
+			// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
+			"AI_CriteriaSet::AppendCriteria"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x56\x8B\x75"
 				"linux"   "@_ZN14AI_CriteriaSet14AppendCriteriaEPKcS1_f"
 			}
-			"CBaseObject::GetReversesBuildingConstructionSpeed" // offset aBuildingSentry_13 ; "Building_Sentrygun.Disabled", first function call in subroutine
+			// "Building_Sentrygun.Disabled", first function call in subroutine
+			"CBaseObject::GetReversesBuildingConstructionSpeed"
 			{
 				"library" "server"
-				"windows" "\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // offset aBuildingSentry_6 ; "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
+				"windows" "\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
 				"linux"   "@_ZN11CBaseObject36GetReversesBuildingConstructionSpeedEv"
 			}
-			"CBaseObject::CreateAmmoPack" // offset aModelsWeaponsW_11 ; "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
+			// "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
+			"CBaseObject::CreateAmmoPack"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
 				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
 			}
-			"CBaseObject::OnConstructionHit" // offset aNutsnboltsBuil ; "nutsnbolts_build", don't use precache subroutine
+			// "nutsnbolts_build", don't use precache subroutine
+			"CBaseObject::OnConstructionHit"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
 				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
-			"CTFWeaponBaseGun::GetProjectileDamage" // offset aRageDamage ; "rage_damage"
+			// "rage_damage"
+			"CTFWeaponBaseGun::GetProjectileDamage"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x1C\x53\x56\x8B\xD9\x57\x89\x5D"
 				"linux"   "@_ZN16CTFWeaponBaseGun19GetProjectileDamageEv"
 			}
-			"CTFWeaponBaseGun::GetWeaponSpread" // offset aMultSpreadScal_0 ; "mult_spread_scale"
+			// "mult_spread_scale"
+			"CTFWeaponBaseGun::GetWeaponSpread"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x57\x6A\x01\x6A\x00"
 				"linux"   "@_ZN16CTFWeaponBaseGun15GetWeaponSpreadEv"
 			}
-			"CTFPlayerShared::AddToSpyCloakMeter" // offset aModCloakNoRege ; "mod_cloak_no_regen_from_items"
+			// "mod_cloak_no_regen_from_items"
+			"CTFPlayerShared::AddToSpyCloakMeter"
 			{
 				"library" "server"
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
 				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
 			}
-			"CWeaponMedigun::FindAndHealTargets" // offset aMultMedigunUbe ; "mult_medigun_uberchargerate"
+			// "mult_medigun_uberchargerate"
+			"CWeaponMedigun::FindAndHealTargets"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\xF1\x8B\x8E"
 				"linux"   "@_ZN14CWeaponMedigun18FindAndHealTargetsEv"
 			}
-			"CTFLunchBox::ApplyBiteEffects" // "lunchbox_healing_scale"
+			// "lunchbox_healing_scale"
+			"CTFLunchBox::ApplyBiteEffects"
 			{
 				"library" "server"
 				"windows" "\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
@@ -154,7 +146,7 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
 				"linux" "@_ZN9CTFPlayer21PickupWeaponFromOtherEP16CTFDroppedWeapon"
 			}
-			// "ChargeLevelDegradeThink", find function with least amount of code and which references itself 
+			// "ChargeLevelDegradeThink", find function with least amount of code and which references itself
 			"CTFDroppedWeapon::ChargeLevelDegradeThink"
 			{
 				"library" "server"
@@ -189,81 +181,66 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
 				"linux"   "@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
 			}
+			// "speed_buff_ally"
+			"CTFWeaponBaseMelee::OnSwingHit"
+			{
+				"library" "server"
+				"windows" "\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
+				"linux"   "@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
+			}
 		}
 
 		"Offsets"
 		{
 			"CTFWeaponBase::PrimaryAttack"
 			{
-				"linux" "293"
-				"windows" "287"
+				"windows"	"287"
+				"linux"		"293"
 			}
-
 			"CTFWeaponBase::SecondaryAttack"
 			{
-				"linux" "294"
-				"windows" "288"
+				"windows"	"288"
+				"linux"		"294"
 			}
-
 			"CTFBaseRocket::GetRadius"
 			{
-				"linux" "245"
-				"windows" "244"
+				"windows"	"244"
+				"linux"		"245"
 			}
-
 			"CAmmoPack::MyTouch"
 			{
-				"linux" "230"
-				"windows" "229"
+				"windows"	"229"
+				"linux"		"230"
 			}
-			
-			"CAmmoPack::GetPowerupSize"
-			{
-				"linux" "237"
-				"windows" "234"
-			}
-
-			"CTFPlayerShared::m_pOuter"
-			{
-				"linux"	"396"
-				"windows" "396"
-			}
-
-			"CObjectDispenser::DispenseAmmo"
-			{
-				"linux" "425"
-				"windows" "411"
-			}
-
 			"CObjectSentrygun::OnWrenchHit"
 			{
-				"linux" "367"
-				"windows" "365"
+				"windows"	"365"
+				"linux"		"367"
 			}
 			"CHealthKit::MyTouch"
 			{
-				"windows" "229"
-				"linux"   "230"
+				"windows"	"229"
+				"linux"		"230"
 			}
-			"CTFRevolver::CanFireCriticalShot" // this is here just in case it gets used
+			"CTFRevolver::CanFireCriticalShot"
 			{
-				"windows" "439"
-				"linux"	  "446"
+				"windows"	"439"
+				"linux"		"446"
 			}
 			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
 			{
-				"windows" "498"
-				"linux"   "505"
+				"windows"	"498"
+				"linux"		"505"
 			}
 			"CObjectSentrygun::StartBuilding"
 			{
-				"windows" "342"
-				"linux"   "344"
+				"windows"	"342"
+				"linux"		"344"
 			}
 			"CObjectSentrygun::Construct" // look for CBaseObject::Construct in CObjectSentrygun
 			{
-				"windows" "350"
-				"linux"   "352"
+				"windows"	"350"
+				"linux"		"352"
 			}
 			"CTFMinigun::GetProjectileDamage"
 			{
@@ -311,10 +288,15 @@
 			// offset in Ghidra and then look at the Listing view. As of the October 30, 2025 patch it's
 			// f3 0f 11 86 44 21 00 00, notice how memory is displayed in little endian, but you can see the 44 21 turns into 21 44)
 
-			"m_flTauntNextStartTime" 
+			"CTFPlayer.m_flTauntNextStartTime" 
 			{
-				"windows" "8516"
-				"linux"   "8524"
+				"windows"	"8516"
+				"linux"		"8524"
+			}
+			"CGameTrace.m_pEnt"
+			{
+				"windows"	"76"
+				"linux"		"76"
 			}
 		}
 
@@ -323,107 +305,101 @@
 			// Offset
 			"CTFWeaponBase::PrimaryAttack"
 			{
-				"offset" "CTFWeaponBase::PrimaryAttack"
-				"hooktype" "entity"
-				"this" "entity"
-				"return" "void"
+				"offset"	"CTFWeaponBase::PrimaryAttack"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
 			}
-
 			"CTFWeaponBase::SecondaryAttack"
 			{
-				"offset" "CTFWeaponBase::SecondaryAttack"
-				"hooktype" "entity"
-				"this" "entity"
-				"return" "void"
+				"offset"	"CTFWeaponBase::SecondaryAttack"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
 			}
-
 			"CTFBaseRocket::GetRadius"
 			{
-				"offset" "CTFBaseRocket::GetRadius"
-				"hooktype" "entity"
-				"this" "entity"
-				"return" "float"
+				"offset"	"CTFBaseRocket::GetRadius"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return" 	"float"
 			}
-
 			"CAmmoPack::MyTouch"
 			{
-				"offset"   "CAmmoPack::MyTouch"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
+				"offset"	"CAmmoPack::MyTouch"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"pPlayer"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 				}
 			}
-
 			"CObjectDispenser::DispenseAmmo"
 			{
 				"offset"	"CObjectDispenser::DispenseAmmo"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"pPlayer"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 				}
 			}
-
 			"CObjectSentrygun::OnWrenchHit"
 			{
-				"offset"   "CObjectSentrygun::OnWrenchHit"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
+				"offset"	"CObjectSentrygun::OnWrenchHit"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"pPlayer"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 					"pWrench"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 					"hitLoc"
 					{
-						"type" "object"
-						"size" "12"
+						"type"	"object"
+						"size"	"12"
 					}
 				}
 			}
-
 			"CObjectSentrygun::StartBuilding"
 			{
-				"offset"   "CObjectSentrygun::StartBuilding"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
+				"offset"	"CObjectSentrygun::StartBuilding"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"pBuilder"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 				}
 			}
 			"CObjectSentrygun::Construct"
 			{
-				"offset"   "CObjectSentrygun::Construct"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "bool"
+				"offset"	"CObjectSentrygun::Construct"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"flHealth"
 					{
-						"type" "float"
+						"type"	"float"
 					}
 				}
 			}
@@ -443,35 +419,49 @@
 			}
 			"CWeaponMedigun::ItemPostFrame"
 			{
-				"offset"   "CWeaponMedigun::ItemPostFrame"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "void"
+				"offset"	"CWeaponMedigun::ItemPostFrame"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+			}
+			"CHealthKit::MyTouch"
+			{
+				"offset"	"CHealthKit::MyTouch"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+				}
 			}
 			"CTFRevolver::CanFireCriticalShot"
 			{
-				"offset" "CTFRevolver::CanFireCriticalShot"
-				"hooktype"  "entity"
-				"this"      "entity"
-				"return"    "bool"
+				"offset"	"CTFRevolver::CanFireCriticalShot"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"bIsHeadshot"
 					{
-						"type" "bool"
+						"type"	"bool"
 					}
 					"pTarget"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}
 			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
 			{
-				"offset"   "CTFSniperRifleDecap::SniperRifleChargeRateMod"
-				"hooktype" "entity"
-				"this"     "entity"
-				"return"   "float"
+				"offset"	"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"float"
 			}
 			"CTFStunBall::ApplyBallImpactEffectOnVictim"
 			{
@@ -491,197 +481,141 @@
 			// Signature
 			"CTFPlayer::CanDisguise"
 			{
-				"signature" "CTFPlayer::CanDisguise"
-				"callconv" "thiscall"
-				"this" "entity"
-				"return" "bool"
+				"signature"	"CTFPlayer::CanDisguise"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
 			}
-
 			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 			{
-				"signature" "CTFPlayer::TeamFortress_CalculateMaxSpeed"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "float"
+				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"float"
 				"arguments"
 				{
 					"bIgnoreSpecialAbility"
 					{
-						"type" "bool"
+						"type"	"bool"
 					}
 				}
 			}
-
-			"CTFAmmoPack::PackTouch"
-			{
-				"signature" "CTFAmmoPack::PackTouch"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type" "cbaseentity"
-					}
-				}
-			}
-
 			"CTFPlayer::AddToSpyKnife"
 			{
-				"signature" "CTFPlayer::AddToSpyKnife"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
+				"signature"	"CTFPlayer::AddToSpyKnife"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
 				"arguments"
 				{
 					"value"
 					{
-						"type" "float"
+						"type"	"float"
 					}
 					"force"
 					{
-						"type" "bool"
+						"type"	"bool"
 					}
 				}
 			}
-
 			"CTFProjectile_Arrow::BuildingHealingArrow"
 			{
-				"signature" "CTFProjectile_Arrow::BuildingHealingArrow"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
+				"signature"	"CTFProjectile_Arrow::BuildingHealingArrow"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 				"arguments"
 				{
 					"pOther"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 				}
 			}
-
 			"CBaseMultiplayerPlayer::AwardAchievement"
 			{
-				"signature" "CBaseMultiplayerPlayer::AwardAchievement"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
+				"signature"	"CBaseMultiplayerPlayer::AwardAchievement"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 				"arguments"
 				{
 					"iAchievement"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 					"iCount"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}
-
 			"CTFPlayer::RegenThink"
 			{
-				"signature" "CTFPlayer::RegenThink"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
+				"signature"	"CTFPlayer::RegenThink"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 			}
-
 			"CTFPlayer::GiveAmmo"
 			{
-				"signature" "CTFPlayer::GiveAmmo"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "int"
+				"signature"	"CTFPlayer::GiveAmmo"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"int"
 				"arguments"
 				{
 					"iCount"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 					"iAmmoIndex"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 					"bSuppressSound"
 					{
-						"type" "bool"
+						"type"	"bool"
 					}
 					"eAmmoSource"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}
-			
 			"CTFLunchBox::DrainAmmo"
 			{
-				"signature" "CTFLunchBox::DrainAmmo"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
+				"signature"	"CTFLunchBox::DrainAmmo"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 				"arguments"
 				{
 					"bForceCooldown"
 					{
-						"type" "bool"
-					}
-				}
-			}
-
-			// https://github.com/ValveSoftware/source-sdk-2013/blob/b2705ba55b3b802b86ef2b2dbf97939c9d4fb685/src/game/server/tf/tf_player.cpp#L17800
-			"CTFPlayer::Taunt"
-			{
-				"signature" "CTFPlayer::Taunt"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-				"arguments"
-				{
-					"taunts_t"
-					{
-						"type" "int"
-					}
-					"iTauntConcept"
-					{
-						"type" "int"
-					}
-				}
-			}
-			"CHealthKit::MyTouch"
-			{
-				"offset" "CHealthKit::MyTouch"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type" "cbaseentity"
+						"type"	"bool"
 					}
 				}
 			}
 			"CTFPlayer::OnTauntSucceeded"
 			{
-				"signature"   "CTFPlayer::OnTauntSucceeded"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"   "void"
+				"signature"	"CTFPlayer::OnTauntSucceeded"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 				"arguments"
 				{
 					"pszSceneName"
 					{
-						"type" "charptr"
+						"type"	"charptr"
 					}
 					"iTauntIndex"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 					"iTauntConcept"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}			
@@ -709,69 +643,69 @@
 			}
 			"CBaseObject::CreateAmmoPack"
 			{
-				"signature" "CBaseObject::CreateAmmoPack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "cbaseentity"
+				"signature"	"CBaseObject::CreateAmmoPack"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"cbaseentity"
 				"arguments"
 				{
 					"pchModel"
 					{
-						"type" "charptr"
+						"type"	"charptr"
 					}
 					"nMetal"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}
 			"CBaseObject::OnConstructionHit"
 			{
-				"signature" "CBaseObject::OnConstructionHit"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
+				"signature"	"CBaseObject::OnConstructionHit"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
 				"arguments"
 				{
 					"pPlayer"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 					"pWrench"
 					{
-						"type" "cbaseentity"
+						"type"	"cbaseentity"
 					}
 					"hitLoc"
 					{
-						"type" "object"
-						"size" "12"
+						"type"	"object"
+						"size"	"12"
 					}
 				}
 			}
 			"CTFPlayerShared::AddToSpyCloakMeter"
 			{
-				"signature" "CTFPlayerShared::AddToSpyCloakMeter"
-				"callconv"  "thiscall"
-				"this"      "address"
-				"return"    "bool"
+				"signature"	"CTFPlayerShared::AddToSpyCloakMeter"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"bool"
 				"arguments"
 				{
 					"val"
 					{
-						"type" "float"
+						"type"	"float"
 					}
 					"bForce"
 					{
-						"type" "bool"
+						"type"	"bool"
 					}
 				}
 			}
 			"CWeaponMedigun::FindAndHealTargets"
 			{
-				"signature" "CWeaponMedigun::FindAndHealTargets"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "bool"
+				"signature"	"CWeaponMedigun::FindAndHealTargets"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
 			}
 			"CTFLunchBox::ApplyBiteEffects"
 			{
@@ -810,27 +744,27 @@
 			}
 			"CTFPlayerShared::StunPlayer"
 			{
-				"signature" "CTFPlayerShared::StunPlayer"
-				"callconv"  "thiscall"
-				"this"      "address"
-				"return"    "void"
+				"signature"	"CTFPlayerShared::StunPlayer"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"void"
 				"arguments"
 				{
 					"flTime"
 					{
-						"type" "float"
+						"type"	"float"
 					}
 					"flReductionAmount"
 					{
-						"type" "float"
+						"type"	"float"
 					}
 					"iStunFlags"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 					"pAttacker"
 					{
-						"type" "int"
+						"type"	"int"
 					}
 				}
 			}
@@ -885,6 +819,20 @@
 					"flImpulse"
 					{
 						"type"	"float"
+					}
+				}
+			}
+			"CTFWeaponBaseMelee::OnSwingHit"
+			{
+				"signature"	"CTFWeaponBaseMelee::OnSwingHit"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"trace"
+					{
+						"type"	"int"
 					}
 				}
 			}

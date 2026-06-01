@@ -283,6 +283,7 @@ enum struct Player {
 	float vaccinator_charge_end;
 	int stun_frame;
 	int stun_inflictor;
+	int whip_frame;
 }
 
 enum struct Entity {
@@ -323,14 +324,6 @@ ConVar cvar_ref_tf_sticky_radius_ramp_time;
 ConVar cvar_ref_weapon_medigun_charge_rate;
 
 #if defined MEMORY_PATCHES
-MemoryPatch patch_RevertDisciplinaryAction;
-// If Windows, prepare additional vars for Disciplinary Action.
-#if defined WIN32
-float g_flNewDiscilplinaryAllySpeedBuffTimer = 3.0;
-// Address of our float:
-Address AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer;
-#endif
-
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
@@ -417,6 +410,7 @@ DynamicDetour dhook_CTFPlayerShared_StunPlayer;
 DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
+DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 
 int CBaseObject_m_flHealth; // *((float *)a1 + 652)
 int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -430,6 +424,7 @@ int CTFLunchBox_m_hThrownPowerUp;
 // It's recommended that you name the int the same as the member.
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
 int CTFPlayer_m_flTauntNextStartTime;
+int CGameTrace_m_pEnt;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -510,9 +505,7 @@ enum
 	Wep_DeadRinger,	
 	Wep_Degreaser,
 	Wep_DirectHit,
-#if defined MEMORY_PATCHES
 	Wep_Disciplinary,
-#endif
 	Wep_DragonFury,
 	Wep_Enforcer,
 	Wep_Pickaxe, // Equalizer
@@ -698,9 +691,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
-#if defined MEMORY_PATCHES
-	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary, true);
-#endif
+	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #if defined MEMORY_PATCHES
 	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury, true);
 #else
@@ -947,11 +938,16 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_AddCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddCond");
 		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
+		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		CTFPlayer_m_flTauntNextStartTime = -1;
-		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "m_flTauntNextStartTime");
+		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
 		if (CTFPlayer_m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
+
+		CGameTrace_m_pEnt = -1;
+		CGameTrace_m_pEnt = GameConfGetOffset(conf, "CGameTrace.m_pEnt");
+		if (CGameTrace_m_pEnt == -1) SetFailState("Failed to load CGameTrace_m_pEnt offset!");
 
 		delete conf;
 	}
@@ -962,14 +958,7 @@ public void OnPluginStart() {
 
 		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
 
-		patch_RevertDisciplinaryAction = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff");
-#if defined WIN32
-		// If on Windows, perform the Address of Natives so we can patch in the address for the Discilpinary Action Ally Speedbuff.
-		AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer = GetAddressOfCell(g_flNewDiscilplinaryAllySpeedBuffTimer);
-#endif
-
 		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
-
 		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
 		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
 		patch_RevertCrusaderCrossbow_UbergainNerf = MemoryPatch.CreateFromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
@@ -1008,10 +997,6 @@ public void OnPluginStart() {
 			dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 		}
 
-		if (!ValidateAndNullCheck(patch_RevertDisciplinaryAction)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertDisciplinaryAction");
-		}
 		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) {
 			hook_fail=true;
 			LogError("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
@@ -1167,6 +1152,7 @@ public void OnPluginStart() {
 	if (dhook_CTFPlayerShared_AddCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddCond");
 	if (dhook_CTFPlayerShared_RemoveCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_RemoveCond");
 	if (dhook_CTFPlayer_ApplyPunchImpulseX == null) SetFailState("Failed to create dhook_CTFPlayer_ApplyPunchImpulseX");
+	if (dhook_CTFWeaponBaseMelee_OnSwingHit == null) SetFailState("Failed to create dhook_CTFWeaponBaseMelee_OnSwingHit");
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1191,12 +1177,16 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond);
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
+	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
 
 	team_round_timer_entity = -1;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
-		if (IsClientInGame(idx)) OnClientPutInServer(idx);
+		if (IsClientInGame(idx)) {
+			OnClientPutInServer(idx);
+			if (IsPlayerAlive(idx)) CacheWeapons(idx);
+		}
 	}
 }
 
@@ -1254,7 +1244,6 @@ void UpdateStickyLauncherDescription() {
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Disciplinary),Wep_Disciplinary);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
@@ -1295,19 +1284,6 @@ void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newV
 
 void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 	switch(wep_enum) {
-		case Wep_Disciplinary: {
-			if (enable) {
-#if defined WIN32
-				patch_RevertDisciplinaryAction.Enable();
-				// The Windows port of Disciplinary Action Revert requires a extra step.
-				StoreToAddress(patch_RevertDisciplinaryAction.Address + view_as<Address>(0x02), view_as<int>(AddressOf_g_flNewDiscilplinaryAllySpeedBuffTimer), NumberType_Int32);
-#else
-				patch_RevertDisciplinaryAction.Enable();
-#endif
-			} else {
-				patch_RevertDisciplinaryAction.Disable();
-			}
-		}
 		case Wep_DragonFury: {
 			if (enable) {
 				patch_RevertDragonsFury_CenterHitForBonusDmg.Enable();
@@ -2452,6 +2428,20 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			}
 		}
 	}
+	{
+		// 3 seconds of speed buff for reverted whip
+		if (
+			ItemIsEnabled(Wep_Disciplinary) &&
+			players[client].whip_frame == GetGameTickCount() &&
+			condition == TFCond_SpeedBuffAlly &&
+			FloatAbs(time - 2.0) < 0.01
+		) {
+			players[client].whip_frame = 0;
+
+			time = 3.0;
+			return Plugin_Changed;
+		}
+	}
 	return Plugin_Continue;
 }
 
@@ -3500,9 +3490,7 @@ void CacheWeapons(int client) {
 					case 232: player_weapons[client][Wep_Bushwacka] = true;
 					case 307: player_weapons[client][Wep_Caber] = true;
 					case 159, 433: player_weapons[client][Wep_Dalokohs] = true;
-#if defined MEMORY_PATCHES
 					case 447: player_weapons[client][Wep_Disciplinary] = true;
-#endif
 					case 1178: player_weapons[client][Wep_DragonFury] = true;
 					case 996: player_weapons[client][Wep_LooseCannon] = true;
 					case 751: player_weapons[client][Wep_CleanerCarbine] = true;
@@ -7359,6 +7347,19 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn re
 		) {
 			returnValue.Value = false;
 			return MRES_Supercede;
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Disciplinary)) {
+		int target = GetEntityFromAddress(LoadFromAddress(view_as<Address>(parameters.Get(1) + CGameTrace_m_pEnt), NumberType_Int32));
+		if (
+			target >= 1 &&
+			target <= MaxClients
+		) {
+			players[target].whip_frame = GetGameTickCount();
 		}
 	}
 	return MRES_Ignored;
