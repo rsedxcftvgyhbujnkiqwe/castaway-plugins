@@ -248,7 +248,6 @@ enum struct Player {
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
 	float stunball_fix_time_wear;
-	int bonk_cond_frame;
 	int beggars_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
@@ -316,6 +315,7 @@ ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_parachute_maxspeed_xy;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
+ConVar cvar_ref_tf_scout_air_dash_count;
 ConVar cvar_ref_tf_scout_hype_mod;
 ConVar cvar_ref_tf_scout_stunball_base_duration;
 ConVar cvar_ref_tf_stealth_damage_reduction;
@@ -829,6 +829,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_parachute_maxspeed_xy = FindConVar("tf_parachute_maxspeed_xy");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
+	cvar_ref_tf_scout_air_dash_count = FindConVar("tf_scout_air_dash_count");
 	cvar_ref_tf_scout_hype_mod = FindConVar("tf_scout_hype_mod");
 	cvar_ref_tf_scout_stunball_base_duration = FindConVar("tf_scout_stunball_base_duration");
 	cvar_ref_tf_stealth_damage_reduction = FindConVar("tf_stealth_damage_reduction");
@@ -1424,6 +1425,7 @@ public void OnGameFrame() {
 	int health_cur;
 	int health_max;
 	int item_index;
+	int effects;
 
 	frame++;
 
@@ -1462,33 +1464,28 @@ public void OnGameFrame() {
 						// extra jump stuff (atomizer/sodapop)
 						// truly a work of art
 
-						airdash_limit_old = 1; // multijumps allowed by game
-						airdash_limit_new = 1; // multijumps we want to allow
+						airdash_limit_old = cvar_ref_tf_scout_air_dash_count.IntValue; // multijumps allowed by game
+						airdash_limit_new = airdash_limit_old; // multijumps we want to allow
 
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
-
+						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
-							GetEntityClassname(weapon, class, sizeof(class));
+							airdash_limit_old = TF2Attrib_HookValueInt(airdash_limit_old, "air_dash_count", weapon);
+							airdash_limit_new = airdash_limit_old;
 
 							if (
-								StrEqual(class, "tf_weapon_bat") &&
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450
+								GetItemVariant(Wep_Atomizer) == 1 &&
+								player_weapons[idx][Wep_Atomizer] &&
+								weapon == GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee)
 							) {
-								switch (GetItemVariant(Wep_Atomizer)) {
-									case -1: {
-										if (weapon == GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")) {
-											airdash_limit_old = 2;
-											airdash_limit_new = 2;
+								airdash_limit_new++;
 										}
 									}
-									case 0: airdash_limit_new = 2;
-									case 1: {
-										if (weapon == GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon")) {
-											airdash_limit_new = 2;
-										}
-									}	
-								}
-							}
+
+						if (
+							GetItemVariant(Wep_Atomizer) == 0 &&
+							player_weapons[idx][Wep_Atomizer]
+						) {
+							airdash_limit_new++;
 						}
 
 						if (TF2_IsPlayerInCondition(idx, TFCond_CritHype)) {
@@ -1511,13 +1508,10 @@ public void OnGameFrame() {
 
 							players[idx].scout_airdash_count++;
 
-							if (
-								airdash_limit_new == 2 &&
-								ItemIsEnabled(Wep_Atomizer)
-							) {
+							if (airdash_limit_new == 2) {
 								if (
 									GetItemVariant(Wep_Atomizer) == 0 ||
-									(GetItemVariant(Wep_Atomizer) == 1 && players[idx].scout_airdash_count == 2)
+									GetItemVariant(Wep_Atomizer) == 1 && players[idx].scout_airdash_count == 2
 								) {
 									// emit purple smoke (still shows white smoke too but good enough for now)
 									GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
@@ -1537,7 +1531,7 @@ public void OnGameFrame() {
 								}
 							}
 						} else {
-							if ((GetEntityFlags(idx) & FL_ONGROUND) != 0) {
+							if (GetEntityFlags(idx) & FL_ONGROUND) {
 								players[idx].scout_airdash_count = 0;
 							}
 						}
@@ -1547,7 +1541,7 @@ public void OnGameFrame() {
 								airdash_value >= airdash_limit_old &&
 								players[idx].scout_airdash_count < airdash_limit_new
 							) {
-								airdash_value = (airdash_limit_old - 1);
+								airdash_value = airdash_limit_old - 1;
 							}
 
 							if (
@@ -1949,7 +1943,7 @@ public void OnGameFrame() {
 
 								if (weapon > 0) {
 
-									int effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+									effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
 									if (
 										TF2Attrib_HookValueInt(0, "set_blockbackstab_once", weapon) &&
 										GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) >= 100.0 &&
@@ -2110,22 +2104,23 @@ public void OnGameFrame() {
 					// this bug apparently existed before sandman nerf
 
 					weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+					effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
 
 					if (
 						weapon > 0 &&
-						(GetEntProp(weapon, Prop_Send, "m_fEffects") & EF_NODRAW) != 0 &&
-						(GetGameTime() - players[idx].stunball_fix_time_bonk) < 10.0 &&
+						effects & EF_NODRAW &&
+						GetGameTime() - players[idx].stunball_fix_time_bonk < 10.0 &&
 						TF2_IsPlayerInCondition(idx, TFCond_Dazed) == false
 					) {
-						if (players[idx].stunball_fix_time_wear == 0.0) {
-							players[idx].stunball_fix_time_wear = GetGameTime();
-						} else {
-							if ((GetGameTime() - players[idx].stunball_fix_time_wear) > 0.100) {
-								SetEntProp(weapon, Prop_Send, "m_fEffects", (GetEntProp(weapon, Prop_Send, "m_fEffects") & ~EF_NODRAW));
+						if (players[idx].stunball_fix_time_wear) {
+							if (GetGameTime() - players[idx].stunball_fix_time_wear > 0.100) {
+								SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
 
 								players[idx].stunball_fix_time_bonk = 0.0;
 								players[idx].stunball_fix_time_wear = 0.0;
 							}
+						} else {
+							players[idx].stunball_fix_time_wear = GetGameTime();
 						}
 					}
 				}
@@ -2473,12 +2468,13 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 		}
 	}
 	{
-		// bonk
+		// bonk slowdown tracking
 		if (
 			ItemIsEnabled(Wep_Bonk) &&
 			condition == TFCond_Bonked
 		) {
-			players[client].bonk_cond_frame = GetGameTickCount();
+			players[client].stun_frame = GetGameTickCount();
+			players[client].stun_inflictor = client;
 		}
 	}
 	return Plugin_Continue;
@@ -4471,7 +4467,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					GetItemVariant(Wep_SodaPopper) == 1 &&
-					TF2_IsPlayerInCondition(attacker, TFCond_CritHype) == true
+					TF2_IsPlayerInCondition(attacker, TFCond_CritHype)
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
@@ -7136,7 +7132,7 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim(int entity, D
 			GetItemVariant(Wep_Sandman) == 3 &&
 			(PlayerIsUbered(victim) || TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading))
 		) {
-			// apply a fake stun so the hook will override it
+			// stun ubers, apply a fake stun so the hook will override it
 			TF2_StunPlayer(victim, 0.0, 0.0, TF_STUNFLAG_SOUND, GetEntityOwner(entity));
 			SetEntProp(entity, Prop_Send, "m_bTouched", 1);
 		}
@@ -7164,17 +7160,6 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 		attacker <= MaxClients
 	) {
 		//LogMessage("CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
-		if (
-			ItemIsEnabled(Wep_Bonk) &&
-			victim == attacker &&
-			stun_fls == TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND &&
-			players[victim].bonk_cond_frame == GetGameTickCount()
-		) {
-			// bonk cancel stun
-			players[victim].bonk_cond_frame = 0;
-			//LogMessage("Canceled bonk stun");
-			return MRES_Supercede;
-		}
 
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
@@ -7187,9 +7172,17 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 		}
 
 		if (
+			ItemIsEnabled(Wep_Bonk) &&
+			victim == attacker &&
+			stun_fls == TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND
+		) {
+			// cancel bonk stun
+			// LogMessage("Canceled bonk stun");
+			return MRES_Supercede;
+		}
+		else if (
 			ItemIsEnabled(Wep_Sandman) &&
-			StrEqual(class, "tf_projectile_stun_ball") &&
-			(stun_fls & TF_STUNFLAG_SOUND || stun_fls & TF_STUNFLAG_CHEERSOUND)
+			StrEqual(class, "tf_projectile_stun_ball")
 		) {
 			// sandman stun override
 			override = true;
