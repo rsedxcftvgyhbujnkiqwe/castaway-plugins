@@ -2424,6 +2424,22 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		}
 	}
 	{
+		// use crikey meter to indicate remaining buff duration for release cleaner's carbine
+		if (
+			GetItemVariant(Wep_CleanerCarbine) == 0 &&
+			TF2_GetPlayerClass(client) == TFClass_Sniper &&
+			condition == TFCond_CritOnKill
+		) {
+			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+
+			if (weapon > 0) {
+				if (HasEntProp(weapon, Prop_Send, "m_flMinicritCharge")) {
+					SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
+				}
+			}
+		}
+	}
+	{
 		// 3 seconds of speed buff for reverted whip
 		if (
 			ItemIsEnabled(Wep_Disciplinary) &&
@@ -3356,17 +3372,6 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 						// Save kill tick for applying overheal on next tick
 						players[attacker].powerjack_kill_tick = GetGameTickCount();
 						players[attacker].old_health = GetClientHealth(attacker);
-					}
-
-					if (
-						GetItemVariant(Wep_CleanerCarbine) == 0 &&
-						TF2_GetPlayerClass(attacker) == TFClass_Sniper &&
-						HasEntProp(weapon, Prop_Send, "m_flMinicritCharge") &&
-						GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
-					) {
-						// release cleaner's carbine use crikey meter to indicate remaining buff duration
-						// this is purely a custom visual thing
-						SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 					}
 				}
 			}
