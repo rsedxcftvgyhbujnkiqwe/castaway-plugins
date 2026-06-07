@@ -2643,8 +2643,8 @@ public void ApplyRevertsToItem(int entity, int index) {
 			TF2Attrib_SetByDefIndex(entity, 100, 1.0); // blast radius decreased
 		}}
 		case 228, 1085: { if (ItemIsEnabled(Wep_BlackBox)) {
-			TF2Attrib_SetByDefIndex(entity, 741, 0.0); // falloff-based heal
-			// heal per hit handled elsewhere
+			TF2Attrib_SetByDefIndex(entity, 110, 15.0); // On Hit: +15 health
+			TF2Attrib_SetByDefIndex(entity, 741, 0.0); // On Hit: Gain up to +0 health per attack
 		}}
 		case 405, 608: { if (ItemIsEnabled(Wep_Booties)) {
 			TF2Attrib_SetByDefIndex(entity, 107, 1.10); // move speed bonus
@@ -4605,27 +4605,31 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// pre-GM Black Box heal on hit
+				// full attrib heal on hit
 				if (
-					ItemIsEnabled(Wep_BlackBox) &&
-					StrEqual(class,"tf_weapon_rocketlauncher") &&
 					(
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 228 ||
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 1085
+						ItemIsEnabled(Wep_BlackBox) && player_weapons[attacker][Wep_BlackBox] ||
+						GetItemVariant(Wep_PocketPistol) == 2 && player_weapons[attacker][Wep_PocketPistol]
 					) &&
 					attacker != victim &&
 					!AreEntitiesOnSameTeam(attacker, victim) &&
 					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
 					!PlayerIsUbered(victim)
 				) {
+					int heal = TF2Attrib_HookValueInt(0, "add_onhit_addhealth", weapon);
+					if (heal) {
+						// "selfdmg on hit for rapidfire", unused attribute, is removed in OnTakeDamagePost
+						TF2Attrib_SetByDefIndex(weapon, 98, -float(heal));
+
 					// Show that attacker got healed.
 					Event event = CreateEvent("player_healonhit", true);
-					event.SetInt("amount", 15);
+						event.SetInt("amount", heal);
 					event.SetInt("entindex", attacker);
 					event.Fire();
 
 					// Add health.
-					TF2Util_TakeHealth(attacker, 15.0);
+						TF2Util_TakeHealth(attacker, float(heal));
+					}
 				}
 			}
 
@@ -5224,7 +5228,7 @@ void SDKHookCB_OnTakeDamagePost(
 			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
-		if (weapon > 0) {
+		if (weapon > MaxClients) {
 			//GetEntityClassname(weapon, class, sizeof(class));
 
 			if (
@@ -5234,6 +5238,15 @@ void SDKHookCB_OnTakeDamagePost(
 			) {
 				// Restore sleeper attrib
 				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
+			}
+
+			// full attrib heal on hit
+			if (
+				ItemIsEnabled(Wep_BlackBox) && player_weapons[attacker][Wep_BlackBox] ||
+				GetItemVariant(Wep_PocketPistol) == 2 && player_weapons[attacker][Wep_PocketPistol]
+			) {
+				// remove "selfdmg on hit for rapidfire"
+				TF2Attrib_RemoveByDefIndex(weapon, 98);
 			}
 		}
 
