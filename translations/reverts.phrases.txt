@@ -756,6 +756,10 @@
 	{
 		"en"	"Reverted to pre-inferno, can refill cloak via ammo while uncloaked"
 	}
+	"Ringer_Pre2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, can refill via ammo (35%% cap), 90%% damage resist for 6s, no speedboost or afterburn immunity, no debuff reduction when cloaked"
+	}
 	"Degreaser_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 65%% faster weapon switch, -10%% damage, -25%% afterburn damage, no airblast cost penalty"

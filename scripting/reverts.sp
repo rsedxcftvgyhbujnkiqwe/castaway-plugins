@@ -689,6 +689,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Darwin, "Darwin_Pre2013");
 	ItemDefine("ringer", "Ringer_PreGM", CLASSFLAG_SPY, Wep_DeadRinger);
 	ItemVariant(Wep_DeadRinger, "Ringer_PreJI");
+	ItemVariant(Wep_DeadRinger, "Ringer_Pre2013");
 	ItemDefine("degreaser", "Degreaser_PreTB", CLASSFLAG_PYRO, Wep_Degreaser);
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
@@ -1478,8 +1479,8 @@ public void OnGameFrame() {
 								weapon == GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee)
 							) {
 								airdash_limit_new++;
-										}
-									}
+							}
+						}
 
 						if (
 							GetItemVariant(Wep_Atomizer) == 0 &&
@@ -1980,7 +1981,10 @@ public void OnGameFrame() {
 					{
 						// no reduced debuff timer for old-style deadringer
 						if (
-							GetItemVariant(Wep_DeadRinger) == 0 &&
+							(
+								GetItemVariant(Wep_DeadRinger) == 0 ||
+								GetItemVariant(Wep_DeadRinger) == 2
+							) &&
 							player_weapons[idx][Wep_DeadRinger] &&
 							TF2_IsPlayerInCondition(idx, TFCond_Cloaked)
 						) {
@@ -2342,26 +2346,26 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			}
 		}
 		case TFClass_Spy: {
-		if (
-			ItemIsEnabled(Wep_DeadRinger) &&
-			player_weapons[client][Wep_DeadRinger] &&
-			condition == TFCond_Cloaked
-		) {
-			float cloak = -1.0;
-
-			switch (GetItemVariant(Wep_DeadRinger)) {
-				case 0: { // pre-GM
-					// when uncloaking, cloak is drained to 40%
-					cloak = 40.0;
-				}
-			}
-
 			if (
-				cloak != -1.0 &&
-				GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") > cloak
+				ItemIsEnabled(Wep_DeadRinger) &&
+				player_weapons[client][Wep_DeadRinger] &&
+				condition == TFCond_Cloaked
 			) {
-				SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak);
-			}
+				float cloak = -1.0;
+
+				switch (GetItemVariant(Wep_DeadRinger)) {
+					case 0, 2: { // pre-GM
+						// when uncloaking, cloak is drained to 40%
+						cloak = 40.0;
+					}
+				}
+
+				if (
+					cloak != -1.0 &&
+					GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") > cloak
+				) {
+					SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak);
+				}
 			}
 		}
 	}
@@ -2374,12 +2378,15 @@ void SetFeignDeathEnd(int client) {
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
 	{
 		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
+			(
+				GetItemVariant(Wep_DeadRinger) == 0 ||
+				GetItemVariant(Wep_DeadRinger) == 2
+			) &&
 			TF2_GetPlayerClass(client) == TFClass_Spy &&
 			condition == TFCond_DeadRingered
 		) {
 			// undo 50% drain on activated
-			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", floatMin(GetEntPropFloat(client, Prop_Send, "m_flCloakMeter") + 50.0, 100.0));
+			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
 			RequestFrame(SetFeignDeathEnd, client);
 			return Plugin_Continue;
 		}
@@ -3027,7 +3034,7 @@ public void ApplyRevertsToItem(int entity, int index) {
 		}
 		case 59: {
 			switch (GetItemVariant(Wep_DeadRinger)) {
-				case 0: {
+				case 0, 2: {
 					TF2Attrib_SetByDefIndex(entity, 35, 1.8); // mult cloak meter regen rate
 					TF2Attrib_SetByDefIndex(entity, 82, 1.6); // cloak consume rate increased
 					TF2Attrib_SetByDefIndex(entity, 83, 1.0); // cloak consume rate decreased
@@ -3418,16 +3425,16 @@ void CacheWeapons(int client) {
 
 				if (
 					StrEqual(class, "tf_weapon_flamethrower")||
-						StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+					StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 				) {
 					if (!TF2Attrib_HookValueInt(0, "airblast_disabled", weapon)) {
-					player_weapons[client][Feat_Airblast] = true;
-				}
+						player_weapons[client][Feat_Airblast] = true;
+					}
 
 #if defined MEMORY_PATCHES
-				if (StrEqual(class, "tf_weapon_flamethrower")) {
-					player_weapons[client][Feat_Flamethrower] = true;
-				}
+					if (StrEqual(class, "tf_weapon_flamethrower")) {
+						player_weapons[client][Feat_Flamethrower] = true;
+					}
 				}
 				else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 					player_weapons[client][Feat_SniperRifle] = true;
@@ -4264,38 +4271,34 @@ Action SDKHookCB_OnTakeDamage(
 		}
 
 		{
-			// dead ringer cvars set
-
 			if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
-				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Building);
 
-				if (weapon1 > 0) {
-					GetEntityClassname(weapon1, class, sizeof(class));
+				if (TF2_IsPlayerInCondition(victim, TFCond_Cloaked)) {
+					cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+				}
 
-					if (StrEqual(class, "tf_weapon_invis")) {
+				// dead ringer cvars set
+				if (player_weapons[victim][Wep_DeadRinger]) {
+					switch (GetItemVariant(Wep_DeadRinger)) {
+						case -1, 1: {
+							// "New-Style" Dead Ringer
+							cvar_ref_tf_feign_death_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+							cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+							cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+						}
+						case 0, 2: {
+							// "Old-Style" Dead Ringer
+							cvar_ref_tf_feign_death_duration.FloatValue = -1.0;
+							cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
+							cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
 
-						if (GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 59) {
-
-							switch (GetItemVariant(Wep_DeadRinger)) {
-								case -1, 1: {
-									// Pre-Inferno and Vanilla Dead Ringer
-									cvar_ref_tf_feign_death_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-									cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-									cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-									cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
-								}
-								default: {
-									// "Old-Style" Dead Ringer
-									cvar_ref_tf_feign_death_duration.FloatValue = -1.0;
-									cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
-									cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
-									cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
-									cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
-								}
+							if (TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)) {
+								cvar_ref_tf_stealth_damage_reduction.FloatValue = 0.10;
+							} else {
+								cvar_ref_tf_stealth_damage_reduction.FloatValue = 1.00;
 							}
-						} else {
-							cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
 						}
 					}
 				}
@@ -4604,8 +4607,8 @@ Action SDKHookCB_OnTakeDamage(
 				// full attrib heal on hit
 				if (
 					(
-						ItemIsEnabled(Wep_BlackBox) && player_weapons[attacker][Wep_BlackBox] ||
-						GetItemVariant(Wep_PocketPistol) == 2 && player_weapons[attacker][Wep_PocketPistol]
+						ItemIsEnabled(Wep_BlackBox) && StrEqual(class, "tf_weapon_rocketlauncher") ||
+						GetItemVariant(Wep_PocketPistol) == 2 && StrEqual(class, "tf_weapon_handgun_scout_secondary")
 					) &&
 					attacker != victim &&
 					!AreEntitiesOnSameTeam(attacker, victim) &&
@@ -4617,13 +4620,13 @@ Action SDKHookCB_OnTakeDamage(
 						// "selfdmg on hit for rapidfire", unused attribute, is removed in OnTakeDamagePost
 						TF2Attrib_SetByDefIndex(weapon, 98, -float(heal));
 
-					// Show that attacker got healed.
-					Event event = CreateEvent("player_healonhit", true);
+						// Show that attacker got healed.
+						Event event = CreateEvent("player_healonhit", true);
 						event.SetInt("amount", heal);
-					event.SetInt("entindex", attacker);
-					event.Fire();
+						event.SetInt("entindex", attacker);
+						event.Fire();
 
-					// Add health.
+						// Add health.
 						TF2Util_TakeHealth(attacker, float(heal));
 					}
 				}
@@ -5231,7 +5234,7 @@ void SDKHookCB_OnTakeDamagePost(
 		}
 
 		if (weapon > MaxClients) {
-			//GetEntityClassname(weapon, class, sizeof(class));
+			GetEntityClassname(weapon, class, sizeof(class));
 
 			if (
 				GetItemVariant(Wep_SydneySleeper) == 0 &&
@@ -5244,11 +5247,13 @@ void SDKHookCB_OnTakeDamagePost(
 
 			// full attrib heal on hit
 			if (
-				ItemIsEnabled(Wep_BlackBox) && player_weapons[attacker][Wep_BlackBox] ||
-				GetItemVariant(Wep_PocketPistol) == 2 && player_weapons[attacker][Wep_PocketPistol]
+				ItemIsEnabled(Wep_BlackBox) && StrEqual(class, "tf_weapon_rocketlauncher") ||
+				GetItemVariant(Wep_PocketPistol) == 2 && StrEqual(class, "tf_weapon_handgun_scout_secondary")
 			) {
-				// remove "selfdmg on hit for rapidfire"
-				TF2Attrib_RemoveByDefIndex(weapon, 98);
+				if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
+					// remove "selfdmg on hit for rapidfire"
+					TF2Attrib_RemoveByDefIndex(weapon, 98);
+				}
 			}
 		}
 
@@ -6604,9 +6609,9 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			ItemIsEnabled(Wep_Concheror) &&
 			player_weapons[client][Wep_Concheror]
 		) {
-				full_regen = true;
+			full_regen = true;
 		}
-	
+
 		weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 		if (
 			ItemIsEnabled(Wep_Amputator) &&
@@ -6614,8 +6619,8 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 			weapon > MaxClients &&
 			weapon == GetPlayerWeaponSlot(client, TFWeaponSlot_Melee)
 		) {
-				full_regen = true;
-			}
+			full_regen = true;
+		}
 
 		if (
 			ItemIsEnabled(Set_Medieval) &&
@@ -6971,7 +6976,10 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHook
 	) {
 		bool force = parameters.Get(2);
 		if (
-			GetItemVariant(Wep_DeadRinger) == 0 &&
+			(
+				GetItemVariant(Wep_DeadRinger) == 0 ||
+				GetItemVariant(Wep_DeadRinger) == 2
+			) &&
 			player_weapons[client][Wep_DeadRinger] &&
 			!force
 		) {
