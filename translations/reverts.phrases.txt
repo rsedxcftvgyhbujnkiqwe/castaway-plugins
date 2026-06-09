@@ -606,7 +606,7 @@
 	}
 	"Axtinguisher_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, always deals 195 damage crits to burning targets, no speedboost on kill"
+		"en"	"Reverted to pre-love&war, always deals 195 damage crits to burning targets, no crits vs non-burning targets, no speedboost on kill"
 	}
 	"Axtinguisher_PreTB"
 	{
