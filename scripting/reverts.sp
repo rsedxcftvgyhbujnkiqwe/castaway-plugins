@@ -2312,11 +2312,39 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
-	{
+	switch (TF2_GetPlayerClass(client)) {
+		case TFClass_Scout: {
+			if (
+				GetItemVariant(Wep_CritCola) == 1 &&
+				player_weapons[client][Wep_CritCola] &&
+				condition == TFCond_CritCola
+			) {
+				// mark-for-death when buff expires
+				TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
+			}
+		}
+		case TFClass_Engineer: {
+			if (
+				condition == TFCond_Taunting &&
+				players[client].is_eureka_teleporting == true
+			) {
+				players[client].is_eureka_teleporting = false;
+
+				if (
+					ItemIsEnabled(Wep_EurekaEffect) &&
+					(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
+					players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
+					FindBuiltTeleporterExitOwnedByClient(client) == -1)
+				) {
+					// Refill player health and ammo
+					TF2_RegeneratePlayer(client);
+				}
+			}
+		}
+		case TFClass_Spy: {
 		if (
 			ItemIsEnabled(Wep_DeadRinger) &&
 			player_weapons[client][Wep_DeadRinger] &&
-			TF2_GetPlayerClass(client) == TFClass_Spy &&
 			condition == TFCond_Cloaked
 		) {
 			float cloak = -1.0;
@@ -2334,24 +2362,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			) {
 				SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", cloak);
 			}
-		}
-	}
-	{
-		if (
-			TF2_GetPlayerClass(client) == TFClass_Engineer &&
-			condition == TFCond_Taunting &&
-			players[client].is_eureka_teleporting == true
-		) {
-			players[client].is_eureka_teleporting = false;
-
-			if (
-				ItemIsEnabled(Wep_EurekaEffect) &&
-				(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
-				players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
-				FindBuiltTeleporterExitOwnedByClient(client) == -1)
-			) {
-				// Refill player health and ammo
-				TF2_RegeneratePlayer(client);
 			}
 		}
 	}
@@ -2470,17 +2480,6 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 				if (condition == debuffs[i])
 					return Plugin_Handled;
 			}
-		}
-	}
-	{
-		// pre-inferno crit-a-cola mark-for-death on expire
-		if (
-			GetItemVariant(Wep_CritCola) == 1 &&
-			condition == TFCond_CritCola &&
-			player_weapons[client][Wep_CritCola] &&
-			TF2_GetPlayerClass(client) == TFClass_Scout
-		) {
-			TF2_AddCondition(client, TFCond_MarkedForDeathSilent, 2.0, 0);
 		}
 	}
 	{
@@ -3418,23 +3417,23 @@ void CacheWeapons(int client) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (
-					!TF2Attrib_HookValueInt(0, "airblast_disabled", weapon) &&
-					(
-						StrEqual(class, "tf_weapon_flamethrower") ||
+					StrEqual(class, "tf_weapon_flamethrower")||
 						StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-					)
 				) {
+					if (!TF2Attrib_HookValueInt(0, "airblast_disabled", weapon)) {
 					player_weapons[client][Feat_Airblast] = true;
 				}
+
 #if defined MEMORY_PATCHES
 				if (StrEqual(class, "tf_weapon_flamethrower")) {
 					player_weapons[client][Feat_Flamethrower] = true;
 				}
-
+				}
 				else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 					player_weapons[client][Feat_SniperRifle] = true;
-				}
 #endif
+				}
+
 				else if (StrEqual(class, "tf_weapon_lunchbox")) {
 					player_weapons[client][Feat_Lunchbox] = true;					
 				}
@@ -4173,10 +4172,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 							}
 							
 							// Pomson pass through teammates, unless pre-Gun Mettle variant is used
-							if (
-								ItemIsEnabled(Wep_Pomson) &&
-								GetItemVariant(Wep_Pomson) != 2
-							) {
+							if (GetItemVariant(Wep_Pomson) != 2) {
 								return Plugin_Handled;
 							}
 						}
@@ -4676,7 +4672,11 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					if (
 						GetItemVariant(Wep_Natascha) == 2 &&
-						TF2_IsPlayerInCondition(victim, TFCond_Healing)
+						TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
+						attacker != victim &&
+						!AreEntitiesOnSameTeam(attacker, victim) &&
+						!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
+						!PlayerIsUbered(victim)
 					) {
 						// slow players being healed regardless
 						TF2_StunPlayer(victim, 0.20, 0.75, TF_STUNFLAG_SLOWDOWN, attacker);
@@ -4781,6 +4781,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 	//int weapon1;
 
 	if (
+		victim > MaxClients &&
 		attacker >= 1 && attacker <= MaxClients &&
 		weapon > MaxClients
 	) {
@@ -5017,7 +5018,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 				player_weapons[victim][Wep_Battalions] &&
 				victim != attacker &&
 				damage_type & DMG_FALL == 0 &&
-				!GetEntProp(victim, Prop_Send, "m_bRageDraining")
+				!GetEntProp(victim, Prop_Send, "m_bRageDraining") &&
+				!PlayerIsUbered(victim)
 			) {
 				rage = players[victim].rage_meter;
 				rage += damage * 4.0 / 7.0; // 175 damage total
@@ -6598,34 +6600,27 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 		client > 0 &&
 		client <= MaxClients
 	) {
-		// Grab secondary weapon
-		weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-
 		if (
 			ItemIsEnabled(Wep_Concheror) &&
-			weapon > 0
+			player_weapons[client][Wep_Concheror]
 		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 354) {
-				// Weapon is a Concheror, increase regen amount for this instance
 				full_regen = true;
-			}
 		}
 	
-		// Grab active weapon
 		weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-		
 		if (
 			ItemIsEnabled(Wep_Amputator) &&
-			weapon > 0
+			player_weapons[client][Wep_Amputator] &&
+			weapon > MaxClients &&
+			weapon == GetPlayerWeaponSlot(client, TFWeaponSlot_Melee)
 		) {
-			if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 304) {
-				// Weapon is an Amputator, increase regen amount for this instance
 				full_regen = true;
 			}
-		}
 
-		if (player_weapons[client][Set_Medieval]) {
-			// Full regen for Medieval Medic set
+		if (
+			ItemIsEnabled(Set_Medieval) &&
+			player_weapons[client][Set_Medieval]
+		) {
 			full_regen = true;
 		}
 
@@ -6930,7 +6925,7 @@ MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam
 		parameters.GetString(1, criteria, sizeof(criteria));
 
 		// Fast reject
-		if (criteria[0] != 'i' || !StrEqual(criteria, "item_name", false))
+		if (!StrEqual(criteria, "item_name", false))
 		{
 			return MRES_Ignored;
 		}
@@ -6938,7 +6933,7 @@ MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam
 		char value[64];
 		parameters.GetString(2, value, sizeof(value));
 
-		if (value[0] != 'T' || !StrEqual(value, "The Spy-cicle", false))
+		if (!StrEqual(value, "The Spy-cicle", false))
 		{
 			return MRES_Ignored;
 		}
