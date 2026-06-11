@@ -19,14 +19,11 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      # nativevotes doesn't have a package for SM 1.13, but it doesn't matter since
-      # we only need the .sp files for compilation
       - name: Setup SourceMod
         run: |
-          export LATEST_SOURCEMOD=$(curl https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/sourcemod-latest-linux)
-          wget -O sourcemod.tar.gz https://sm.alliedmods.net/smdrop/${{ matrix.sm-target }}/$LATEST_SOURCEMOD
+          wget -O sourcemod.tar.gz "https://www.sourcemod.net/latest.php?os=linux&version=${{ matrix.sm-target }}"
           mkdir sourcemod
           cd sourcemod
           tar xf ../sourcemod.tar.gz
@@ -64,7 +61,7 @@ jobs:
           mv translations/* artifact/translations/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           path: artifact
           name: package-${{ matrix.sm-target }}
