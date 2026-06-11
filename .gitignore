@@ -28,6 +28,7 @@ scripting/nativevotes/*
 !scripting/supersprayhandler.sp
 !scripting/afkmanager.sp
 !scripting/mgehandler.sp
+!scripting/old-flame-mechanics.sp
 
 #includes
 !scripting/include/
@@ -50,6 +51,7 @@ gamedata/*
 !gamedata/memorypatch_reverts.txt
 !gamedata/legacy
 !gamedata/legacy/*
+!gamedata/old-flame-mechanics.txt
 
 !translations/
 translations/*
