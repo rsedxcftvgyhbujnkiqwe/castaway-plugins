@@ -3169,7 +3169,7 @@ public void ApplyRevertsToItem(int entity, int index) {
 					TF2Attrib_SetByDefIndex(entity, 60, 0.75); // 25% fire damage resistance on wearer
 					TF2Attrib_SetByDefIndex(entity, 64, 0.75); // 25% explosive damage resistance on wearer
 					TF2Attrib_SetByDefIndex(entity, 676, 0.0); // Taking damage while shield charging reduces remaining charging time
-					TF2Attrib_SetByDefIndex(entity, 2034, 1.0); // 100% charge refill on melee kill; kill_refills_meter					
+					TF2Attrib_SetByDefIndex(entity, 2034, 1.0); // Melee kills refill 100% of your charge meter.
 				}
 			}
 		}
