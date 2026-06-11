@@ -4897,34 +4897,35 @@ Action SDKHookCB_OnTakeDamageAlive(
 				if (weapon1 > 0) {
 					GetEntityClassname(weapon1, class, sizeof(class));
 
-					if (StrEqual(class, "tf_weapon_minigun")) {
-
-						if (
+					if (
+						StrEqual(class, "tf_weapon_minigun") &&
+						(
 							ItemIsEnabled(Wep_BrassBeast) &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
 							GetItemVariant(Wep_Natascha) == 0 &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
-						) {
-							health_cur = GetClientHealth(victim);
-							health_max = SDKCall(sdkcall_GetMaxHealth, victim);
-							
-							// apply resistance only when above 50% of max health
-							if ((float(health_cur) - damage) / health_max > 0.5) {
-								float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", weapon1);
-								if (
-									spunup_resist > 0.0 &&
-									spunup_resist != 1.0
-								) {
-									// play damage resist sound
-									EmitGameSoundToAll("Player.ResistanceLight", victim);
+						)
+					) {
 
-									// apply resistance
-									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", spunup_resist, 0.001);
-									if (damage_type & DMG_CRIT) {
-										// increase crit vuln here for proper resist on crits and minicrits
-										// (multiplicative inverse of spunup resist value)
-										TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1.0 / spunup_resist, 0.001);
-									}
+						health_cur = GetClientHealth(victim);
+						health_max = SDKCall(sdkcall_GetMaxHealth, victim);
+						
+						// apply resistance only when above 50% of max health
+						if ((float(health_cur) - damage) / health_max > 0.5) {
+							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", victim);
+							if (
+								spunup_resist > 0.0 &&
+								spunup_resist != 1.0
+							) {
+								// play damage resist sound
+								EmitGameSoundToAll("Player.ResistanceLight", victim);
+
+								// apply resistance
+								TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken increased", spunup_resist, 0.001);
+								if (damage_type & DMG_CRIT) {
+									// increase crit vuln here for proper resist on crits and minicrits
+									// (multiplicative inverse of spunup resist value)
+									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1.0 / spunup_resist, 0.001);
 								}
 							}
 						}
@@ -5234,7 +5235,7 @@ void SDKHookCB_OnTakeDamagePost(
 		}
 
 		if (weapon > MaxClients) {
-			GetEntityClassname(weapon, class, sizeof(class));
+			// GetEntityClassname(weapon, class, sizeof(class));
 
 			if (
 				GetItemVariant(Wep_SydneySleeper) == 0 &&
@@ -5245,15 +5246,9 @@ void SDKHookCB_OnTakeDamagePost(
 				TF2Attrib_SetByDefIndex(weapon, 175, 8.0);
 			}
 
-			// full attrib heal on hit
-			if (
-				ItemIsEnabled(Wep_BlackBox) && StrEqual(class, "tf_weapon_rocketlauncher") ||
-				GetItemVariant(Wep_PocketPistol) == 2 && StrEqual(class, "tf_weapon_handgun_scout_secondary")
-			) {
-				if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
-					// remove "selfdmg on hit for rapidfire"
-					TF2Attrib_RemoveByDefIndex(weapon, 98);
-				}
+			// remove "selfdmg on hit for rapidfire"
+			if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
+				TF2Attrib_RemoveByDefIndex(weapon, 98);
 			}
 		}
 
@@ -5269,8 +5264,11 @@ void SDKHookCB_OnTakeDamagePost(
 					ItemIsEnabled(Wep_Pomson) &&
 					StrEqual(class, "tf_weapon_drg_pomson") &&
 					PlayerIsInvulnerable(victim) == false &&
-					(players[attacker].drain_victim != victim ||
-					GetGameTime() - players[attacker].drain_time > 0.3)
+					players[victim].using_vaccinator_uber == false &&
+					(
+						players[attacker].drain_victim != victim ||
+						GetGameTime() - players[attacker].drain_time > 0.3
+					)
 				) {
 					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
 					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
