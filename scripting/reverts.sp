@@ -584,6 +584,11 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "This plugin only works on Team Fortress 2");
 		return APLRes_SilentFailure;
 	}
+
+	CreateNative("Reverts_ApplyRevertsToItem", Native_ApplyRevertsToItem);
+
+	RegPluginLibrary("reverts");
+
 	return APLRes_Success;
 }
 
@@ -2521,6 +2526,28 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 	// we only give bForce to items that would have ended up in m_hDisguiseWeaponList so we know this won't grow out of control.
 	itemNew = TF2Items_CreateItem(OVERRIDE_ATTRIBUTES | PRESERVE_ATTRIBUTES | ( needForce ? FORCE_GENERATION : 0) );
 
+	// Abstracted away for the purpose of exposing as a native
+	ApplyRevertsToItem(itemNew, index);
+
+	if (TF2Items_GetNumAttributes(itemNew)) {
+		itemTarget = itemNew;
+		return Plugin_Changed;
+	}
+	delete itemNew;
+	return Plugin_Continue;
+}
+
+public int Native_ApplyRevertsToItem(Handle plugin, int numParams)
+{
+	Handle item = GetNativeCell(1);
+	int index = GetNativeCell(2);
+	
+	ApplyRevertsToItem(item, index);
+
+	return 0;
+}
+
+public void ApplyRevertsToItem(Handle itemNew, int index) {
 	switch (index) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
 			TF2Items_SetNumAttributes(itemNew, 1);
@@ -3271,13 +3298,6 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] class, int index, Hand
 			TF2Items_SetAttribute(itemNew, 3, 781, 0.0); // is a sword
 		}}
 	}
-
-	if (TF2Items_GetNumAttributes(itemNew)) {
-		itemTarget = itemNew;
-		return Plugin_Changed;
-	}
-	delete itemNew;
-	return Plugin_Continue;
 }
 
 public void TF2Items_OnGiveNamedItem_Post(int client, char[] class, int index, int level, int quality, int entity) {

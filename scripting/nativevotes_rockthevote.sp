@@ -206,6 +206,10 @@ public void OnClientConnected(int client)
 	g_Voters++;
 	g_VotesNeeded = RoundToFloor(float(g_Voters) * g_Cvar_Needed.FloatValue);
 	
+	if (g_VotesNeeded == 1 && g_Voters > 1) {
+		g_VotesNeeded = 2;
+	}
+
 	return;
 }
 
@@ -222,6 +226,10 @@ public void OnClientDisconnect(int client)
 	g_Voters--;
 	
 	g_VotesNeeded = RoundToFloor(float(g_Voters) * g_Cvar_Needed.FloatValue);
+
+	if (g_VotesNeeded == 1 && g_Voters > 1) {
+		g_VotesNeeded = 2;
+	}
 	
 	if (!g_CanRTV)
 	{

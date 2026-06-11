@@ -41,6 +41,7 @@ scripting/include/*
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
 !scripting/include/afkmanager.inc
+!scripting/include/reverts.inc
 
 !gamedata/
 gamedata/*
