@@ -336,8 +336,6 @@ MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
 Address AddressOf_g_flMadMilkHealTarget;
 
-DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
-
 MemoryPatch patch_RevertSniperRifles_ScopeJump;
 #if !defined WIN32
 MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
@@ -411,6 +409,9 @@ DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
+#if defined MEMORY_PATCHES
+DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
+#endif
 
 int CBaseObject_m_flHealth; // *((float *)a1 + 652)
 int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
@@ -586,6 +587,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart() {
 	int idx;
 	GameData conf;
+	bool hook_fail = false;
 	// char tmp[64];
 
 	CCheckTrie();
@@ -979,113 +981,22 @@ public void OnPluginStart() {
 		patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
 #else
 		patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
-		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
 #endif
 		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
 		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
+
+		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
+#if !defined WIN32
+		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+#endif
 		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
 		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
 
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
-		// this is done this way so all failures are logged simultaneously rather than one by one
-		// helps for fixing update breakage
-		bool hook_fail = false;
-
-		if (dhook_CTFAmmoPack_MakeHolidayPack == null) {
-			hook_fail=true;
-			LogError("Failed to create dhook_CTFAmmoPack_MakeHolidayPack");
-		} else {
-			dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
-		}
-
-		if (!ValidateAndNullCheck(patch_RevertDragonsFury_CenterHitForBonusDmg)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertDragonsFury_CenterHitForBonusDmg");
-		}
-		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_DmgScale)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertFlamethrowers_Density_DmgScale");
-		}
-		if (!ValidateAndNullCheck(patch_RevertFlamethrowers_Density_OnCollide)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertFlamethrowers_Density_OnCollide");
-		}
-		if (!ValidateAndNullCheck(patch_RevertCrusaderCrossbow_UbergainNerf)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertCrusaderCrossbow_UbergainNerf");
-		}
-		if (!ValidateAndNullCheck(patch_RevertQuickFix_Uber_CannotCapturePoint)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertQuickFix_Uber_CannotCapturePoint");
-		}
-		if (!ValidateAndNullCheck(patch_RevertMadMilk_ChgFloatAddr)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertMadMilk_ChgFloatAddr");
-		}
-		if (!ValidateAndNullCheck(patch_DroppedWeapon)) {
-			hook_fail=true;
-			LogError("Failed to create patch_DroppedWeapon");
-		}
-		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSniperRifles_ScopeJump");
-		}
-		if (!ValidateAndNullCheck(patch_RevertIronBomber_PipeHitbox)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertIronBomber_PipeHitbox");
-		}
-#if !defined WIN32
-		if (!ValidateAndNullCheck(patch_RevertSniperRifles_ScopeJump_linuxextra)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSniperRifles_ScopeJump_linuxextra");
-		}
-#endif
-		if (!ValidateAndNullCheck(patch_RevertCannotDetonateStickiesWhileTaunting)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertCannotDetonateStickiesWhileTaunting");
-		}
-#if defined WIN32
-		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_X)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertWranglerSpreadCone_X");
-		}
-		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_Y)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertWranglerSpreadCone_Y");
-		}
-		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_Z)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertWranglerSpreadCone_Z");
-		}
-#else
-		if (!ValidateAndNullCheck(patch_RevertWranglerSpreadCone_SSE)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertWranglerSpreadCone_SSE");
-		}
-#endif
-		if (!ValidateAndNullCheck(patch_RevertSteakCapValue)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSteakCapValue");
-		}
-		if (!ValidateAndNullCheck(patch_RevertSteakBoostValue)) {
-			hook_fail=true;
-			LogError("Failed to create patch_RevertSteakBoostValue");
-		}
-
-		if (hook_fail) {
-			SetFailState("Failed to load dhooks/memory patches");
-		}
-
-		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-
-
-		// Sdkcall is needed together with the memorypatch for the "detonate stickies during taunt" revert. DO NOT REMOVE IT.
 		StartPrepSDKCall(SDKCall_Entity);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CTFPipebombLauncher::SecondaryAttack");
 		sdkcall_CTFPipebombLauncher_SecondaryAttack = EndPrepSDKCall();
-
-		if (sdkcall_CTFPipebombLauncher_SecondaryAttack == null) SetFailState("Failed to create sdkcall_CTFPipebombLauncher_SecondaryAttack");
 
 		delete conf;
 	}
@@ -1112,49 +1023,90 @@ public void OnPluginStart() {
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
 	}
 
-	if (sdkcall_JarExplode == null) SetFailState("Failed to create sdkcall_JarExplode");
-	if (sdkcall_GetMaxHealth == null) SetFailState("Failed to create sdkcall_GetMaxHealth");
-	if (sdkcall_AwardAchievement == null) SetFailState("Failed to create sdkcall_AwardAchievement");
-	if (sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed == null) SetFailState("Failed to create sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed");
-	if (sdkcall_CTFWeaponBaseGun_GetProjectileDamage == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetProjectileDamage");
-	if (sdkcall_CTFWeaponBaseGun_GetWeaponSpread == null) SetFailState("Failed to create sdkcall_CTFWeaponBaseGun_GetWeaponSpread");
-	if (sdkcall_CWeaponMedigun_CanAttack == null) SetFailState("Failed to create sdkcall_CWeaponMedigun_CanAttack");
+	// this is done this way so all failures are logged simultaneously rather than one by one
+	// helps for fixing update breakage
+	#define VALIDATE_SDKCALL(%1) hook_fail |= ValidateHandleFunc(#%1, %1)
+	#define VALIDATE_DHOOK(%1) hook_fail |= ValidateDynamicHookFunc(#%1, %1)
+	#define VALIDATE_DDETOUR(%1) hook_fail |= ValidateDynamicDetourFunc(#%1, %1)
+	#define VALIDATE_PATCH(%1) hook_fail |= ValidatePatchFunc(#%1, %1)
 
-	if (dhook_CTFWeaponBase_PrimaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_PrimaryAttack");
-	if (dhook_CTFWeaponBase_SecondaryAttack == null) SetFailState("Failed to create dhook_CTFWeaponBase_SecondaryAttack");
-	if (dhook_CTFBaseRocket_GetRadius == null) SetFailState("Failed to create dhook_CTFBaseRocket_GetRadius");
-	if (dhook_CAmmoPack_MyTouch == null) SetFailState("Failed to create dhook_CAmmoPack_MyTouch");
-	if (dhook_CHealthKit_MyTouch == null) SetFailState("Failed to create dhook_CHealthKit_MyTouch");
-	if (dhook_CObjectSentrygun_OnWrenchHit == null) SetFailState("Failed to create dhook_CObjectSentrygun_OnWrenchHit");
-	if (dhook_CObjectSentrygun_StartBuilding == null) SetFailState("Failed to create dhook_CObjectSentrygun_StartBuilding");
-	if (dhook_CObjectSentrygun_Construct == null) SetFailState("Failed to create dhook_CObjectSentrygun_Construct");
-	if (dhook_CTFMinigun_GetProjectileDamage == null) SetFailState("Failed to create dhook_CTFMinigun_GetProjectileDamage");
-	if (dhook_CTFMinigun_GetWeaponSpread == null) SetFailState("Failed to create dhook_CTFMinigun_GetWeaponSpread");
-	if (dhook_CWeaponMedigun_ItemPostFrame == null) SetFailState("Failed to create dhook_CWeaponMedigun_ItemPostFrame");
-	if (dhook_CTFRevolver_CanFireCriticalShot == null) SetFailState("Failed to create dhook_CTFRevolver_CanFireCriticalShot");
-	if (dhook_CTFStunBall_ApplyBallImpactEffectOnVictim == null) SetFailState("Failed to create dhook_CTFStunBall_ApplyBallImpactEffectOnVictim");
+	VALIDATE_SDKCALL(sdkcall_JarExplode);
+	VALIDATE_SDKCALL(sdkcall_GetMaxHealth);
+	VALIDATE_SDKCALL(sdkcall_AwardAchievement);
+	VALIDATE_SDKCALL(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed);
+	VALIDATE_SDKCALL(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
+	VALIDATE_SDKCALL(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
+	VALIDATE_SDKCALL(sdkcall_CWeaponMedigun_CanAttack);
 
-	if (dhook_CTFPlayer_CanDisguise == null) SetFailState("Failed to create dhook_CTFPlayer_CanDisguise");
-	if (dhook_CTFPlayer_CalculateMaxSpeed == null) SetFailState("Failed to create dhook_CTFPlayer_CalculateMaxSpeed");
-	if (dhook_CTFPlayer_AddToSpyKnife == null) SetFailState("Failed to create dhook_CTFPlayer_AddToSpyKnife");
-	if (dhook_CTFProjectile_Arrow_BuildingHealingArrow == null) SetFailState("Failed to create dhook_CTFProjectile_Arrow_BuildingHealingArrow");
-	if (dhook_CTFPlayer_RegenThink == null) SetFailState("Failed to create dhook_CTFPlayer_RegenThink");
-	if (dhook_CTFPlayer_GiveAmmo == null) SetFailState("Failed to create dhook_CTFPlayer_GiveAmmo");
-	if (dhook_CTFLunchBox_DrainAmmo == null) SetFailState("Failed to create dhook_CTFLunchBox_DrainAmmo");
-	if (dhook_CTFPlayer_OnTauntSucceeded == null) SetFailState("Failed to create dhook_CTFPlayer_OnTauntSucceeded");
-	if (dhook_AI_CriteriaSet_AppendCriteria == null) SetFailState("Failed to create dhook_AI_CriteriaSet_AppendCriteria");
-	if (dhook_CBaseObject_OnConstructionHit == null) SetFailState("Failed to create dhook_CBaseObject_OnConstructionHit");
-	if (dhook_CBaseObject_CreateAmmoPack == null) SetFailState("Failed to create dhook_CBaseObject_CreateAmmoPack");
-	if (dhook_CTFPlayerShared_AddToSpyCloakMeter == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddToSpyCloakMeter");
-	if (dhook_CWeaponMedigun_FindAndHealTargets == null) SetFailState("Failed to create dhook_CWeaponMedigun_FindAndHealTargets");
-	if (dhook_CTFLunchBox_ApplyBiteEffects == null) SetFailState("Failed to create dhook_CTFLunchBox_ApplyBiteEffects");
-	if (dhook_CTFPlayer_PickupWeaponFromOther == null) SetFailState("Failed to create dhook_CTFPlayer_PickupWeaponFromOther");
-	if (dhook_CTFDroppedWeapon_ChargeLevelDegradeThink == null) SetFailState("Failed to create dhook_CTFDroppedWeapon_ChargeLevelDegradeThink");
-	if (dhook_CTFPlayerShared_StunPlayer == null) SetFailState("Failed to create dhook_CTFPlayerShared_StunPlayer");
-	if (dhook_CTFPlayerShared_AddCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_AddCond");
-	if (dhook_CTFPlayerShared_RemoveCond == null) SetFailState("Failed to create dhook_CTFPlayerShared_RemoveCond");
-	if (dhook_CTFPlayer_ApplyPunchImpulseX == null) SetFailState("Failed to create dhook_CTFPlayer_ApplyPunchImpulseX");
-	if (dhook_CTFWeaponBaseMelee_OnSwingHit == null) SetFailState("Failed to create dhook_CTFWeaponBaseMelee_OnSwingHit");
+	VALIDATE_DHOOK(dhook_CTFWeaponBase_PrimaryAttack);
+	VALIDATE_DHOOK(dhook_CTFWeaponBase_SecondaryAttack);
+	VALIDATE_DHOOK(dhook_CTFBaseRocket_GetRadius);
+	VALIDATE_DHOOK(dhook_CAmmoPack_MyTouch);
+	VALIDATE_DHOOK(dhook_CObjectSentrygun_OnWrenchHit);
+	VALIDATE_DHOOK(dhook_CHealthKit_MyTouch);
+	VALIDATE_DHOOK(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+	VALIDATE_DHOOK(dhook_CObjectSentrygun_StartBuilding);
+	VALIDATE_DHOOK(dhook_CObjectSentrygun_Construct);
+	VALIDATE_DHOOK(dhook_CTFMinigun_GetProjectileDamage);
+	VALIDATE_DHOOK(dhook_CTFMinigun_GetWeaponSpread);
+	VALIDATE_DHOOK(dhook_CWeaponMedigun_ItemPostFrame);
+	VALIDATE_DHOOK(dhook_CTFRevolver_CanFireCriticalShot);
+	VALIDATE_DHOOK(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
+
+	VALIDATE_DDETOUR(dhook_CTFPlayer_CanDisguise);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_CalculateMaxSpeed);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_AddToSpyKnife);
+	VALIDATE_DDETOUR(dhook_CTFProjectile_Arrow_BuildingHealingArrow);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_RegenThink);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_GiveAmmo);
+	VALIDATE_DDETOUR(dhook_CTFLunchBox_DrainAmmo);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_OnTauntSucceeded);
+	VALIDATE_DDETOUR(dhook_AI_CriteriaSet_AppendCriteria);
+	VALIDATE_DDETOUR(dhook_CBaseObject_OnConstructionHit);
+	VALIDATE_DDETOUR(dhook_CBaseObject_CreateAmmoPack);
+	VALIDATE_DDETOUR(dhook_CTFPlayerShared_AddToSpyCloakMeter);
+	VALIDATE_DDETOUR(dhook_CWeaponMedigun_FindAndHealTargets);
+	VALIDATE_DDETOUR(dhook_CTFLunchBox_ApplyBiteEffects);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_PickupWeaponFromOther);
+	VALIDATE_DDETOUR(dhook_CTFDroppedWeapon_ChargeLevelDegradeThink);
+	VALIDATE_DDETOUR(dhook_CTFPlayerShared_StunPlayer);
+	VALIDATE_DDETOUR(dhook_CTFPlayerShared_AddCond);
+	VALIDATE_DDETOUR(dhook_CTFPlayerShared_RemoveCond);
+	VALIDATE_DDETOUR(dhook_CTFPlayer_ApplyPunchImpulseX);
+	VALIDATE_DDETOUR(dhook_CTFWeaponBaseMelee_OnSwingHit);
+
+#if defined MEMORY_PATCHES
+	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
+	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
+	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
+	VALIDATE_PATCH(patch_RevertCrusaderCrossbow_UbergainNerf);
+	VALIDATE_PATCH(patch_RevertQuickFix_Uber_CannotCapturePoint);
+	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
+	VALIDATE_PATCH(patch_DroppedWeapon);
+	VALIDATE_PATCH(patch_RevertSniperRifles_ScopeJump);
+	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
+#if !defined WIN32
+	VALIDATE_PATCH(patch_RevertSniperRifles_ScopeJump_linuxextra);
+#endif
+	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
+#if defined WIN32
+	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
+	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
+	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
+#else
+	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
+#endif
+	VALIDATE_PATCH(patch_RevertSteakCapValue);
+	VALIDATE_PATCH(patch_RevertSteakBoostValue);
+
+	VALIDATE_DDETOUR(dhook_CTFAmmoPack_MakeHolidayPack);
+
+	VALIDATE_SDKCALL(sdkcall_CTFPipebombLauncher_SecondaryAttack);
+#endif
+
+	if (hook_fail) {
+		SetFailState("Failed to load dhooks, sdkcalls or patches");
+	}
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
 	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
@@ -1180,6 +1132,9 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
+#if defined MEMORY_PATCHES
+	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+#endif
 
 	team_round_timer_entity = -1;
 
@@ -1262,9 +1217,46 @@ public void OnConfigsExecuted() {
 	UpdateShortstopDescription();
 }
 
+bool ValidateDynamicHookFunc(const char[] name, DynamicHook hook)
+{
+	if (hook == null) {
+		LogError("Failed to create %s", name);
+		return true;
+	}
+	return false;
+}
+
+bool ValidateDynamicDetourFunc(const char[] name, DynamicDetour detour)
+{
+	if (detour == null) {
+		LogError("Failed to create %s", name);
+		return true;
+	}
+	return false;
+}
+
+bool ValidateHandleFunc(const char[] name, Handle handle)
+{
+	if (handle == null) {
+		LogError("Failed to create %s", name);
+		return true;
+	}
+	return false;
+}
+
 #if defined MEMORY_PATCHES
-bool ValidateAndNullCheck(MemoryPatch patch) {
-	return patch.Validate() && patch != null;
+// Helper to validate a memory patch/dhook and log failures.
+bool ValidatePatchFunc(const char[] name, MemoryPatch patch)
+{
+	if (patch == null) {
+		LogError("Failed to create %s", name);
+		return true;
+	}
+	if (!patch.Validate()) {
+		LogError("Failed to create %s", name);
+		return true;
+	}
+	return false;
 }
 
 void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
