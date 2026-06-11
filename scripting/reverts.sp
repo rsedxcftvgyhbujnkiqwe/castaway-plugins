@@ -409,6 +409,7 @@ DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
+DynamicDetour dhook_CBaseObject_InputWrenchHit;
 #if defined MEMORY_PATCHES
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
@@ -943,6 +944,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
 		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
+		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		CTFPlayer_m_flTauntNextStartTime = -1;
@@ -1074,6 +1076,7 @@ public void OnPluginStart() {
 	VALIDATE_DDETOUR(dhook_CTFPlayerShared_RemoveCond);
 	VALIDATE_DDETOUR(dhook_CTFPlayer_ApplyPunchImpulseX);
 	VALIDATE_DDETOUR(dhook_CTFWeaponBaseMelee_OnSwingHit);
+	VALIDATE_DDETOUR(dhook_CBaseObject_InputWrenchHit);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1132,6 +1135,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
+	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
+
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 #endif
@@ -6760,18 +6765,30 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookReturn returnValue) {
+bool construction_hit = false;
+MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookParam parameters) {
 	char class[64];
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
 	) {
 		GetEntityClassname(entity, class, sizeof(class));
-
 		if (StrEqual(class, "obj_sentrygun")) {
 			// Do not allow mini sentries to be construction boosted.
+			construction_hit = true;
 			return MRES_Supercede;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CBaseObject_InputWrenchHit(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (construction_hit) {
+		construction_hit = false;
+
+		// Return false such that the 'ding' plays instead of the regular wrench hit sound
+		returnValue.Value = false;
+		return MRES_ChangedOverride;
 	}
 	return MRES_Ignored;
 }

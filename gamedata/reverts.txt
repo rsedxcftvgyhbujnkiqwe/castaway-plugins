@@ -177,16 +177,23 @@
 			// "aiming_no_flinch"
 			"CTFPlayer::ApplyPunchImpulseX"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
-				"linux"   "@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
+				"linux"		"@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
 			}
 			// "speed_buff_ally"
 			"CTFWeaponBaseMelee::OnSwingHit"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
-				"linux"   "@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
+				"linux"		"@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
+			}
+			// sole xref of CBaseObject::OnConstructionHit
+			"CBaseObject::InputWrenchHit"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x70\x53\x8B\x5D\x2A\x56\x57\x8B\xF9\x89\x7D"
+				"linux"		"@_ZN11CBaseObject14InputWrenchHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
 		}
 
@@ -833,6 +840,29 @@
 					"trace"
 					{
 						"type"	"int"
+					}
+				}
+			}
+			"CBaseObject::InputWrenchHit"
+			{
+				"signature"	"CBaseObject::InputWrenchHit"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"pWrench"
+					{
+						"type"	"cbaseentity"
+					}
+					"hitLoc"
+					{
+						"type"	"object"
+						"size"	"12"
 					}
 				}
 			}
