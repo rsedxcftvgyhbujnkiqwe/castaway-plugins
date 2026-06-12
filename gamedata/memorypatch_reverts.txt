@@ -4,12 +4,6 @@
 	{
 		"Signatures"
 		{
-			"CTFWeaponBaseMelee::OnSwingHit"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
-				"linux"   "@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
-			}
 			"CTFWeaponBase::ApplyOnHitAttributes"
 			{
 				"library"   "server"
@@ -141,26 +135,7 @@
 				// ║                   Soldier                    ║
 				// ╚══════════════════════════════════════════════╝
 
-				// ================================================
-				//  Disciplinary Action speed buff to allies 
-				//  for 3 seconds instead of 2 seconds.
-
-				"CTFWeaponBaseMelee::OnSwingHit_2fTO3fOnAllySpeedBuff"
-				{
-					"signature" "CTFWeaponBaseMelee::OnSwingHit"
-					"linux"
-					{
-						"offset"    "941"
-						"verify"    "\x68\x00\x00\x00\x40" // PUSH 2.0f
-						"patch"     "\x68\x00\x00\x40\x40" // PUSH 3.0f
-					}
-					"windows"
-					{
-						"offset"    "1049"
-						"verify"    "\xD9\x05\x2A\x2A\x2A\x2A" // FLD instruction, address wildcarded.
-						"patch"     "\xD9\x05\x00\x00\x00\x00" // FLD instruction, 00 x4 to prep for setup later in reverts.sp
-					}
-				}
+				// No patches for Soldier at the moment.
 
 				// ╔══════════════════════════════════════════════╗
 				// ║                    Pyro                      ║
