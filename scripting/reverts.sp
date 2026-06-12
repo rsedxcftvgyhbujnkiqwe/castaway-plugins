@@ -4306,11 +4306,11 @@ Action SDKHookCB_OnTakeDamage(
 
 			if (
 				GetItemVariant(Wep_TideTurner) == 0 &&
+				player_weapons[victim][Wep_TideTurner] &&
 				victim != attacker &&
 				(damage_type & DMG_FALL) == 0 &&
-				TF2_GetPlayerClass(victim) == TFClass_DemoMan &&
 				TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
-				player_weapons[victim][Wep_TideTurner]
+				!PlayerIsUbered(victim)
 			) {
 				charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
 
