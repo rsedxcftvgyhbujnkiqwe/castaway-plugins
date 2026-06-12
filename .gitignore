@@ -29,6 +29,7 @@ scripting/nativevotes/*
 !scripting/afkmanager.sp
 !scripting/mgehandler.sp
 !scripting/old-flame-mechanics.sp
+!scripting/voterandomizer.sp
 
 #includes
 !scripting/include/
@@ -42,7 +43,6 @@ scripting/include/*
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
 !scripting/include/afkmanager.inc
-!scripting/include/reverts.inc
 
 !gamedata/
 gamedata/*
