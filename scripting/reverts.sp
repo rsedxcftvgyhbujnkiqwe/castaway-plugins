@@ -291,6 +291,7 @@ enum struct Entity {
 	int old_shield;
 	float minisentry_health;
 	int patient;
+	bool has_run_post;
 }
 
 ConVar cvar_enable;
@@ -436,8 +437,6 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
-
-bool g_bHasRunPost[2048];
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -2166,6 +2165,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
 	entities[entity].patient = -1;
+	entities[entity].has_run_post = false;
 
 	if (
 		strncmp(class,"tf_weapon",sizeof("tf_weapon")-1)==0 || 
@@ -2526,17 +2526,21 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 // }
 
 void SDKHookCB_SpawnPostWeapon(int entity) {
-	if (g_bHasRunPost[entity]) {
-		g_bHasRunPost[entity] = false;
+	if (entities[entity].has_run_post) {
+		entities[entity].has_run_post = false;
 		return;
 	}
-	g_bHasRunPost[entity] = true;
-	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
-	ApplyRevertsToItem(entity,index);
+	entities[entity].has_run_post = true;
+
+	ApplyRevertsToItem(entity);
 }
 
 
-public void ApplyRevertsToItem(int entity, int index) {
+public void ApplyRevertsToItem(int entity) {
+	int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+	char class[64];
+	GetEntityClassname(entity, class, sizeof(class));
+
 	// part 1
 	switch (index) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
@@ -3196,9 +3200,6 @@ public void ApplyRevertsToItem(int entity, int index) {
 	}
 
 	// part 2
-	char class[64];
-	GetEntityClassname(entity, class, sizeof(class));
-
 	if (
 		ItemIsEnabled(Feat_Grenade) &&
 		StrEqual(class, "tf_weapon_grenadelauncher")
