@@ -2219,12 +2219,12 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].patient = -1;
 
 	if (strncmp(class,"tf_weapon",sizeof("tf_weapon")-1)==0 || strncmp(class,"saxxy",sizeof("saxxy")-1)==0) {
-		SDKHook(entity,SDKHook_Spawn, SDKHookCB_SpawnPostWeapon);
+		SDKHook(entity,SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 	} else if (strncmp(class,"tf_wearable",sizeof("tf_wearable")-1)==0) { 
 		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 		switch (index) {
 			case 133, 444, 405, 608, 131, 406, 1099, 1144, 57, 231, 642: {
-				SDKHook(entity,SDKHook_Spawn, SDKHookCB_SpawnPostWeapon);
+				SDKHook(entity,SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 			}
 		}
 	}
