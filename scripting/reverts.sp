@@ -1027,56 +1027,54 @@ public void OnPluginStart() {
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
 	// helps for fixing update breakage
-	#define VALIDATE_SDKCALL(%1) hook_fail |= ValidateHandleFunc(#%1, %1)
-	#define VALIDATE_DHOOK(%1) hook_fail |= ValidateDynamicHookFunc(#%1, %1)
-	#define VALIDATE_DDETOUR(%1) hook_fail |= ValidateDynamicDetourFunc(#%1, %1)
-	#define VALIDATE_PATCH(%1) hook_fail |= ValidatePatchFunc(#%1, %1)
+	#define VALIDATE_HANDLE(%1) hook_fail |= ValidateHandle(#%1, %1)
+	#define VALIDATE_PATCH(%1) hook_fail |= ValidatePatch(#%1, %1)
 
-	VALIDATE_SDKCALL(sdkcall_JarExplode);
-	VALIDATE_SDKCALL(sdkcall_GetMaxHealth);
-	VALIDATE_SDKCALL(sdkcall_AwardAchievement);
-	VALIDATE_SDKCALL(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed);
-	VALIDATE_SDKCALL(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
-	VALIDATE_SDKCALL(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
-	VALIDATE_SDKCALL(sdkcall_CWeaponMedigun_CanAttack);
+	VALIDATE_HANDLE(sdkcall_JarExplode);
+	VALIDATE_HANDLE(sdkcall_GetMaxHealth);
+	VALIDATE_HANDLE(sdkcall_AwardAchievement);
+	VALIDATE_HANDLE(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed);
+	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
+	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
+	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
 
-	VALIDATE_DHOOK(dhook_CTFWeaponBase_PrimaryAttack);
-	VALIDATE_DHOOK(dhook_CTFWeaponBase_SecondaryAttack);
-	VALIDATE_DHOOK(dhook_CTFBaseRocket_GetRadius);
-	VALIDATE_DHOOK(dhook_CAmmoPack_MyTouch);
-	VALIDATE_DHOOK(dhook_CObjectSentrygun_OnWrenchHit);
-	VALIDATE_DHOOK(dhook_CHealthKit_MyTouch);
-	VALIDATE_DHOOK(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
-	VALIDATE_DHOOK(dhook_CObjectSentrygun_StartBuilding);
-	VALIDATE_DHOOK(dhook_CObjectSentrygun_Construct);
-	VALIDATE_DHOOK(dhook_CTFMinigun_GetProjectileDamage);
-	VALIDATE_DHOOK(dhook_CTFMinigun_GetWeaponSpread);
-	VALIDATE_DHOOK(dhook_CWeaponMedigun_ItemPostFrame);
-	VALIDATE_DHOOK(dhook_CTFRevolver_CanFireCriticalShot);
-	VALIDATE_DHOOK(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
+	VALIDATE_HANDLE(dhook_CTFBaseRocket_GetRadius);
+	VALIDATE_HANDLE(dhook_CAmmoPack_MyTouch);
+	VALIDATE_HANDLE(dhook_CObjectSentrygun_OnWrenchHit);
+	VALIDATE_HANDLE(dhook_CHealthKit_MyTouch);
+	VALIDATE_HANDLE(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
+	VALIDATE_HANDLE(dhook_CObjectSentrygun_Construct);
+	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
+	VALIDATE_HANDLE(dhook_CTFMinigun_GetWeaponSpread);
+	VALIDATE_HANDLE(dhook_CWeaponMedigun_ItemPostFrame);
+	VALIDATE_HANDLE(dhook_CTFRevolver_CanFireCriticalShot);
+	VALIDATE_HANDLE(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
 
-	VALIDATE_DDETOUR(dhook_CTFPlayer_CanDisguise);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_CalculateMaxSpeed);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_AddToSpyKnife);
-	VALIDATE_DDETOUR(dhook_CTFProjectile_Arrow_BuildingHealingArrow);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_RegenThink);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_GiveAmmo);
-	VALIDATE_DDETOUR(dhook_CTFLunchBox_DrainAmmo);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_OnTauntSucceeded);
-	VALIDATE_DDETOUR(dhook_AI_CriteriaSet_AppendCriteria);
-	VALIDATE_DDETOUR(dhook_CBaseObject_OnConstructionHit);
-	VALIDATE_DDETOUR(dhook_CBaseObject_CreateAmmoPack);
-	VALIDATE_DDETOUR(dhook_CTFPlayerShared_AddToSpyCloakMeter);
-	VALIDATE_DDETOUR(dhook_CWeaponMedigun_FindAndHealTargets);
-	VALIDATE_DDETOUR(dhook_CTFLunchBox_ApplyBiteEffects);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_PickupWeaponFromOther);
-	VALIDATE_DDETOUR(dhook_CTFDroppedWeapon_ChargeLevelDegradeThink);
-	VALIDATE_DDETOUR(dhook_CTFPlayerShared_StunPlayer);
-	VALIDATE_DDETOUR(dhook_CTFPlayerShared_AddCond);
-	VALIDATE_DDETOUR(dhook_CTFPlayerShared_RemoveCond);
-	VALIDATE_DDETOUR(dhook_CTFPlayer_ApplyPunchImpulseX);
-	VALIDATE_DDETOUR(dhook_CTFWeaponBaseMelee_OnSwingHit);
-	VALIDATE_DDETOUR(dhook_CBaseObject_InputWrenchHit);
+	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
+	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
+	VALIDATE_HANDLE(dhook_CTFPlayer_AddToSpyKnife);
+	VALIDATE_HANDLE(dhook_CTFProjectile_Arrow_BuildingHealingArrow);
+	VALIDATE_HANDLE(dhook_CTFPlayer_RegenThink);
+	VALIDATE_HANDLE(dhook_CTFPlayer_GiveAmmo);
+	VALIDATE_HANDLE(dhook_CTFLunchBox_DrainAmmo);
+	VALIDATE_HANDLE(dhook_CTFPlayer_OnTauntSucceeded);
+	VALIDATE_HANDLE(dhook_AI_CriteriaSet_AppendCriteria);
+	VALIDATE_HANDLE(dhook_CBaseObject_OnConstructionHit);
+	VALIDATE_HANDLE(dhook_CBaseObject_CreateAmmoPack);
+	VALIDATE_HANDLE(dhook_CTFPlayerShared_AddToSpyCloakMeter);
+	VALIDATE_HANDLE(dhook_CWeaponMedigun_FindAndHealTargets);
+	VALIDATE_HANDLE(dhook_CTFLunchBox_ApplyBiteEffects);
+	VALIDATE_HANDLE(dhook_CTFPlayer_PickupWeaponFromOther);
+	VALIDATE_HANDLE(dhook_CTFDroppedWeapon_ChargeLevelDegradeThink);
+	VALIDATE_HANDLE(dhook_CTFPlayerShared_StunPlayer);
+	VALIDATE_HANDLE(dhook_CTFPlayerShared_AddCond);
+	VALIDATE_HANDLE(dhook_CTFPlayerShared_RemoveCond);
+	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPunchImpulseX);
+	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_OnSwingHit);
+	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1102,9 +1100,9 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertSteakCapValue);
 	VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
-	VALIDATE_DDETOUR(dhook_CTFAmmoPack_MakeHolidayPack);
+	VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
 
-	VALIDATE_SDKCALL(sdkcall_CTFPipebombLauncher_SecondaryAttack);
+	VALIDATE_HANDLE(sdkcall_CTFPipebombLauncher_SecondaryAttack);
 #endif
 
 	if (hook_fail) {
@@ -1222,25 +1220,7 @@ public void OnConfigsExecuted() {
 	UpdateShortstopDescription();
 }
 
-bool ValidateDynamicHookFunc(const char[] name, DynamicHook hook)
-{
-	if (hook == null) {
-		LogError("Failed to create %s", name);
-		return true;
-	}
-	return false;
-}
-
-bool ValidateDynamicDetourFunc(const char[] name, DynamicDetour detour)
-{
-	if (detour == null) {
-		LogError("Failed to create %s", name);
-		return true;
-	}
-	return false;
-}
-
-bool ValidateHandleFunc(const char[] name, Handle handle)
+bool ValidateHandle(const char[] name, Handle handle)
 {
 	if (handle == null) {
 		LogError("Failed to create %s", name);
@@ -1251,13 +1231,9 @@ bool ValidateHandleFunc(const char[] name, Handle handle)
 
 #if defined MEMORY_PATCHES
 // Helper to validate a memory patch/dhook and log failures.
-bool ValidatePatchFunc(const char[] name, MemoryPatch patch)
+bool ValidatePatch(const char[] name, MemoryPatch patch)
 {
-	if (patch == null) {
-		LogError("Failed to create %s", name);
-		return true;
-	}
-	if (!patch.Validate()) {
+	if (patch == null || !patch.Validate()) {
 		LogError("Failed to create %s", name);
 		return true;
 	}
