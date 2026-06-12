@@ -2081,23 +2081,24 @@ public void OnGameFrame() {
 					// this bug apparently existed before sandman nerf
 
 					weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-					effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+					if (weapon > 0) {
 
-					if (
-						weapon > 0 &&
-						effects & EF_NODRAW &&
-						GetGameTime() - players[idx].stunball_fix_time_bonk < 10.0 &&
-						TF2_IsPlayerInCondition(idx, TFCond_Dazed) == false
-					) {
-						if (players[idx].stunball_fix_time_wear) {
-							if (GetGameTime() - players[idx].stunball_fix_time_wear > 0.100) {
-								SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
+						effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+						if (
+							effects & EF_NODRAW &&
+							GetGameTime() - players[idx].stunball_fix_time_bonk < 10.0 &&
+							TF2_IsPlayerInCondition(idx, TFCond_Dazed) == false
+						) {
+							if (players[idx].stunball_fix_time_wear) {
+								if (GetGameTime() - players[idx].stunball_fix_time_wear > 0.100) {
+									SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
 
-								players[idx].stunball_fix_time_bonk = 0.0;
-								players[idx].stunball_fix_time_wear = 0.0;
+									players[idx].stunball_fix_time_bonk = 0.0;
+									players[idx].stunball_fix_time_wear = 0.0;
+								}
+							} else {
+								players[idx].stunball_fix_time_wear = GetGameTime();
 							}
-						} else {
-							players[idx].stunball_fix_time_wear = GetGameTime();
 						}
 					}
 				}
