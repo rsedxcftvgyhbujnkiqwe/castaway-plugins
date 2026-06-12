@@ -2560,6 +2560,7 @@ void SDKHookCB_SpawnPostWeapon(int entity) {
 
 
 public void ApplyRevertsToItem(int entity, int index) {
+	// part 1
 	switch (index) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
 			TF2Attrib_SetByDefIndex(entity, 868, 0.0); // crit dmg falloff
@@ -3083,7 +3084,11 @@ public void ApplyRevertsToItem(int entity, int index) {
 					TF2Attrib_SetByDefIndex(entity, 534, 1.0); // airblast vulnerability multiplier hidden
 					TF2Attrib_SetByDefIndex(entity, 535, 1.0); // damage force increase hidden
 				}
-			}	
+			}
+
+			if (ItemIsEnabled(Wep_Shortstop)) {
+				SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
+			}
 		}
 		case 230: {
 			switch (GetItemVariant(Wep_SydneySleeper)) {
@@ -3153,7 +3158,13 @@ public void ApplyRevertsToItem(int entity, int index) {
 					TF2Attrib_SetByDefIndex(entity, 106, 1.0); // 0% more accurate
 				}
 			}
-			// Note: It is recommended for the minigun ramp-up revert to be active so that the reverted pre-Pyromania Tomislav is historically and functionally accurate!
+
+			if (ItemIsEnabled(Wep_Tomislav)) {
+				TF2Attrib_SetByDefIndex(entity, 128, 1.0); // When weapon is active: (necessary for attrib 549)
+				TF2Attrib_SetByDefIndex(entity, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
+				TF2Attrib_SetByDefIndex(entity, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
+				// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
+			}
 		}
 		case 1099: {
 			switch (GetItemVariant(Wep_TideTurner)) {
@@ -3208,40 +3219,28 @@ public void ApplyRevertsToItem(int entity, int index) {
 	}
 
 	// part 2
-	// easier to just switch index again, some could probably be combined with above
-	// too lazy to classname check here
-	switch (index) {
-		case 424: { if (ItemIsEnabled(Wep_Tomislav)) {
-			TF2Attrib_SetByDefIndex(entity, 128, 1.0); // When weapon is active: (necessary for attrib 549)
-			TF2Attrib_SetByDefIndex(entity, 348, 1.0 / 1.2); // fire rate penalty HIDDEN; mult_postfiredelay; changes fire rate AND sound pitch
-			TF2Attrib_SetByDefIndex(entity, 549, 1.2); // halloween fire rate bonus; hwn_mult_postfiredelay; changes ONLY fire rate;
-			// NOTE: sound adjustment attributes might likely not work nicely with MvM; hwn_mult_postfiredelay is an unused attribute so there shouldn't be any issues
-		}}
-		case 220: { if (ItemIsEnabled(Wep_Shortstop)) {
-			SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
-		}}
-		// all weapons matching tf_weapon_grenadelauncher
-		case 19, 206, 308, 1007, 1151, 15077, 15079, 15091, 15092, 15116, 15117, 15142, 15158: { if (ItemIsEnabled(Feat_Grenade)) {
-			TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
-			// Old radius: 159 Hu, Modern radius: 146 Hu.
-			TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
-			// Old grenades had 112 base damage
-		}}
-		// all weapons matching tf_weapon_pipebomblauncher
-		case 20, 207, 130, 265, 661, 797, 806, 886, 895, 904, 913, 962, 971, 1150, 15009, 15012, 15024, 15038, 15045, 15048, 15082, 15083, 15084, 15113, 15137, 15138, 15155: { if (ItemIsEnabled(Feat_Stickybomb)) {
-			TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
-			// Old radius: 159 Hu, Modern radius: 146 Hu.
-		}}
-	}
+	char class[64];
+	GetEntityClassname(entity, class, sizeof(class));
 
 	if (
+		ItemIsEnabled(Feat_Grenade) &&
+		StrEqual(class, "tf_weapon_grenadelauncher")
+	) {
+		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
+		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
+	}
+	else if (
+		ItemIsEnabled(Feat_Stickybomb) &&
+		StrEqual(class, "tf_weapon_pipebomblauncher")
+	) {
+		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
+	}
+	else if (
 		ItemIsEnabled(Feat_Sword) &&
 		TF2Attrib_HookValueInt(0, "is_a_sword", entity)
 	) {
-		char class[64];
 		TF2Attrib_SetByDefIndex(entity, 781, 0.0); // is a sword
 
-		GetEntityClassname(entity, class, sizeof(class));
 		if (!StrEqual(class, "tf_weapon_sword"))
 			TF2Attrib_SetByDefIndex(entity, 264, 1.50); // melee range multiplier
 	}
