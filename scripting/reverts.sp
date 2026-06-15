@@ -5041,7 +5041,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 						ItemIsEnabled(Wep_Gunboats) &&
 						player_weapons[victim][Wep_Gunboats]
 					) {
-						damage *= 0.25;
+						damage *= TF2Attrib_HookValueFloat(1.0, "rocket_jump_dmg_reduction", victim);
 						returnValue = Plugin_Changed;
 					}
 				}
