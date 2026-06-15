@@ -4921,7 +4921,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if (
 				ItemIsEnabled(Wep_Battalions) &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffed) &&
-				StrEqual(class, "obj_sentrygun")
+				StrEqual(class, "obj_sentrygun") &&
+				damage_type & DMG_BULLET
 			) {
 				damage *= 0.65 / 0.50;
 				returnValue = Plugin_Changed;
