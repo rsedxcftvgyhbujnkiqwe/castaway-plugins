@@ -4323,21 +4323,18 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_ReserveShooter) &&
 					StrContains(class, "tf_weapon_shotgun") == 0 &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 415
-				) {
-					if (
-						(GetEntityFlags(victim) & FL_ONGROUND) == 0 &&
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 415 &&
+					GetEntityFlags(victim) & FL_ONGROUND == 0 &&
 						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0
 					) {
 						float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 						if (
 							(GetGameTime() - players[attacker].weapon_switch_time <= time_to_minicrit) ||
-							(GetItemVariant(Wep_ReserveShooter) == 1 &&
-							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true)
+						(TF2Attrib_HookValueInt(0, "mini_crit_airborne", weapon) == 1 &&
+						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir))
 						) {
 							// seems to be the best way to force a minicrit
 							TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-						}
 					}
 				}
 			}
