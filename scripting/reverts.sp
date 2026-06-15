@@ -311,7 +311,6 @@ ConVar cvar_ref_tf_feign_death_damage_scale;
 ConVar cvar_ref_tf_feign_death_duration;
 ConVar cvar_ref_tf_feign_death_speed_duration;
 ConVar cvar_ref_tf_fireball_radius;
-ConVar cvar_ref_tf_gamemode_mvm;
 ConVar cvar_ref_tf_parachute_maxspeed_xy;
 ConVar cvar_ref_tf_parachute_maxspeed_onfire_z;
 ConVar cvar_ref_tf_parachute_deploy_toggle_allowed;
@@ -834,7 +833,6 @@ public void OnPluginStart() {
 	cvar_ref_tf_feign_death_duration = FindConVar("tf_feign_death_duration");
 	cvar_ref_tf_feign_death_speed_duration = FindConVar("tf_feign_death_speed_duration");
 	cvar_ref_tf_fireball_radius = FindConVar("tf_fireball_radius");
-	cvar_ref_tf_gamemode_mvm = FindConVar("tf_gamemode_mvm");
 	cvar_ref_tf_parachute_maxspeed_xy = FindConVar("tf_parachute_maxspeed_xy");
 	cvar_ref_tf_parachute_maxspeed_onfire_z = FindConVar("tf_parachute_maxspeed_onfire_z");
 	cvar_ref_tf_parachute_deploy_toggle_allowed = FindConVar("tf_parachute_deploy_toggle_allowed");
@@ -6502,7 +6500,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
 	float regen_scale;
 
 	// Don't proceed if in MvM
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 		return MRES_Ignored;
 
 	if (
@@ -7511,7 +7509,7 @@ stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int 
 // WARNING: Do not use in MVM!
 stock int FindSentryGunOwnedByClient(int client)
 {
-	if (cvar_ref_tf_gamemode_mvm.BoolValue)
+	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
 		return -1;
 
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
