@@ -4890,6 +4890,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 			}
 		}
 		{
+			// 90% damage resistance for pre-Pyromania Phlog
+			if (
+				GetItemVariant(Wep_Phlogistinator) >= 1 &&
+				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
+				damage_custom != TF_DMG_CUSTOM_BACKSTAB &&
+				resist_damage
+			) {
+				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
+				damage *= 0.40;
+				returnValue = Plugin_Changed;
+			}
+		}
+		{
 			// battalion's rage gain from damage taken
 			if (
 				ItemIsEnabled(Wep_Battalions) &&
@@ -5005,21 +5018,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 						returnValue = Plugin_Changed;
 					}
 				}
-			}
-		}
-		{
-			// 90% damage resistance revert for Release and March 2012 Phlog variants
-			if (
-				(GetItemVariant(Wep_Phlogistinator) == 1 || GetItemVariant(Wep_Phlogistinator) == 2) &&
-				player_weapons[victim][Wep_Phlogistinator] &&
-				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
-				damage_custom != TF_DMG_CUSTOM_BACKSTAB && // Defense buff does not protect against backstabs according to the Wiki.
-				resist_damage
-			) {
-				// Phlogistinator 90% damage resistance when taunting (still damaged by crits!)
-				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
-				damage *= 0.40; // will also resist taunt kills!
-				returnValue = Plugin_Changed;
 			}
 		}
 	}
