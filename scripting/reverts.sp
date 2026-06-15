@@ -4803,18 +4803,18 @@ Action SDKHookCB_OnTakeDamageAlive(
 						(
 							ItemIsEnabled(Wep_BrassBeast) &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 312 ||
-							GetItemVariant(Wep_Natascha) == 0 &&
+							ItemIsEnabled(Wep_Natascha) &&
 							GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 41
 						)
 					) {
 
 						health_cur = GetClientHealth(victim);
 						health_max = SDKCall(sdkcall_GetMaxHealth, victim);
+						float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", victim);
 						
 						// apply resistance only when above 50% of max health
-						if ((float(health_cur) - damage) / health_max > 0.5) {
-							float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", victim);
 							if (
+							(float(health_cur) - damage) / float(health_max) > 0.5 &&
 								spunup_resist > 0.0 &&
 								spunup_resist != 1.0
 							) {
@@ -4827,7 +4827,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 									// increase crit vuln here for proper resist on crits and minicrits
 									// (multiplicative inverse of spunup resist value)
 									TF2Attrib_AddCustomPlayerAttribute(victim, "dmg taken from crit increased", 1.0 / spunup_resist, 0.001);
-								}
 							}
 						}
 					}
