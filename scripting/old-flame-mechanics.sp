@@ -796,7 +796,7 @@ Action SDKHookCB_OnTakeDamage(int victim, int& attacker, int& inflictor, float& 
     if (!sm_oldflames_enable.BoolValue)
         return Plugin_Continue;
 
-    if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damagetype & (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
+    if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damagetype == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
     {
         damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
         return Plugin_Changed;
