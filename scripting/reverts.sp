@@ -2929,11 +2929,10 @@ public void ApplyRevertsToItem(int entity) {
 				}
 			}
 		}
-		case 588: { if (
-			GetItemVariant(Wep_Pomson) == 1 ||
-			GetItemVariant(Wep_Pomson) == 3
-		) {
-			TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+		case 588: { switch (GetItemVariant(Wep_Pomson)) {
+			case 1, 3: {
+				TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+			}
 		}}
 		case 214: {
 			switch (GetItemVariant(Wep_Powerjack)) {
