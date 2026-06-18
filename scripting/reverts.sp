@@ -2991,7 +2991,6 @@ public void ApplyRevertsToItem(int entity) {
 				TF2Attrib_SetByDefIndex(entity, 241, 1.0); // reload time increased hidden
 				TF2Attrib_SetByDefIndex(entity, 534, 1.0); // airblast vulnerability multiplier hidden
 				TF2Attrib_SetByDefIndex(entity, 535, 1.0); // damage force increase hidden
-				SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
 			}
 			// Release Shortstop
 			if (GetItemVariant(Wep_Shortstop) == 1) {
@@ -3147,6 +3146,21 @@ public void ApplyRevertsToItem(int entity) {
 
 		if (!StrEqual(class, "tf_weapon_sword"))
 			TF2Attrib_SetByDefIndex(entity, 264, 1.50); // melee range multiplier
+	}
+
+	RequestFrame(ApplyRevertsToItem_PostFrame, entity);
+}
+
+void ApplyRevertsToItem_PostFrame(int entity) {
+	// int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+	char class[64];
+	GetEntityClassname(entity, class, sizeof(class));
+
+	if (
+		ItemIsEnabled(Wep_Shortstop) &&
+		StrEqual(class, "tf_weapon_handgun_scout_primary")
+	) {
+		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
 	}
 }
 
