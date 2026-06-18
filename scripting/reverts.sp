@@ -269,7 +269,6 @@ enum struct Player {
 	float drain_time;
 	bool is_eureka_teleporting;
 	int eureka_teleport_target;
-	int powerjack_kill_tick;
 	float rage_meter;
 	int mmmph_use_tick;
 	float aiming_cond_time;
@@ -1398,7 +1397,6 @@ public void OnGameFrame() {
 	int airdash_value;
 	int airdash_limit_old;
 	int airdash_limit_new;
-	int max_overheal;
 	int health_cur;
 	int health_max;
 	int item_index;
@@ -1743,37 +1741,6 @@ public void OnGameFrame() {
 									}
 
 									TF2Attrib_SetByDefIndex(weapon, 476, ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
-								}
-							}
-						}
-					}
-				}
-
-				if (TF2_GetPlayerClass(idx) == TFClass_Pyro) {
-					{
-						// Powerjack overheal on kill
-
-						weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
-
-						if (weapon > 0) {
-
-							if (
-								ItemIsEnabled(Wep_Powerjack) &&
-								GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214 &&
-								players[idx].powerjack_kill_tick + 1 == GetGameTickCount()
-							) {
-								max_overheal = TF2Util_GetPlayerMaxHealthBoost(idx);
-								health_cur = GetClientHealth(idx);
-
-								int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
-								heal_amt = intMin(
-									max_overheal - health_cur,
-									heal_amt - (health_cur - players[idx].old_health)
-								);
-
-								if (heal_amt > 0) {
-									// Apply overheal
-									TF2Util_TakeHealth(idx, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
 								}
 							}
 						}
@@ -2851,21 +2818,22 @@ public void ApplyRevertsToItem(int entity) {
 			// specific
 			switch (GetItemVariant(Wep_PocketPistol)) {
 				case 0: { // Release Pocket Pistol
-				TF2Attrib_SetByDefIndex(entity, 16, 0.0); // On Hit: Gain up to +0 health
-				TF2Attrib_SetByDefIndex(entity, 26, 15.0); // +15 max health on wearer
-				TF2Attrib_SetByDefIndex(entity, 61, 1.50); // 50% fire damage vulnerability on wearer
-				TF2Attrib_SetByDefIndex(entity, 128, 0.0); // When weapon is active:
-				TF2Attrib_SetByDefIndex(entity, 275, 1.0); // Wearer never takes falling damage
+					TF2Attrib_SetByDefIndex(entity, 16, 0.0); // On Hit: Gain up to +0 health
+					TF2Attrib_SetByDefIndex(entity, 26, 15.0); // +15 max health on wearer
+					TF2Attrib_SetByDefIndex(entity, 61, 1.50); // 50% fire damage vulnerability on wearer
+					TF2Attrib_SetByDefIndex(entity, 128, 0.0); // When weapon is active:
+					TF2Attrib_SetByDefIndex(entity, 275, 1.0); // Wearer never takes falling damage
+				}
+				case 1: { // Pre-Blue Moon Pocket Pistol
+					TF2Attrib_SetByDefIndex(entity, 16, 7.0); // On Hit: Gain up to +7 health
+				}
+				case 2: { // Pre-Jungle Inferno Pocket Pistol
+					TF2Attrib_SetByDefIndex(entity, 16, 5.0); // On Hit: Gain up to +5 health
+					TF2Attrib_SetByDefIndex(entity, 275, 1.0); // Wearer never takes falling damage
+					TF2Attrib_SetByDefIndex(entity, 412, 1.20); // 20% damage vulnerability on wearer
+				}
 			}
-			case 1: { // Pre-Blue Moon Pocket Pistol
-				TF2Attrib_SetByDefIndex(entity, 16, 7.0); // On Hit: Gain up to +7 health
-			}
-			case 2: { // Pre-Jungle Inferno Pocket Pistol
-				TF2Attrib_SetByDefIndex(entity, 16, 5.0); // On Hit: Gain up to +5 health
-				TF2Attrib_SetByDefIndex(entity, 275, 1.0); // Wearer never takes falling damage
-				TF2Attrib_SetByDefIndex(entity, 412, 1.20); // 20% damage vulnerability on wearer
-			}
-		}}
+		}
 		case 588: { switch (GetItemVariant(Wep_Pomson)) {
 			case 1, 3: {
 				TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
@@ -3290,19 +3258,37 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 
 					if (
 						ItemIsEnabled(Wep_Powerjack) &&
-						GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 214 &&
-						// fix to prevent powerjack gaining hp while active from players burning to death by flamethrowers, flareguns and reflected burning arrows
-						GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE // powerjack melee kill has a customkill value of 0, thanks huutti; -mindfulprotons
+						TF2Attrib_HookValueInt(0, "heal_on_kill", weapon) &&
+						GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
 					) {
-						// Save kill tick for applying overheal on next tick
-						players[attacker].powerjack_kill_tick = GetGameTickCount();
 						players[attacker].old_health = GetClientHealth(attacker);
+						RequestFrame(ApplyOverhealOnKill, weapon);
 					}
 				}
 			}
 		}
 	}
 	return Plugin_Continue;
+}
+
+void ApplyOverhealOnKill(int weapon) {
+	int owner = GetEntityOwner(weapon);
+
+	if (owner >= 1 && owner <= MaxClients) {
+		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
+		int health_cur = GetClientHealth(owner);
+
+		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
+		heal_amt = intMin(
+			max_overheal - health_cur,
+			heal_amt - (health_cur - players[owner].old_health)
+		);
+
+		if (heal_amt) {
+			// Apply overheal
+			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+		}
+	}
 }
 
 public Action Event_OnPostInventoryApplication(Event event, const char[] name, bool dontBroadcast) {
