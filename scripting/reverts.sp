@@ -2838,11 +2838,19 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
 		}}
-		case 773: { switch (GetItemVariant(Wep_PocketPistol)) {
-			case 0: { // Release Pocket Pistol
+		case 773: {
+			// common for variants before Jungle Inferno
+			if (
+				ItemIsEnabled(Wep_PocketPistol) &&
+				GetItemVariant(Wep_PocketPistol) != 1
+			) {
 				TF2Attrib_SetByDefIndex(entity, 3, 1.0); // -0% clip size
 				TF2Attrib_SetByDefIndex(entity, 5, 1.25); // 25% slower firing speed
 				TF2Attrib_SetByDefIndex(entity, 6, 1.0); // +0% faster firing speed
+			}
+			// specific
+			switch (GetItemVariant(Wep_PocketPistol)) {
+				case 0: { // Release Pocket Pistol
 				TF2Attrib_SetByDefIndex(entity, 16, 0.0); // On Hit: Gain up to +0 health
 				TF2Attrib_SetByDefIndex(entity, 26, 15.0); // +15 max health on wearer
 				TF2Attrib_SetByDefIndex(entity, 61, 1.50); // 50% fire damage vulnerability on wearer
@@ -2853,9 +2861,6 @@ public void ApplyRevertsToItem(int entity) {
 				TF2Attrib_SetByDefIndex(entity, 16, 7.0); // On Hit: Gain up to +7 health
 			}
 			case 2: { // Pre-Jungle Inferno Pocket Pistol
-				TF2Attrib_SetByDefIndex(entity, 3, 1.0); // -0% clip size
-				TF2Attrib_SetByDefIndex(entity, 5, 1.25); // 25% slower firing speed
-				TF2Attrib_SetByDefIndex(entity, 6, 1.0); // +0% faster firing speed
 				TF2Attrib_SetByDefIndex(entity, 16, 5.0); // On Hit: Gain up to +5 health
 				TF2Attrib_SetByDefIndex(entity, 275, 1.0); // Wearer never takes falling damage
 				TF2Attrib_SetByDefIndex(entity, 412, 1.20); // 20% damage vulnerability on wearer
