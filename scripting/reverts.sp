@@ -2794,10 +2794,10 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// specific
 			if (GetItemVariant(Wep_LochLoad) == 1) {
-					TF2Attrib_SetByDefIndex(entity, 3, 0.50); // -50% clip size
-					TF2Attrib_SetByDefIndex(entity, 100, 1.00); // -0% explosion radius
-					TF2Attrib_SetByDefIndex(entity, 207, 1.25); // +25% damage to self
-					TF2Attrib_SetByDefIndex(entity, 681, 0.00); // grenade no spin
+				TF2Attrib_SetByDefIndex(entity, 3, 0.50); // -50% clip size
+				TF2Attrib_SetByDefIndex(entity, 100, 1.00); // -0% explosion radius
+				TF2Attrib_SetByDefIndex(entity, 207, 1.25); // +25% damage to self
+				TF2Attrib_SetByDefIndex(entity, 681, 0.00); // grenade no spin
 			}
 		}
 #if defined MEMORY_PATCHES
@@ -2994,7 +2994,7 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// Release Shortstop
 			if (GetItemVariant(Wep_Shortstop) == 1) {
-					TF2Attrib_SetByDefIndex(entity, 182, 0.5); // On Hit: Slow target movement by 40% for 0.5s
+				TF2Attrib_SetByDefIndex(entity, 182, 0.5); // On Hit: Slow target movement by 40% for 0.5s
 			}
 		}
 		case 230: { switch (GetItemVariant(Wep_SydneySleeper)) {
