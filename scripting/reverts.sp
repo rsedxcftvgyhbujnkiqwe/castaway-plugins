@@ -281,6 +281,7 @@ enum struct Player {
 	int stun_frame;
 	int stun_inflictor;
 	int whip_frame;
+	int fireproof_frame;
 }
 
 enum struct Entity {
@@ -2234,20 +2235,6 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 	// if two conds are added within the same game frame,
 	// they will both be present when this is called for each
 	{
-		// spycicle fire immune
-		if (
-			ItemIsEnabled(Wep_Spycicle) &&
-			TF2_GetPlayerClass(client) == TFClass_Spy &&
-			condition == TFCond_FireImmune &&
-			TF2_IsPlayerInCondition(client, TFCond_AfterburnImmune)
-		) {
-			TF2_RemoveCondition(client, TFCond_FireImmune);
-			TF2_RemoveCondition(client, TFCond_AfterburnImmune);
-
-			TF2_AddCondition(client, TFCond_FireImmune, 2.0, 0);
-		}
-	}
-	{
 		// Track when player starts aiming (Minigun, Sniper Rifles) for use elsewhere
 		if (condition == TFCond_Slowed) {
 			players[client].aiming_cond_time = GetGameTime();
@@ -2402,12 +2389,37 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			ItemIsEnabled(Wep_Disciplinary) &&
 			players[client].whip_frame == GetGameTickCount() &&
 			condition == TFCond_SpeedBuffAlly &&
-			FloatAbs(time - 2.0) < 0.01
+			time == 2.0
 		) {
 			players[client].whip_frame = 0;
 
 			time = 3.0;
 			return Plugin_Changed;
+		}
+	}
+	{
+		// spycicle fire immune
+		if (
+			ItemIsEnabled(Wep_Spycicle) &&
+			TF2_GetPlayerClass(client) == TFClass_Spy
+		) {
+			if (
+				condition == TFCond_FireImmune &&
+				time == 1.0
+			) {
+				players[client].fireproof_frame = GetGameTickCount();
+			}
+
+			if (
+				condition == TFCond_AfterburnImmune &&
+				players[client].fireproof_frame == GetGameTickCount() &&
+				time > 0.0 && time < 10.0
+			) {
+				players[client].fireproof_frame = 0;
+
+				condition = TFCond_FireImmune;
+				return Plugin_Changed;
+			}
 		}
 	}
 	return Plugin_Continue;
@@ -2984,6 +2996,7 @@ public void ApplyRevertsToItem(int entity) {
 		}}
 		case 649: { if (ItemIsEnabled(Wep_Spycicle)) {
 			TF2Attrib_SetByDefIndex(entity, 156, 1.0); // silent killer
+			TF2Attrib_SetByDefIndex(entity, 361, 2.0); // become fireproof on hit by fire
 		}}
 		case 265: { switch (GetItemVariant(Wep_StickyJumper)) {
 			case 0: { // StkJumper_Pre2013 (Pyromania Update version)
