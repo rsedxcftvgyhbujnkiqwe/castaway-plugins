@@ -92,11 +92,11 @@
 	}
 	"REVERT_MOONSHOT_ENABLED"
 	{
-		"pl"	"Powiadomienia dotyczące Moonshot'ów włączone. Wyłącz je w menu !reverts"
+		"pl"	"Powiadomienia dotyczące Moonshotów włączone. Wyłącz je w menu !reverts"
 	}
 	"REVERT_MOONSHOT_DISABLED"
 	{
-		"pl"	"Powiadomienia dotyczące Moonshot'ów wyłączone. Włącz je w menu !reverts"
+		"pl"	"Powiadomienia dotyczące Moonshotów wyłączone. Włącz je w menu !reverts"
 	}
 	"REVERT_MENU_TITLE"
 	{
@@ -116,11 +116,11 @@
 	}
 	"REVERT_MENU_TOGGLE_MOONSHOT"
 	{
-		"pl"	"Włącz/wyłącz powiadomienia Moonshot'ów"
+		"pl"	"Włącz/wyłącz powiadomienia Moonshotów"
 	}
 	"REVERT_MOONSHOT_MESSAGE"
 	{
-		"pl"	"{1} właśnie trafił Moonshot'a na {2} !"
+		"pl"	"{1} właśnie trafił Moonshota na {2} !"
 	}
 
 	// item names
@@ -139,6 +139,14 @@
 	"grenade"
 	{
 		"pl"	"Wszystkie Granatniki"
+	}
+	"lunchbox"
+	{
+		"pl"	"Wszystkie Artykuły spożywcze"
+	}
+	"medigun"
+	{
+		"pl"	"Wszystkie Mediguny"
 	}
 	"miniramp"
 	{
@@ -164,6 +172,10 @@
 	{
 		"pl"	"Ambasador"
 	}
+	"amputator"
+	{
+		"pl"	"Amputator"
+	}
 	"atomizer"
 	{
 		"pl"	"Atomizer"
@@ -184,6 +196,14 @@
 	{
 		"pl"	"Browning Baby Face'a"
 	}
+	"battalions"
+	{
+		"pl"	"Wsparcie Batalionu"
+	}
+	"bazaar"
+	{
+		"pl"	"Dalekosiężny Dżezail"
+	}	
 	"beggars"
 	{
 		"pl"	"Bazooka Biedaka"
@@ -332,6 +352,10 @@
 	{
 		"pl"	"Hibernujący Niedźwiedź (zestaw)"
 	}
+	"huntsman"
+	{
+		"pl"	"Łowca"
+	}
 	"ironbomber"
 	{
 		"pl"	"Żelazny Bombardier"
@@ -355,6 +379,10 @@
 	"madmilk"
 	{
 		"pl"	"Wściekłe Mleko"
+	}
+	"medieval"
+	{
+		"pl"	"Średniowieczny Medyk"
 	}
 	"gardener"
 	{
@@ -468,6 +496,10 @@
 	{
 		"pl"	"Sydnejski Usypiacz"
 	}
+	"tankbuster"
+	{
+		"pl"	"Ekwipunek Pancernego"
+	}
 	"turner"
 	{
 		"pl"	"Sterburta"
@@ -483,6 +515,10 @@
 	"caber"
 	{
 		"pl"	"Ullapoolski Pal"
+	}
+	"vaccinator"
+	{
+		"pl"	"Zaszczepiacz"
 	}
 	"vitasaw"
 	{
@@ -518,6 +554,14 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2014, +9%% pola rażenia, wariacja obrażeń w zależności od miejsca trafienia granatu (więcej obrażeń przy trafieniu w nogi)"
 	}
+	"Lunchbox_Pre2012"
+	{
+		"pl"	"Przywrócono do stanu sprzed aktualizacji z 14 lutego 2012 roku; Gruby może uleczyć się podnosząc swoje artykuły spożywcze"
+	}
+	"Medigun_PreMYM"
+	{
+		"pl"	"Ubercharge upuszczonych Medigunów nie wyczerpuje się"
+	}
 	"Minigun_ramp_PreLW"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), pełna celność oraz obrażenia natychmiast po rozkręceniu"
@@ -534,6 +578,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Miłość i Wojna (Love & War), +9%% pola rażenia, bomby detonowane w powietrzu mają pełny zasięg rażenia"
 	}
+	"Stickybomb_PreLW_Taunt_Detonate"
+	{
+		"pl"	"+9%% pola rażenia, bomby detonowane w powietrzu mają pełny zasięg rażenia, możliwość detonacji podczas drwin (wymaga bind mouse2 \"+attack2; sm_detonatestickies\")"
+	}
 	"Swords_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), standardowa prędkość wyciągania oraz chowania (0.5s)"
@@ -545,6 +593,10 @@
 	"Amputator_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje dodatkowe 3HP/s"
+	}
+	"Amputator_PreTB_Historical"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), zawsze regeneruje dodatkowe 3HP/s, leczenie drwiną nie zapewnia ładunku Ubercharge"
 	}
 	"Atomizer_PreJI"
 	{
@@ -564,7 +616,7 @@
 	}
 	"Backburner_PreHat"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Pyromanii, +10%% zadawanych obrażeń"
+		"pl"	"Przywrócono do stanu z Aktualizacji Bezczapkowej, +10%% zadawanych obrażeń"
 	}
 	"Backburner_119"
 	{
@@ -585,6 +637,14 @@
 	"BabyFace_Release"
 	{
 		"pl"	"Przywrócono do momentu wydania (2012), +40%% celności, brak redukcji poj. magazynka oraz sprintu przy otrzymaniu obrażeń, -35%% prędkości poruszania się, -30%% obrażeń, -100%% sprintu po skoku"
+	}
+	"Battalions_PreHat"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Bezczapkowej, furia generuje się poprzez otrzymane obrażenia, brak premii do HP, 35%% odp. na działka strażnicze (z 50%%)"
+	}
+	"Bazaar_PreGM"
+	{
+		"pl"	"Głowy są zbierane poprzez trafienie w głowę, nie zabójstwo. -20%% tempa ładowania, +7.5%% do tempa ładowania za każdą głowę, maks. +45%%, -1 głowa po nie trafieniu w głowę"
 	}
 	"Beggars_Pre2013"
 	{
@@ -696,11 +756,15 @@
 	}
 	"Ringer_PreGM"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6s, brak premii do prędkości oraz odpor. na podpalenie"
+		"pl"	"Możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6s (obrażenia zmniejszają czas trwania), brak premii do prędkości oraz odpor. na podpalenie, brak redukcji na negatywne efekty"
 	}
 	"Ringer_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), możliwość podnoszenia paczek z amunicją, gdy nie jest się niewidzialnym, -35%% energii z paczek z amunicją"
+	}
+	"Ringer_Pre2013"
+	{
+		"pl"	"Możliwość podnoszenia paczek z amunicją, 90%% odpor. na obrażenia na maks. 6s, brak premii do prędkości oraz odpor. na podpalenie, brak redukcji na negatywne efekty"
 	}
 	"Degreaser_PreTB"
 	{
@@ -806,6 +870,10 @@
 	{
 		"pl"	"Przywrócono stary bonus zestawu: 5%% odporności na trafienia krytyczne. Załóż Mosiężną Bestię, Stek z Bizona oraz Duszę Wojownika, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
+	"Huntsman_Pre2013"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śnięta 2013; wielokrotne naciskanie guzika drwiny przeciwko drugiemu snajperowi z Łowcą ogłusza obu graczy bez końca"
+	}
 	"IronBomber_Pre2022"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 7 lipca 2022 roku, ~2x większy rozmiar hitboxu granatu"
@@ -842,6 +910,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), brak redukcji częstotliwości ataku"
 	}
+	"Medieval_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), +1 do regeneracji HP. Załóż Kuszę Krzyżowca oraz Amputator, aby uzyskać bonus. Czapka nie jest wymagana"
+	}
 	"Natascha_PreMYM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Poznaj Wroga Swego (Meet your Match), +20%% odporności na obrażenia podczas rozkręcenia niezależnie od aktualnych HP" 
@@ -850,6 +922,10 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła Charakteru (Gun Mettle), pełne spowolnienie na jakimkolwiek dystansie, 300 amunicji w rezerwie, brak odporności na obrażenmia"
 	}
+	"Natascha_PreDec2010"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Australijskie Święta; 75%% spowolnienia na jakimkolwiek dystanie, standardowy czas rozkręcania, brak odporności na obrażenia"
+	}
 	"Panic_PreJI"
 	{
 		"pl"	"Przytrzymaj przycisk ataku, aby załadować broń, puść przycisk, aby uwolnić salwę. Częstotliwość ataku oraz szerokość strzału są odwrotnie proporcjonalne do HP użytkownika"
@@ -857,6 +933,10 @@
 	"Persuader_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Śniąteczne Fatum (Tough Break), paczki z amunicją odnawiają punkty zdrowia, +100%% do prędkości odnawiania szarży, brak redukcji maks. zapasu amunicji"
+	}
+	"Persuader_PreMnvy"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Mannorocznicy, paczki z amunicją oraz metal zamieniają się w HP, +100%% do prędkości odnawiania szarży, standardowa amunicja w rezerwie"
 	}
 	"Phlog_Pyro"
 	{
@@ -892,7 +972,7 @@
 	}
 	"Powerjack_Pre2013"
 	{
-		"pl"	"Przywrócono do stanu sprzed Aktualizacji Bezczapkowej, brak premii do prędkości poruszania, zabójstwa odnawiają 75 HP oraz nadleczają, +20%% podatności na obrażenia w walce wręcz"
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 10 lipca 2013 roku, brak premii do prędkości poruszania, zabójstwa odnawiają 75 HP oraz nadleczają, +20%% podatności na obrażenia w walce wręcz"
 	}
 	"Pocket_Release"
 	{
@@ -901,6 +981,10 @@
 	"Pocket_PreBM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Błękitnego Księżyca (Blue moon), +7 HP przy trafieniu, +15%% częstotliwości ataku, -25%% pojemności magazynka"
+	}
+	"Pocket_PreJI"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli, +5 HP przy trafieniu, standard. magazynek, -25%% częst. ataku. Gdy aktywny: brak obr. od upadku oraz +20%% podatności na obr."
 	}
 	"Quickfix_PreTB"
 	{
@@ -960,23 +1044,35 @@
 	}
 	"Saharan_Release"
 	{
-		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"
+		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę, aby uzyskać bonus (robiąc to, tracisz +40%% czasu trwania niewidzialności). Czapka nie jest wymagana"
 	}
 	"Saharan_ExtraCloak"
 	{
-		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę (lub Kłujkę voodoo) aby uzyskać bonus. Czapka nie jest wymagana"
+		"pl"	"Cicha deaktywacja niewidzalności, 0.5s dłuższa migawka. Załóż L'etranger oraz Ostateczną Nagrodę (lub Kłujkę voodoo), aby uzyskać bonus. Czapka nie jest wymagana"
 	}
 	"Sandman_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), ogłusza graczy po trafieniu, piłka regeneruje się 15 sekund"
 	}
+	"Sandman_PreApr2010"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 28 kwietnia 2010 roku; ogłusza graczy po trafieniu, prędkość ogłuszonego ograniczona do 225 Hu/s, piłka regeneruje się 15 sekund"
+	}
 	"Sandman_PreWAR"
 	{
 		"pl"	"Przywrócono do stanu z ak. WOJNA!, -30 maks. HP, czas odnowienia piłki wynosi 15s., piłka zawsze ogłusza w pełni niezależnie od dystansu, ogłuszony cel otrzymuje tylko 75%% obrażeń"
 	}
+	"Sandman_PreClassless"
+	{
+		"pl"	"Całkowicie ogłusza, może ogłuszyć graczy pod wpływem Ubercharge, ogłuszony otrzymuje 50%% obrażeń, standardowe HP, brak podwójnego skoku, piłka regeneruje się 15 sekund"
+	}
 	"Sandvich_PreEngineer"
 	{
 		"pl"	"Kanapka może być jedzona w nieskończoność, dopóki nie zostanie rzucona na ziemię, po czym musi być zregenerowana apteczką lub szafką z amunicją. Kanapka rzucona na ziemię leczy grubego za 50%% maks. HP"
+	}
+	"Sandvich_Pre2012"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 14 lutego 2012 roku; Gruby może się uleczyć upuszczoną kanapką"
 	}
 	"Scottish_Release"
 	{
@@ -989,6 +1085,10 @@
 	"Circuit_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), atak niszczy pociski przed użytkownikiem, brak metalu z dispenserów, gdy broń jest aktywna oraz brak ataku alternatywnego"
+	}
+	"Circuit_PreFeb2014"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji z 7 lutego 2014 roku; atak podstawowy niszczy pociski, używając przy tym 5 metalu (+15 za każdy zniszczony pocisk)"
 	}
 	"Circuit_Dec2013"
 	{
@@ -1030,6 +1130,10 @@
 	{
 		"pl"	"Przywrócono stary bonus zestawu: +25 maks. HP. Załóż Wstrzymywacz, Wściekłe Mleko oraz Świętą Makrelę, aby uzyskać bonus. Czapka nie jest wymagana"
 	}
+	"SpDelivery_StockMelee"
+	{
+		"pl"	"Przywrócono stary bonus zestawu: +25 maks. HP. Załóż Wstrzymywacz, Wściekłe Mleko oraz jakąkolwiek podstawową broń białą, aby uzyskać bonus. Czapka nie jest wymagana"
+	}
 	"Splendid_PreTB"
 	{
 		"pl"	"+15%% odporności ana obrażenia wybuchów oraz ognia, brak szybszej regeneracji, trafienie krytyczne po uderzeniu, pełne obrażenia na każdym dystansie, nie usuwa negatywnych efektów"
@@ -1037,6 +1141,10 @@
 	"SpyCicle_PreGM"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), 2s odporności na ogień, cichy zabójca, brak możliwości regeneracji paczkami amunicji"
+	}
+	"SpyCicle_Pre2011"
+	{
+		"pl"	"Przywrócono do momentu wydania (2011), 2s odporności na ogień, cichy zabójca, brak możliwości regeneracji paczkami amunicji, używa drwiny podst. noża, nie rozpuszcza się podczas drwienia"
 	}
 	"StkJumper_Pre2013"
 	{
@@ -1058,6 +1166,10 @@
 	{
 		"pl"	"Przywrócono do stanu z Aktualizacji Siła Charakteru (Gun Mettle), efekt sikwonda powyżej 50%% naładowania trwa 8s., brak bonusów po trafieniu w głowę"
 	}
+	"TankBuster_Release"
+	{
+		"pl"	"Przywrócono stary bonus zestawu: +20%% odp. przeciwko działkom. Załóż Czarną Skrzynkę oraz Wsparcie Batalionu, aby uzyskać bonus. Czapka nie jest wymagana"
+	}
 	"Turner_PreTB"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. Śniąteczne Fatum (Tough Break), trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odporności na wybuchy i ogień, nie usuwa negatywnych efektów"
@@ -1065,6 +1177,10 @@
 	"Turner_PreDec2014"
 	{
 		"pl"	"Trafienia krytyczne, trafienie krytyczne po uderzeniu szarżą, +25%% odpor. na wybuchy i ogień, nie usuwa negatywnych efektów, odnawia 100%% szarży po zabójstwie, brak redukcji szarży po trafieniu"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"pl"	"Przywrócono dzwięk strzału sprzed Aktualizacji Miłość i Wojna (Love & War)"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -1082,6 +1198,14 @@
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Siła charakteru (Gun Mettle), zawsze zadaje 175+ obrażeń przy celnym uderzeniu"
 	}
+	"Vaccinator_PreTB"
+	{
+		"pl"	"Przywrócono do stanu sprzed Aktualizacji Tough Break, +50%% tempa ładowania, -66%% tempa ład. przy leczeniu nadleczonych graczy, 10%% obr. otrzymanych przez pacjenta wraca do użytk. jako HP"
+	}	
+	"Vaccinator_PreGM"
+	{
+		"pl"	"Odp. na kryty, bańki znikają po zmianie broni, +50%% do ład. (bez kary przy nadlecz. pacjentach), -66%% tempa bud. nadlecz., maks. 1 bańka, 25%% obr. otrzymanych przez pacjenta wraca do użytk. jako HP"
+	}
 	"VitaSaw_PreJI"
 	{
 		"pl"	"Przywrócono do stanu sprzed Aktualizacji Piekło w Dżungli (Jungle Inferno), zawsze zachowuje do 20%% Ubercharge po śmierci"
@@ -1097,6 +1221,10 @@
 	"Wrangler_PreLW"
 	{
 		"pl"	"Przywrócono do stanu sprzed ak. L&W, brak redukcji naprawy, osłona deaktywuje się 1s po schowaniu poskramiacza, brak spadku obr. poza zasięgiem, pociski naliczają obr. na podstawie położenia działka"
+	}
+	"Wrangler_Release"
+	{
+		"pl"	"Przywrócono do momentu wydania (2010), brak redukcji naprawy, lepsza celność na dużych dystansach, brak spadku obrażeń poza zasięgiem, pociski naliczają obr. na podstawie położenia działka
 	}
 	"Eternal_PreJI"
 	{
