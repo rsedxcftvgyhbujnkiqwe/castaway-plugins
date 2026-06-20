@@ -950,11 +950,15 @@
 	}
 	"Pomson_Release"
 	{
-		"en"	"Reverted to release, increased hitbox size, penetrates targets, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, drains cloak per-tick if target is disguised or cloaked"
+		"en"	"Increased hitbox size, penetrates targets, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, drains cloak per-tick if target is disguised or cloaked"
 	}
 	"Pomson_PreGM_Historical"
 	{
 		"en"	"Reverted to pre-gunmettle, increased hitbox size, passes thru team buildings, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, old damage formula"
+	}
+	"Pomson_Release_Historical"
+	{
+		"en"	"Reverted to release, increased hitbox size, penetrates targets, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, old damage formula, drains cloak per-tick if target is disguised or cloaked"
 	}
 	"Powerjack_PreGM"
 	{

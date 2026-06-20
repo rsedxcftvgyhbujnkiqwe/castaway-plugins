@@ -744,6 +744,7 @@ public void OnPluginStart() {
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
+	ItemVariant(Wep_Pomson, "Pomson_Release_Historical");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
@@ -2928,8 +2929,10 @@ public void ApplyRevertsToItem(int entity) {
 				}
 			}
 		}
-		case 588: { if (GetItemVariant(Wep_Pomson) == 1) {
-			TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+		case 588: { switch (GetItemVariant(Wep_Pomson)) {
+			case 1, 3: {
+				TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
+			}
 		}}
 		case 214: {
 			switch (GetItemVariant(Wep_Powerjack)) {
@@ -4144,7 +4147,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 					) {
 						if (AreEntitiesOnSameTeam(entity, other)) {
 
-							// Bison and Pomson igniting friendly Huntsman arrows
+							// Bison and Pomson ignite friendly Huntsman arrows
 							weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 							if (weapon > 0) {
 								if (HasEntProp(weapon, Prop_Send, "m_bArrowAlight")) {
@@ -4706,20 +4709,18 @@ Action SDKHookCB_OnTakeDamage(
 							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
 							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
 						) {
-							bool should_penetrate = TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0;
-							
 							// cloak/uber drain is done in OnTakeDamagePost
 
 							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
 							if (
-								(GetItemVariant(Wep_Bison) == 1 && should_penetrate) ||
-								(GetItemVariant(Wep_Pomson) == 2 && !should_penetrate)
+								GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
+								GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
 							) {
 								// Do not use internal rampup/falloff.
 								damage_type &= ~DMG_USEDISTANCEMOD;
 								
 								// Deal damage with 125% rampup, 75% falloff.
-								float base_dmg = should_penetrate ? 16.00 : 48.00;
+								float base_dmg = (TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0) ? 16.00 : 48.00;
 								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
 							}
 
