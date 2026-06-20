@@ -30,7 +30,7 @@ public void OnMapStart() {
 	randomizer.SetBool(false);
 	g_randomizer_active = false;
 	g_voting_allowed = false;
-	CreateTimer(30.0, Timer_EnableVote, _, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(900.0, Timer_EnableVote, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Cmd_VoteRandomizer(int client, int args) {

@@ -624,6 +624,86 @@
         ]
     },
     {
+        "name": "Battalion's Backup",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Battalion%27s_Backup.png",
+        "qua_unique": "The Battalion's_Backup",
+        "att_level": "Level 10 Battle Banner",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20 max health on wearer"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Defensive buff protects nearby teammates from crits, incoming sentry damage by 50%, and 35% from all other sources."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Rage increases through damage done (600 damage)"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Grenadier's Softcap"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Defensive buff protects nearby teammates from crits, incoming sentry damage by 35%, and 35% from all other sources."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Rage increases through damage taken (175 damage)"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% Sentry damage resistance on wearer"
+            }
+        ]
+    },
+    {
         "name": "Beggar's Bazooka",
         "classes": [
             "Soldier"
@@ -702,6 +782,30 @@
             {
                 "type": "att_negative",
                 "text": "-25% clip size"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Grenadier's Softcap"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
             }
         ],
         "reverted_attributes": [
@@ -712,6 +816,26 @@
             {
                 "type": "att_negative",
                 "text": "-25% clip size"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% Sentry damage resistance on wearer"
             }
         ]
     },
@@ -3920,66 +4044,6 @@
             {
                 "type": "att_neutral",
                 "text": "The first hit will cause an explosion"
-            }
-        ]
-    },
-    {
-        "name": "The Vaccinator",
-        "classes": [
-            "Medic"
-        ],
-        "categories": [
-            "Secondary"
-        ],
-        "backpack_image": "/images/backpack/Backpack_Vaccinator.png",
-        "qua_unique": "The Vaccinator",
-        "att_level": "Level 8 Vaccinator",
-        "current_attributes": [
-            {
-                "type": "att_positive",
-                "text": "+67% ÜberCharge rate"
-            },
-            {
-                "type": "att_positive",
-                "text": "Press your reload key to cycle through resist types.<br>While healing, provides you and your target a constant 10% resistance to the selected damage type."
-            },
-            {
-                "type": "att_negative",
-                "text": "-66% Overheal build rate"
-            },
-            {
-                "type": "att_negative",
-                "text": "-33% ÜberCharge rate on Overhealed patients"
-            },
-            {
-                "type": "att_neutral",
-                "text": "ÜberCharge provides a 2.5 second resistance bubble that blocks 75% base damage and 100% crit damage of the selected type to the Medic and Patient."
-            }
-        ],
-        "reverted_attributes": [
-            {
-                "type": "att_positive",
-                "text": "+50% ÜberCharge rate"
-            },
-            {
-                "type": "att_positive",
-                "text": "Press your reload key to cycle through resist types."
-            },
-            {
-                "type": "att_positive",
-                "text": "While healing, provides you and your target a constant 10% resistance and 100% crit resistance to the selected damage type."
-            },
-            {
-                "type": "att_positive",
-                "text": "You are healed for 25% of the matched incoming damage on your patient."
-            },
-            {
-                "type": "att_negative",
-                "text": "-66% Overheal build rate"
-            },
-            {
-                "type": "att_neutral",
-                "text": "ÜberCharge provides 75% resistance and 100% crit resistance to a selected damage type for 2 seconds."
             }
         ]
     },
