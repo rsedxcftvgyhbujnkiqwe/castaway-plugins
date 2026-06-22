@@ -3274,7 +3274,6 @@ void ApplyOverhealOnKill(int weapon) {
 
 		if (heal_amt) {
 			// Apply overheal
-			PrintToChat(owner, "added %d health", heal_amt);
 			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
 		}
 	}
