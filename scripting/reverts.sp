@@ -265,6 +265,7 @@ enum struct Player {
 	int charge_tick;
 	int fall_dmg_tick;
 	bool holding_jump;
+	bool holding_attack;
 	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
@@ -411,6 +412,7 @@ DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 DynamicDetour dhook_CBaseObject_InputWrenchHit;
+DynamicDetour dhook_CTFGameMovement_StunMove;
 #if defined MEMORY_PATCHES
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
@@ -428,6 +430,9 @@ int CTFLunchBox_m_hThrownPowerUp;
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
 int CTFPlayer_m_flTauntNextStartTime;
 int CGameTrace_m_pEnt;
+Address CTFGameMovement_mv;
+Address CMoveData_m_nButtons;
+Address CTFGameMovement_m_pTFPlayer;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -945,15 +950,26 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
 		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
 		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
+		dhook_CTFGameMovement_StunMove = DynamicDetour.FromConf(conf, "CTFGameMovement::StunMove");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
-		CTFPlayer_m_flTauntNextStartTime = -1;
-		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
-		if (CTFPlayer_m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
+		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
-		CGameTrace_m_pEnt = -1;
+		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
 		CGameTrace_m_pEnt = GameConfGetOffset(conf, "CGameTrace.m_pEnt");
-		if (CGameTrace_m_pEnt == -1) SetFailState("Failed to load CGameTrace_m_pEnt offset!");
+		CTFGameMovement_mv = view_as<Address>(GameConfGetOffset(conf, "CTFGameMovement.mv"));
+		CMoveData_m_nButtons = view_as<Address>(GameConfGetOffset(conf, "CMoveData.m_nButtons"));
+		CTFGameMovement_m_pTFPlayer = view_as<Address>(GameConfGetOffset(conf, "CTFGameMovement.m_pTFPlayer"));
+
+		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
+		VALIDATE_OFFSET(CGameTrace_m_pEnt);
+		VALIDATE_OFFSET(CTFGameMovement_mv);
+		VALIDATE_OFFSET(CMoveData_m_nButtons);
+		VALIDATE_OFFSET(CTFGameMovement_m_pTFPlayer);
+
+		if (hook_fail) {
+			SetFailState("Failed to load offsets");
+		}
 
 		delete conf;
 	}
@@ -1075,6 +1091,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPunchImpulseX);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_OnSwingHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
+	VALIDATE_HANDLE(dhook_CTFGameMovement_StunMove);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1134,6 +1151,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
 	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
+	dhook_CTFGameMovement_StunMove.Enable(Hook_Post, DHookCallback_CTFGameMovement_StunMove);
 
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
@@ -1218,6 +1236,15 @@ public void OnConfigsExecuted() {
 	UpdateStickyLauncherDescription();
 #endif
 	UpdateShortstopDescription();
+}
+
+bool ValidateOffset(const char[] name, any offset)
+{
+	if (offset == -1) {
+		LogError("Failed to load %s offset", name);
+		return true;
+	}
+	return false;
 }
 
 bool ValidateHandle(const char[] name, Handle handle)
@@ -5419,6 +5446,15 @@ public Action OnPlayerRunCmd(
 	} else {
 		players[client].holding_jump = false;
 	}
+
+	if (buttons & IN_ATTACK) {
+		if (!players[client].holding_attack) {
+			players[client].holding_attack = true;
+		}
+	} else {
+		players[client].holding_attack = false;
+	}
+
 	if (buttons & IN_ATTACK2) {
 		if (!players[client].holding_attack2) {
 			players[client].holding_attack2 = true;
@@ -7359,6 +7395,31 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 			target <= MaxClients
 		) {
 			players[target].whip_frame = GetGameTickCount();
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFGameMovement_StunMove(Address pThis, DHookReturn returnValue) {
+	int client = GetEntityFromAddress(LoadFromAddress(pThis + CTFGameMovement_m_pTFPlayer, NumberType_Int32));
+	if (
+		ItemIsEnabled(Wep_Sandman) &&
+		GetItemVariant(Wep_Sandman) < 3 &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		// Allow Heavy to use secondary attack on any weapons while stunned. This was a historical bug.
+		if (
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			TF2_IsPlayerInCondition(client, TFCond_Dazed) &&
+			GetEntProp(client, Prop_Send, "m_iStunFlags") & (TF_STUNFLAG_BONKSTUCK | TF_STUNFLAG_THIRDPERSON) &&
+			!GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") &&
+			(players[client].holding_attack || players[client].holding_attack2)
+		) {
+			Address mv = LoadFromAddress(pThis + CTFGameMovement_mv, NumberType_Int32);
+			int buttons = LoadFromAddress(mv + CMoveData_m_nButtons, NumberType_Int32) | IN_ATTACK2;
+			StoreToAddress(mv + CMoveData_m_nButtons, buttons, NumberType_Int32);
+			SetEntProp(client, Prop_Data, "m_nButtons", buttons);
 		}
 	}
 	return MRES_Ignored;

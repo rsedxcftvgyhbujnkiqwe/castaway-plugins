@@ -195,6 +195,14 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x70\x53\x8B\x5D\x2A\x56\x57\x8B\xF9\x89\x7D"
 				"linux"		"@_ZN11CBaseObject14InputWrenchHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
+			// getting here is a fucking mess. i had to get the pointer to cvar "tf_max_charge_speed", which led to CTFGameMovement::ProcessMovement
+			// because CTFGameMovement::ChargeMove was inlined yet somehow this wasn't. any other possible path was screwed by them being virtual functions
+			"CTFGameMovement::StunMove"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x51\x53\x56\x8B\xF1\x8B\x8E"
+				"linux"		"@_ZN15CTFGameMovement8StunMoveEv"
+			}
 		}
 
 		"Offsets"
@@ -304,6 +312,21 @@
 			{
 				"windows"	"76"
 				"linux"		"76"
+			}
+			"CTFGameMovement.mv"
+			{
+				"windows"	"8"
+				"linux"		"8"
+			}
+			"CMoveData.m_nButtons"
+			{
+				"windows"	"36"
+				"linux"		"36"
+			}
+			"CTFGameMovement.m_pTFPlayer"
+			{
+				"windows"	"5816"
+				"linux"		"5816"
 			}
 		}
 
@@ -865,6 +888,13 @@
 						"size"	"12"
 					}
 				}
+			}
+			"CTFGameMovement::StunMove"
+			{
+				"signature"	"CTFGameMovement::StunMove"
+				"callconv"	"thiscall"
+				"this"		"address"
+				"return"	"bool"
 			}
 		}
 	}
