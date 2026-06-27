@@ -305,6 +305,7 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
+ConVar cvar_enable_heavy_stun_attack;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
@@ -615,6 +616,7 @@ public void OnPluginStart() {
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
+	cvar_enable_heavy_stun_attack = CreateConVar("sm_reverts__enable_heavy_stun_attack", "1", (PLUGIN_NAME ... " - Allow stunned Heavies to secondary attack on all weapons while stunned (historical bug)"), _, true, 0.0, true, 1.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -7401,6 +7403,9 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 }
 
 MRESReturn DHookCallback_CTFGameMovement_StunMove(Address pThis, DHookReturn returnValue) {
+	if (cvar_enable_heavy_stun_attack.BoolValue == false)
+		return MRES_Ignored;
+
 	int client = GetEntityFromAddress(LoadFromAddress(pThis + CTFGameMovement_m_pTFPlayer, NumberType_Int32));
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
