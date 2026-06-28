@@ -788,6 +788,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_SodaPopper, "Sodapop_Pre2013");
 	ItemDefine("solemn", "Solemn_PreGM", CLASSFLAG_MEDIC, Wep_Solemn);
 	ItemDefine("splendid", "Splendid_PreTB", CLASSFLAG_DEMOMAN, Wep_SplendidScreen);
+	ItemVariant(Wep_SplendidScreen, "Splendid_Release");
 	ItemDefine("spycicle", "SpyCicle_PreGM", CLASSFLAG_SPY, Wep_Spycicle);
 	ItemVariant(Wep_Spycicle, "SpyCicle_Pre2011");
 	ItemDefine("stkjumper", "StkJumper_Pre2013", CLASSFLAG_DEMOMAN, Wep_StickyJumper);
@@ -3107,11 +3108,22 @@ public void ApplyRevertsToItem(int entity) {
 		case 413: { if (ItemIsEnabled(Wep_Solemn)) {
 			TF2Attrib_SetByDefIndex(entity, 5, 1.0); // fire rate penalty
 		}}
-		case 406: { if (ItemIsEnabled(Wep_SplendidScreen)) {
-			TF2Attrib_SetByDefIndex(entity, 64, 0.85); // +15% explosive damage resistance on wearer
-			TF2Attrib_SetByDefIndex(entity, 247, 1.0); // Can deal charge impact damage at any range
-			TF2Attrib_SetByDefIndex(entity, 249, 1.0); // +0% increase in charge recharge rate
-		}}
+		case 406: {
+			// common
+			if (ItemIsEnabled(Wep_SplendidScreen)) {
+				TF2Attrib_SetByDefIndex(entity, 247, 1.0); // Can deal charge impact damage at any range
+				TF2Attrib_SetByDefIndex(entity, 249, 1.0); // +0% increase in charge recharge rate
+			}
+			// specific
+			switch (GetItemVariant(Wep_SplendidScreen)) {
+				case 0: {
+					TF2Attrib_SetByDefIndex(entity, 64, 0.85); // +15% explosive damage resistance on wearer
+				}
+				case 1: {
+					TF2Attrib_SetByDefIndex(entity, 60, 0.75); // +25% fire damage resistance on wearer
+				}
+			}
+		}
 		case 649: { if (ItemIsEnabled(Wep_Spycicle)) {
 			TF2Attrib_SetByDefIndex(entity, 156, 1.0); // silent killer
 		}}
