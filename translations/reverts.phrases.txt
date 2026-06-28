@@ -952,6 +952,10 @@
 	{
 		"en"	"Reverted to pre-pyromania; activating MMMPH refills health with 90%% damage resist while taunting, MMMPH requires 225 fire damage, -10%% damage penalty"
 	}
+	"Phlog_Pre2016"
+	{
+		"en"	"Reverted to pre-January 20, 2016; activating MMMPH refills health, MMMPH requires 225 fire damage"
+	}
 	"Pomson_PreGM"
 	{
 		"en"	"Increased hitbox size, passes through team, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows"
