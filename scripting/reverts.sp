@@ -485,6 +485,7 @@ enum
 	Wep_BazaarBargain,	
 	Wep_Beggars,
 	Wep_BlackBox,
+	Wep_Blutsauger,
 	Wep_Bonk,
 	Wep_Booties,
 	Wep_BrassBeast,
@@ -665,6 +666,7 @@ public void OnPluginStart() {
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
+	ItemDefine("blutsauger", "Blutsauger_Release", CLASSFLAG_MEDIC | ITEMFLAG_DISABLED, Wep_Blutsauger);
 	ItemDefine("bonk", "Bonk_PreJI", CLASSFLAG_SCOUT, Wep_Bonk);
 	ItemDefine("booties", "Booties_PreMYM", CLASSFLAG_DEMOMAN, Wep_Booties);
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
@@ -2632,6 +2634,10 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 110, 15.0); // On Hit: +15 health
 			TF2Attrib_SetByDefIndex(entity, 741, 0.0); // On Hit: Gain up to +0 health per attack
 		}}
+		case 36: { if (ItemIsEnabled(Wep_Blutsauger)) {
+			TF2Attrib_SetByDefIndex(entity, 15, 0.0); // No random critical hits
+			TF2Attrib_SetByDefIndex(entity, 881, 0.0); // -0 health regenerated per second on wearer
+		}}
 		case 405, 608: { if (ItemIsEnabled(Wep_Booties)) {
 			TF2Attrib_SetByDefIndex(entity, 107, 1.10); // move speed bonus
 			TF2Attrib_SetByDefIndex(entity, 788, 1.00); // move speed bonus shield required
@@ -3467,6 +3473,7 @@ void CacheWeapons(int client) {
 					case 730: player_weapons[client][Wep_Beggars] = true;
 					case 442: player_weapons[client][Wep_Bison] = true;
 					case 228, 1085: player_weapons[client][Wep_BlackBox] = true;
+					case 36: player_weapons[client][Wep_Blutsauger] = true;
 					case 46, 1145: player_weapons[client][Wep_Bonk] = true;
 					case 312: player_weapons[client][Wep_BrassBeast] = true;
 					case 311: player_weapons[client][Wep_BuffaloSteak] = true;
@@ -4583,14 +4590,17 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// full attrib heal on hit
 				if (
-					(
-						ItemIsEnabled(Wep_BlackBox) && StrEqual(class, "tf_weapon_rocketlauncher") ||
-						GetItemVariant(Wep_PocketPistol) == 2 && StrEqual(class, "tf_weapon_handgun_scout_secondary")
-					) &&
 					attacker != victim &&
 					!AreEntitiesOnSameTeam(attacker, victim) &&
-					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-					!PlayerIsUbered(victim)
+					!PlayerIsUbered(victim) &&
+					(
+						ItemIsEnabled(Wep_Blutsauger) && StrEqual(class, "tf_weapon_syringegun_medic") ||
+						!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
+						(
+							ItemIsEnabled(Wep_BlackBox) && StrEqual(class, "tf_weapon_rocketlauncher") ||
+							GetItemVariant(Wep_PocketPistol) == 2 && StrEqual(class, "tf_weapon_handgun_scout_secondary")
+						)
+					)
 				) {
 					int heal = TF2Attrib_HookValueInt(0, "add_onhit_addhealth", weapon);
 					if (heal) {

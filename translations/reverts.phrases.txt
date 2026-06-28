@@ -210,6 +210,10 @@
 	{
 		"en"	"Black Box"
 	}
+	"blutsauger"
+	{
+		"en"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"en"	"Bonk! Atomic Punch"
@@ -655,6 +659,10 @@
 	"BlackBox_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
+	}
+	"Blutsauger_Release"
+	{
+		"en"	"Reverted to release, no passive health regen penalty, no random crits, can heal off disguised spies"
 	}
 	"Bonk_PreJI"
 	{
