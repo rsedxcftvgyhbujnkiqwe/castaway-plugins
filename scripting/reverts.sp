@@ -541,6 +541,7 @@ enum
 	Wep_QuickFix,
 	Wep_Quickiebomb,
 	Wep_Razorback,
+	Wep_RedTape,
 	Wep_RescueRanger,
 	Wep_ReserveShooter,
 	Wep_Bison, // Righteous Bison
@@ -761,6 +762,7 @@ public void OnPluginStart() {
 #endif
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
+	ItemDefine("redtape", "RedTape_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTape);
 	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreTB");
@@ -2990,6 +2992,9 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 669, 4.00); // Stickybombs fizzle 4 seconds after landing
 			TF2Attrib_SetByDefIndex(entity, 670, 0.50); // Max charge time decreased by 50%
 		}}
+		case 810, 831: { if (ItemIsEnabled(Wep_RedTape)) {
+			TF2Attrib_SetByDefIndex(entity, 433, 0.9); // sapper_degenerates_buildings
+		}}
 		case 997: {
 			switch (GetItemVariant(Wep_RescueRanger)) {
 				case 0: {
@@ -3537,6 +3542,7 @@ void CacheWeapons(int client) {
 					case 404: player_weapons[client][Wep_Persian] = true;
 					case 411: player_weapons[client][Wep_QuickFix] = true;
 					case 1150: player_weapons[client][Wep_Quickiebomb] = true;
+					case 810, 831: player_weapons[client][Wep_RedTape] = true;
 					case 997: player_weapons[client][Wep_RescueRanger] = true;
 					case 415: player_weapons[client][Wep_ReserveShooter] = true;
 					case 59: player_weapons[client][Wep_DeadRinger] = true;
