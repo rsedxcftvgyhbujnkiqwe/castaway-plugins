@@ -210,6 +210,10 @@
 	{
 		"en"	"Black Box"
 	}
+	"blutsauger"
+	{
+		"en"	"Blutsauger"
+	}
 	"bonk"
 	{
 		"en"	"Bonk! Atomic Punch"
@@ -425,6 +429,10 @@
 	"razorback"
 	{
 		"en"	"Razorback"
+	}
+	"redtape"
+	{
+		"en"	"Red-Tape Recorder"
 	}
 	"rescueranger"
 	{
@@ -655,6 +663,10 @@
 	"BlackBox_PreGM"
 	{
 		"en"	"Reverted to pre-gunmettle, flat +15 per hit at any range, uncapped"
+	}
+	"Blutsauger_Release"
+	{
+		"en"	"Reverted to release, no passive health regen penalty, no random crits, can heal off disguised spies"
 	}
 	"Bonk_PreJI"
 	{
@@ -944,6 +956,10 @@
 	{
 		"en"	"Reverted to pre-pyromania; activating MMMPH refills health with 90%% damage resist while taunting, MMMPH requires 225 fire damage, -10%% damage penalty"
 	}
+	"Phlog_Pre2016"
+	{
+		"en"	"Reverted to pre-January 20, 2016; activating MMMPH refills health, MMMPH requires 225 fire damage"
+	}
 	"Pomson_PreGM"
 	{
 		"en"	"Increased hitbox size, passes through team, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows"
@@ -999,6 +1015,10 @@
 	"Razorback_PreJI"
 	{
 		"en"	"Reverted to pre-inferno, can be overhealed, shield does not regenerate"
+	}
+	"RedTape_Release"
+	{
+		"en"	"Reverted to release, faster downgrade speed on upgraded enemy buildings (1.6 s)"
 	}
 	"RescueRanger_PreGM"
 	{
@@ -1131,6 +1151,10 @@
 	"Splendid_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, 15%% blast resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash damage at any range"
+	}
+	"Splendid_Release"
+	{
+		"en"	"Reverted to release, 25%% fire resist, no faster recharge, crit after bash, no debuff removal, full 85 base bash damage at any range"
 	}
 	"SpyCicle_PreGM"
 	{
