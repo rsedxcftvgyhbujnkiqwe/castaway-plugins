@@ -4292,26 +4292,6 @@ Action SDKHookCB_OnTakeDamage(
 		}
 
 		{
-			// turner charge loss on damage taken
-
-			if (
-				GetItemVariant(Wep_TideTurner) == 0 &&
-				player_weapons[victim][Wep_TideTurner] &&
-				victim != attacker &&
-				(damage_type & DMG_FALL) == 0 &&
-				TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
-				!PlayerIsUbered(victim)
-			) {
-				charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
-
-				charge = (charge - damage);
-				charge = (charge < 0.0 ? 0.0 : charge);
-
-				SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
-			}
-		}
-
-		{
 			// wrangler variant no falloff
 			if (
 				GetItemVariant(Wep_Wrangler) >= 1 &&
@@ -4628,7 +4608,7 @@ Action SDKHookCB_OnTakeDamage(
 					(ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
 					StrEqual(class, "tf_wearable_demoshield")
 				) {
-					// crit after shield bash if melee is active weapon
+					// shield bash always guarantees crits
 					RequestFrame(SetMeleeCrit, attacker);
 
 					// if using splendid screen, bash damage at any range
@@ -5176,6 +5156,25 @@ void SDKHookCB_OnTakeDamagePost(
 	int weapon1;
 	float rage;
 	float delta;
+
+	if (
+		victim >= 1 &&
+		victim <= MaxClients
+	) {
+		// turner charge loss on damage taken
+		// i ought to rework this later by leaving the vanilla attribute alone and forcing melee crits ourselves
+		if (
+			GetItemVariant(Wep_TideTurner) == 0 &&
+			player_weapons[victim][Wep_TideTurner] &&
+			victim != attacker &&
+			(damage_type & DMG_FALL) == 0 &&
+			TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
+			!PlayerIsUbered(victim)
+		) {
+			charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter") - damage;
+			SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", floatMax(charge, 0.0));
+		}
+	}
 
 	if (
 		victim >= 1 && victim <= MaxClients &&
