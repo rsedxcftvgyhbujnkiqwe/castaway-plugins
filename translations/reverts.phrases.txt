@@ -1194,7 +1194,7 @@
 	}
 	"Turner_PreDec2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge, 100%% charge on kill, no charge loss on hit"
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge, 100%% charge on charge kill, no charge loss on hit"
 	}
 	"Tomislav_PreLWSoundOnly"
 	{
