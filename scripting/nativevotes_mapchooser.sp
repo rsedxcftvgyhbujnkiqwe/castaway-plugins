@@ -101,6 +101,7 @@ bool g_WaitingForVote;
 bool g_MapVoteCompleted;
 bool g_ChangeMapAtRoundEnd;
 bool g_ChangeMapInProgress;
+bool g_HasFileBeenRead;
 int g_mapFileSerial = -1;
 
 MapChange g_ChangeTime;
@@ -1622,10 +1623,15 @@ void ReadPreviousMapsFromText()
 	}
 	while (!file.EndOfFile());
 	file.Close();
+	g_HasFileBeenRead = true;
 }
 
 void WritePreviousMapsToText()
 {
+	// Do not write maps if we haven't read them yet
+	if (!g_HasFileBeenRead) {
+		return;
+	}
 	File file = OpenFile(GetTextFilePath(), "w");
 	if (file == null)
 	{
