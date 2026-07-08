@@ -842,7 +842,7 @@
 	}
 	"Guillotine_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, stun crits, distance mini-crits, no recharge"
+		"en"	"Reverted to pre-inferno, crit vs stunned players, long-range hits mini-crit instead of reducing recharge time"
 	}
 	"GasJockey_Release"
 	{
@@ -1010,7 +1010,7 @@
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"en"	"Reverted to toughbreak, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
+		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
 	}
 	"Razorback_PreJI"
 	{
