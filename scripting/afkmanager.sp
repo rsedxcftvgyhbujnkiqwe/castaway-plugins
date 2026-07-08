@@ -27,6 +27,7 @@ ConVar g_cvMinPlayerCount;
 ConVar g_cvMpIdleMethod;
 
 GlobalForward g_fwOnAfkKick;
+GlobalForward g_fwOnAfkSwitch;
 
 public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max) {
     RegPluginLibrary("afkmanager");
@@ -42,6 +43,7 @@ public void OnPluginStart()
     g_cvMinPlayerCount = CreateConVar("sm_afkmanager_min_player_count", "12", "Minimum number of players on the server before the AFK manager starts taking action on players.");
 
 	g_fwOnAfkKick = new GlobalForward("OnAFKKick", ET_Hook, Param_Cell);
+	g_fwOnAfkSwitch = new GlobalForward("OnAFKSwitch", ET_Ignore, Param_Cell);
 
 	AutoExecConfig(true, "afkmanager", "sourcemod");
 
@@ -134,6 +136,12 @@ bool Kick(int client) {
 	return false;
 }
 
+void CallSwitchSpecForward(int client) {
+	Call_StartForward(g_fwOnAfkSwitch);
+	Call_PushCell(client);
+	Call_Finish();
+}
+
 void AfkManage() {
 	int action = g_cvAfkAction.IntValue;
 	int alive_time = g_cvAfkAliveTime.IntValue;
@@ -207,10 +215,12 @@ void AfkManage() {
 						}
 					} else if (action==1) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
+						CallSwitchSpecForward(idx);
 						ClientPressedButton(idx);
 						g_bMovedToSpec[idx] = true;
 					} else if (action==2) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
+						CallSwitchSpecForward(idx);
 					}
 				}
 			}

@@ -14,6 +14,12 @@
  */
 forward Action OnAFKKick(int client);
 
+/**
+ * Called when an AFK player has been switched to spectator.
+ * @param client   Client index.
+ */
+forward void OnAFKSwitch(int client);
+
 public SharedPlugin __pl_afkmanager = {
     name = "afkmanager",
     file = "afkmanager.smx",
