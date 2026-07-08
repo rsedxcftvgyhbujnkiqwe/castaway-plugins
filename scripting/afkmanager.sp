@@ -24,6 +24,7 @@ ConVar g_cvAfkAliveTime;
 ConVar g_cvAfkSpecTime;
 ConVar g_cvAfkSpecMovedTime;
 ConVar g_cvMinPlayerCount;
+ConVar g_cvMpIdleMethod;
 
 GlobalForward g_fwOnAfkKick;
 
@@ -50,9 +51,15 @@ public void OnPluginStart()
 	AddCommandListener(OnSpecChanged,"spec_next");
 	AddCommandListener(OnSpecChanged,"spec_prev");
 
-	FindConVar("mp_idledealmethod").SetInt(0);
+	g_cvMpIdleMethod = FindConVar("mp_idledealmethod");
+	g_cvMpIdleMethod.IntValue = 0;
+	g_cvMpIdleMethod.AddChangeHook(OnIdleMethodChange);
 
     CreateTimer(1.0, AfkDaemon,_,TIMER_REPEAT);
+}
+
+public void OnIdleMethodChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	convar.IntValue = 0;
 }
 
 public void OnMapStart() {
