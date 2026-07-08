@@ -24,8 +24,10 @@ ConVar g_cvAfkAliveTime;
 ConVar g_cvAfkSpecTime;
 ConVar g_cvAfkSpecMovedTime;
 ConVar g_cvMinPlayerCount;
+ConVar g_cvMpIdleMethod;
 
 GlobalForward g_fwOnAfkKick;
+GlobalForward g_fwOnAfkSwitch;
 
 public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max) {
     RegPluginLibrary("afkmanager");
@@ -41,6 +43,7 @@ public void OnPluginStart()
     g_cvMinPlayerCount = CreateConVar("sm_afkmanager_min_player_count", "12", "Minimum number of players on the server before the AFK manager starts taking action on players.");
 
 	g_fwOnAfkKick = new GlobalForward("OnAFKKick", ET_Hook, Param_Cell);
+	g_fwOnAfkSwitch = new GlobalForward("OnAFKSwitch", ET_Ignore, Param_Cell);
 
 	AutoExecConfig(true, "afkmanager", "sourcemod");
 
@@ -50,9 +53,15 @@ public void OnPluginStart()
 	AddCommandListener(OnSpecChanged,"spec_next");
 	AddCommandListener(OnSpecChanged,"spec_prev");
 
-	FindConVar("mp_idledealmethod").SetInt(0);
+	g_cvMpIdleMethod = FindConVar("mp_idledealmethod");
+	g_cvMpIdleMethod.IntValue = 0;
+	g_cvMpIdleMethod.AddChangeHook(OnIdleMethodChange);
 
     CreateTimer(1.0, AfkDaemon,_,TIMER_REPEAT);
+}
+
+public void OnIdleMethodChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	convar.IntValue = 0;
 }
 
 public void OnMapStart() {
@@ -125,6 +134,12 @@ bool Kick(int client) {
 		return true;
 	}
 	return false;
+}
+
+void CallSwitchSpecForward(int client) {
+	Call_StartForward(g_fwOnAfkSwitch);
+	Call_PushCell(client);
+	Call_Finish();
 }
 
 void AfkManage() {
@@ -200,10 +215,12 @@ void AfkManage() {
 						}
 					} else if (action==1) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
+						CallSwitchSpecForward(idx);
 						ClientPressedButton(idx);
 						g_bMovedToSpec[idx] = true;
 					} else if (action==2) {
 						TF2_ChangeClientTeam(idx, TFTeam_Spectator);
+						CallSwitchSpecForward(idx);
 					}
 				}
 			}
