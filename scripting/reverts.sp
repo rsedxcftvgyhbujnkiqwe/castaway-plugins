@@ -122,6 +122,7 @@ int resistance_mapping[] =
 // game code defs
 #define EF_NODRAW 0x20
 #define FSOLID_USE_TRIGGER_BOUNDS 0x80
+#define DMG_MELEE DMG_BLAST_SURFACE
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
 #define TF_DMG_CUSTOM_NONE 0
 #define TF_DMG_CUSTOM_HEADSHOT 1
@@ -214,6 +215,13 @@ enum
 	LUNCHBOX_ADDS_AMMO,
 	LUNCHBOX_BANANA,
 	LUNCHBOX_FISHCAKE,
+};
+
+enum
+{
+	MELEE_NOCRIT = 0,
+	MELEE_MINICRIT = 1,
+	MELEE_CRIT = 2,
 };
 
 char class_names[][] = {
@@ -425,6 +433,7 @@ int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
 int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
+int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
 Address CTakeDamageInfo_m_flDamage;
 Address CTakeDamageInfo_m_iDamageCustom;
 
@@ -1038,7 +1047,8 @@ public void OnPluginStart() {
 		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
 		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
-
+    CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
+    
 		CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
 		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
 	}
@@ -3218,6 +3228,8 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroad
 public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
+	int weapon;
+	char class[64];
 
 	// 1 second sentry disable if wrangler shield active and engineer dies.
 	// should not affect the normal 3 second disable on engineer weapon switch etc.
@@ -3254,48 +3266,45 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 		IsClientInGame(client) &&
 		IsClientInGame(attacker)
 	) {
-		{
-			if (
-				client != attacker &&
-				(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
-				GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
-				IsPlayerAlive(attacker)
-			) {
-				int weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+		if (
+			client != attacker &&
+			(GetEventInt(event, "death_flags") & TF_DEATH_FEIGN_DEATH) == 0 &&
+			GetEventInt(event, "inflictor_entindex") == attacker && // make sure it wasn't a "finished off" kill
+			IsPlayerAlive(attacker)
+		) {
+			weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
 
-				if (weapon > 0) {
-					char class[64];
-					GetEntityClassname(weapon, class, sizeof(class));
+			if (weapon > 0) {
+				GetEntityClassname(weapon, class, sizeof(class));
 
-					if (
-						ItemIsEnabled(Wep_Zatoichi) &&
-						StrEqual(class, "tf_weapon_katana")
-					) {
-						// zatoichi heal on kill
-						int health_cur = GetClientHealth(attacker);
-						int health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
+				if (
+					ItemIsEnabled(Wep_Zatoichi) &&
+					StrEqual(class, "tf_weapon_katana")
+				) {
+					// zatoichi heal on kill
+					int health_cur = GetClientHealth(attacker);
+					int health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
 
-						if (health_cur < health_max) {
-							SetEntProp(attacker, Prop_Send, "m_iHealth", health_max);
+					if (health_cur < health_max) {
+						SetEntProp(attacker, Prop_Send, "m_iHealth", health_max);
 
-							Event healOnHitEvent = CreateEvent("player_healonhit", true);
+						Event healOnHitEvent = CreateEvent("player_healonhit", true);
 
-							healOnHitEvent.SetInt("amount", health_max);
-							healOnHitEvent.SetInt("entindex", attacker);
-							healOnHitEvent.SetInt("weapon_def_index", -1);
+						healOnHitEvent.SetInt("amount", health_max);
+						healOnHitEvent.SetInt("entindex", attacker);
+						healOnHitEvent.SetInt("weapon_def_index", -1);
 
-							healOnHitEvent.Fire();
-						}
+						healOnHitEvent.Fire();
 					}
+				}
 
-					if (
-						ItemIsEnabled(Wep_Powerjack) &&
-						TF2Attrib_HookValueInt(0, "heal_on_kill", weapon) &&
-						GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
-					) {
-						players[attacker].old_health = GetClientHealth(attacker);
-						RequestFrame(ApplyOverhealOnKill, weapon);
-					}
+				if (
+					ItemIsEnabled(Wep_Powerjack) &&
+					TF2Attrib_HookValueInt(0, "heal_on_kill", weapon) &&
+					GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
+				) {
+					players[attacker].old_health = GetClientHealth(attacker);
+					RequestFrame(ApplyOverhealOnKill, weapon);
 				}
 			}
 		}
@@ -4245,26 +4254,6 @@ Action SDKHookCB_OnTakeDamage(
 		}
 
 		{
-			// turner charge loss on damage taken
-
-			if (
-				GetItemVariant(Wep_TideTurner) == 0 &&
-				player_weapons[victim][Wep_TideTurner] &&
-				victim != attacker &&
-				(damage_type & DMG_FALL) == 0 &&
-				TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
-				!PlayerIsUbered(victim)
-			) {
-				charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter");
-
-				charge = (charge - damage);
-				charge = (charge < 0.0 ? 0.0 : charge);
-
-				SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", charge);
-			}
-		}
-
-		{
 			// wrangler variant no falloff
 			if (
 				GetItemVariant(Wep_Wrangler) >= 1 &&
@@ -4493,27 +4482,28 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// zatoichi duels
 
-				if (StrEqual(class, "tf_weapon_katana")) {
+				if (
+					ItemIsEnabled(Wep_Zatoichi) &&
+					StrEqual(class, "tf_weapon_katana")
+				) {
 					weapon1 = GetEntPropEnt(victim, Prop_Send, "m_hActiveWeapon");
 
 					if (weapon1 > 0) {
 						GetEntityClassname(weapon1, class, sizeof(class));
 
 						if (StrEqual(class, "tf_weapon_katana")) {
-							if (ItemIsEnabled(Wep_Zatoichi)) {
-								damage1 = (float(GetEntProp(victim, Prop_Send, "m_iHealth")) * 3.0);
+							damage1 = (float(GetEntProp(victim, Prop_Send, "m_iHealth")) * 3.0);
 
-								if (damage1 > damage) {
-									damage = damage1;
-								}
-
-								damage_type = (damage_type | DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE);
-
-								return Plugin_Changed;
+							if (damage1 > damage) {
+								damage = damage1;
 							}
+
+							damage_type = (damage_type | DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE);
+
+							return Plugin_Changed;
 						}
+						return Plugin_Continue;
 					}
-					return Plugin_Continue;
 				}
 			}
 
@@ -4583,10 +4573,8 @@ Action SDKHookCB_OnTakeDamage(
 					(ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
 					StrEqual(class, "tf_wearable_demoshield")
 				) {
-					// crit after shield bash if melee is active weapon
-					weapon1 = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
-					if (weapon1 == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee))
-						TF2_AddCondition(attacker, TFCond_CritOnDamage, 0.3, 0);
+					// shield bash always guarantees crits
+					RequestFrame(SetMeleeCrit, attacker);
 
 					// if using splendid screen, bash damage at any range
 					// other shields can only bash at the end of a charge
@@ -4712,6 +4700,10 @@ Action SDKHookCB_OnTakeDamage(
 	return Plugin_Continue;
 }
 
+void SetMeleeCrit(int client) {
+	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
+}
+
 Action SDKHookCB_OnTakeDamage_Building(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
@@ -4781,6 +4773,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int health_max;
 	int healer;
 	float rage;
+	float charge;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -5085,6 +5078,28 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
+
+		if (weapon > 0) {
+			// release tide turner: don't grant charge on regular melee kills
+			if (
+				GetItemVariant(Wep_TideTurner) == 1 &&
+				player_weapons[attacker][Wep_TideTurner] &&
+				damage_type & DMG_MELEE &&
+				!GetEntData(weapon, CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge, 1)
+			) {
+				for (int i = 0; i < TF2Util_GetPlayerWearableCount(attacker); i++) {
+					weapon1 = TF2Util_GetPlayerWearable(attacker, i);
+					if (
+						weapon1 > 0 &&
+						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1099
+					) {
+						charge = TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon1);
+						TF2Attrib_AddCustomPlayerAttribute(attacker, "kill refills meter", -charge, 0.001);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	return returnValue;
@@ -5103,6 +5118,25 @@ void SDKHookCB_OnTakeDamagePost(
 	int weapon1;
 	float rage;
 	float delta;
+
+	if (
+		victim >= 1 &&
+		victim <= MaxClients
+	) {
+		// turner charge loss on damage taken
+		// i ought to rework this later by leaving the vanilla attribute alone and forcing melee crits ourselves
+		if (
+			GetItemVariant(Wep_TideTurner) == 0 &&
+			player_weapons[victim][Wep_TideTurner] &&
+			victim != attacker &&
+			(damage_type & DMG_FALL) == 0 &&
+			TF2_IsPlayerInCondition(victim, TFCond_Charging) &&
+			!PlayerIsUbered(victim)
+		) {
+			charge = GetEntPropFloat(victim, Prop_Send, "m_flChargeMeter") - damage;
+			SetEntPropFloat(victim, Prop_Send, "m_flChargeMeter", floatMax(charge, 0.0));
+		}
+	}
 
 	if (
 		victim >= 1 && victim <= MaxClients &&
@@ -5187,6 +5221,16 @@ void SDKHookCB_OnTakeDamagePost(
 			if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
 				TF2Attrib_RemoveByDefIndex(weapon, 98);
 			}
+
+			// refill charge on bash kills
+			if (
+				GetItemVariant(Wep_TideTurner) == 1 &&
+				player_weapons[attacker][Wep_TideTurner] &&
+				IsPlayerAlive(victim) == false &&
+				damage_custom == TF_CUSTOM_CHARGE_IMPACT
+			) {
+				RequestFrame(RefillCharge, weapon);
+			}
 		}
 
 		if (inflictor > MaxClients) {
@@ -5264,6 +5308,17 @@ void SDKHookCB_OnTakeDamagePost(
 				}
 			}
 		}
+	}
+}
+
+void RefillCharge(int weapon) {
+	int client = GetEntityOwner(weapon);
+	float charge;
+
+	if (client >= 1 && client <= MaxClients) {
+		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
+		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
+		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 	}
 }
 
