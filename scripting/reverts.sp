@@ -50,7 +50,7 @@
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
-#define PLUGIN_VERSION_NUM "2.0.0"
+#define PLUGIN_VERSION_NUM "2.0.1"
 // Add a OS suffix if Memorypatch reverts are used
 // to make it easier to see which OS the plugin is compiled for. 
 // To server owners, before you raise hell, do: sm plugins list 
