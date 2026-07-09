@@ -195,6 +195,20 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x70\x53\x8B\x5D\x2A\x56\x57\x8B\xF9\x89\x7D"
 				"linux"		"@_ZN11CBaseObject14InputWrenchHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
+			// "mult_dmgself_push_force"
+			"CTFPlayer::ApplyPushFromDamage"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\xA1\x2A\x2A\x2A\x2A\x83\xEC\x2C\x83\x78\x2A\x00"
+				"linux"		"@_ZN9CTFPlayer19ApplyPushFromDamageERK15CTakeDamageInfo6Vector"
+			}
+			// "mult_aiming_knockback_resistance"
+			"CTFPlayer::ApplyAbsVelocityImpulse"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x8B\x55\x2A\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x56\x8B\xF1\xF3\x0F\x11\x45"
+				"linux"		"@_ZN9CTFPlayer23ApplyAbsVelocityImpulseERK6Vector"
+			}
 		}
 
 		"Offsets"
@@ -863,6 +877,46 @@
 					{
 						"type"	"object"
 						"size"	"12"
+					}
+				}
+			}
+			"CTFPlayer::ApplyPushFromDamage"
+			{
+				"signature"	"CTFPlayer::ApplyPushFromDamage"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"info"
+					{
+						"type"	"int"
+					}
+					"vecDir_x"
+					{
+						"type"	"float"
+					}
+					"vecDir_y"
+					{
+						"type"	"float"
+					}
+					"vecDir_z"
+					{
+						"type"	"float"
+					}
+				}
+			}
+			"CTFPlayer::ApplyAbsVelocityImpulse"
+			{
+				"signature"	"CTFPlayer::ApplyAbsVelocityImpulse"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"vecImpulse"
+					{
+						"type"	"vectorptr"
 					}
 				}
 			}

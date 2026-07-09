@@ -144,6 +144,8 @@ int resistance_mapping[] =
 #define MAX_HEAD_BONUS 6
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
 #define FLIGHT_TIME_TO_MAX_STUN	1.0
+#define TF_CANNONBALL_FORCE_SCALE 80.0
+#define TF_CANNONBALL_FORCE_UPWARD 300.0
 
 enum
 {
@@ -290,6 +292,7 @@ enum struct Player {
 	int stun_inflictor;
 	int whip_frame;
 	int fireproof_frame;
+	int cannonball_frame;
 }
 
 enum struct Entity {
@@ -313,6 +316,7 @@ ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
+ConVar cvar_ref_tf_damageforcescale_other;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
 ConVar cvar_ref_tf_feign_death_damage_scale;
@@ -417,6 +421,9 @@ DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 DynamicDetour dhook_CBaseObject_InputWrenchHit;
+DynamicDetour dhook_CTFPlayer_ApplyPushFromDamage;
+DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
+
 #if defined MEMORY_PATCHES
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
@@ -427,6 +434,8 @@ int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
+Address CTakeDamageInfo_m_flDamage;
+Address CTakeDamageInfo_m_iDamageCustom;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -836,6 +845,7 @@ public void OnPluginStart() {
 
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
+	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
 	cvar_ref_tf_feign_death_damage_scale = FindConVar("tf_feign_death_damage_scale");
@@ -957,6 +967,8 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
 		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
 		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
+		dhook_CTFPlayer_ApplyPushFromDamage = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPushFromDamage");
+		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		CTFPlayer_m_flTauntNextStartTime = -1;
@@ -1035,7 +1047,10 @@ public void OnPluginStart() {
 		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
 		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
-		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
+    CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
+    
+		CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
+		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -1088,6 +1103,8 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPunchImpulseX);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_OnSwingHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
+	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPushFromDamage);
+	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyAbsVelocityImpulse);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1147,6 +1164,9 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
 	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
+	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
+	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Post, DHookCallback_CTFPlayer_ApplyPushFromDamage_Post);
+	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
 
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
@@ -2099,7 +2119,6 @@ public void OnGameFrame() {
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
-			cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 
 			// these cvars are global, set them to the desired value
 			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
@@ -2778,7 +2797,7 @@ public void ApplyRevertsToItem(int entity) {
 		case 308: {
 			// common
 			if (ItemIsEnabled(Wep_LochLoad)) {
-					TF2Attrib_SetByDefIndex(entity, 2, 1.20); // +20% damage bonus
+				TF2Attrib_SetByDefIndex(entity, 2, 1.20); // +20% damage bonus
 				TF2Attrib_SetByDefIndex(entity, 137, 1.00); // +0% damage vs buildings
 			}
 			// specific
@@ -4324,12 +4343,15 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
-					StrEqual(class, "tf_weapon_cannon")
+					StrEqual(class, "tf_weapon_cannon") &&
+					damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
 				) {
+					players[victim].stun_frame = GetGameTickCount();
+					players[victim].stun_inflictor = weapon;
+				
 					if (
-						damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH &&
-						damage > 20.0 &&
-						damage < 51.0
+						damage >= 25.0 &&
+						damage <= 50.0
 					) {
 						damage = 60.0;
 						return Plugin_Changed;
@@ -7281,6 +7303,14 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 				}
 			}
 		}
+		else if (
+			ItemIsEnabled(Wep_LooseCannon) &&
+			StrEqual(class, "tf_weapon_cannon")
+		) {
+			// cancel cannon stun
+			// LogMessage("Canceled loose cannon stun");
+			return MRES_Supercede;
+		}
 
 		if (override) {
 			//LogMessage("POST: CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
@@ -7367,6 +7397,78 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 			target <= MaxClients
 		) {
 			players[target].whip_frame = GetGameTickCount();
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookParam parameters) {
+	Address info = parameters.Get(1);
+	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
+	if (
+		ItemIsEnabled(Wep_LooseCannon) &&
+		client >= 1 &&
+		client <= MaxClients &&
+		damage_custom == TF_CUSTOM_CANNONBALL_PUSH
+	) {
+		players[client].cannonball_frame = GetGameTickCount();
+
+		// Old reconstructed knockback code for reference
+		// vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), TF_CANNONBALL_FORCE_SCALE );
+		// vecForce.z = ( ( GetPlayerClass()->GetClassIndex() == TF_CLASS_HEAVYWEAPONS ) ? ( TF_CANNONBALL_FORCE_UPWARD * 2 ) : TF_CANNONBALL_FORCE_UPWARD );
+
+		// Hijack tf_damageforcescale_other for the old cannon knockback		
+		cvar_ref_tf_damageforcescale_other.FloatValue = TF_CANNONBALL_FORCE_SCALE;
+
+		// Adjust vertical axis for correct upward force
+		float size[3], mins[3];
+		GetEntPropVector(client, Prop_Send, "m_vecMaxs", size);
+		GetEntPropVector(client, Prop_Send, "m_vecMins", mins);
+		SubtractVectors(size, mins, size);
+
+		float damage = LoadFromAddress(info + CTakeDamageInfo_m_flDamage, NumberType_Int32);
+
+		// DamageForce function, inlined
+		float force = damage * ((48.0 * 48.0 * 82.0) / (size[0] * size[1] * size[2])) * cvar_ref_tf_damageforcescale_other.FloatValue;
+		if (force > 1000.0) {
+			force = 1000.0;
+		}
+
+		float targetUpwardForce = TF_CANNONBALL_FORCE_UPWARD;
+		
+		if (TF2_GetPlayerClass(client) == TFClass_Heavy) {
+			// Double knockback to compensate for it being halved
+			targetUpwardForce *= 2.0; 
+		}
+
+		float newVecDir_z = (targetUpwardForce / force) * -1.0;
+
+		parameters.Set(4, newVecDir_z);
+		return MRES_ChangedHandled;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Post(int client, DHookParam parameters) {
+	cvar_ref_tf_damageforcescale_other.RestoreDefault();
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse(int client, DHookParam parameters) {
+	if (
+		ItemIsEnabled(Wep_LooseCannon) &&
+		client >= 1 &&
+		client <= MaxClients
+	) {
+		//LogMessage("CTFPlayer::ApplyAbsVelocityImpulse(%L)", client);
+
+		if (players[client].cannonball_frame == GetGameTickCount()) {
+			players[client].cannonball_frame++;
+		}
+		else if (players[client].cannonball_frame == GetGameTickCount() + 1) {
+			players[client].cannonball_frame = 0;
+			// Likely new knockback, cancel it. The modern code "manually" applies knockback after dealing damage.
+			return MRES_Supercede;
 		}
 	}
 	return MRES_Ignored;

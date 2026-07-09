@@ -906,7 +906,7 @@
 	}
 	"Cannon_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 damage impacts"
+		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 damage impacts, increased knockback, no stun"
 	}
 	"MadMilk_Release"
 	{
