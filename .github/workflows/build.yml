@@ -68,4 +68,4 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          path: reverts-*-target-sm-${{ matrix.sm-target }}
+          path: reverts-*_sm-${{ matrix.sm-target }}
