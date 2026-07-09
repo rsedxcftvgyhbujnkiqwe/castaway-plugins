@@ -63,9 +63,10 @@ jobs:
             mv scripting/compiled/reverts-${arch}.smx ${FOLDER_NAME}/plugins/
             cp gamedata/*reverts*.txt ${FOLDER_NAME}/gamedata/
             find translations/ -name "reverts.phrases.txt" -exec cp --parents {} ${FOLDER_NAME}/ \;
+            zip -r "${FOLDER_NAME}.zip" "${FOLDER_NAME}"
           done
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          path: reverts-*_sm-${{ matrix.sm-target }}
+          path: reverts-*_sm-${{ matrix.sm-target }}.zip
