@@ -124,16 +124,6 @@ int resistance_mapping[] =
 #define FSOLID_USE_TRIGGER_BOUNDS 0x80
 #define DMG_MELEE DMG_BLAST_SURFACE
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
-#define TF_DMG_CUSTOM_NONE 0
-#define TF_DMG_CUSTOM_HEADSHOT 1
-#define TF_DMG_CUSTOM_BACKSTAB 2
-#define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
-#define TF_DMG_CUSTOM_BASEBALL 22
-#define TF_DMG_CUSTOM_CHARGE_IMPACT 23
-#define TF_DMG_CUSTOM_PICKAXE 27
-#define TF_DMG_CUSTOM_PLAYER_SENTRY 30
-#define TF_DMG_CUSTOM_STICKBOMB_EXPLOSION 42
-#define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 #define SHIELD_NORMAL_VALUE 0.33
@@ -3307,7 +3297,7 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 				if (
 					ItemIsEnabled(Wep_Powerjack) &&
 					TF2Attrib_HookValueInt(0, "heal_on_kill", weapon) &&
-					GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
+					GetEventInt(event, "customkill") == 0
 				) {
 					players[attacker].old_health = GetClientHealth(attacker);
 					RequestFrame(ApplyOverhealOnKill, weapon);
@@ -4263,7 +4253,7 @@ Action SDKHookCB_OnTakeDamage(
 			// wrangler variant no falloff
 			if (
 				GetItemVariant(Wep_Wrangler) >= 1 &&
-				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY
+				damage_custom == TF_CUSTOM_PLAYER_SENTRY
 			) {
 				damage_type &= ~DMG_USEDISTANCEMOD;
 
@@ -4312,7 +4302,7 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_stickbomb")
 				) {
 					if (
-						damage_custom == TF_DMG_CUSTOM_NONE &&
+						damage_custom == 0 &&
 						damage == 55.0
 					) {
 						// melee damage is always 35
@@ -4320,7 +4310,7 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Changed;
 					}
 
-					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
+					if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
 						// base explosion is 100 damage
 						damage = 100.0;
 
@@ -4350,7 +4340,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
 					StrEqual(class, "tf_weapon_cannon") &&
-					damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
+					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
 					players[victim].stun_frame = GetGameTickCount();
 					players[victim].stun_inflictor = weapon;
@@ -4417,7 +4407,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
-					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
+					damage_custom == TF_CUSTOM_BASEBALL &&
 					damage == 22.5
 				) {
 					// always deal 15 impact damage at any range
@@ -4518,7 +4508,7 @@ Action SDKHookCB_OnTakeDamage(
 				// backstab detection for eternal reward fix
 
 				if (
-					damage_custom == TF_DMG_CUSTOM_BACKSTAB &&
+					damage_custom == TF_CUSTOM_BACKSTAB &&
 					StrEqual(class, "tf_weapon_knife")
 				) {
 					players[attacker].backstab_time = GetGameTime();
@@ -4560,7 +4550,7 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// shield bash
 				if (
-					damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT &&
+					damage_custom == TF_CUSTOM_CHARGE_IMPACT &&
 					((ItemIsEnabled(Wep_CharginTarge) && player_weapons[attacker][Wep_CharginTarge]) ||
 					(ItemIsEnabled(Wep_SplendidScreen) && player_weapons[attacker][Wep_SplendidScreen]) ||
 					(ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
@@ -4723,7 +4713,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 				StrEqual(class, "tf_weapon_stickbomb")
 			) {
 				if (
-					damage_custom == TF_DMG_CUSTOM_NONE &&
+					damage_custom == 0 &&
 					damage == 55.0
 				) {
 					// melee damage is always 35
@@ -4731,7 +4721,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 					return Plugin_Changed;
 				}
 
-				if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
+				if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
 					// base explosion is 100 damage
 					damage = 100.0;
 					return Plugin_Changed;
@@ -4744,7 +4734,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 			if (
 				ItemIsEnabled(Wep_LooseCannon) &&
 				StrEqual(class, "tf_weapon_cannon") &&
-				damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
+				damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 			) {
 				damage = 60.0;
 				return Plugin_Changed;
@@ -4944,7 +4934,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if (
 				GetItemVariant(Wep_Phlogistinator) >= 1 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
-				damage_custom != TF_DMG_CUSTOM_BACKSTAB &&
+				damage_custom != TF_CUSTOM_BACKSTAB &&
 				resist_damage
 			) {
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
@@ -5037,7 +5027,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					// Kamikaze taunt tanking for all Rocket Jumper variants
 					(ItemIsEnabled(Wep_RocketJumper) &&
 					player_weapons[victim][Wep_RocketJumper] &&
-					damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+					damage_custom == TF_CUSTOM_TAUNT_GRENADE) ||
 					// All self blast damage tanking for some Rocket Jumper and Sticky Jumper variants
 					(GetItemVariant(Wep_RocketJumper) >= 1 &&
 					player_weapons[victim][Wep_RocketJumper]) ||
@@ -5048,7 +5038,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					SetEntityHealth(victim, 500);
 				}
 
-				if (damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) {
+				if (damage_custom == TF_CUSTOM_TAUNT_GRENADE) {
 					if (
 						// Grenade Kamikaze taunt self-damage reduction from modern 320 self-damage to historical 256 self-damage
 						// The Soldier does not always survive this due to explosive damage jankiness
@@ -5177,7 +5167,7 @@ void SDKHookCB_OnTakeDamagePost(
 			if (
 				(ItemIsEnabled(Wep_RocketJumper) &&
 				player_weapons[victim][Wep_RocketJumper] &&
-				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+				damage_custom == TF_CUSTOM_TAUNT_GRENADE) ||
 				(GetItemVariant(Wep_RocketJumper) >= 1 &&
 				player_weapons[victim][Wep_RocketJumper]) ||
 				(GetItemVariant(Wep_StickyJumper) >= 2 &&
