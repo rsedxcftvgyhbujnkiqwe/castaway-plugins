@@ -6,23 +6,23 @@
 		{
 			"JarExplode"
 			{
-				"library" "server"
-				"linux" "@_Z10JarExplodeiP9CTFPlayerP11CBaseEntityS2_RK6Vectorif7ETFCondfPKcS8_"
-				"windows" "\x2A\x2A\x2A\x2A\x2A\x2A\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xE8\x02\x00\x00"
+				"library"	"server"
+				"linux"		"@_Z10JarExplodeiP9CTFPlayerP11CBaseEntityS2_RK6Vectorif7ETFCondfPKcS8_"
+				"windows"	"\x2A\x2A\x2A\x2A\x2A\x2A\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\xE8\x02\x00\x00"
 			}
 			// "set_cannot_disguise"
 			"CTFPlayer::CanDisguise"
 			{
-				"library" "server"
-				"linux" "@_ZN9CTFPlayer11CanDisguiseEv"
-				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x06\x8B\x80\x0C\x01\x00\x00"
+				"library"	"server"
+				"linux"		"@_ZN9CTFPlayer11CanDisguiseEv"
+				"windows"	"\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x06\x8B\x80\x0C\x01\x00\x00"
 			}
 			// "mult_player_aiming_movespeed"
 			"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A"
-				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A"
+				"linux"		"@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
 			}
 
 			"CTFPlayer::AddToSpyKnife"
@@ -34,131 +34,131 @@
 			// "arrow_heals_buildings"
 			"CTFProjectile_Arrow::BuildingHealingArrow"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x24\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x57"
-				"linux"   "@_ZN19CTFProjectile_Arrow20BuildingHealingArrowEP11CBaseEntity"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x24\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x57"
+				"linux"		"@_ZN19CTFProjectile_Arrow20BuildingHealingArrowEP11CBaseEntity"
 			}
 
 			"CBaseMultiplayerPlayer::AwardAchievement"
 			{
-				"library" "server"
-				"linux"	  "@_ZN22CBaseMultiplayerPlayer16AwardAchievementEii"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x8B\xF1\x8D\x4D\x2A\xE8\x2A\x2A\x2A\x2A\x56\x8D\x4D\x2A\xC7\x45\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8D\x45\x2A\x68\x2A\x2A\x2A\x2A\x50\xE8\x2A\x2A\x2A\x2A\xFF\x75" // Loooong signature.
+				"library"	"server"
+				"linux"		"@_ZN22CBaseMultiplayerPlayer16AwardAchievementEii"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x56\x8B\xF1\x8D\x4D\x2A\xE8\x2A\x2A\x2A\x2A\x56\x8D\x4D\x2A\xC7\x45\x2A\x2A\x2A\x2A\x2A\xE8\x2A\x2A\x2A\x2A\x8D\x45\x2A\x68\x2A\x2A\x2A\x2A\x50\xE8\x2A\x2A\x2A\x2A\xFF\x75" // Loooong signature.
 			}
 			// "add_health_regen"
 			"CTFPlayer::RegenThink"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
-				"linux"   "@_ZN9CTFPlayer10RegenThinkEv"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x7C\x56\x8B\xF1\x8B\x06"
+				"linux"		"@_ZN9CTFPlayer10RegenThinkEv"
 			}
 
 			"CTFPlayer::GiveAmmo"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
-				"linux"   "@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x53\x56\x8B\x75\x2A\x8B\xD9\x57\x8B\x7D\x2A\x89\x75"
+				"linux"		"@_ZN9CTFPlayer8GiveAmmoEiib11EAmmoSource"
 			}
 			// "enables_aoe_heal" leads to CTFPlayerShared::OnAddTaunting, which has a call to DrainAmmo
 			"CTFLunchBox::DrainAmmo"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
-				"linux"   "@_ZN11CTFLunchBox9DrainAmmoEb"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x56\x57\x8B\xF9\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x85\xF6\x0F\x84\x2A\x2A\x2A\x2A"
+				"linux"		"@_ZN11CTFLunchBox9DrainAmmoEb"
 			}
 			// "set_taunt_saharan_spy"
 			"CTFPlayer::OnTauntSucceeded"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\xFF\x75"
-				"linux"   "@_ZN9CTFPlayer16OnTauntSucceededEPKcii"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\xFF\x75"
+				"linux"		"@_ZN9CTFPlayer16OnTauntSucceededEPKcii"
 			}
 			// find using "minigunfiretime" which will lead to CTFPlayer::ModifyOrAppendCriteria
 			// it will be the FUN that "minigunfiretime" is used for and the FUN should appear many many times
 			"AI_CriteriaSet::AppendCriteria"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x48\x56\x8B\x75"
-				"linux"   "@_ZN14AI_CriteriaSet14AppendCriteriaEPKcS1_f"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x48\x56\x8B\x75"
+				"linux"		"@_ZN14AI_CriteriaSet14AppendCriteriaEPKcS1_f"
 			}
 			// "Building_Sentrygun.Disabled", first function call in subroutine
 			"CBaseObject::GetReversesBuildingConstructionSpeed"
 			{
-				"library" "server"
-				"windows" "\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
-				"linux"   "@_ZN11CBaseObject36GetReversesBuildingConstructionSpeedEv"
+				"library"	"server"
+				"windows"	"\xE8\x2A\x2A\x2A\x2A\x85\xC0\x75\x2A\xD9\xEE\xC3" // "Building_Sentrygun.Idle3", go to one that isn't precache, get first function call
+				"linux"		"@_ZN11CBaseObject36GetReversesBuildingConstructionSpeedEv"
 			}
 			// "models/weapons/w_models/w_toolbox.mdl", not in pre-cache, first func call below
 			"CBaseObject::CreateAmmoPack"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
-				"linux"   "@_ZN11CBaseObject14CreateAmmoPackEPKci"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x56\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\xC1\xE8\x0B"
+				"linux"		"@_ZN11CBaseObject14CreateAmmoPackEPKci"
 			}
 			// "nutsnbolts_build", don't use precache subroutine
 			"CBaseObject::OnConstructionHit"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
-				"linux"   "@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x48\x8B\x45\x2A\x53"
+				"linux"		"@_ZN11CBaseObject17OnConstructionHitEP9CTFPlayerP9CTFWrench6Vector"
 			}
 			// "rage_damage"
 			"CTFWeaponBaseGun::GetProjectileDamage"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x1C\x53\x56\x8B\xD9\x57\x89\x5D"
-				"linux"   "@_ZN16CTFWeaponBaseGun19GetProjectileDamageEv"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x1C\x53\x56\x8B\xD9\x57\x89\x5D"
+				"linux"		"@_ZN16CTFWeaponBaseGun19GetProjectileDamageEv"
 			}
 			// "mult_spread_scale"
 			"CTFWeaponBaseGun::GetWeaponSpread"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x57\x6A\x01\x6A\x00"
-				"linux"   "@_ZN16CTFWeaponBaseGun15GetWeaponSpreadEv"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x56\x8B\xF1\x57\x6A\x01\x6A\x00"
+				"linux"		"@_ZN16CTFWeaponBaseGun15GetWeaponSpreadEv"
 			}
 			// "mod_cloak_no_regen_from_items"
 			"CTFPlayerShared::AddToSpyCloakMeter"
 			{
-				"library" "server"
-				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
-				"linux"   "@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
+				"library"	"server"
+				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x83\xEC\x28\x56\x57\x8B\xF9\x6A\x39"
+				"linux"		"@_ZN15CTFPlayerShared18AddToSpyCloakMeterEfb"
 			}
 			// "mult_medigun_uberchargerate"
 			"CWeaponMedigun::FindAndHealTargets"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\xF1\x8B\x8E"
-				"linux"   "@_ZN14CWeaponMedigun18FindAndHealTargetsEv"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x8B\xF1\x8B\x8E"
+				"linux"		"@_ZN14CWeaponMedigun18FindAndHealTargetsEv"
 			}
 			// "lunchbox_healing_scale"
 			"CTFLunchBox::ApplyBiteEffects"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
-				"linux"	"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x51\x53\x8B\xD9\x56\x57\x6A\x01"
+				"linux"		"@_ZN11CTFLunchBox16ApplyBiteEffectsEP9CTFPlayer"
 			}
 			// "ChargeLevelDegradeThink", find function with one xref and aforementioned string is at top of decompile,
 			// this should be CTFDroppedWeapon::InitPickedUpWeapon, which should have an xref to CTFPlayer::PickupWeaponFromOther
 			// alternatively "enable_misc2_noisemaker" should lead to CTFPlayer::UseActionSlotItemPressed which has dropped weapon calls beforehand
 			"CTFPlayer::PickupWeaponFromOther"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
-				"linux" "@_ZN9CTFPlayer21PickupWeaponFromOtherEP16CTFDroppedWeapon"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
+				"linux"		"@_ZN9CTFPlayer21PickupWeaponFromOtherEP16CTFDroppedWeapon"
 			}
 			// "ChargeLevelDegradeThink", find function with least amount of code and which references itself
 			"CTFDroppedWeapon::ChargeLevelDegradeThink"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xF3\x0F\x10\x8F"
-				"linux" "@_ZN16CTFDroppedWeapon23ChargeLevelDegradeThinkEv"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x56\x57\x8B\xF9\xF3\x0F\x10\x8F"
+				"linux"		"@_ZN16CTFDroppedWeapon23ChargeLevelDegradeThinkEv"
 			}
 			// "player_stunned"
 			"CTFPlayerShared::StunPlayer"
 			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x20\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\x40"
-				"linux" "@_ZN15CTFPlayerShared10StunPlayerEffiP9CTFPlayer"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x20\x57\x8B\xF9\x8B\x87\x2A\x2A\x2A\x2A\x40"
+				"linux"		"@_ZN15CTFPlayerShared10StunPlayerEffiP9CTFPlayer"
 			}
 			// AddCond is ubiquitous; e.g. it's used at the end of StunPlayer, so it should be easy to find.
 			"CTFPlayerShared::AddCond"
@@ -208,6 +208,13 @@
 				"library"	"server"
 				"windows"	"\x55\x8B\xEC\x83\xEC\x18\x8B\x55\x2A\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A\x56\x8B\xF1\xF3\x0F\x11\x45"
 				"linux"		"@_ZN9CTFPlayer23ApplyAbsVelocityImpulseERK6Vector"
+			}
+			// "energy_weapon_penetration"
+			"CTFProjectile_EnergyRing::ShouldPenetrate"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x8B\x89\x2A\x2A\x2A\x2A\x83\xEC\x1C"
+				"linux"		"@_ZNK24CTFProjectile_EnergyRing15ShouldPenetrateEv"
 			}
 		}
 
@@ -931,6 +938,13 @@
 						"type"	"vectorptr"
 					}
 				}
+			}
+			"CTFProjectile_EnergyRing::ShouldPenetrate"
+			{
+				"signature"	"CTFProjectile_EnergyRing::ShouldPenetrate"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"bool"
 			}
 		}
 	}

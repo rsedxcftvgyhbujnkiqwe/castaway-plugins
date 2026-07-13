@@ -413,6 +413,7 @@ DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 DynamicDetour dhook_CBaseObject_InputWrenchHit;
 DynamicDetour dhook_CTFPlayer_ApplyPushFromDamage;
 DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
+DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 
 #if defined MEMORY_PATCHES
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
@@ -961,6 +962,7 @@ public void OnPluginStart() {
 		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CTFPlayer_ApplyPushFromDamage = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPushFromDamage");
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
+		dhook_CTFProjectile_EnergyRing_ShouldPenetrate = DynamicDetour.FromConf(conf, "CTFProjectile_EnergyRing::ShouldPenetrate");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
@@ -1095,6 +1097,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPushFromDamage);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyAbsVelocityImpulse);
+	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1157,6 +1160,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
 	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Post, DHookCallback_CTFPlayer_ApplyPushFromDamage_Post);
 	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
+	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
@@ -2877,11 +2881,9 @@ public void ApplyRevertsToItem(int entity) {
 				}
 			}
 		}
-		case 588: { switch (GetItemVariant(Wep_Pomson)) {
-			case 1, 3: {
-				TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
-			}
-		}}
+		case 588: { switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+			TF2Attrib_SetByDefIndex(entity, 283, 0.0); // Projectile penetrates enemy targets; make attrib visible but does nothing
+		}}}
 		case 214: {
 			// common (also pre-Gun Mettle)
 			if (ItemIsEnabled(Wep_Powerjack)) {
@@ -4641,46 +4643,45 @@ Action SDKHookCB_OnTakeDamage(
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
-				{
-					// bison/pomson stuff
+				// bison/pomson stuff
+				if (StrEqual(class, "tf_projectile_energy_ring")) {
+					GetEntityClassname(weapon, class, sizeof(class));
 
-					if (StrEqual(class, "tf_projectile_energy_ring")) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
-							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-						) {
-							// cloak/uber drain is done in OnTakeDamagePost
-
-							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
-							if (
-								GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
-								GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
-							) {
-								// Do not use internal rampup/falloff.
-								damage_type &= ~DMG_USEDISTANCEMOD;
-								
-								// Deal damage with 125% rampup, 75% falloff.
-								float base_dmg = (TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0) ? 16.00 : 48.00;
-								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
-							}
-
-							// Remove bullet damage type (untyped damage) and restore knockback
-							damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
-							// Enable sonic damage type so Fists of Steel ranged resist still works
-							damage_type |= DMG_SONIC;
-
-							return Plugin_Changed;
-						}
-					} else if (
-						ItemIsEnabled(Wep_CowMangler) && 
-						StrEqual(class, "tf_projectile_energy_ball")
+					if (
+						ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
+						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 					) {
-						// no crits.
-						damage_type &= ~DMG_CRIT;
+						// cloak/uber drain is done in OnTakeDamagePost
+
+						// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
+						if (
+							GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
+							GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
+						) {
+							// Reduce base damage by 20% (Pomson 48, Bison 16)
+							damage *= 0.8;
+
+							// Do not use internal rampup/falloff.
+							damage_type &= ~DMG_USEDISTANCEMOD;
+
+							// Deal damage with 125% rampup, 75% falloff.
+							damage *= ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
+						}
+
+						// Remove bullet damage type (untyped damage) and restore knockback
+						damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
+						// Enable sonic damage type so Fists of Steel ranged resist still works
+						damage_type |= DMG_SONIC;
+
 						return Plugin_Changed;
 					}
+				} else if (
+					ItemIsEnabled(Wep_CowMangler) && 
+					StrEqual(class, "tf_projectile_energy_ball")
+				) {
+					// no crits.
+					damage_type &= ~DMG_CRIT;
+					return Plugin_Changed;
 				}
 			}
 		}
@@ -7462,6 +7463,24 @@ MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookRetu
 		returnValue.Value = Address_Null;
 		return MRES_Supercede;
 	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate(int entity, DHookReturn returnValue) {
+	int weapon;
+	char class[64];
+
+	switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+			if (StrEqual(class, "tf_weapon_drg_pomson")) {
+				// serverside penetration, client doesn't know so it uses the pomson particle instead of bison
+				returnValue.Value = true;
+				return MRES_Override;
+			}
+		}
+	}}
 	return MRES_Ignored;
 }
 
