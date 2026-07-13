@@ -242,7 +242,6 @@ enum struct Player {
 	float resupply_time;
 	int headshot_frame;
 	bool hit_by_headshot;
-	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
 	float stunball_fix_time_bonk;
@@ -425,8 +424,9 @@ int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
-Address CTakeDamageInfo_m_flDamage;
-Address CTakeDamageInfo_m_iDamageCustom;
+
+const Address CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
+const Address CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -963,13 +963,13 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
-		CTFPlayer_m_flTauntNextStartTime = -1;
-		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
-		if (CTFPlayer_m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
+		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
-		CGameTrace_m_pEnt = -1;
+		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
 		CGameTrace_m_pEnt = GameConfGetOffset(conf, "CGameTrace.m_pEnt");
-		if (CGameTrace_m_pEnt == -1) SetFailState("Failed to load CGameTrace_m_pEnt offset!");
+
+		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
+		VALIDATE_OFFSET(CGameTrace_m_pEnt);
 
 		delete conf;
 	}
@@ -1039,10 +1039,7 @@ public void OnPluginStart() {
 		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
 		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
-    CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
-    
-		CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
-		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
+		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -1244,6 +1241,15 @@ public void OnConfigsExecuted() {
 	UpdateStickyLauncherDescription();
 #endif
 	UpdateShortstopDescription();
+}
+
+bool ValidateOffset(const char[] name, int offset)
+{
+	if (offset == -1) {
+		LogError("Failed to load %s offset", name);
+		return true;
+	}
+	return false;
 }
 
 bool ValidateHandle(const char[] name, Handle handle)
@@ -6047,11 +6053,11 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 /**
  * Removes projectiles and optionally damages players in front of the Short Circuit user.
  *
- * @param owner				Client index of the player using the Short Circuit.
- * @param entity			   Entity index of the Short Circuit weapon.
- * @param base_amount		  Amount of metal to consume on use (0 for none).
- * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
- * @param damage			   Damage to apply to players hit (default 0.0 for none).
+ * @param owner					Client index of the player using the Short Circuit.
+ * @param entity				Entity index of the Short Circuit weapon.
+ * @param base_amount			Amount of metal to consume on use (0 for none).
+ * @param amount_per_destroyed	Additional metal to consume per destroyed projectile (0 for none).
+ * @param damage				Damage to apply to players hit (default 0.0 for none).
  *
  * @return True if hit a player or destroyed a projectile, false otherwise.
  */
@@ -6409,8 +6415,7 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnVal
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
-{
+MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
 	if (
 		client > 0 &&
@@ -6551,19 +6556,15 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 }
 #endif
 
-MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
-{
-	if (ItemIsEnabled(Wep_Spycicle))
-	{
-		// Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Spycicle)) {
 		returnValue.Value = false;
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
-{
+MRESReturn DHookCallback_CTFPlayer_RegenThink(int client) {
 	int weapon;
 	bool full_regen = false;
 	float regen_amount;
@@ -6766,13 +6767,12 @@ MRESReturn DHookCallback_CBaseObject_InputWrenchHit(int entity, DHookReturn retu
 
 		// Return false such that the 'ding' plays instead of the regular wrench hit sound
 		returnValue.Value = false;
-		return MRES_ChangedOverride;
+		return MRES_Override;
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters)
-{
+MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Allow metal to be picked up from mini sentry gibs.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -6908,8 +6908,7 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters)
-{
+MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters) {
 	if (GetItemVariant(Wep_Spycicle) == 1) {
 		char criteria[32];
 		parameters.GetString(1, criteria, sizeof(criteria));
