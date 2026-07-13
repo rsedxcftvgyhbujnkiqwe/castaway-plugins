@@ -425,6 +425,7 @@ int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
+int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
 
 const Address CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
 const Address CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
@@ -1042,6 +1043,7 @@ public void OnPluginStart() {
 		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
 		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
+		CTFPlayerShared_m_fEnergyDrinkConsumeRate = FindSendPropInfo("CTFPlayer", "m_flInvisChangeCompleteTime") + 24;
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -1700,7 +1702,7 @@ public void OnGameFrame() {
 										}
 
 										if (TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false) {
-											hype -= GetTickInterval() * 0.75 * 12.5; // m_flEnergyDrinkConsumeRate = 12.5
+											hype -= GetTickInterval() * 0.75 * GetEntDataFloat(idx, CTFPlayerShared_m_fEnergyDrinkConsumeRate);
 											SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
 										}
 									}
