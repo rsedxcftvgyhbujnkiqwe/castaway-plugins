@@ -1945,10 +1945,7 @@ public void OnGameFrame() {
 							player_weapons[idx][Wep_BazaarBargain]
 						) {
 							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
-							if (
-								(players[idx].bazaar_shot == BAZAAR_LOSE && decapitations != 0) ||
-								players[idx].bazaar_shot != BAZAAR_IDLE
-							) {
+							if (players[idx].bazaar_shot != BAZAAR_IDLE) {
 								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, decapitations + players[idx].bazaar_shot));
 								players[idx].bazaar_shot = BAZAAR_IDLE;
 							}
@@ -2332,10 +2329,6 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 			}
 		}
 	}
-}
-
-void SetFeignDeathEnd(int client) {
-	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
 }
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
@@ -3313,26 +3306,6 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 	return Plugin_Continue;
 }
 
-void ApplyOverhealOnKill(int weapon) {
-	int owner = GetEntityOwner(weapon);
-
-	if (owner >= 1 && owner <= MaxClients) {
-		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
-		int health_cur = GetClientHealth(owner);
-
-		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
-		heal_amt = intMin(
-			max_overheal - health_cur,
-			heal_amt - (health_cur - players[owner].old_health)
-		);
-
-		if (heal_amt) {
-			// Apply overheal
-			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
-		}
-	}
-}
-
 public Action Event_OnPostInventoryApplication(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -3967,11 +3940,11 @@ Action OnSoundNormal(
 	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
-				TF2_IsPlayerInCondition(idx, TFCond_Charging) &&
 				(
 					ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge] ||
 					ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner]
-				)
+				) &&
+				TF2_IsPlayerInCondition(idx, TFCond_Charging)
 			) {
 				char path[64];
 				if (GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter") > 40.0)
@@ -4686,10 +4659,6 @@ Action SDKHookCB_OnTakeDamage(
 	return Plugin_Continue;
 }
 
-void SetMeleeCrit(int client) {
-	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
-}
-
 Action SDKHookCB_OnTakeDamage_Building(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
@@ -5181,16 +5150,6 @@ void SDKHookCB_OnTakeDamagePost(
 			}
 		}
 
-		if (
-			ItemIsEnabled(Wep_BazaarBargain) &&
-			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
-			players[attacker].bazaar_shot == BAZAAR_GAIN &&
-			!IsPlayerAlive(victim)
-		) {
-			// Bazaar Bargain: do not gain two heads in one time.
-			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
-		}
-
 		if (weapon > MaxClients) {
 			// GetEntityClassname(weapon, class, sizeof(class));
 
@@ -5204,18 +5163,31 @@ void SDKHookCB_OnTakeDamagePost(
 			}
 
 			// remove "selfdmg on hit for rapidfire"
-			if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
+			if (
+				TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null &&
+				TF2Attrib_HookValueInt(0, "add_onhit_addhealth", weapon) == 0
+			) {
 				TF2Attrib_RemoveByDefIndex(weapon, 98);
 			}
 
-			// refill charge on bash kills
-			if (
-				GetItemVariant(Wep_TideTurner) == 1 &&
-				player_weapons[attacker][Wep_TideTurner] &&
-				IsPlayerAlive(victim) == false &&
-				damage_custom == TF_CUSTOM_CHARGE_IMPACT
-			) {
-				RequestFrame(RefillCharge, weapon);
+			if (IsPlayerAlive(victim) == false) {
+				if (
+					ItemIsEnabled(Wep_BazaarBargain) &&
+					TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
+					players[attacker].bazaar_shot == BAZAAR_GAIN
+				) {
+					// Bazaar Bargain: do not gain two heads in one time.
+					SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+				}
+
+				// refill charge on bash kills
+				if (
+					GetItemVariant(Wep_TideTurner) == 1 &&
+					player_weapons[attacker][Wep_TideTurner] &&
+					damage_custom == TF_CUSTOM_CHARGE_IMPACT
+				) {
+					RequestFrame(RefillCharge, weapon);
+				}
 			}
 		}
 
@@ -5294,17 +5266,6 @@ void SDKHookCB_OnTakeDamagePost(
 				}
 			}
 		}
-	}
-}
-
-void RefillCharge(int weapon) {
-	int client = GetEntityOwner(weapon);
-	float charge;
-
-	if (client >= 1 && client <= MaxClients) {
-		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
-		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
-		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 	}
 }
 
@@ -5424,6 +5385,8 @@ public Action OnPlayerRunCmd(
 	
 	return returnValue;
 }
+
+// core plugin logic and functions
 
 Action Command_DisableAll(int args) {
 	for (int i = 0; i < NUM_ITEMS; i++) {
@@ -5566,47 +5529,6 @@ bool CanAttack_Secondary_Demoman(int client, bool skipIsTauntingCheck)
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
-}
-
-// bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
-// 	return (entity != data);
-// }
-
-// bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
-// 	return (entity < 1 || entity > MaxClients);
-// }
-
-bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
-	char class[64];
-
-	// ignore the target projectile
-	if (entity == data) {
-		return false;
-	}
-
-	// ignore players
-	if (entity <= MaxClients) {
-		return false;
-	}
-
-	GetEntityClassname(entity, class, sizeof(class));
-
-	// ignore buildings and other projectiles
-	if (
-		StrContains(class, "obj_") == 0 ||
-		StrContains(class, "tf_projectile_") == 0
-	) {
-		return false;
-	}
-
-	// ignore respawn room visualizers
-	if (StrEqual(class, "func_respawnroomvisualizer")) {
-		return false;
-	}
-
-	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
-
-	return true;
 }
 
 /**
@@ -5875,6 +5797,41 @@ void ToggleMoonshotMessage(int client) {
 	}
 }
 
+// miscellaneous functions
+
+bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
+	char class[64];
+
+	// ignore the target projectile
+	if (entity == data) {
+		return false;
+	}
+
+	// ignore players
+	if (entity <= MaxClients) {
+		return false;
+	}
+
+	GetEntityClassname(entity, class, sizeof(class));
+
+	// ignore buildings and other projectiles
+	if (
+		StrContains(class, "obj_") == 0 ||
+		StrContains(class, "tf_projectile_") == 0
+	) {
+		return false;
+	}
+
+	// ignore respawn room visualizers
+	if (StrEqual(class, "func_respawnroomvisualizer")) {
+		return false;
+	}
+
+	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
+
+	return true;
+}
+
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -5901,6 +5858,47 @@ int GetResistType(int entity)
 	// the original code is weird and this does what i want but it's here for the sake of it.
 	return GetChargeType(entity);
 }
+
+void SetFeignDeathEnd(int client) {
+	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
+}
+
+void ApplyOverhealOnKill(int weapon) {
+	int owner = GetEntityOwner(weapon);
+
+	if (owner >= 1 && owner <= MaxClients) {
+		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
+		int health_cur = GetClientHealth(owner);
+
+		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
+		heal_amt = intMin(
+			max_overheal - health_cur,
+			heal_amt - (health_cur - players[owner].old_health)
+		);
+
+		if (heal_amt) {
+			// Apply overheal
+			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+		}
+	}
+}
+
+void SetMeleeCrit(int client) {
+	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
+}
+
+void RefillCharge(int weapon) {
+	int client = GetEntityOwner(weapon);
+	float charge;
+
+	if (client >= 1 && client <= MaxClients) {
+		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
+		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
+		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
+	}
+}
+
+// dynamic hooks and detours
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
@@ -7471,6 +7469,8 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate(int entity, DH
 	return MRES_Ignored;
 }
 
+// stocks
+
 stock bool PlayerIsUbered(int client) {
 	return (
 		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
@@ -7487,7 +7487,6 @@ stock bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
 }
-
 
 TFCond critboosts[] =
 {
