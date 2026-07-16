@@ -303,6 +303,8 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
+
+ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_damageforcescale_other;
@@ -836,6 +838,7 @@ public void OnPluginStart() {
 
 	hudsync = CreateHudSynchronizer();
 
+	cvar_ref_sv_proj_stunball_damage = FindConVar("sv_proj_stunball_damage");
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
 	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
@@ -4387,11 +4390,11 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_CUSTOM_BASEBALL &&
-					damage == 22.5
+					damage == cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5
 				) {
 					// always deal 15 impact damage at any range
 					// stun handled elsewhere
-					damage = 15.0;
+					damage = cvar_ref_sv_proj_stunball_damage.FloatValue;
 					return Plugin_Changed;
 				}
 			}
