@@ -7190,7 +7190,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 				}
 
 				// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
-				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, loose cannon,
+				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
 				// anything that has the stun amount greater than 0.5, they will momentarily gain control
 				// and then immediately go back to the bonked state
 				switch (GetItemVariant(Wep_Sandman)) {
@@ -7204,6 +7204,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 					}
 				}
 
+				// todo: fix vanilla moonshots (0.8s) giving two bonus points
 				bool moonshot = lifetime_ratio >= 1.0;
 				if (moonshot) {
 					// moonshot!
