@@ -288,6 +288,11 @@
 				"windows"	"267"
 				"linux"		"268"
 			}
+			"CTFWeaponBaseGrenadeProj::GetEnemy"
+			{
+				"windows"	"102"
+				"linux"		"102"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -497,6 +502,13 @@
 						"type"	"cbaseentity"
 					}
 				}
+			}
+			"CTFWeaponBaseGrenadeProj::GetEnemy"
+			{
+				"offset"	"CTFWeaponBaseGrenadeProj::GetEnemy"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"int"
 			}
 
 			// Signature

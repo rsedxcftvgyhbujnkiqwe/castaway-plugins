@@ -398,6 +398,7 @@ DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
 DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
+DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -944,6 +945,7 @@ public void OnPluginStart() {
 		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicHook.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim = DynamicHook.FromConf(conf, "CTFStunBall::ApplyBallImpactEffectOnVictim");
+		dhook_CTFWeaponBaseGrenadeProj_GetEnemy = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::GetEnemy");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1080,6 +1082,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CWeaponMedigun_ItemPostFrame);
 	VALIDATE_HANDLE(dhook_CTFRevolver_CanFireCriticalShot);
 	VALIDATE_HANDLE(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
+	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_GetEnemy);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -2182,7 +2185,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		rocket_create_frame = GetGameTickCount();
 
 		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
-	} 
+	}
+	else if (StrEqual(class, "tf_projectile_pipe")) {
+		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy);
+	}
 	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
@@ -4360,19 +4366,6 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// grenade damage variance on hit location
-				
-				if (
-					ItemIsEnabled(Feat_Grenade) &&
-					StrEqual(class, "tf_weapon_grenadelauncher")
-				) {
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos1);
-					damage *= ValveRemapVal(FloatAbs(pos1[2] - damage_position[2]), 0.0, 2.0 * PLAYER_CENTER_HEIGHT, 1.0, 0.8);
-					return Plugin_Changed;
-				}
-			}
-
-			{
 				// reserve airborne minicrits
 
 				if (
@@ -5027,8 +5020,8 @@ Action SDKHookCB_OnTakeDamageAlive(
 					GetEntityClassname(weapon, class, sizeof(class));
 
 					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
-						// values chosen to be approximately +/- 10% random variance in total
-						damage *= GetRandomFloat(0.918, 1.079);
+						// values chosen to be approximately +/- 15% random variance in total
+						damage *= GetRandomFloat(0.869, 1.125);
 						returnValue = Plugin_Changed;
 					}
 				}
@@ -7470,6 +7463,15 @@ MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse(int client, DHookPara
 			// Likely new knockback, cancel it. The modern code "manually" applies knockback after dealing damage.
 			return MRES_Supercede;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Feat_Grenade)) {
+		// return NULL such that the radius damage function doesn't deal full damage and varies it by hit location
+		returnValue.Value = Address_Null;
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
