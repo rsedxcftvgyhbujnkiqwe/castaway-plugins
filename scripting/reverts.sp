@@ -3167,6 +3167,9 @@ public void ApplyRevertsToItem(int entity) {
 }
 
 void ApplyRevertsToItem_PostFrame(int entity) {
+	if (!IsValidEntity(entity))
+		return;
+
 	// int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 	char class[64];
 	GetEntityClassname(entity, class, sizeof(class));
@@ -3178,6 +3181,8 @@ void ApplyRevertsToItem_PostFrame(int entity) {
 		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
 	}
 }
+
+// game events
 
 public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -3907,6 +3912,8 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 
 	return Plugin_Continue;
 }
+
+// game hooks
 
 Action OnSoundNormal(
 	int clients[MAXPLAYERS], int& clients_num, char sample[PLATFORM_MAX_PATH], int& entity, int& channel,
@@ -5866,10 +5873,16 @@ int GetResistType(int entity)
 }
 
 void SetFeignDeathEnd(int client) {
+	if (!IsClientInGame(client))
+		return;
+
 	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
 }
 
 void ApplyOverhealOnKill(int weapon) {
+	if (!IsValidEntity(weapon))
+		return;
+
 	int owner = GetEntityOwner(weapon);
 
 	if (owner >= 1 && owner <= MaxClients) {
@@ -5890,10 +5903,16 @@ void ApplyOverhealOnKill(int weapon) {
 }
 
 void SetMeleeCrit(int client) {
+	if (!IsClientInGame(client))
+		return;
+
 	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
 }
 
 void RefillCharge(int weapon) {
+	if (!IsValidEntity(weapon))
+		return;
+
 	int client = GetEntityOwner(weapon);
 	float charge;
 
