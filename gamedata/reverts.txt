@@ -331,6 +331,16 @@
 				"windows"	"76"
 				"linux"		"76"
 			}
+			"CTakeDamageInfo.m_flDamage"
+			{
+				"windows"	"48"
+				"linux"		"48"
+			}
+			"CTakeDamageInfo.m_iDamageCustom"
+			{
+				"windows"	"64"
+				"linux"		"64"
+			}
 		}
 
 		"Functions"

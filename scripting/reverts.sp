@@ -421,16 +421,13 @@ DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 
-int CBaseObject_m_flHealth; // *((float *)a1 + 652)
-int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
-int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
+int CBaseObject_m_flHealth;
+int CObjectSentrygun_m_flShieldFadeTime;
+int CWeaponMedigun_m_bReloadDown;
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
 int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
-
-const Address CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
-const Address CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -438,7 +435,9 @@ const Address CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
 // It's recommended that you name the int the same as the member.
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
 int CTFPlayer_m_flTauntNextStartTime;
-int CGameTrace_m_pEnt;
+Address CGameTrace_m_pEnt;
+Address CTakeDamageInfo_m_flDamage;
+Address CTakeDamageInfo_m_iDamageCustom;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -972,10 +971,14 @@ public void OnPluginStart() {
 		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
 		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
-		CGameTrace_m_pEnt = GameConfGetOffset(conf, "CGameTrace.m_pEnt");
+		CGameTrace_m_pEnt = view_as<Address>(GameConfGetOffset(conf, "CGameTrace.m_pEnt"));
+		CTakeDamageInfo_m_flDamage = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_flDamage"));
+		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_iDamageCustom"));
 
 		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
 		VALIDATE_OFFSET(CGameTrace_m_pEnt);
+		VALIDATE_OFFSET(CTakeDamageInfo_m_flDamage);
+		VALIDATE_OFFSET(CTakeDamageInfo_m_iDamageCustom);
 
 		delete conf;
 	}
@@ -1252,7 +1255,7 @@ public void OnConfigsExecuted() {
 	UpdateShortstopDescription();
 }
 
-bool ValidateOffset(const char[] name, int offset)
+bool ValidateOffset(const char[] name, any offset)
 {
 	if (offset == -1) {
 		LogError("Failed to load %s offset", name);
@@ -7363,7 +7366,8 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn re
 
 MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Disciplinary)) {
-		int target = GetEntityFromAddress(LoadFromAddress(view_as<Address>(parameters.Get(1) + CGameTrace_m_pEnt), NumberType_Int32));
+		Address trace = parameters.Get(1);
+		int target = GetEntityFromAddress(LoadFromAddress(trace + CGameTrace_m_pEnt, NumberType_Int32));
 		if (
 			target >= 1 &&
 			target <= MaxClients
