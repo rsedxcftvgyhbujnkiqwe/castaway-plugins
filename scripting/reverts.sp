@@ -244,8 +244,6 @@ enum struct Player {
 	bool hit_by_headshot;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
-	float stunball_fix_time_bonk;
-	float stunball_fix_time_wear;
 	int beggars_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
@@ -2075,41 +2073,6 @@ public void OnGameFrame() {
 		}
 	}
 
-	// run every 3 frames
-	if (frame % 3 == 0) {
-		for (idx = 1; idx <= MaxClients; idx++) {
-			if (
-				IsClientInGame(idx) &&
-				IsPlayerAlive(idx)
-			) {
-				// fix weapons being invisible after sandman stun
-				// this bug apparently existed before sandman nerf
-
-				weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-				if (weapon > 0) {
-
-					effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
-					if (
-						effects & EF_NODRAW &&
-						GetGameTime() - players[idx].stunball_fix_time_bonk < 10.0 &&
-						TF2_IsPlayerInCondition(idx, TFCond_Dazed) == false
-					) {
-						if (players[idx].stunball_fix_time_wear) {
-							if (GetGameTime() - players[idx].stunball_fix_time_wear > 0.100) {
-								SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
-
-								players[idx].stunball_fix_time_bonk = 0.0;
-								players[idx].stunball_fix_time_wear = 0.0;
-							}
-						} else {
-							players[idx].stunball_fix_time_wear = GetGameTime();
-						}
-					}
-				}
-			}
-		}
-	}
-
 	// run every 66 frames (~1s)
 	if (frame % 66 == 0) {
 		// set all the convars needed
@@ -2282,6 +2245,21 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
+	if (
+		ItemIsEnabled(Wep_Sandman) &&
+		condition == TFCond_Dazed
+	) {
+		// fix weapons being invisible after sandman stun
+
+		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		if (weapon > 0) {
+			int effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+			if (effects & EF_NODRAW) {
+				SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
+			}
+		}
+	}
+
 	switch (TF2_GetPlayerClass(client)) {
 		case TFClass_Scout: {
 			if (
@@ -7270,9 +7248,6 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 						stun_fls |= TF_STUNFLAG_CHEERSOUND;
 					}
 				}
-
-				players[victim].stunball_fix_time_bonk = GetGameTime();
-				players[victim].stunball_fix_time_wear = 0.0;
 			}
 			else {
 				//LogMessage("Canceled close-range stun");
