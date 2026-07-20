@@ -4312,9 +4312,10 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_cannon") &&
 					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
-					players[victim].stun_frame = GetGameTickCount();
-					players[victim].stun_inflictor = weapon;
-				
+					if (TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == false) {
+						players[victim].stun_frame = GetGameTickCount();
+						players[victim].stun_inflictor = weapon;
+					}
 					if (
 						damage >= 25.0 &&
 						damage <= 50.0
@@ -4555,19 +4556,18 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
+					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
+					!PlayerIsUbered(victim)
 				) {
 					if (
 						GetItemVariant(Wep_Natascha) == 2 &&
-						TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
-						attacker != victim &&
-						!AreEntitiesOnSameTeam(attacker, victim) &&
-						!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-						!PlayerIsUbered(victim)
+						TF2_IsPlayerInCondition(victim, TFCond_Healing)
 					) {
 						// slow players being healed regardless
 						TF2_StunPlayer(victim, 0.20, 0.75, TF_STUNFLAG_SLOWDOWN, attacker);
-					} else {
+					}
+					else if (!TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
 						players[victim].stun_frame = GetGameTickCount();
 						players[victim].stun_inflictor = weapon;
 					}
