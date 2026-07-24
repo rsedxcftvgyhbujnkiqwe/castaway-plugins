@@ -1151,8 +1151,7 @@ public void OnPluginStart() {
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
-	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre);
-	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Post, DHookCallback_CWeaponMedigun_FindAndHealTargets_Post);
+	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
@@ -1163,8 +1162,7 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
 	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
-	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
-	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Post, DHookCallback_CTFPlayer_ApplyPushFromDamage_Post);
+	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage);
 	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
 	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate);
 
@@ -2079,11 +2077,13 @@ public void OnGameFrame() {
 
 		// these cvars are changed just-in-time, reset them
 		cvar_ref_tf_airblast_cray.RestoreDefault();
+		cvar_ref_tf_damageforcescale_other.RestoreDefault();
 		cvar_ref_tf_feign_death_duration.RestoreDefault();
 		cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 		cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
 		cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
 		cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+		cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 
 		// these cvars are global, set them to the desired value
 		SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
@@ -6981,7 +6981,7 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
+MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
 	float divisor;
 	float flMod;
 	int patient;
@@ -7052,11 +7052,9 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 			cvar_ref_weapon_medigun_charge_rate.FloatValue /= divisor;
 		}
 	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Post(int entity) {
-	cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+	else {
+		cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+	}
 	return MRES_Ignored;
 }
 
@@ -7372,7 +7370,7 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam parameters) {
 	Address info = parameters.Get(1);
 	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
 	if (
@@ -7411,16 +7409,12 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookPara
 			targetUpwardForce *= 2.0; 
 		}
 
-		float newVecDir_z = (targetUpwardForce / force) * -1.0;
-
-		parameters.Set(4, newVecDir_z);
+		parameters.Set(4, (targetUpwardForce / force) * -1.0);
 		return MRES_ChangedHandled;
 	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Post(int client, DHookParam parameters) {
-	cvar_ref_tf_damageforcescale_other.RestoreDefault();
+	else {
+		cvar_ref_tf_damageforcescale_other.RestoreDefault();
+	}
 	return MRES_Ignored;
 }
 
