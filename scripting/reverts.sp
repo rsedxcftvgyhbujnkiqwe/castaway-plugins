@@ -124,16 +124,6 @@ int resistance_mapping[] =
 #define FSOLID_USE_TRIGGER_BOUNDS 0x80
 #define DMG_MELEE DMG_BLAST_SURFACE
 #define DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE DMG_DISSOLVE
-#define TF_DMG_CUSTOM_NONE 0
-#define TF_DMG_CUSTOM_HEADSHOT 1
-#define TF_DMG_CUSTOM_BACKSTAB 2
-#define TF_DMG_CUSTOM_TAUNTATK_GRENADE 21
-#define TF_DMG_CUSTOM_BASEBALL 22
-#define TF_DMG_CUSTOM_CHARGE_IMPACT 23
-#define TF_DMG_CUSTOM_PICKAXE 27
-#define TF_DMG_CUSTOM_PLAYER_SENTRY 30
-#define TF_DMG_CUSTOM_STICKBOMB_EXPLOSION 42
-#define TF_DMG_CUSTOM_CANNONBALL_PUSH 61
 #define TF_DEATH_FEIGN_DEATH 0x20
 #define TF_FLAGTYPE_PLAYER_DESTRUCTION 6
 #define SHIELD_NORMAL_VALUE 0.33
@@ -252,11 +242,8 @@ enum struct Player {
 	float resupply_time;
 	int headshot_frame;
 	bool hit_by_headshot;
-	int ambassador_kill_frame;
 	int projectile_touch_frame;
 	int projectile_touch_entity;
-	float stunball_fix_time_bonk;
-	float stunball_fix_time_wear;
 	int beggars_ammo;
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
@@ -314,6 +301,8 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
+
+ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_disablespread;
 ConVar cvar_ref_tf_damageforcescale_other;
@@ -424,19 +413,19 @@ DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 DynamicDetour dhook_CBaseObject_InputWrenchHit;
 DynamicDetour dhook_CTFPlayer_ApplyPushFromDamage;
 DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
+DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 
 #if defined MEMORY_PATCHES
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 
-int CBaseObject_m_flHealth; // *((float *)a1 + 652)
-int CObjectSentrygun_m_flShieldFadeTime; // *((float *)this + 712)
-int CWeaponMedigun_m_bReloadDown; // *((_BYTE *)this + 2059)
+int CBaseObject_m_flHealth;
+int CObjectSentrygun_m_flShieldFadeTime;
+int CWeaponMedigun_m_bReloadDown;
 int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
-Address CTakeDamageInfo_m_flDamage;
-Address CTakeDamageInfo_m_iDamageCustom;
+int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
 
 // OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
 // (as in they cannot be found in datamaps/netprop).
@@ -444,7 +433,9 @@ Address CTakeDamageInfo_m_iDamageCustom;
 // It's recommended that you name the int the same as the member.
 // We later load these with GameConfGetOffset(Handle gc, const char[] key)
 int CTFPlayer_m_flTauntNextStartTime;
-int CGameTrace_m_pEnt;
+Address CGameTrace_m_pEnt;
+Address CTakeDamageInfo_m_flDamage;
+Address CTakeDamageInfo_m_iDamageCustom;
 
 Player players[MAXPLAYERS+1];
 Entity entities[2048];
@@ -844,6 +835,7 @@ public void OnPluginStart() {
 
 	hudsync = CreateHudSynchronizer();
 
+	cvar_ref_sv_proj_stunball_damage = FindConVar("sv_proj_stunball_damage");
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
 	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
@@ -971,15 +963,20 @@ public void OnPluginStart() {
 		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CTFPlayer_ApplyPushFromDamage = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPushFromDamage");
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
+		dhook_CTFProjectile_EnergyRing_ShouldPenetrate = DynamicDetour.FromConf(conf, "CTFProjectile_EnergyRing::ShouldPenetrate");
 
 		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
-		CTFPlayer_m_flTauntNextStartTime = -1;
-		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
-		if (CTFPlayer_m_flTauntNextStartTime == -1) SetFailState("Failed to load m_flTauntNextStartTime offset!");
+		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
-		CGameTrace_m_pEnt = -1;
-		CGameTrace_m_pEnt = GameConfGetOffset(conf, "CGameTrace.m_pEnt");
-		if (CGameTrace_m_pEnt == -1) SetFailState("Failed to load CGameTrace_m_pEnt offset!");
+		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
+		CGameTrace_m_pEnt = view_as<Address>(GameConfGetOffset(conf, "CGameTrace.m_pEnt"));
+		CTakeDamageInfo_m_flDamage = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_flDamage"));
+		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_iDamageCustom"));
+
+		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
+		VALIDATE_OFFSET(CGameTrace_m_pEnt);
+		VALIDATE_OFFSET(CTakeDamageInfo_m_flDamage);
+		VALIDATE_OFFSET(CTakeDamageInfo_m_iDamageCustom);
 
 		delete conf;
 	}
@@ -1049,10 +1046,8 @@ public void OnPluginStart() {
 		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
 		CTFPlayerShared_m_flFeignDeathEnd = FindSendPropInfo("CTFPlayer", "m_bFeignDeathReady") - 4;
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
-    CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
-    
-		CTakeDamageInfo_m_flDamage = view_as<Address>(0x30);
-		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(0x40);
+		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
+		CTFPlayerShared_m_fEnergyDrinkConsumeRate = FindSendPropInfo("CTFPlayer", "m_flInvisChangeCompleteTime") + 24;
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -1108,6 +1103,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPushFromDamage);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyAbsVelocityImpulse);
+	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
@@ -1155,8 +1151,7 @@ public void OnPluginStart() {
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
 	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
-	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre);
-	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Post, DHookCallback_CWeaponMedigun_FindAndHealTargets_Post);
+	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
 	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
@@ -1167,9 +1162,9 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
 	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
-	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
-	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Post, DHookCallback_CTFPlayer_ApplyPushFromDamage_Post);
+	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage);
 	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
+	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
@@ -1254,6 +1249,15 @@ public void OnConfigsExecuted() {
 	UpdateStickyLauncherDescription();
 #endif
 	UpdateShortstopDescription();
+}
+
+bool ValidateOffset(const char[] name, any offset)
+{
+	if (offset == -1) {
+		LogError("Failed to load %s offset", name);
+		return true;
+	}
+	return false;
 }
 
 bool ValidateHandle(const char[] name, Handle handle)
@@ -1700,7 +1704,7 @@ public void OnGameFrame() {
 										}
 
 										if (TF2_IsPlayerInCondition(idx, TFCond_CritHype) == false) {
-											hype -= GetTickInterval() * 0.75 * 12.5; // m_flEnergyDrinkConsumeRate = 12.5
+											hype -= GetTickInterval() * 0.75 * GetEntDataFloat(idx, CTFPlayerShared_m_fEnergyDrinkConsumeRate);
 											SetEntPropFloat(idx, Prop_Send, "m_flHypeMeter", floatMax(hype, 0.0));
 										}
 									}
@@ -1943,10 +1947,7 @@ public void OnGameFrame() {
 							player_weapons[idx][Wep_BazaarBargain]
 						) {
 							int decapitations = GetEntProp(idx, Prop_Send, "m_iDecapitations");
-							if (
-								(players[idx].bazaar_shot == BAZAAR_LOSE && decapitations != 0) ||
-								players[idx].bazaar_shot != BAZAAR_IDLE
-							) {
+							if (players[idx].bazaar_shot != BAZAAR_IDLE) {
 								SetEntProp(idx, Prop_Send, "m_iDecapitations", intMax(0, decapitations + players[idx].bazaar_shot));
 								players[idx].bazaar_shot = BAZAAR_IDLE;
 							}
@@ -1958,12 +1959,12 @@ public void OnGameFrame() {
 					{
 						// no reduced debuff timer for old-style deadringer
 						if (
+							TF2_IsPlayerInCondition(idx, TFCond_Cloaked) &&
+							player_weapons[idx][Wep_DeadRinger] &&
 							(
 								GetItemVariant(Wep_DeadRinger) == 0 ||
 								GetItemVariant(Wep_DeadRinger) == 2
-							) &&
-							player_weapons[idx][Wep_DeadRinger] &&
-							TF2_IsPlayerInCondition(idx, TFCond_Cloaked)
+							)
 						) {
 							for (int i = 0; i < sizeof(debuffs); ++i) {
 								TFCond cond = debuffs[i];
@@ -2029,25 +2030,22 @@ public void OnGameFrame() {
 					TF2_GetPlayerClass(idx) == TFClass_Soldier ||
 					TF2_GetPlayerClass(idx) == TFClass_DemoMan
 				) {
-					{
-						// zatoichi honorbound
+					// zatoichi honorbound
 
-						if (ItemIsEnabled(Wep_Zatoichi)) {
-							weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
+					if (ItemIsEnabled(Wep_Zatoichi)) {
+						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 
-							if (weapon > 0) {
-								GetEntityClassname(weapon, class, sizeof(class));
+						if (weapon > 0) {
+							GetEntityClassname(weapon, class, sizeof(class));
 
-								if (StrEqual(class, "tf_weapon_katana")) {
-									if (
-										GetEntProp(idx, Prop_Send, "m_iKillCountSinceLastDeploy") == 0 &&
-										GetGameTime() >= GetEntPropFloat(idx, Prop_Send, "m_flFirstPrimaryAttack") &&
-										(GetGameTime() - players[idx].resupply_time) > 1.5
-									) {
-										// this cond is very convenient
-										TF2_AddCondition(idx, TFCond_RestrictToMelee, 0.100, 0);
-									}
-								}
+							if (
+								StrEqual(class, "tf_weapon_katana") &&
+								GetEntProp(idx, Prop_Send, "m_iKillCountSinceLastDeploy") == 0 &&
+								GetGameTime() >= GetEntPropFloat(idx, Prop_Send, "m_flFirstPrimaryAttack") &&
+								(GetGameTime() - players[idx].resupply_time) > 1.5
+							) {
+								// this cond is very convenient
+								TF2_AddCondition(idx, TFCond_RestrictToMelee, 0.100, 0);
 							}
 						}
 					}
@@ -2073,64 +2071,27 @@ public void OnGameFrame() {
 		}
 	}
 
-	// run every 3 frames
-	if (frame % 3 == 0) {
-		for (idx = 1; idx <= MaxClients; idx++) {
-			if (
-				IsClientInGame(idx) &&
-				IsPlayerAlive(idx)
-			) {
-				{
-					// fix weapons being invisible after sandman stun
-					// this bug apparently existed before sandman nerf
-
-					weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
-					if (weapon > 0) {
-
-						effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
-						if (
-							effects & EF_NODRAW &&
-							GetGameTime() - players[idx].stunball_fix_time_bonk < 10.0 &&
-							TF2_IsPlayerInCondition(idx, TFCond_Dazed) == false
-						) {
-							if (players[idx].stunball_fix_time_wear) {
-								if (GetGameTime() - players[idx].stunball_fix_time_wear > 0.100) {
-									SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
-
-									players[idx].stunball_fix_time_bonk = 0.0;
-									players[idx].stunball_fix_time_wear = 0.0;
-								}
-							} else {
-								players[idx].stunball_fix_time_wear = GetGameTime();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
 	// run every 66 frames (~1s)
 	if (frame % 66 == 0) {
-		{
-			// set all the convars needed
+		// set all the convars needed
 
-			// these cvars are changed just-in-time, reset them
-			cvar_ref_tf_airblast_cray.RestoreDefault();
-			cvar_ref_tf_feign_death_duration.RestoreDefault();
-			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
-			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
-			cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
-			cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+		// these cvars are changed just-in-time, reset them
+		cvar_ref_tf_airblast_cray.RestoreDefault();
+		cvar_ref_tf_damageforcescale_other.RestoreDefault();
+		cvar_ref_tf_feign_death_duration.RestoreDefault();
+		cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
+		cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
+		cvar_ref_tf_feign_death_damage_scale.RestoreDefault();
+		cvar_ref_tf_stealth_damage_reduction.RestoreDefault();
+		cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 
-			// these cvars are global, set them to the desired value
-			SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
-			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_xy, "400.0", ItemIsEnabled(Wep_BaseJumper));
-			SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
-			SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
-			SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
-			SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
-		}
+		// these cvars are global, set them to the desired value
+		SetConVarMaybe(cvar_ref_tf_fireball_radius, "30.0", ItemIsEnabled(Wep_DragonFury));
+		SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_xy, "400.0", ItemIsEnabled(Wep_BaseJumper));
+		SetConVarMaybe(cvar_ref_tf_parachute_maxspeed_onfire_z, "10.0", ItemIsEnabled(Wep_BaseJumper));
+		SetConVarMaybe(cvar_ref_tf_parachute_deploy_toggle_allowed, "1", ItemIsEnabled(Wep_BaseJumper));
+		SetConVarMaybe(cvar_ref_tf_sticky_airdet_radius, "1.0", ItemIsEnabled(Feat_Stickybomb));
+		SetConVarMaybe(cvar_ref_tf_sticky_radius_ramp_time, "0.0", ItemIsEnabled(Feat_Stickybomb));
 	}
 }
 
@@ -2284,6 +2245,21 @@ public void TF2_OnConditionAdded(int client, TFCond condition) {
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition) {
+	if (
+		ItemIsEnabled(Wep_Sandman) &&
+		condition == TFCond_Dazed
+	) {
+		// fix weapons being invisible after sandman stun
+
+		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		if (weapon > 0) {
+			int effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
+			if (effects & EF_NODRAW) {
+				SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
+			}
+		}
+	}
+
 	switch (TF2_GetPlayerClass(client)) {
 		case TFClass_Scout: {
 			if (
@@ -2339,19 +2315,15 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 }
 
-void SetFeignDeathEnd(int client) {
-	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
-}
-
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
 	{
 		if (
+			TF2_GetPlayerClass(client) == TFClass_Spy &&
+			condition == TFCond_DeadRingered &&
 			(
 				GetItemVariant(Wep_DeadRinger) == 0 ||
 				GetItemVariant(Wep_DeadRinger) == 2
-			) &&
-			TF2_GetPlayerClass(client) == TFClass_Spy &&
-			condition == TFCond_DeadRingered
+			)
 		) {
 			// undo 50% drain on activated
 			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
@@ -2471,10 +2443,12 @@ public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, i
 	{
 		// prevent debuff removal for shields
 		if (
-			((ItemIsEnabled(Wep_CharginTarge) && player_weapons[client][Wep_CharginTarge]) ||
-			 (ItemIsEnabled(Wep_SplendidScreen) && player_weapons[client][Wep_SplendidScreen]) ||
-			 (ItemIsEnabled(Wep_TideTurner) && player_weapons[client][Wep_TideTurner])) &&
-			players[client].charge_tick == GetGameTickCount()
+			players[client].charge_tick == GetGameTickCount() &&
+			(
+				ItemIsEnabled(Wep_CharginTarge) && player_weapons[client][Wep_CharginTarge] ||
+				ItemIsEnabled(Wep_SplendidScreen) && player_weapons[client][Wep_SplendidScreen] ||
+				ItemIsEnabled(Wep_TideTurner) && player_weapons[client][Wep_TideTurner]
+			)
 		) {
 			for (int i = 0; i < sizeof(debuffs); ++i)
 			{
@@ -2881,11 +2855,9 @@ public void ApplyRevertsToItem(int entity) {
 				}
 			}
 		}
-		case 588: { switch (GetItemVariant(Wep_Pomson)) {
-			case 1, 3: {
-				TF2Attrib_SetByDefIndex(entity, 283, 1.0); // energy_weapon_penetration; NOTE: turns pomson projectile into bison projectile
-			}
-		}}
+		case 588: { switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+			TF2Attrib_SetByDefIndex(entity, 283, 0.0); // Projectile penetrates enemy targets; make attrib visible but does nothing
+		}}}
 		case 214: {
 			// common (also pre-Gun Mettle)
 			if (ItemIsEnabled(Wep_Powerjack)) {
@@ -3173,6 +3145,9 @@ public void ApplyRevertsToItem(int entity) {
 }
 
 void ApplyRevertsToItem_PostFrame(int entity) {
+	if (!IsValidEntity(entity))
+		return;
+
 	// int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 	char class[64];
 	GetEntityClassname(entity, class, sizeof(class));
@@ -3181,9 +3156,11 @@ void ApplyRevertsToItem_PostFrame(int entity) {
 		ItemIsEnabled(Wep_Shortstop) &&
 		StrEqual(class, "tf_weapon_handgun_scout_primary")
 	) {
-		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
+		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", TF_AMMO_SECONDARY);
 	}
 }
+
+// game events
 
 public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -3307,7 +3284,7 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 				if (
 					ItemIsEnabled(Wep_Powerjack) &&
 					TF2Attrib_HookValueInt(0, "heal_on_kill", weapon) &&
-					GetEventInt(event, "customkill") == TF_DMG_CUSTOM_NONE
+					GetEventInt(event, "customkill") == 0
 				) {
 					players[attacker].old_health = GetClientHealth(attacker);
 					RequestFrame(ApplyOverhealOnKill, weapon);
@@ -3316,26 +3293,6 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 		}
 	}
 	return Plugin_Continue;
-}
-
-void ApplyOverhealOnKill(int weapon) {
-	int owner = GetEntityOwner(weapon);
-
-	if (owner >= 1 && owner <= MaxClients) {
-		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
-		int health_cur = GetClientHealth(owner);
-
-		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
-		heal_amt = intMin(
-			max_overheal - health_cur,
-			heal_amt - (health_cur - players[owner].old_health)
-		);
-
-		if (heal_amt) {
-			// Apply overheal
-			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
-		}
-	}
 }
 
 public Action Event_OnPostInventoryApplication(Event event, const char[] name, bool dontBroadcast) {
@@ -3934,6 +3891,8 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 	return Plugin_Continue;
 }
 
+// game hooks
+
 Action OnSoundNormal(
 	int clients[MAXPLAYERS], int& clients_num, char sample[PLATFORM_MAX_PATH], int& entity, int& channel,
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
@@ -3972,13 +3931,14 @@ Action OnSoundNormal(
 	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
-				((ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge]) ||
-				(ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner])) &&
+				(
+					ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge] ||
+					ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner]
+				) &&
 				TF2_IsPlayerInCondition(idx, TFCond_Charging)
 			) {
 				char path[64];
-				float charge = GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter");
-				if (charge > 40.0)
+				if (GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter") > 40.0)
 				{
 					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
 					strcopy(sample, PLATFORM_MAX_PATH, path);
@@ -4263,7 +4223,7 @@ Action SDKHookCB_OnTakeDamage(
 			// wrangler variant no falloff
 			if (
 				GetItemVariant(Wep_Wrangler) >= 1 &&
-				damage_custom == TF_DMG_CUSTOM_PLAYER_SENTRY
+				damage_custom == TF_CUSTOM_PLAYER_SENTRY
 			) {
 				damage_type &= ~DMG_USEDISTANCEMOD;
 
@@ -4312,7 +4272,7 @@ Action SDKHookCB_OnTakeDamage(
 					StrEqual(class, "tf_weapon_stickbomb")
 				) {
 					if (
-						damage_custom == TF_DMG_CUSTOM_NONE &&
+						damage_custom == 0 &&
 						damage == 55.0
 					) {
 						// melee damage is always 35
@@ -4320,7 +4280,7 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Changed;
 					}
 
-					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
+					if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
 						// base explosion is 100 damage
 						damage = 100.0;
 
@@ -4350,11 +4310,12 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
 					StrEqual(class, "tf_weapon_cannon") &&
-					damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
+					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
-					players[victim].stun_frame = GetGameTickCount();
-					players[victim].stun_inflictor = weapon;
-				
+					if (TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == false) {
+						players[victim].stun_frame = GetGameTickCount();
+						players[victim].stun_inflictor = weapon;
+					}
 					if (
 						damage >= 25.0 &&
 						damage <= 50.0
@@ -4417,12 +4378,12 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
-					damage_custom == TF_DMG_CUSTOM_BASEBALL &&
-					damage == 22.5
+					damage_custom == TF_CUSTOM_BASEBALL &&
+					damage == cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5
 				) {
 					// always deal 15 impact damage at any range
 					// stun handled elsewhere
-					damage = 15.0;
+					damage = cvar_ref_sv_proj_stunball_damage.FloatValue;
 					return Plugin_Changed;
 				}
 			}
@@ -4491,8 +4452,7 @@ Action SDKHookCB_OnTakeDamage(
 								damage = damage1;
 							}
 
-							damage_type = (damage_type | DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE);
-
+							damage_type |= DMG_DONT_COUNT_DAMAGE_TOWARDS_CRIT_RATE;
 							return Plugin_Changed;
 						}
 						return Plugin_Continue;
@@ -4518,7 +4478,7 @@ Action SDKHookCB_OnTakeDamage(
 				// backstab detection for eternal reward fix
 
 				if (
-					damage_custom == TF_DMG_CUSTOM_BACKSTAB &&
+					damage_custom == TF_CUSTOM_BACKSTAB &&
 					StrEqual(class, "tf_weapon_knife")
 				) {
 					players[attacker].backstab_time = GetGameTime();
@@ -4560,11 +4520,13 @@ Action SDKHookCB_OnTakeDamage(
 			{
 				// shield bash
 				if (
-					damage_custom == TF_DMG_CUSTOM_CHARGE_IMPACT &&
-					((ItemIsEnabled(Wep_CharginTarge) && player_weapons[attacker][Wep_CharginTarge]) ||
-					(ItemIsEnabled(Wep_SplendidScreen) && player_weapons[attacker][Wep_SplendidScreen]) ||
-					(ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner])) &&
-					StrEqual(class, "tf_wearable_demoshield")
+					damage_custom == TF_CUSTOM_CHARGE_IMPACT &&
+					StrEqual(class, "tf_wearable_demoshield") &&
+					(
+						ItemIsEnabled(Wep_CharginTarge) && player_weapons[attacker][Wep_CharginTarge] ||
+						ItemIsEnabled(Wep_SplendidScreen) && player_weapons[attacker][Wep_SplendidScreen] ||
+						ItemIsEnabled(Wep_TideTurner) && player_weapons[attacker][Wep_TideTurner]
+					)
 				) {
 					// shield bash always guarantees crits
 					RequestFrame(SetMeleeCrit, attacker);
@@ -4594,19 +4556,18 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_Natascha) >= 1 &&
 					StrEqual(class, "tf_weapon_minigun") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41
+					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 41 &&
+					!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
+					!PlayerIsUbered(victim)
 				) {
 					if (
 						GetItemVariant(Wep_Natascha) == 2 &&
-						TF2_IsPlayerInCondition(victim, TFCond_Healing) &&
-						attacker != victim &&
-						!AreEntitiesOnSameTeam(attacker, victim) &&
-						!TF2_IsPlayerInCondition(victim, TFCond_Disguised) &&
-						!PlayerIsUbered(victim)
+						TF2_IsPlayerInCondition(victim, TFCond_Healing)
 					) {
 						// slow players being healed regardless
 						TF2_StunPlayer(victim, 0.20, 0.75, TF_STUNFLAG_SLOWDOWN, attacker);
-					} else {
+					}
+					else if (!TF2_IsPlayerInCondition(victim, TFCond_Healing)) {
 						players[victim].stun_frame = GetGameTickCount();
 						players[victim].stun_inflictor = weapon;
 					}
@@ -4618,14 +4579,11 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_DirectHit) &&
 					StrEqual(class, "tf_weapon_rocketlauncher_directhit") &&
-					GetEntityFlags(victim) & FL_ONGROUND == 0
+					GetEntityFlags(victim) & FL_ONGROUND == 0 &&
+					GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
+					TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true
 				) {
-					if (
-						GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == true
-					) {
-						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-					}
+					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
 			}
 
@@ -4645,56 +4603,51 @@ Action SDKHookCB_OnTakeDamage(
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
-				{
-					// bison/pomson stuff
+				// bison/pomson stuff
+				if (StrEqual(class, "tf_projectile_energy_ring")) {
+					GetEntityClassname(weapon, class, sizeof(class));
 
-					if (StrEqual(class, "tf_projectile_energy_ring")) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
-							(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
-						) {
-							// cloak/uber drain is done in OnTakeDamagePost
-
-							// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
-							if (
-								GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
-								GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
-							) {
-								// Do not use internal rampup/falloff.
-								damage_type &= ~DMG_USEDISTANCEMOD;
-								
-								// Deal damage with 125% rampup, 75% falloff.
-								float base_dmg = (TF2Attrib_HookValueInt(0, "energy_weapon_penetration", weapon) != 0) ? 16.00 : 48.00;
-								damage = base_dmg * ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
-							}
-
-							// Remove bullet damage type (untyped damage) and restore knockback
-							damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
-							// Enable sonic damage type so Fists of Steel ranged resist still works
-							damage_type |= DMG_SONIC;
-
-							return Plugin_Changed;
-						}
-					} else if (
-						ItemIsEnabled(Wep_CowMangler) && 
-						StrEqual(class, "tf_projectile_energy_ball")
+					if (
+						ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
+						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 					) {
-						// no crits.
-						damage_type &= ~DMG_CRIT;
+						// cloak/uber drain is done in OnTakeDamagePost
+
+						// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
+						if (
+							GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
+							GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
+						) {
+							// Reduce base damage by 20% (Pomson 48, Bison 16)
+							damage *= 0.8;
+
+							// Do not use internal rampup/falloff.
+							damage_type &= ~DMG_USEDISTANCEMOD;
+
+							// Deal damage with 125% rampup, 75% falloff.
+							damage *= ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
+						}
+
+						// Remove bullet damage type (untyped damage) and restore knockback
+						damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
+						// Enable sonic damage type so Fists of Steel ranged resist still works
+						damage_type |= DMG_SONIC;
+
 						return Plugin_Changed;
 					}
+				} else if (
+					ItemIsEnabled(Wep_CowMangler) && 
+					StrEqual(class, "tf_projectile_energy_ball")
+				) {
+					// no crits.
+					damage_type &= ~DMG_CRIT;
+					return Plugin_Changed;
 				}
 			}
 		}
 	}
 
 	return Plugin_Continue;
-}
-
-void SetMeleeCrit(int client) {
-	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
 }
 
 Action SDKHookCB_OnTakeDamage_Building(
@@ -4723,7 +4676,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 				StrEqual(class, "tf_weapon_stickbomb")
 			) {
 				if (
-					damage_custom == TF_DMG_CUSTOM_NONE &&
+					damage_custom == 0 &&
 					damage == 55.0
 				) {
 					// melee damage is always 35
@@ -4731,7 +4684,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 					return Plugin_Changed;
 				}
 
-				if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
+				if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
 					// base explosion is 100 damage
 					damage = 100.0;
 					return Plugin_Changed;
@@ -4744,7 +4697,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 			if (
 				ItemIsEnabled(Wep_LooseCannon) &&
 				StrEqual(class, "tf_weapon_cannon") &&
-				damage_custom == TF_DMG_CUSTOM_CANNONBALL_PUSH
+				damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 			) {
 				damage = 60.0;
 				return Plugin_Changed;
@@ -4944,7 +4897,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 			if (
 				GetItemVariant(Wep_Phlogistinator) >= 1 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
-				damage_custom != TF_DMG_CUSTOM_BACKSTAB &&
+				damage_custom != TF_CUSTOM_BACKSTAB &&
 				resist_damage
 			) {
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
@@ -5037,7 +4990,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					// Kamikaze taunt tanking for all Rocket Jumper variants
 					(ItemIsEnabled(Wep_RocketJumper) &&
 					player_weapons[victim][Wep_RocketJumper] &&
-					damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+					damage_custom == TF_CUSTOM_TAUNT_GRENADE) ||
 					// All self blast damage tanking for some Rocket Jumper and Sticky Jumper variants
 					(GetItemVariant(Wep_RocketJumper) >= 1 &&
 					player_weapons[victim][Wep_RocketJumper]) ||
@@ -5048,7 +5001,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					SetEntityHealth(victim, 500);
 				}
 
-				if (damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) {
+				if (damage_custom == TF_CUSTOM_TAUNT_GRENADE) {
 					if (
 						// Grenade Kamikaze taunt self-damage reduction from modern 320 self-damage to historical 256 self-damage
 						// The Soldier does not always survive this due to explosive damage jankiness
@@ -5177,7 +5130,7 @@ void SDKHookCB_OnTakeDamagePost(
 			if (
 				(ItemIsEnabled(Wep_RocketJumper) &&
 				player_weapons[victim][Wep_RocketJumper] &&
-				damage_custom == TF_DMG_CUSTOM_TAUNTATK_GRENADE) ||
+				damage_custom == TF_CUSTOM_TAUNT_GRENADE) ||
 				(GetItemVariant(Wep_RocketJumper) >= 1 &&
 				player_weapons[victim][Wep_RocketJumper]) ||
 				(GetItemVariant(Wep_StickyJumper) >= 2 &&
@@ -5186,16 +5139,6 @@ void SDKHookCB_OnTakeDamagePost(
 				// Restore health after tanking self blast damage
 				SetEntityHealth(victim, players[victim].old_health);
 			}
-		}
-
-		if (
-			ItemIsEnabled(Wep_BazaarBargain) &&
-			TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
-			players[attacker].bazaar_shot == BAZAAR_GAIN &&
-			!IsPlayerAlive(victim)
-		) {
-			// Bazaar Bargain: do not gain two heads in one time.
-			SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
 		}
 
 		if (weapon > MaxClients) {
@@ -5211,18 +5154,31 @@ void SDKHookCB_OnTakeDamagePost(
 			}
 
 			// remove "selfdmg on hit for rapidfire"
-			if (TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null) {
+			if (
+				TF2Attrib_GetByDefIndex(weapon, 98) != Address_Null &&
+				TF2Attrib_HookValueInt(0, "add_onhit_addhealth", weapon) == 0
+			) {
 				TF2Attrib_RemoveByDefIndex(weapon, 98);
 			}
 
-			// refill charge on bash kills
-			if (
-				GetItemVariant(Wep_TideTurner) == 1 &&
-				player_weapons[attacker][Wep_TideTurner] &&
-				IsPlayerAlive(victim) == false &&
-				damage_custom == TF_CUSTOM_CHARGE_IMPACT
-			) {
-				RequestFrame(RefillCharge, weapon);
+			if (IsPlayerAlive(victim) == false) {
+				if (
+					ItemIsEnabled(Wep_BazaarBargain) &&
+					TF2_IsPlayerInCondition(attacker, TFCond_Slowed) &&
+					players[attacker].bazaar_shot == BAZAAR_GAIN
+				) {
+					// Bazaar Bargain: do not gain two heads in one time.
+					SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
+				}
+
+				// refill charge on bash kills
+				if (
+					GetItemVariant(Wep_TideTurner) == 1 &&
+					player_weapons[attacker][Wep_TideTurner] &&
+					damage_custom == TF_CUSTOM_CHARGE_IMPACT
+				) {
+					RequestFrame(RefillCharge, weapon);
+				}
 			}
 		}
 
@@ -5270,7 +5226,7 @@ void SDKHookCB_OnTakeDamagePost(
 
 									if (charge > 0.1) {
 										// fix 0.89999999 values
-										charge = (charge += 0.001);
+										charge += 0.001;
 									}
 
 									SetEntPropFloat(weapon1, Prop_Send, "m_flChargeLevel", charge);
@@ -5301,17 +5257,6 @@ void SDKHookCB_OnTakeDamagePost(
 				}
 			}
 		}
-	}
-}
-
-void RefillCharge(int weapon) {
-	int client = GetEntityOwner(weapon);
-	float charge;
-
-	if (client >= 1 && client <= MaxClients) {
-		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
-		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
-		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 	}
 }
 
@@ -5374,20 +5319,20 @@ public Action OnPlayerRunCmd(
 				if (weapon1 > 0) {
 					GetEntityClassname(weapon1, class, sizeof(class));
 
-					if (StrEqual(class, "tf_weapon_handgun_scout_primary")) {
+					if (
+						StrEqual(class, "tf_weapon_handgun_scout_primary") &&
+						players[client].holding_attack2
+					) {
+						// mostly prevent animation glitch when holding down mouse2 at lower pings
+						SetEntPropFloat(weapon1, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.3);
 
-						if (players[client].holding_attack2) {
-							// mostly prevent animation glitch when holding down mouse2 at lower pings
-							SetEntPropFloat(weapon1, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.3);
-
-							if (
-								GetEntProp(weapon1, Prop_Send, "m_iClip1") <= 0 &&
-								buttons & IN_ATTACK != 0
-							) {
-								// force a reload when clip is empty
-								buttons |= IN_RELOAD;
-								returnValue = Plugin_Changed;
-							}
+						if (
+							GetEntProp(weapon1, Prop_Send, "m_iClip1") <= 0 &&
+							buttons & IN_ATTACK != 0
+						) {
+							// force a reload when clip is empty
+							buttons |= IN_RELOAD;
+							returnValue = Plugin_Changed;
 						}
 					}
 				}
@@ -5406,17 +5351,9 @@ public Action OnPlayerRunCmd(
 					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
 					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
 				) {
-					weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-
-					if (weapon1 > 0) {
-						GetEntityClassname(weapon1, class, sizeof(class));
-
-						if (StrEqual(class, "tf_weapon_minigun")) {
-							// Pre-Classless Sandman un-revs Heavies
-							buttons &= ~(IN_ATTACK | IN_ATTACK2);
-							returnValue = Plugin_Changed;
-						}
-					}
+					// Pre-Classless Sandman un-revs Heavies
+					buttons &= ~(IN_ATTACK | IN_ATTACK2);
+					returnValue = Plugin_Changed;
 				}
 			}
 		}
@@ -5439,6 +5376,8 @@ public Action OnPlayerRunCmd(
 	
 	return returnValue;
 }
+
+// core plugin logic and functions
 
 Action Command_DisableAll(int args) {
 	for (int i = 0; i < NUM_ITEMS; i++) {
@@ -5581,47 +5520,6 @@ bool CanAttack_Secondary_Demoman(int client, bool skipIsTauntingCheck)
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
-}
-
-// bool TraceFilter_ExcludeSingle(int entity, int contentsmask, any data) {
-// 	return (entity != data);
-// }
-
-// bool TraceFilter_ExcludePlayers(int entity, int contentsmask, any data) {
-// 	return (entity < 1 || entity > MaxClients);
-// }
-
-bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
-	char class[64];
-
-	// ignore the target projectile
-	if (entity == data) {
-		return false;
-	}
-
-	// ignore players
-	if (entity <= MaxClients) {
-		return false;
-	}
-
-	GetEntityClassname(entity, class, sizeof(class));
-
-	// ignore buildings and other projectiles
-	if (
-		StrContains(class, "obj_") == 0 ||
-		StrContains(class, "tf_projectile_") == 0
-	) {
-		return false;
-	}
-
-	// ignore respawn room visualizers
-	if (StrEqual(class, "func_respawnroomvisualizer")) {
-		return false;
-	}
-
-	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
-
-	return true;
 }
 
 /**
@@ -5890,6 +5788,41 @@ void ToggleMoonshotMessage(int client) {
 	}
 }
 
+// miscellaneous functions
+
+bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
+	char class[64];
+
+	// ignore the target projectile
+	if (entity == data) {
+		return false;
+	}
+
+	// ignore players
+	if (entity <= MaxClients) {
+		return false;
+	}
+
+	GetEntityClassname(entity, class, sizeof(class));
+
+	// ignore buildings and other projectiles
+	if (
+		StrContains(class, "obj_") == 0 ||
+		StrContains(class, "tf_projectile_") == 0
+	) {
+		return false;
+	}
+
+	// ignore respawn room visualizers
+	if (StrEqual(class, "func_respawnroomvisualizer")) {
+		return false;
+	}
+
+	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
+
+	return true;
+}
+
 bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
 	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
 		return false; //SDKcall not prepared or Handle not created.
@@ -5916,6 +5849,59 @@ int GetResistType(int entity)
 	// the original code is weird and this does what i want but it's here for the sake of it.
 	return GetChargeType(entity);
 }
+
+void SetFeignDeathEnd(int client) {
+	if (!IsClientInGame(client))
+		return;
+
+	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
+}
+
+void ApplyOverhealOnKill(int weapon) {
+	if (!IsValidEntity(weapon))
+		return;
+
+	int owner = GetEntityOwner(weapon);
+
+	if (owner >= 1 && owner <= MaxClients) {
+		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
+		int health_cur = GetClientHealth(owner);
+
+		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
+		heal_amt = intMin(
+			max_overheal - health_cur,
+			heal_amt - (health_cur - players[owner].old_health)
+		);
+
+		if (heal_amt) {
+			// Apply overheal
+			TF2Util_TakeHealth(owner, float(heal_amt), TAKEHEALTH_IGNORE_MAXHEALTH);
+		}
+	}
+}
+
+void SetMeleeCrit(int client) {
+	if (!IsClientInGame(client))
+		return;
+
+	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
+}
+
+void RefillCharge(int weapon) {
+	if (!IsValidEntity(weapon))
+		return;
+
+	int client = GetEntityOwner(weapon);
+	float charge;
+
+	if (client >= 1 && client <= MaxClients) {
+		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
+		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
+		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
+	}
+}
+
+// dynamic hooks and detours
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	int owner;
@@ -6057,11 +6043,11 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
 /**
  * Removes projectiles and optionally damages players in front of the Short Circuit user.
  *
- * @param owner				Client index of the player using the Short Circuit.
- * @param entity			   Entity index of the Short Circuit weapon.
- * @param base_amount		  Amount of metal to consume on use (0 for none).
- * @param amount_per_destroyed Additional metal to consume per destroyed projectile (0 for none).
- * @param damage			   Damage to apply to players hit (default 0.0 for none).
+ * @param owner					Client index of the player using the Short Circuit.
+ * @param entity				Entity index of the Short Circuit weapon.
+ * @param base_amount			Amount of metal to consume on use (0 for none).
+ * @param amount_per_destroyed	Additional metal to consume per destroyed projectile (0 for none).
+ * @param damage				Damage to apply to players hit (default 0.0 for none).
  *
  * @return True if hit a player or destroyed a projectile, false otherwise.
  */
@@ -6419,8 +6405,7 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnVal
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters)
-{
+MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
 	if (
 		client > 0 &&
@@ -6561,19 +6546,15 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 }
 #endif
 
-MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters)
-{
-	if (ItemIsEnabled(Wep_Spycicle))
-	{
-		// Prevent ammo pick-up with the spycicle when cloak meter AND ammo are full.
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Spycicle)) {
 		returnValue.Value = false;
 		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_RegenThink(int client)
-{
+MRESReturn DHookCallback_CTFPlayer_RegenThink(int client) {
 	int weapon;
 	bool full_regen = false;
 	float regen_amount;
@@ -6776,13 +6757,12 @@ MRESReturn DHookCallback_CBaseObject_InputWrenchHit(int entity, DHookReturn retu
 
 		// Return false such that the 'ding' plays instead of the regular wrench hit sound
 		returnValue.Value = false;
-		return MRES_ChangedOverride;
+		return MRES_Override;
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters)
-{
+MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Allow metal to be picked up from mini sentry gibs.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -6918,8 +6898,7 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters)
-{
+MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters) {
 	if (GetItemVariant(Wep_Spycicle) == 1) {
 		char criteria[32];
 		parameters.GetString(1, criteria, sizeof(criteria));
@@ -6969,14 +6948,13 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHook
 		client >= 1 &&
 		client <= MaxClients
 	) {
-		bool force = parameters.Get(2);
 		if (
+			!parameters.Get(2) &&
+			player_weapons[client][Wep_DeadRinger] &&
 			(
 				GetItemVariant(Wep_DeadRinger) == 0 ||
 				GetItemVariant(Wep_DeadRinger) == 2
-			) &&
-			player_weapons[client][Wep_DeadRinger] &&
-			!force
+			)
 		) {
 			// cap dead ringer cloak gain to 35%
 			float val = parameters.Get(1);
@@ -7003,7 +6981,7 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
+MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
 	float divisor;
 	float flMod;
 	int patient;
@@ -7074,11 +7052,9 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 			cvar_ref_weapon_medigun_charge_rate.FloatValue /= divisor;
 		}
 	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Post(int entity) {
-	cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+	else {
+		cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+	}
 	return MRES_Ignored;
 }
 
@@ -7212,7 +7188,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 				}
 
 				// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
-				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, loose cannon,
+				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
 				// anything that has the stun amount greater than 0.5, they will momentarily gain control
 				// and then immediately go back to the bonked state
 				switch (GetItemVariant(Wep_Sandman)) {
@@ -7226,6 +7202,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 					}
 				}
 
+				// todo: fix vanilla moonshots (0.8s) giving two bonus points
 				bool moonshot = lifetime_ratio >= 1.0;
 				if (moonshot) {
 					// moonshot!
@@ -7269,9 +7246,6 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 						stun_fls |= TF_STUNFLAG_CHEERSOUND;
 					}
 				}
-
-				players[victim].stunball_fix_time_bonk = GetGameTime();
-				players[victim].stunball_fix_time_wear = 0.0;
 			}
 			else {
 				//LogMessage("Canceled close-range stun");
@@ -7384,7 +7358,8 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn re
 
 MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Disciplinary)) {
-		int target = GetEntityFromAddress(LoadFromAddress(view_as<Address>(parameters.Get(1) + CGameTrace_m_pEnt), NumberType_Int32));
+		Address trace = parameters.Get(1);
+		int target = GetEntityFromAddress(LoadFromAddress(trace + CGameTrace_m_pEnt, NumberType_Int32));
 		if (
 			target >= 1 &&
 			target <= MaxClients
@@ -7395,7 +7370,7 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam parameters) {
 	Address info = parameters.Get(1);
 	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
 	if (
@@ -7434,16 +7409,12 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookPara
 			targetUpwardForce *= 2.0; 
 		}
 
-		float newVecDir_z = (targetUpwardForce / force) * -1.0;
-
-		parameters.Set(4, newVecDir_z);
+		parameters.Set(4, (targetUpwardForce / force) * -1.0);
 		return MRES_ChangedHandled;
 	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Post(int client, DHookParam parameters) {
-	cvar_ref_tf_damageforcescale_other.RestoreDefault();
+	else {
+		cvar_ref_tf_damageforcescale_other.RestoreDefault();
+	}
 	return MRES_Ignored;
 }
 
@@ -7476,6 +7447,26 @@ MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
+MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate(int entity, DHookReturn returnValue) {
+	int weapon;
+	char class[64];
+
+	switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+			if (StrEqual(class, "tf_weapon_drg_pomson")) {
+				// serverside penetration, client doesn't know so it uses the pomson particle instead of bison
+				returnValue.Value = true;
+				return MRES_Override;
+			}
+		}
+	}}
+	return MRES_Ignored;
+}
+
+// stocks
+
 stock bool PlayerIsUbered(int client) {
 	return (
 		TF2_IsPlayerInCondition(client, TFCond_Ubercharged) ||
@@ -7492,7 +7483,6 @@ stock bool PlayerIsInvulnerable(int client) {
 		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
 	);
 }
-
 
 TFCond critboosts[] =
 {
