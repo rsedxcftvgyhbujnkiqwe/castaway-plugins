@@ -3156,7 +3156,7 @@ void ApplyRevertsToItem_PostFrame(int entity) {
 		ItemIsEnabled(Wep_Shortstop) &&
 		StrEqual(class, "tf_weapon_handgun_scout_primary")
 	) {
-		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", 2);
+		SetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType", TF_AMMO_SECONDARY);
 	}
 }
 
