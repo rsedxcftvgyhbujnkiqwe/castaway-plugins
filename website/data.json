@@ -4069,13 +4069,13 @@
             },
             {
                 "type": "att_neutral",
-                "text": "A percentage of your \u00dcberCharge level is retained on death, based on the number of organs harvested (15% per). Total \u00dcberCharge retained on spawn caps at 60%."
+                "text": "A percentage of your ÜberCharge level is retained on death, based on the number of organs harvested (15% per). Total ÜberCharge retained on spawn caps at 60%."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "On death up to 20% of your stored \u00dcberCharge is retained"
+                "text": "On death up to 20% of your stored ÜberCharge is retained"
             },
             {
                 "type": "att_negative",
