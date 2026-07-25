@@ -1685,7 +1685,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Damage increases as the user becomes injured"
+                "text": "Damage increases as the user becomes injured (up to 107 damage)"
             },
             {
                 "type": "att_negative",
@@ -1695,15 +1695,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 113 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
@@ -1743,15 +1735,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 113 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
