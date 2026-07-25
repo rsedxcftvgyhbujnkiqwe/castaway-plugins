@@ -3223,7 +3223,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Mini-crits all airborne targets for 5 seconds after being deployed"
+                "text": "Mini-crits airborne targets for 5 seconds after being deployed"
             },
             {
                 "type": "att_negative",
