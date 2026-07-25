@@ -2358,11 +2358,11 @@
         "current_attributes": [
             {
                 "type": "att_positive",
-                "text": "+20% damage vs buildings"
+                "text": "+25% projectile speed"
             },
             {
                 "type": "att_positive",
-                "text": "+25% projectile speed"
+                "text": "+20% damage vs buildings"
             },
             {
                 "type": "att_negative",
