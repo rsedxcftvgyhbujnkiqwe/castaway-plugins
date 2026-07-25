@@ -675,7 +675,7 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Defensive buff protects nearby teammates from crits, incoming sentry damage by 35%, and 35% from all other sources."
+                "text": "Defensive buff protects nearby teammates from crits and blocks 35% of incoming damage."
             },
             {
                 "type": "att_neutral",
