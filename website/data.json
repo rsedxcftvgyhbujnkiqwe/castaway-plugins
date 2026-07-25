@@ -945,7 +945,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Move speed is capped at 311 Hu/s"
+                "text": "Move speed is capped at +35% of base move speed"
             },
             {
                 "type": "att_neutral",
