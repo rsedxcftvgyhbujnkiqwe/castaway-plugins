@@ -853,13 +853,13 @@
         "current_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds.  Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time"
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time."
             }
         ]
     },
