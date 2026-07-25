@@ -3647,7 +3647,7 @@
             },
             {
                 "type": "att_neutral",
-                "text": "Builds Hype as you run. When the Hype Meter is full, unleash mini-crits!"
+                "text": "Builds Hype as you run. When the Hype Meter is full, unleash mini-crits!<br>This weapon reloads its entire clip at once."
             }
         ]
     },
