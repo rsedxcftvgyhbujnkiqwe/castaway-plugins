@@ -2268,7 +2268,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+40% cloak duration"
+                "text": "+40% cloak duration when set bonus not active"
             },
             {
                 "type": "att_positive",
@@ -2300,7 +2300,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     },
@@ -4259,7 +4259,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     }
