@@ -12,6 +12,7 @@
 #include <tf2>
 #include <tf2_stocks>
 #include <scramble>
+#include <nativevotes_utils>
 
 public Plugin myinfo =
 {
@@ -31,6 +32,7 @@ ConVar cvarMinimumVotesNeeded;
 ConVar cvarSkipSecondVote;
 ConVar cvarVanillaScrambleTimeout;
 ConVar cvarMapExcludeListPath;
+ConVar cvarExcludeSpectators;
 
 int g_iVoters;
 int g_iVotes;
@@ -83,6 +85,7 @@ public void OnPluginStart()
 	cvarSkipSecondVote = CreateConVar("nano_votescramble_skip_second_vote", "0", "Should the second vote be skipped?", 0, true, 0.0, true, 1.0);
 	cvarVanillaScrambleTimeout = CreateConVar("nano_votescramble_vanilla_scramble_timeout", "1", "Should scramble follow timeout sequence", 0, true, 0.0, true, 1.0);
 	cvarMapExcludeListPath = CreateConVar("nano_votescramble_exclusion_list_path", "", "Path to the map exclusion list relative to SourceMod root. (Defaults to configs/votescramble_exclude.txt)");
+	cvarExcludeSpectators = CreateConVar("nano_votescramble_ignore_spectators", "0", "Ignore spectators for votes and votescramble requests.", _, true, 0.0, true, 1.0);
 
 	RegConsoleCmd("sm_votescramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
 	RegConsoleCmd("sm_vscramble", Cmd_VoteScramble, "Initiate a vote to scramble teams!");
@@ -226,6 +229,16 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 void AttemptVoteScramble(int client, bool isVoteCalledFromMenu=false)
 {
+	if (cvarExcludeSpectators.BoolValue && IsClientObserver(client))
+	{
+		if (isVoteCalledFromMenu)
+		{
+			NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Spectators);
+			return;
+		}
+		ReplyToCommand(client, "%t", "VOTESCRAMBLE_SPECTATOR");
+		return;
+	}
 	if (!g_bIsMapAllowed)
 	{
 		if (isVoteCalledFromMenu)
@@ -321,7 +334,11 @@ void VoteScrambleMenu()
 
 	vote.AddItem("yes", "Yes");
 	vote.AddItem("no", "No");
-	vote.DisplayVoteToAll(cvarVoteTime.IntValue);
+	if (cvarExcludeSpectators.BoolValue) {
+		DisplayNativeVoteToNonSpectators(vote, cvarVoteTime.IntValue);
+	} else {
+		vote.DisplayVoteToAll(cvarVoteTime.IntValue);
+	}
 }
 
 bool IsCurrentMapInExclusionList() {

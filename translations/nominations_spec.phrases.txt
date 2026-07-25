@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Nominate Spectator"
+    {
+        "en"    "Spectators are not allowed to nominate maps."
+    }
+}

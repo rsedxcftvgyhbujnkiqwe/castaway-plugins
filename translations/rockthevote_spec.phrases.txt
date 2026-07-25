@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "RTV Spectator"
+    {
+        "en"    "Spectators are not allowed to issue RTV requests."
+    }
+}

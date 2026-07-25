@@ -57,6 +57,7 @@ public Plugin myinfo =
 ConVar g_Cvar_ExcludeOld;
 ConVar g_Cvar_ExcludeCurrent;
 ConVar g_Cvar_MaxMatches;
+ConVar g_Cvar_IgnoreSpec;
 
 Menu g_MapMenu = null;
 ArrayList g_MapList = null;
@@ -81,6 +82,7 @@ public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
 	LoadTranslations("nominations.phrases");
+	LoadTranslations("nominations_spec.phrases");
 	
 	int arraySize = ByteCountToCells(PLATFORM_MAX_PATH);
 	g_MapList = new ArrayList(arraySize);
@@ -90,6 +92,7 @@ public void OnPluginStart()
 	g_Cvar_ExcludeOld = CreateConVar("sm_nominate_excludeold", "1", "Specifies if the current map should be excluded from the Nominations list", 0, true, 0.00, true, 1.0);
 	g_Cvar_ExcludeCurrent = CreateConVar("sm_nominate_excludecurrent", "1", "Specifies if the MapChooser excluded maps should also be excluded from Nominations", 0, true, 0.00, true, 1.0);
 	g_Cvar_MaxMatches = CreateConVar("sm_nominate_maxfound", "0", "Maximum number of nomination matches to add to the menu. 0 = infinite.", _, true, 0.0);
+	g_Cvar_IgnoreSpec = CreateConVar("sm_nominate_ignore_spec", "0", "Ignore spectator nomination requests", _, true, 0.0, true, 1.0);
 	
 	RegConsoleCmd("sm_nominate", Command_Nominate);
 	
@@ -97,6 +100,8 @@ public void OnPluginStart()
 	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_RCON, "Reload the nomination map cycle in-place");
 
 	g_mapTrie = new StringMap();
+
+	AutoExecConfig();
 }
 
 public void OnPluginEnd()
@@ -267,6 +272,12 @@ public Action Command_Nominate(int client, int args)
 {
 	if (!client)
 	{
+		return Plugin_Handled;
+	}
+
+	if (g_Cvar_IgnoreSpec.BoolValue && IsClientObserver(client))
+	{
+		ReplyToCommand(client, "[SM] %t", "Nominate Spectator");
 		return Plugin_Handled;
 	}
 
@@ -655,6 +666,12 @@ public Action Menu_Nominate(int client, NativeVotesOverride overrideType, const 
 		return Plugin_Handled;
 	}
 	
+	if (g_Cvar_IgnoreSpec.BoolValue && IsClientObserver(client))
+	{
+		NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_Spectators);
+		return Plugin_Handled;
+	}
+
 	if (strlen(voteArgument) == 0)
 	{
 		NativeVotes_DisplayCallVoteFail(client, NativeVotesCallFail_SpecifyMap);
