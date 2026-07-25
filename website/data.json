@@ -4157,7 +4157,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Sentry bullets are affected by damage falloff."
+                "text": "Sentry bullets have a wider cone and are affected by damage falloff."
             }
         ],
         "reverted_attributes": [
@@ -4171,7 +4171,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Sentries are disabled for 3 seconds after becoming unwrangled, and 1 second after death."
+                "text": "Sentries are disabled for 3 seconds after becoming unwrangled."
             }
         ]
     },
