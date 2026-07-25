@@ -103,6 +103,7 @@ jobs:
         with:
           path: artifact
           name: package-${{ matrix.sm-target }}
+          retention-days: 90
         if: ${{ !inputs.reverts_only }}
 
       - name: Upload artifact (reverts)
