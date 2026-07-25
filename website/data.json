@@ -3483,7 +3483,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Alt-Fire: -15 ammo, destroy projectiles"
+                "text": "On Fire: Generates an electrical field that destroys<br>projectiles and damages enemies in front of the player<br>Consumes 15 ammo per projectile destroyed"
             },
             {
                 "type": "att_positive",
