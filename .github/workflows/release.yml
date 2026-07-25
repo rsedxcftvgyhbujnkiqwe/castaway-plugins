@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      reverts_only: true
 
   create-release:
     name: Create Release

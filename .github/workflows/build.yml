@@ -3,8 +3,21 @@ name: build
 on:
   push:
   pull_request:
+  # have to duplicate the inputs cuz github is retarded
   workflow_dispatch:
+    inputs:
+      reverts_only:
+        description: "Only build reverts."
+        required: true
+        default: false
+        type: boolean
   workflow_call:
+    inputs:
+      reverts_only:
+        description: "Only build reverts."
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   build:
@@ -47,26 +60,53 @@ jobs:
           cp reverts.sp reverts-win32.sp
           sed -i "1i#define NO_MEMPATCHES" reverts-patchless.sp
           sed -i "1i#define WIN32" reverts-win32.sp
+          rm reverts.sp
 
-      - name: Build plugins
+      - name: Build reverts
         run: |
           cd scripting
           ./compile.sh reverts-*.sp
+        if: ${{ inputs.reverts_only }}
+      
+      - name: Build plugins
+        run: |
+          cd scripting
+          ./compile.sh *.sp
+        if: ${{ !inputs.reverts_only }}
 
-      - name: Package plugins
+      - name: Package reverts
         run: |
           for arch in "linux" "win32" "patchless"; do
             FOLDER_NAME="reverts-${arch}_sm-${{ matrix.sm-target }}"
             mkdir -p ${FOLDER_NAME}/plugins
             mkdir ${FOLDER_NAME}/gamedata
             mkdir ${FOLDER_NAME}/translations
-            mv scripting/compiled/reverts-${arch}.smx ${FOLDER_NAME}/plugins/
+            mv scripting/compiled/reverts-${arch}.smx ${FOLDER_NAME}/plugins/reverts.smx
             cp gamedata/*reverts*.txt ${FOLDER_NAME}/gamedata/
             find translations/ -name "reverts.phrases.txt" -exec cp --parents {} ${FOLDER_NAME}/ \;
             zip -r "${FOLDER_NAME}.zip" "${FOLDER_NAME}"
           done
+        if: ${{ inputs.reverts_only }}
+      
+      - name: Package plugins
+        run: |
+          mkdir -p artifact/plugins
+          mkdir artifact/gamedata
+          mkdir artifact/translations
+          mv scripting/compiled/*.smx artifact/plugins/
+          mv gamedata/*.txt artifact/gamedata/
+          mv translations/* artifact/translations/
+        if: ${{ !inputs.reverts_only }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
+          path: artifact
+          name: package-${{ matrix.sm-target }}
+        if: ${{ !inputs.reverts_only }}
+
+      - name: Upload artifact (reverts)
+        uses: actions/upload-artifact@v7
+        with:
           path: reverts-*_sm-${{ matrix.sm-target }}.zip
+        if: ${{ inputs.reverts_only }}
