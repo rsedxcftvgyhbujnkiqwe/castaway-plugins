@@ -2433,6 +2433,10 @@
                 "text": "Cannonball impacts affected by damage falloff"
             },
             {
+                "type": "att_negative",
+                "text": "Cannonball impacts have reduced knockback"
+            },
+            {
                 "type": "att_neutral",
                 "text": "Double Donk! Bomb explosions after a cannon ball impact will deal mini-crits to impact victims"
             }
