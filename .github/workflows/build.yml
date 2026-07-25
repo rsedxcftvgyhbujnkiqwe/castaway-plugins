@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       reverts_only:
-        description: "Only build reverts."
+        description: "Only build reverts"
         required: true
         default: false
         type: boolean
   workflow_call:
     inputs:
       reverts_only:
-        description: "Only build reverts."
+        description: "Only build reverts"
         required: true
         default: true
         type: boolean
