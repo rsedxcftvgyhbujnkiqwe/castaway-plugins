@@ -1393,7 +1393,7 @@
         "current_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and up to 75% damage resistance."
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
             },
             {
                 "type": "att_positive",
@@ -1415,15 +1415,27 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility and 90% damage resistance."
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
             },
             {
                 "type": "att_positive",
-                "text": "+80% cloak regen rate"
+                "text": "+50% cloak regen rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
             },
             {
                 "type": "att_negative",
-                "text": "+60% cloak drain rate"
+                "text": "-50% cloak meter when Feign Death is activated"
+            },
+            {
+                "type": "att_negative",
+                "text": "No cloak meter from ammo boxes while invisible"
+            },
+            {
+                "type": "att_negative",
+                "text": "-35% cloak meter from ammo boxes"
             }
         ]
     },
