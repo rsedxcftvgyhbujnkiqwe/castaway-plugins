@@ -607,19 +607,15 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+10% damage bonus"
+                "text": "+20% damage bonus"
             },
             {
                 "type": "att_positive",
                 "text": "100% critical hits from behind"
             },
             {
-                "type": "att_positive",
-                "text": "Extinguishing teammates restores 20 health"
-            },
-            {
                 "type": "att_negative",
-                "text": "+150% airblast cost"
+                "text": "No compression blast"
             }
         ]
     },
@@ -2430,11 +2426,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Cannonball impacts affected by damage falloff"
-            },
-            {
-                "type": "att_negative",
-                "text": "Cannonball impacts have reduced knockback"
+                "text": "Cannonball impacts have reduced knockback<br>and are affected by damage falloff"
             },
             {
                 "type": "att_neutral",
