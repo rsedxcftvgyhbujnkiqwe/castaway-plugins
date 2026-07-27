@@ -315,7 +315,7 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_ref_tf_airblast_cray;
-ConVar cvar_ref_tf_damage_disablespread;
+ConVar cvar_ref_tf_damage_range;
 ConVar cvar_ref_tf_damageforcescale_other;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
@@ -845,7 +845,7 @@ public void OnPluginStart() {
 	hudsync = CreateHudSynchronizer();
 
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
-	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
+	cvar_ref_tf_damage_range = FindConVar("tf_damage_range");
 	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
@@ -2117,6 +2117,7 @@ public void OnGameFrame() {
 
 			// these cvars are changed just-in-time, reset them
 			cvar_ref_tf_airblast_cray.RestoreDefault();
+			cvar_ref_tf_damage_range.RestoreDefault();
 			cvar_ref_tf_feign_death_duration.RestoreDefault();
 			cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 			cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
@@ -4296,6 +4297,9 @@ Action SDKHookCB_OnTakeDamage(
 	) {
 		// damage from players only
 
+		// tf_damage_range handles both distance ramp-up/fall-off and random spread
+		cvar_ref_tf_damage_range.RestoreDefault();
+
 		{
 			// save attacker's rage meter for modifications
 			players[attacker].rage_meter = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
@@ -4306,41 +4310,43 @@ Action SDKHookCB_OnTakeDamage(
 
 			{
 				// caber damage
-
+				// todo: maybe hook radiusdamage instead
 				if (
 					ItemIsEnabled(Wep_Caber) &&
 					StrEqual(class, "tf_weapon_stickbomb")
 				) {
-					if (
-						damage_custom == TF_DMG_CUSTOM_NONE &&
-						damage == 55.0
-					) {
+					if (damage_type & DMG_NOCLOSEDISTANCEMOD == 0) {
+						// bump this to 5x to counter the 0.2x multiplier for demo explosives
+						cvar_ref_tf_damage_range.FloatValue *= 5.0;
+					}
+
+					if (damage_custom == TF_DMG_CUSTOM_NONE) {
 						// melee damage is always 35
-						damage = 35.0;
+						damage *= 35.0 / 55.0;
 						return Plugin_Changed;
 					}
 
 					if (damage_custom == TF_DMG_CUSTOM_STICKBOMB_EXPLOSION) {
 						// base explosion is 100 damage
 						damage = 100.0;
-
-						if (
-							victim != attacker &&
-							(damage_type & DMG_CRIT) == 0
-						) {
-							GetClientEyePosition(attacker, pos1);
-
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							pos2[2] += PLAYER_CENTER_HEIGHT;
-
-							// ghetto ramp up calculation
-							// current tf2 applies 10% ramp up, we apply ~37% extra here (old was 50%)
-							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
-						}
-
 						return Plugin_Changed;
 					}
+				}
+			}
+
+			{
+				// grenade variance revert
+
+				if (
+					ItemIsEnabled(Feat_Grenade) &&
+					damage_type & DMG_NOCLOSEDISTANCEMOD == 0 &&
+					(
+						StrEqual(class, "tf_weapon_grenadelauncher") ||
+						StrEqual(class, "tf_weapon_cannon")
+					)
+				) {
+					// bump this to 5x to counter the 0.2x multiplier for demo explosives
+					cvar_ref_tf_damage_range.FloatValue *= 5.0;
 				}
 			}
 
@@ -4722,12 +4728,9 @@ Action SDKHookCB_OnTakeDamage_Building(
 				ItemIsEnabled(Wep_Caber) &&
 				StrEqual(class, "tf_weapon_stickbomb")
 			) {
-				if (
-					damage_custom == TF_DMG_CUSTOM_NONE &&
-					damage == 55.0
-				) {
+				if (damage_custom == TF_DMG_CUSTOM_NONE) {
 					// melee damage is always 35
-					damage = 35.0;
+					damage *= 35.0 / 55.0;
 					return Plugin_Changed;
 				}
 
@@ -5006,24 +5009,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 					);
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
-				}
-			}
-		}
-		{
-			// pre-2014 grenade random damage spread
-			if (
-				ItemIsEnabled(Feat_Grenade) &&
-				damage_type & DMG_CRIT == 0 &&
-				cvar_ref_tf_damage_disablespread.BoolValue == false
-			) {
-				if (weapon > MaxClients) {
-					GetEntityClassname(weapon, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
-						// values chosen to be approximately +/- 15% random variance in total
-						damage *= GetRandomFloat(0.869, 1.125);
-						returnValue = Plugin_Changed;
-					}
 				}
 			}
 		}
