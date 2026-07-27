@@ -3155,6 +3155,8 @@ public void ApplyRevertsToItem(int entity) {
 		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
 	}
 	else if (
+		ItemIsEnabled(Feat_Grenade) &&
+		StrEqual(class, "tf_weapon_cannon") ||
 		ItemIsEnabled(Feat_Stickybomb) &&
 		StrEqual(class, "tf_weapon_pipebomblauncher")
 	) {
@@ -3409,7 +3411,10 @@ void CacheWeapons(int client) {
 					player_weapons[client][Feat_Minigun] = true;
 				}
 
-				else if (StrEqual(class, "tf_weapon_grenadelauncher")) {
+				else if (
+					StrEqual(class, "tf_weapon_grenadelauncher") ||
+					StrEqual(class, "tf_weapon_cannon")
+				) {
 					player_weapons[client][Feat_Grenade] = true;
 				}
 
