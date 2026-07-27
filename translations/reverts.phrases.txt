@@ -1214,7 +1214,7 @@
 	}
 	"Caber_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, always deals 180+ damage on melee explosion, no deploy or swing rate penalties, 35 melee damage"
+		"en"	"Reverted to pre-gunmettle, always deals 175+ damage on melee explosion, no deploy or swing rate penalties, 35 melee damage"
 	}
 	"Vaccinator_PreTB"
 	{
