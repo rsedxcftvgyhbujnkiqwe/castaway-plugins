@@ -298,6 +298,7 @@ static Handle SDKCall_CTFPlayer_DoAnimationEvent;
 static any CTFFlameEntity_m_vecInitialPos;
 static any CTFWeaponBase_m_iWeaponMode;
 
+static ConVar tf_fireball_burn_duration;
 static ConVar tf_flamethrower_velocity;
 static ConVar tf_flamethrower_vecrand;
 
@@ -411,14 +412,15 @@ public void OnPluginStart()
     delete config;
 
     // Load ConVars.
+    tf_fireball_burn_duration = FindConVar("tf_fireball_burn_duration");
     tf_flamethrower_velocity = FindConVar("tf_flamethrower_velocity");
     tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
     // Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?");
-    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?");
-    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)");
-    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)");
+    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
     sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
     sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
 
@@ -1070,8 +1072,12 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
             {
                 char class[MAX_NAME_LENGTH];
                 GetEntityClassname(pWeapon, class, sizeof(class));
-                if (StrEqual(class, "tf_weapon_particle_cannon"))
+                if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
+                    length = tf_fireball_burn_duration.FloatValue;
+                }
+                else if (StrEqual(class, "tf_weapon_particle_cannon")) {
                     length = TF_BURNING_FLAME_LIFE_PLASMA;
+                }
             }
             flFlameLife = length;
         }
