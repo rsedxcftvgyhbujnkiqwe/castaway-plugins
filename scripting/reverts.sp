@@ -2967,8 +2967,7 @@ public void ApplyRevertsToItem(int entity) {
 		}}
 		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 0) {
 			TF2Attrib_SetByDefIndex(entity, 801, 0.0); // item_meter_charge_rate: 0
-			// Line below removes HUD meter
-			// TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
+			TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
 		case 130: { if (ItemIsEnabled(Wep_Scottish)) {
 			TF2Attrib_SetByDefIndex(entity, 6, 1.0); // fire rate bonus
