@@ -298,6 +298,7 @@ static Handle SDKCall_CTFPlayer_DoAnimationEvent;
 static any CTFFlameEntity_m_vecInitialPos;
 static any CTFWeaponBase_m_iWeaponMode;
 
+static ConVar tf_fireball_burn_duration;
 static ConVar tf_flamethrower_velocity;
 static ConVar tf_flamethrower_vecrand;
 
@@ -307,6 +308,9 @@ static ConVar sm_oldflames_flamethrower_damage;
 static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
 static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
 static ConVar sm_oldflames_flamethrower_falloff;
+static ConVar sm_oldflames_healing_debuff;
+
+static bool g_bWasBurning[MAXPLAYERS + 1];
 
 static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
 static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
@@ -314,6 +318,13 @@ static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
 static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff2;
 static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New;
 static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+
+static MemoryPatch MemoryPatch_ConditionGameRulesThink_HealDebuff;
+static MemoryPatch MemoryPatch_CalcDamageResisted_HealDebuffShield;
+static MemoryPatch MemoryPatch_CalcDamageResisted_HealDebuffCrit;
+static float MemoryPatch_HealDebuff_Float75;
+static float MemoryPatch_HealDebuff_Float25;
+
 
 //////////////////////////////////////////////////////////////////////////////
 // PLUGIN INFO                                                              //
@@ -383,6 +394,9 @@ public void OnPluginStart()
 
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
+    MemoryPatch_ConditionGameRulesThink_HealDebuff = MemoryPatch.CreateFromConf(config, "ConditionGameRulesThink_HealDebuff");
+    MemoryPatch_CalcDamageResisted_HealDebuffShield = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffShield");
+    MemoryPatch_CalcDamageResisted_HealDebuffCrit = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffCrit");
 
     if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
     if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
@@ -396,11 +410,18 @@ public void OnPluginStart()
     if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
     if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
     if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
+    if (MemoryPatch_ConditionGameRulesThink_HealDebuff == null)
+        LogError("Failed to create MemoryPatch_ConditionGameRulesThink_HealDebuff — pre-JI mode will use modern values");
+    if (MemoryPatch_CalcDamageResisted_HealDebuffShield == null)
+        LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffShield — pre-JI mode will use modern values");
+    if (MemoryPatch_CalcDamageResisted_HealDebuffCrit == null)
+        LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffCrit — pre-JI mode will use modern values");
 
     DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Pre, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
     DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Post, DHookCallback_PrimaryAttack_Post);
     DHooks_CTFFlameThrower_FireAirBlast.Enable(Hook_Post, DHookCallback_FireAirBlast);
     DHooks_CTFFlameManager_OnCollide.Enable(Hook_Pre, DHookCallback_OnCollide);
+    DHooks_CTFPlayerShared_Burn.Enable(Hook_Pre, DHookCallback_Burn_Pre);
     DHooks_CTFPlayerShared_Burn.Enable(Hook_Post, DHookCallback_Burn);
 
     CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
@@ -411,20 +432,24 @@ public void OnPluginStart()
     delete config;
 
     // Load ConVars.
+    tf_fireball_burn_duration = FindConVar("tf_fireball_burn_duration");
     tf_flamethrower_velocity = FindConVar("tf_flamethrower_velocity");
     tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
     // Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?");
-    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?");
-    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)");
-    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)");
+    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
+    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
     sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
     sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
+    sm_oldflames_healing_debuff = CreateConVar("sm_oldflames_healing_debuff", "1", "Healing debuff mode: 0 = none, 1 = pre-JI (2s on direct flames, 25%), 2 = vanilla post-JI (afterburn, 20%)", _, true, 0.0, true, 2.0);
 
     sm_oldflames_enable.AddChangeHook(OnEnableChanged);
     sm_oldflames_flamethrower_falloff.AddChangeHook(AdjustFalloff);
+    sm_oldflames_healing_debuff.AddChangeHook(OnHealingDebuffChanged);
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+    MemoryPatch_HealingDebuff_Patch();
 
     // Setup hooks for each client.
     for (int i = 1; i <= MaxClients; ++i)
@@ -442,6 +467,7 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
     {
         PrintToServer("\"%s\" enabled.", PLUGIN_NAME);
         MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+        MemoryPatch_HealingDebuff_Patch();
     }
     else
     {
@@ -458,6 +484,9 @@ public void OnPluginEnd()
 {
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
+    if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
+    if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
+    if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
 }
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
@@ -471,6 +500,43 @@ static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
     WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
     WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
+}
+
+static void MemoryPatch_HealingDebuff_Patch()
+{
+    if (!sm_oldflames_enable.BoolValue)
+        return;
+
+    if (sm_oldflames_healing_debuff.IntValue == 1) {
+        MemoryPatch_HealDebuff_Float75 = 0.75;
+        MemoryPatch_HealDebuff_Float25 = 0.25;
+
+        if (MemoryPatch_ConditionGameRulesThink_HealDebuff && MemoryPatch_ConditionGameRulesThink_HealDebuff.Enable())
+            WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+        else
+            LogError("ConditionGameRulesThink_HealDebuff patch failed — using modern value");
+
+        if (MemoryPatch_CalcDamageResisted_HealDebuffShield && MemoryPatch_CalcDamageResisted_HealDebuffShield.Enable())
+            WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+        else
+            LogError("CalcDamageResisted_HealDebuffShield patch failed — using modern value");
+
+        if (MemoryPatch_CalcDamageResisted_HealDebuffCrit && MemoryPatch_CalcDamageResisted_HealDebuffCrit.Enable())
+            WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float25));
+        else
+            LogError("CalcDamageResisted_HealDebuffCrit patch failed — using modern value");
+    }
+    else {
+        if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
+        if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
+        if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
+    }
+}
+
+public void OnHealingDebuffChanged(ConVar convar, const char[] oldValue, const char[] newValue)
+{
+    MemoryPatch_HealingDebuff_Patch();
+    PrintToServer("Healing debuff mode set to %d (0=none, 1=pre-JI 25%%, 2=vanilla 20%%).", sm_oldflames_healing_debuff.IntValue);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -796,6 +862,22 @@ Action SDKHookCB_OnTakeDamage(int victim, int& attacker, int& inflictor, float& 
     if (!sm_oldflames_enable.BoolValue)
         return Plugin_Continue;
 
+    if (IsValidEntity(weapon) && damagetype & DMG_IGNITE)
+    {
+        char class[64];
+        GetEntityClassname(weapon, class, sizeof(class));
+        if (
+            StrEqual(class, "tf_weapon_flamethrower") ||
+            StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+        ) {
+            switch (sm_oldflames_healing_debuff.IntValue)
+            {
+                case 0: TF2_RemoveCondition(victim, TFCond_HealingDebuff);
+                case 1: TF2_AddCondition(victim, TFCond_HealingDebuff, 2.0);
+            }
+        }
+    }
+
     if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damagetype == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
     {
         damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
@@ -997,14 +1079,20 @@ MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
     return MRES_Ignored;
 }
 
+// pre-call CTFPlayerShared::Burn();
+// Track whether the player was already burning, for healing debuff mode handling.
+MRESReturn DHookCallback_Burn_Pre(Address pThis)
+{
+    int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+    g_bWasBurning[client] = TF2_IsPlayerInCondition(client, TFCond_OnFire);
+    return MRES_Ignored;
+}
+
 // post-call CTFPlayerShared::Burn();
 // Adjust afterburn duration, if notnheavy_flamethrower_oldafterburn_duration is on.
 MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 {
-    if (
-        !sm_oldflames_enable.BoolValue ||
-        !sm_oldflames_flamethrower_oldafterburn_duration.BoolValue
-    )
+    if (!sm_oldflames_enable.BoolValue)
         return MRES_Ignored;
 
     int client = TF2Util_GetPlayerFromSharedAddress(pThis);
@@ -1015,6 +1103,28 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
         TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
         TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
     )
+        return MRES_Ignored;
+
+    // Healing debuff mode handling
+    int healDebuffMode = sm_oldflames_healing_debuff.IntValue;
+    if (healDebuffMode != 2 && !g_bWasBurning[client])
+    {
+        TF2_RemoveCondition(client, TFCond_HealingDebuff);
+
+        if (healDebuffMode == 1 && IsValidEntity(pWeapon))
+        {
+            char class[64];
+            GetEntityClassname(pWeapon, class, sizeof(class));
+            if (
+                StrEqual(class, "tf_weapon_flamethrower") ||
+                StrEqual(class, "tf_weapon_rocketlauncher_fireball")
+            ) {
+                TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
+            }
+        }
+    }
+
+    if (!sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
         return MRES_Ignored;
 
     int nAfterburnImmunity = TF2_GetPlayerClass(client) == TFClass_Pyro;
@@ -1053,33 +1163,34 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
         }
     }
 
-    if (sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
+    float flFlameLife;
+    if (nAfterburnImmunity)
     {
-        float flFlameLife;
-        if (nAfterburnImmunity)
-        {
-            flFlameLife = TF_BURNING_FLAME_LIFE;
-            PlayerData[client].m_flRemoveBurn = GetGameTime() + TF_BURNING_FLAME_LIFE_PYRO;
-        }
-        else if (flBurningTime > 0.00)
-            flFlameLife = flBurningTime;
-        else
-        {
-            float length = TF_BURNING_FLAME_LIFE;
-            if (IsValidEntity(pWeapon))
-            {
-                char class[MAX_NAME_LENGTH];
-                GetEntityClassname(pWeapon, class, sizeof(class));
-                if (StrEqual(class, "tf_weapon_particle_cannon"))
-                    length = TF_BURNING_FLAME_LIFE_PLASMA;
-            }
-            flFlameLife = length;
-        }
-        flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
-
-        if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
-            TF2Util_SetPlayerBurnDuration(client, flFlameLife);
+        flFlameLife = TF_BURNING_FLAME_LIFE;
+        PlayerData[client].m_flRemoveBurn = GetGameTime() + TF_BURNING_FLAME_LIFE_PYRO;
     }
+    else if (flBurningTime > 0.00)
+        flFlameLife = flBurningTime;
+    else
+    {
+        float length = TF_BURNING_FLAME_LIFE;
+        if (IsValidEntity(pWeapon))
+        {
+            char class[MAX_NAME_LENGTH];
+            GetEntityClassname(pWeapon, class, sizeof(class));
+            if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
+                length = tf_fireball_burn_duration.FloatValue;
+            }
+            else if (StrEqual(class, "tf_weapon_particle_cannon")) {
+                length = TF_BURNING_FLAME_LIFE_PLASMA;
+            }
+        }
+        flFlameLife = length;
+    }
+    flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
+
+    if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
+        TF2Util_SetPlayerBurnDuration(client, flFlameLife);
 
     return MRES_Ignored;
 }
