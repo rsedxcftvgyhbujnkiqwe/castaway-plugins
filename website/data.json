@@ -607,19 +607,15 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+10% damage bonus"
+                "text": "+20% damage bonus"
             },
             {
                 "type": "att_positive",
                 "text": "100% critical hits from behind"
             },
             {
-                "type": "att_positive",
-                "text": "Extinguishing teammates restores 20 health"
-            },
-            {
                 "type": "att_negative",
-                "text": "+150% airblast cost"
+                "text": "No compression blast"
             }
         ]
     },
@@ -675,7 +671,7 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Defensive buff protects nearby teammates from crits, incoming sentry damage by 35%, and 35% from all other sources."
+                "text": "Defensive buff protects nearby teammates from crits and blocks 35% of incoming damage."
             },
             {
                 "type": "att_neutral",
@@ -853,13 +849,13 @@
         "current_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds.  Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time"
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time."
             }
         ]
     },
@@ -945,7 +941,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Move speed is capped at 311 Hu/s"
+                "text": "Move speed is capped at +35% of base move speed"
             },
             {
                 "type": "att_neutral",
@@ -1393,7 +1389,7 @@
         "current_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and up to 75% damage resistance."
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
             },
             {
                 "type": "att_positive",
@@ -1415,15 +1411,27 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility and 90% damage resistance."
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
             },
             {
                 "type": "att_positive",
-                "text": "+80% cloak regen rate"
+                "text": "+50% cloak regen rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
             },
             {
                 "type": "att_negative",
-                "text": "+60% cloak drain rate"
+                "text": "-50% cloak meter when Feign Death is activated"
+            },
+            {
+                "type": "att_negative",
+                "text": "No cloak meter from ammo boxes while invisible"
+            },
+            {
+                "type": "att_negative",
+                "text": "-35% cloak meter from ammo boxes"
             }
         ]
     },
@@ -1673,7 +1681,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Damage increases as the user becomes injured"
+                "text": "Damage increases as the user becomes injured (up to 107 damage)"
             },
             {
                 "type": "att_negative",
@@ -1683,15 +1691,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 113 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
@@ -1731,15 +1731,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 113 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
@@ -2272,7 +2264,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+40% cloak duration"
+                "text": "+40% cloak duration when set bonus not active"
             },
             {
                 "type": "att_positive",
@@ -2304,7 +2296,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     },
@@ -2362,11 +2354,11 @@
         "current_attributes": [
             {
                 "type": "att_positive",
-                "text": "+20% damage vs buildings"
+                "text": "+25% projectile speed"
             },
             {
                 "type": "att_positive",
-                "text": "+25% projectile speed"
+                "text": "+20% damage vs buildings"
             },
             {
                 "type": "att_negative",
@@ -2434,7 +2426,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Cannonball impacts affected by damage falloff"
+                "text": "Cannonball impacts have reduced knockback<br>and are affected by damage falloff"
             },
             {
                 "type": "att_neutral",
@@ -2922,7 +2914,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "75% damage resist while 'Mmmph' taunting."
+                "text": "75% damage resistance while 'Mmmph' taunting."
             },
             {
                 "type": "att_negative",
@@ -3223,7 +3215,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Mini-crits all airborne targets for 5 seconds after being deployed"
+                "text": "Mini-crits airborne targets for 5 seconds after being deployed"
             },
             {
                 "type": "att_negative",
@@ -3483,7 +3475,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Alt-Fire: -15 ammo, destroy projectiles"
+                "text": "On Fire: Generates an electrical field that destroys<br>projectiles and damages enemies in front of the player<br>Consumes 15 ammo per projectile destroyed"
             },
             {
                 "type": "att_positive",
@@ -3647,7 +3639,7 @@
             },
             {
                 "type": "att_neutral",
-                "text": "Builds Hype as you run. When the Hype Meter is full, unleash mini-crits!"
+                "text": "Builds Hype as you run. When the Hype Meter is full, unleash mini-crits!<br>This weapon reloads its entire clip at once."
             }
         ]
     },
@@ -4069,13 +4061,13 @@
             },
             {
                 "type": "att_neutral",
-                "text": "A percentage of your \u00dcberCharge level is retained on death, based on the number of organs harvested (15% per). Total \u00dcberCharge retained on spawn caps at 60%."
+                "text": "A percentage of your ÜberCharge level is retained on death, based on the number of organs harvested (15% per). Total ÜberCharge retained on spawn caps at 60%."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "On death up to 20% of your stored \u00dcberCharge is retained"
+                "text": "On death up to 20% of your stored ÜberCharge is retained"
             },
             {
                 "type": "att_negative",
@@ -4157,7 +4149,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Sentry bullets are affected by damage falloff."
+                "text": "Sentry bullets have a wider cone and are affected by damage falloff."
             }
         ],
         "reverted_attributes": [
@@ -4171,7 +4163,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Sentries are disabled for 3 seconds after becoming unwrangled, and 1 second after death."
+                "text": "Sentries are disabled for 3 seconds after becoming unwrangled."
             }
         ]
     },
@@ -4263,7 +4255,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     }

@@ -59,6 +59,20 @@
 				"windows" "\x55\x8B\xEC\x51\x56\x8B\xF1\x8B\x8E\x2A\x2A\x2A\x2A\x8B\x01" // offset aMultWpnBurntim ; "mult_wpn_burntime"
 				"linux"	  "@_ZN15CTFPlayerShared4BurnEP9CTFPlayerP13CTFWeaponBasef"
 			}
+
+            "CTFPlayerShared::ConditionGameRulesThink()"
+            {
+                "library" "server"
+                "windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x81\xEC\x08\x01\x00\x00\x56\x57\x8B\xF9\x89\x7D\xC8\x8D\x8F\xE0\x00\x00\x00"
+                "linux"   "@_ZN15CTFPlayerShared23ConditionGameRulesThinkEv"
+            }
+
+            "CTFGameRules::CheckMedicResist()"
+            {
+                "library" "server"
+                "windows" "\x55\x8B\xEC\x83\xEC\x0C\x53\x8B\x5D\x10\x57\x85\xDB\x0F\x84\xE3\x01\x00\x00\x8B\x03\x8B\xCB\x8B\x80\x4C\x01\x00\x00\xFF\xD0\x84\xC0\x0F\x84\xCF\x01\x00\x00"
+                "linux"   "\x55\x89\xE5\x57\x89\xC7\x56\x8D\xB1\xF4\x1A\x00\x00\x53\x89\xD3\x83\xEC\x24\x0F\xB6\x45\x0C\x89\x4D\xE0\x52\x56\x88\x45\xE4\xE8\x2A\x2A\x2A\x2A"
+            }
         }
         "Offsets"
         {
@@ -189,6 +203,55 @@
                     "offset"    "408"
                     "verify"    "\xf3\x0f\x59\x0d\x48\x53\x77\x10" // mulss xmm1, dword ptr [float_xxxxxxxx]
                     "patch"     "\xf3\x0f\x59\x0d\x00\x00\x00\x00" // retrieve from plugin
+                }
+            }
+
+            "ConditionGameRulesThink_HealDebuff" // m_flHealFraction *= 0.8 → 0.75 (pre-JI 25% reduction)
+            {
+                "signature" "CTFPlayerShared::ConditionGameRulesThink()"
+                "linux"
+                {
+                    "offset"    "7085"
+                    "verify"    "\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, dword ptr [float_0.8]
+                    "patch"     "\xf3\x0f\x10\x05\x00\x00\x00\x00" // retrieve from plugin
+                }
+                "windows"
+                {
+                    "offset"    "2837"
+                    "verify"    "\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_0.8]
+                    "patch"     "\xf3\x0f\x59\x05\x00\x00\x00\x00" // retrieve from plugin
+                }
+            }
+            "CalcDamageResisted_HealDebuffShield" // shield resist scale *= 0.8 → 0.75 (pre-JI 25%)
+            {
+                "signature" "CTFGameRules::CheckMedicResist()"
+                "linux"
+                {
+                    "offset"    "455"
+                    "verify"    "\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_0.8]
+                    "patch"     "\xf3\x0f\x59\x05\x00\x00\x00\x00" // retrieve from plugin
+                }
+                "windows"
+                {
+                    "offset"    "256"
+                    "verify"    "\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_0.8]
+                    "patch"     "\xf3\x0f\x59\x0d\x00\x00\x00\x00" // retrieve from plugin
+                }
+            }
+            "CalcDamageResisted_HealDebuffCrit" // crit bonus *= 0.2 → 0.25 (pre-JI 25%)
+            {
+                "signature" "CTFGameRules::CheckMedicResist()"
+                "linux"
+                {
+                    "offset"    "537"
+                    "verify"    "\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, dword ptr [float_0.2]
+                    "patch"     "\xf3\x0f\x10\x05\x00\x00\x00\x00" // retrieve from plugin
+                }
+                "windows"
+                {
+                    "offset"    "461"
+                    "verify"    "\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_0.2]
+                    "patch"     "\xf3\x0f\x59\x05\x00\x00\x00\x00" // retrieve from plugin
                 }
             }
         }
