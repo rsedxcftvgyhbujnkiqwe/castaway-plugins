@@ -43,6 +43,7 @@ scripting/include/*
 !scripting/include/sourcescramble.inc
 !scripting/include/scramble.inc
 !scripting/include/afkmanager.inc
+!scripting/include/nativevotes_utils.inc
 
 !gamedata/
 gamedata/*
@@ -59,11 +60,15 @@ translations/*
 !translations/votescramble.phrases.txt
 !translations/chatadverts.phrases.txt
 !translations/ssh.phrases.txt
+!translations/nominations_spec.phrases.txt
+!translations/rockthevote_spec.phrases.txt
 !translations/chi/
 translations/chi/*
 !translations/chi/reverts.phrases.txt
 !translations/chi/votescramble.phrases.txt
 !translations/chi/chatadverts.phrases.txt
+!translations/chi/nominations_spec.phrases.txt
+!translations/chi/rockthevote_spec.phrases.txt
 !translations/zho/
 translations/zho/*
 !translations/zho/reverts.phrases.txt

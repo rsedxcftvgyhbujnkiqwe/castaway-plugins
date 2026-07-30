@@ -46,4 +46,8 @@
 		"#format"	"{1:s},{2:d},{3:d}"
 		"en"		"{1} wants to scramble teams. [{2}/{3} votes required]"
 	}
+	"VOTESCRAMBLE_SPECTATOR"
+	{
+		"en"	"Spectators are not allowed to request team scrambles."
+	}
 }

@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Nominate Spectator"
+    {
+        "chi"    "旁观者不能预定地图"
+    }
+}

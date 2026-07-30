@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "RTV Spectator"
+    {
+        "chi"    "旁观者不能发起滚动投票请求"
+    }
+}

@@ -40,6 +40,7 @@
 
 #undef REQUIRE_PLUGIN
 #include <nativevotes>
+#include <nativevotes_utils>
 #define REQUIRE_PLUGIN
 
 #pragma semicolon 1
@@ -79,6 +80,7 @@ ConVar g_Cvar_EndOfMapVote;
 ConVar g_Cvar_VoteDuration;
 ConVar g_Cvar_RunOff;
 ConVar g_Cvar_RunOffPercent;
+ConVar g_Cvar_IgnoreSpec;
 
 Handle g_VoteTimer = null;
 Handle g_RetryTimer = null;
@@ -152,6 +154,7 @@ public void OnPluginStart()
 	g_Cvar_VoteDuration = CreateConVar("sm_mapvote_voteduration", "20", "Specifies how long the mapvote should be available for.", _, true, 5.0);
 	g_Cvar_RunOff = CreateConVar("sm_mapvote_runoff", "0", "Hold run of votes if winning choice is less than a certain margin", _, true, 0.0, true, 1.0);
 	g_Cvar_RunOffPercent = CreateConVar("sm_mapvote_runoffpercent", "50", "If winning choice has less than this percent of votes, hold a runoff", _, true, 0.0, true, 100.0);
+	g_Cvar_IgnoreSpec = CreateConVar("sm_mapmote_ignore_spec", "0", "Ignore spectators in map votes", _, true, 0.0, true, 1.0);
 	
 	RegAdminCmd("sm_mapvote", Command_Mapvote, ADMFLAG_CHANGEMAP, "sm_mapvote - Forces MapChooser to attempt to run a map vote now.");
 	RegAdminCmd("sm_setnextmap", Command_SetNextmap, ADMFLAG_CHANGEMAP, "sm_setnextmap <map>");
@@ -830,12 +833,20 @@ void InitiateVote(MapChange when, ArrayList inputlist=null)
 
 	if (g_NativeVotes)
 	{
-		g_VoteNative.DisplayVoteToAll(voteDuration);
+		if (g_Cvar_IgnoreSpec.BoolValue) {
+			DisplayNativeVoteToNonSpectators(g_VoteNative, voteDuration);
+		} else {
+			g_VoteNative.DisplayVoteToAll(voteDuration);
+		}
 	}
 	else
 	{
 		g_VoteMenu.ExitButton = false;
-		g_VoteMenu.DisplayVoteToAll(voteDuration);
+		if (g_Cvar_IgnoreSpec.BoolValue) {
+			DisplayMenuVoteToNonSpectators(g_VoteMenu, voteDuration);
+		} else {
+			g_VoteMenu.DisplayVoteToAll(voteDuration);
+		}
 	}
 
 	LogAction(-1, -1, "Voting for next map has started.");
@@ -1058,7 +1069,11 @@ public Action Timer_NV_Runoff(Handle timer, DataPack data)
 	g_VoteNative.AddItem(map, info);
 
 	int voteDuration = g_Cvar_VoteDuration.IntValue;
-	g_VoteNative.DisplayVoteToAll(voteDuration);
+	if (g_Cvar_IgnoreSpec.BoolValue) {
+		DisplayNativeVoteToNonSpectators(g_VoteNative, voteDuration);
+	} else {
+		g_VoteNative.DisplayVoteToAll(voteDuration);
+	}
 	
 	return Plugin_Continue;
 }
@@ -1093,7 +1108,11 @@ public void Handler_MapVoteFinished(Menu menu,
 			
 			int voteDuration = g_Cvar_VoteDuration.IntValue;
 			g_VoteMenu.ExitButton = false;
-			g_VoteMenu.DisplayVoteToAll(voteDuration);
+			if (g_Cvar_IgnoreSpec.BoolValue) {
+				DisplayMenuVoteToNonSpectators(g_VoteMenu, voteDuration);
+			} else {
+				g_VoteMenu.DisplayVoteToAll(voteDuration);
+			}
 			
 			/* Notify */
 			float map1percent = float(item_info[0][VOTEINFO_ITEM_VOTES])/ float(num_votes) * 100;
