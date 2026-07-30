@@ -300,6 +300,11 @@
 				"windows"	"102"
 				"linux"		"102"
 			}
+			"CTFWeaponBaseMelee::GetMeleeDamage"
+			{
+				"windows"	"477"
+				"linux"		"484"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -526,6 +531,28 @@
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"int"
+			}
+			"CTFWeaponBaseMelee::GetMeleeDamage"
+			{
+				"offset"	"CTFWeaponBaseMelee::GetMeleeDamage"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"float"
+				"arguments"
+				{
+					"pTarget"
+					{
+						"type"	"cbaseentity"
+					}
+					"piDamageType"
+					{
+						"type"	"int"
+					}
+					"piCustomDamage"
+					{
+						"type"	"int"
+					}
+				}
 			}
 
 			// Signature

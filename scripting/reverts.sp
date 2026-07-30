@@ -304,7 +304,7 @@ ConVar cvar_enable_shortstop_shove;
 
 ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
-ConVar cvar_ref_tf_damage_disablespread;
+ConVar cvar_ref_tf_damage_range;
 ConVar cvar_ref_tf_damageforcescale_other;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
@@ -388,6 +388,7 @@ DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
 DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
 DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
 DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
+DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -837,7 +838,7 @@ public void OnPluginStart() {
 
 	cvar_ref_sv_proj_stunball_damage = FindConVar("sv_proj_stunball_damage");
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
-	cvar_ref_tf_damage_disablespread = FindConVar("tf_damage_disablespread");
+	cvar_ref_tf_damage_range = FindConVar("tf_damage_range");
 	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
@@ -938,6 +939,7 @@ public void OnPluginStart() {
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicHook.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim = DynamicHook.FromConf(conf, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::GetEnemy");
+		dhook_CTFWeaponBaseMelee_GetMeleeDamage = DynamicHook.FromConf(conf, "CTFWeaponBaseMelee::GetMeleeDamage");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1078,6 +1080,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFRevolver_CanFireCriticalShot);
 	VALIDATE_HANDLE(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_GetEnemy);
+	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_GetMeleeDamage);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -2077,6 +2080,7 @@ public void OnGameFrame() {
 
 		// these cvars are changed just-in-time, reset them
 		cvar_ref_tf_airblast_cray.RestoreDefault();
+		cvar_ref_tf_damage_range.RestoreDefault();
 		cvar_ref_tf_damageforcescale_other.RestoreDefault();
 		cvar_ref_tf_feign_death_duration.RestoreDefault();
 		cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
@@ -2189,6 +2193,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+	}
+	else if (StrEqual(class, "tf_weapon_stickbomb")) {
+		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage);
 	}
 	else if (StrEqual(class, "tf_weapon_minigun")) {
 		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
@@ -2601,6 +2608,7 @@ public void ApplyRevertsToItem(int entity) {
 		case 307: { if (ItemIsEnabled(Wep_Caber)) {
 			TF2Attrib_SetByDefIndex(entity, 5, 1.00); // fire rate penalty
 			TF2Attrib_SetByDefIndex(entity, 773, 1.00); // single wep deploy time increased
+			TF2Attrib_SetByDefIndex(entity, 476, 100.0 / 75.0); // +33% damage bonus (for explosion, is canceled out for melee)
 		}}
 		case 996: { if (ItemIsEnabled(Wep_LooseCannon)) {
 			TF2Attrib_SetByDefIndex(entity, 103, 1.50); // projectile speed increased
@@ -3125,6 +3133,8 @@ public void ApplyRevertsToItem(int entity) {
 		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
 	}
 	else if (
+		ItemIsEnabled(Feat_Grenade) &&
+		StrEqual(class, "tf_weapon_cannon") ||
 		ItemIsEnabled(Feat_Stickybomb) &&
 		StrEqual(class, "tf_weapon_pipebomblauncher")
 	) {
@@ -3364,7 +3374,10 @@ void CacheWeapons(int client) {
 					player_weapons[client][Feat_Minigun] = true;
 				}
 
-				else if (StrEqual(class, "tf_weapon_grenadelauncher")) {
+				else if (
+					StrEqual(class, "tf_weapon_grenadelauncher") ||
+					StrEqual(class, "tf_weapon_cannon")
+				) {
 					player_weapons[client][Feat_Grenade] = true;
 				}
 
@@ -4255,6 +4268,9 @@ Action SDKHookCB_OnTakeDamage(
 	) {
 		// damage from players only
 
+		// tf_damage_range handles both distance ramp-up/fall-off and random spread
+		cvar_ref_tf_damage_range.RestoreDefault();
+
 		{
 			// save attacker's rage meter for modifications
 			players[attacker].rage_meter = GetEntPropFloat(attacker, Prop_Send, "m_flRageMeter");
@@ -4268,38 +4284,37 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_Caber) &&
-					StrEqual(class, "tf_weapon_stickbomb")
+					StrEqual(class, "tf_weapon_stickbomb") &&
+					damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION
 				) {
-					if (
-						damage_custom == 0 &&
-						damage == 55.0
-					) {
-						// melee damage is always 35
-						damage = 35.0;
-						return Plugin_Changed;
+					if (damage_type & DMG_NOCLOSEDISTANCEMOD == 0) {
+						// bump this to 5x to counter the 0.2x multiplier for demo explosives
+						// this gives +50% close-range bonus instead of +10%
+						cvar_ref_tf_damage_range.FloatValue *= 5.0;
 					}
 
-					if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
-						// base explosion is 100 damage
-						damage = 100.0;
-
-						if (
-							victim != attacker &&
-							(damage_type & DMG_CRIT) == 0
-						) {
-							GetClientEyePosition(attacker, pos1);
-
-							GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-
-							pos2[2] += PLAYER_CENTER_HEIGHT;
-
-							// ghetto ramp up calculation
-							// current tf2 applies 10% ramp up, we apply ~37% extra here (old was 50%)
-							damage = (damage * (1.0 + (0.37 * (1.0 - (GetVectorDistance(pos1, pos2) / 512.0)))));
-						}
-
+					// self-damage (counter 25% reduction to self in radiusdamage)
+					if (victim == attacker) {
+						damage /= 0.75;
 						return Plugin_Changed;
 					}
+				}
+			}
+
+			{
+				// grenade variance revert
+
+				if (
+					ItemIsEnabled(Feat_Grenade) &&
+					damage_type & DMG_NOCLOSEDISTANCEMOD == 0 &&
+					(
+						StrEqual(class, "tf_weapon_grenadelauncher") ||
+						StrEqual(class, "tf_weapon_cannon")
+					)
+				) {
+					// bump this to 5x to counter the 0.2x multiplier for demo explosives
+					// this gives +/- 15% random variance for grenades
+					cvar_ref_tf_damage_range.FloatValue *= 5.0;
 				}
 			}
 
@@ -4668,29 +4683,6 @@ Action SDKHookCB_OnTakeDamage_Building(
 		GetEntityClassname(weapon, class, sizeof(class));
 
 		{
-			// caber damage
-
-			if (
-				ItemIsEnabled(Wep_Caber) &&
-				StrEqual(class, "tf_weapon_stickbomb")
-			) {
-				if (
-					damage_custom == 0 &&
-					damage == 55.0
-				) {
-					// melee damage is always 35
-					damage = 35.0;
-					return Plugin_Changed;
-				}
-
-				if (damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION) {
-					// base explosion is 100 damage
-					damage = 100.0;
-					return Plugin_Changed;
-				}
-			}
-		}
-		{
 			// cannon impact damage
 
 			if (
@@ -4958,24 +4950,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 					);
 				} else {
 					ParticleShowSimple("peejar_impact_small", damage_position);
-				}
-			}
-		}
-		{
-			// pre-2014 grenade random damage spread
-			if (
-				ItemIsEnabled(Feat_Grenade) &&
-				damage_type & DMG_CRIT == 0 &&
-				cvar_ref_tf_damage_disablespread.BoolValue == false
-			) {
-				if (weapon > MaxClients) {
-					GetEntityClassname(weapon, class, sizeof(class));
-
-					if (StrEqual(class, "tf_weapon_grenadelauncher")) {
-						// values chosen to be approximately +/- 15% random variance in total
-						damage *= GetRandomFloat(0.869, 1.125);
-						returnValue = Plugin_Changed;
-					}
 				}
 			}
 		}
@@ -7442,6 +7416,19 @@ MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookRetu
 		// return NULL such that the radius damage function doesn't deal full damage and varies it by hit location
 		returnValue.Value = Address_Null;
 		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Caber)) {
+		float scale = 35.0 / 55.0; // Set 35 melee damage (from 55)
+		Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
+		if (attrib != Address_Null) {
+			scale /= TF2Attrib_GetValue(attrib); // Undo the attrib
+		}
+		returnValue.Value = view_as<float>(returnValue.Value) * scale;
+		return MRES_Override;
 	}
 	return MRES_Ignored;
 }
