@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      reverts_only: true
 
   create-release:
     name: Create Release
@@ -19,7 +21,6 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           path: artifacts
-          merge-multiple: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
