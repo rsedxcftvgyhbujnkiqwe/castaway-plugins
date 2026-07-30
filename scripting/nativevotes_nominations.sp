@@ -77,6 +77,8 @@ bool g_RegisteredMenusNextLevel = false;
 
 #define LIBRARY "nativevotes"
 
+#define MGE_PREFIX "mge_"
+
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
@@ -390,7 +392,13 @@ void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
 		}
 		return;		
 	}
-	
+
+	if (GetClientCount(true) > 8 && strncmp(mapname, MGE_PREFIX, sizeof(MGE_PREFIX)-1, false) == 0)
+	{
+		ReplyToCommand(client, "[SM] Can't nominate MGE maps at this player count.");
+		return;
+	}
+
 	if ((status & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
 	{
 		if ((status & MAPSTATUS_EXCLUDE_CURRENT) == MAPSTATUS_EXCLUDE_CURRENT)
