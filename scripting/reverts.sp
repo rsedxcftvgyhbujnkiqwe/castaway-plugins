@@ -327,7 +327,6 @@ ConVar cvar_ref_weapon_medigun_charge_rate;
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
-MemoryPatch patch_RevertCrusaderCrossbow_UbergainNerf;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
 MemoryPatch patch_DroppedWeapon;
@@ -394,6 +393,7 @@ DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
+DynamicDetour dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
@@ -446,6 +446,9 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
+bool construction_hit;
+int crossbow_medigun;
+float crossbow_charge_before;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -508,9 +511,7 @@ enum
 	Wep_CowMangler,
 	Wep_CozyCamper,
 	Wep_CritCola,
-#if defined MEMORY_PATCHES
 	Wep_Crossbow,
-#endif
 	Wep_Dalokohs,
 	Wep_Darwin,
 	Wep_DeadRinger,	
@@ -692,9 +693,7 @@ public void OnPluginStart() {
 	ItemDefine("concheror", "Concheror_PreTB", CLASSFLAG_SOLDIER, Wep_Concheror);
 	ItemDefine("cowmangler", "CowMangler_Pre2013", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_CowMangler);
 	ItemDefine("cozycamper", "CozyCamper_PreMYM", CLASSFLAG_SNIPER, Wep_CozyCamper);
-#if defined MEMORY_PATCHES
-	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow, true);
-#endif
+	ItemDefine("crossbow", "CrusadersCrossbow_PreJI", CLASSFLAG_MEDIC, Wep_Crossbow);
 	ItemDefine("critcola", "CritCola_PreMYM", CLASSFLAG_SCOUT, Wep_CritCola);
 	ItemVariant(Wep_CritCola, "CritCola_PreJI");
 	ItemVariant(Wep_CritCola, "CritCola_PreJuly2013");
@@ -945,6 +944,7 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicDetour.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
@@ -992,7 +992,6 @@ public void OnPluginStart() {
 		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
 		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
 		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertCrusaderCrossbow_UbergainNerf = MemoryPatch.CreateFromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24");
 		patch_RevertQuickFix_Uber_CannotCapturePoint = MemoryPatch.CreateFromConf(conf, "CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
 		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
 		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
@@ -1086,6 +1085,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
 	VALIDATE_HANDLE(dhook_CTFPlayer_AddToSpyKnife);
 	VALIDATE_HANDLE(dhook_CTFProjectile_Arrow_BuildingHealingArrow);
+	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	VALIDATE_HANDLE(dhook_CTFPlayer_RegenThink);
 	VALIDATE_HANDLE(dhook_CTFPlayer_GiveAmmo);
 	VALIDATE_HANDLE(dhook_CTFLunchBox_DrainAmmo);
@@ -1112,7 +1112,6 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
-	VALIDATE_PATCH(patch_RevertCrusaderCrossbow_UbergainNerf);
 	VALIDATE_PATCH(patch_RevertQuickFix_Uber_CannotCapturePoint);
 	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
 	VALIDATE_PATCH(patch_DroppedWeapon);
@@ -1146,6 +1145,8 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
+	dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.Enable(Hook_Pre, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre);
+	dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.Enable(Hook_Post, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
@@ -1242,7 +1243,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Crossbow),Wep_Crossbow);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
@@ -1336,13 +1336,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertCannotDetonateStickiesWhileTaunting.Enable();
 			} else {
 				patch_RevertCannotDetonateStickiesWhileTaunting.Disable();
-			}
-		}
-		case Wep_Crossbow: {
-			if (enable) {
-				patch_RevertCrusaderCrossbow_UbergainNerf.Enable();
-			} else {
-				patch_RevertCrusaderCrossbow_UbergainNerf.Disable();
 			}
 		}
 		case Wep_QuickFix: {
@@ -3427,9 +3420,7 @@ void CacheWeapons(int client) {
 					case 354: player_weapons[client][Wep_Concheror] = true;
 					case 441: player_weapons[client][Wep_CowMangler] = true;
 					case 163: player_weapons[client][Wep_CritCola] = true;
-#if defined MEMORY_PATCHES
 					case 305, 1079: player_weapons[client][Wep_Crossbow] = true;
-#endif
 					case 215: player_weapons[client][Wep_Degreaser] = true;
 					case 127: player_weapons[client][Wep_DirectHit] = true;
 					case 460: player_weapons[client][Wep_Enforcer] = true;
@@ -6510,6 +6501,50 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entit
 	return MRES_Ignored;
 }
 
+MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int entity, DHookParam parameters) {
+	// Reset in case we return early.
+	crossbow_medigun = -1;
+
+	int medic = GetEntityOwner(entity);
+	int medigun;
+	if (
+		ItemIsEnabled(Wep_Crossbow) &&
+		medic >= 1 &&
+		medic <= MaxClients
+	) {
+		medigun = GetPlayerWeaponSlot(medic, TFWeaponSlot_Secondary);
+
+		if (medigun > 0) {
+			crossbow_medigun = medigun;
+			crossbow_charge_before = GetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel");
+		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int entity, DHookParam parameters) {
+	int patient = parameters.Get(1);
+	float charge, added, time_since_damage;
+	if (
+		crossbow_medigun > 0 &&
+		patient >= 1 && patient <= MaxClients
+	) {
+		charge = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
+		added = charge - crossbow_charge_before;
+		if (added > 0.0) {
+			// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
+			// The game added (iActualHealed / (24 * flScale)) * frametime.
+			// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
+
+			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
+			charge = crossbow_charge_before + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
+			SetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
+		}
+		crossbow_medigun = -1;
+	}
+	return MRES_Ignored;
+}
+
 #if defined MEMORY_PATCHES
 MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	if (cvar_dropped_weapon_enable.BoolValue) {
@@ -6707,9 +6742,9 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 	return MRES_Ignored;
 }
 
-bool construction_hit = false;
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookParam parameters) {
 	char class[64];
+	construction_hit = false;
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")

@@ -65,12 +65,6 @@
 				"linux"		"@_ZN16CTFWeaponBaseGun12FirePipeBombEP9CTFPlayeri"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xF1"
 			}
-			"CTFProjectile_HealingBolt::ImpactTeamPlayer" // search for string crossbow_heal to find the function
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x2A\x8B\xF1\x89\x75\x2A\x85\xFF\x0F\x84"
-				"linux"   "@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
-			}
 			"CTFPlayer::DoClassSpecialSkill" // Search for the string cannot_pick_up_buildings, in it's FUN, it's the XREF FUN_ that has around 60-80 lines of code in decompiler (Ghidra).
 			{
 				"library" "server"
@@ -371,28 +365,6 @@
 						"offset"    "92"
 						"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
 						"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
-					}
-				}
-
-				// ================================================
-				//  Crusaders crossbow uses medigun ubercharge rates,
-				//  reverted. (Reverts jungle inferno change).
-				
-
-				"CTFProjectile_HealingBolt::ImpactTeamPlayer_ForceFlGainRateTo_24"
-				{
-					"signature" "CTFProjectile_HealingBolt::ImpactTeamPlayer"
-					"linux"
-					{
-						"offset"    "889"
-						"verify"    "\xF3\x0F\x5E\xC8" // DIVSS, XMM1, XMM0
-						"patch"     "\x90\x90\x90\x90" // NOP x4
-					}
-					"windows"
-					{
-						"offset"    "829"
-						"verify"    "\xE8\x2A\x2A\x2A\x2A" // CALL RemapValClamped
-						"patch"     "\xD9\xE8\x90\x90\x90" // FLD1 ; NOP x3
 					}
 				}
 
