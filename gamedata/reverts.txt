@@ -292,7 +292,7 @@
 				"windows"	"428"
 				"linux"		"435"
 			}
-			"CWeaponMedigun::ItemPostFrame"
+			"CBaseCombatWeapon::ItemPostFrame"
 			{
 				"windows"	"273"
 				"linux"		"279"
@@ -472,9 +472,9 @@
 				"this"		"entity"
 				"return"	"float"
 			}
-			"CWeaponMedigun::ItemPostFrame"
+			"CBaseCombatWeapon::ItemPostFrame"
 			{
-				"offset"	"CWeaponMedigun::ItemPostFrame"
+				"offset"	"CBaseCombatWeapon::ItemPostFrame"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"

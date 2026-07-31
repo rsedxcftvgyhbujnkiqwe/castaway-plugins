@@ -335,11 +335,6 @@ MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
 Address AddressOf_g_flMadMilkHealTarget;
 
-MemoryPatch patch_RevertSniperRifles_ScopeJump;
-#if !defined WIN32
-MemoryPatch patch_RevertSniperRifles_ScopeJump_linuxextra;
-#endif
-
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
 float g_flWranglerSpreadTarget = 0.01745;
@@ -383,7 +378,7 @@ DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CObjectSentrygun_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
-DynamicHook dhook_CWeaponMedigun_ItemPostFrame;
+DynamicHook dhook_CBaseCombatWeapon_ItemPostFrame;
 DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
 DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
 DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
@@ -468,9 +463,7 @@ enum
 	Feat_Medigun, // All Mediguns
 	Feat_Minigun, // All Miniguns
 	Feat_Sentry, // All Sentry Guns
-#if defined MEMORY_PATCHES
 	Feat_SniperRifle, // All Sniper Rifles
-#endif
 	Feat_Stickybomb, // All Stickybomb Launchers
 	Feat_Sword, // All Swords
 
@@ -639,9 +632,7 @@ public void OnPluginStart() {
 	ItemDefine("medigun", "Medigun_PreMYM", CLASSFLAG_MEDIC, Feat_Medigun);
 	ItemDefine("miniramp", "Minigun_ramp_PreLW", CLASSFLAG_HEAVY, Feat_Minigun);
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
-#if defined MEMORY_PATCHES
-	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle, true);
-#endif
+	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle);
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
@@ -934,7 +925,7 @@ public void OnPluginStart() {
 		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
-		dhook_CWeaponMedigun_ItemPostFrame = DynamicHook.FromConf(conf, "CWeaponMedigun::ItemPostFrame");
+		dhook_CBaseCombatWeapon_ItemPostFrame = DynamicHook.FromConf(conf, "CBaseCombatWeapon::ItemPostFrame");
 		dhook_CTFRevolver_CanFireCriticalShot = DynamicHook.FromConf(conf, "CTFRevolver::CanFireCriticalShot");
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim = DynamicHook.FromConf(conf, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::GetEnemy");
@@ -995,11 +986,7 @@ public void OnPluginStart() {
 		patch_RevertQuickFix_Uber_CannotCapturePoint = MemoryPatch.CreateFromConf(conf, "CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
 		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
 		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
-		patch_RevertSniperRifles_ScopeJump = MemoryPatch.CreateFromConf(conf, "CTFSniperRifle::SetInternalUnzoomTime_SniperScopeJump");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-#if !defined WIN32
-		patch_RevertSniperRifles_ScopeJump_linuxextra = MemoryPatch.CreateFromConf(conf, "CTFSniperRifle::Fire_SniperScopeJump");
-#endif
 		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
 #if defined WIN32
 		patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
@@ -1075,7 +1062,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_Construct);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetWeaponSpread);
-	VALIDATE_HANDLE(dhook_CWeaponMedigun_ItemPostFrame);
+	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_ItemPostFrame);
 	VALIDATE_HANDLE(dhook_CTFRevolver_CanFireCriticalShot);
 	VALIDATE_HANDLE(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_GetEnemy);
@@ -1115,11 +1102,7 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertQuickFix_Uber_CannotCapturePoint);
 	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
 	VALIDATE_PATCH(patch_DroppedWeapon);
-	VALIDATE_PATCH(patch_RevertSniperRifles_ScopeJump);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
-#if !defined WIN32
-	VALIDATE_PATCH(patch_RevertSniperRifles_ScopeJump_linuxextra);
-#endif
 	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
 #if defined WIN32
 	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
@@ -1241,7 +1224,6 @@ public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_SniperRifle),Feat_SniperRifle);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
@@ -1316,19 +1298,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertFlamethrowers_Density_DmgScale.Disable();
 				patch_RevertFlamethrowers_Density_OnCollide.Disable();
-			}
-		}
-		case Feat_SniperRifle: {
-			if (enable) {
-				patch_RevertSniperRifles_ScopeJump.Enable();
-#if !defined WIN32
-				patch_RevertSniperRifles_ScopeJump_linuxextra.Enable();
-#endif
-			} else {
-				patch_RevertSniperRifles_ScopeJump.Disable();
-#if !defined WIN32
-				patch_RevertSniperRifles_ScopeJump_linuxextra.Disable();
-#endif
 			}
 		}
 		case Feat_Stickybomb: {
@@ -2203,11 +2172,15 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 	else if (StrEqual(class, "tf_weapon_medigun")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
-		dhook_CWeaponMedigun_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_ItemPostFrame);
+		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre);
 	}
-	else if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
-		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+	else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
+
+		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
+			dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+			dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+		}
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
 		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot);
@@ -6973,7 +6946,7 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHook
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
+MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
@@ -6985,6 +6958,18 @@ MRESReturn DHookCallback_CWeaponMedigun_ItemPostFrame(int entity) {
 			// Prevent resistance cycling while Ubering with the Vaccinator.
 			SetEntData(entity, CWeaponMedigun_m_bReloadDown, true, 1);
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
+	// Scope jump revert: remove "no_jump" attribute after firing
+	// For the moment, this is only hooked for sniper rifles, so no extra checking is necessary
+	if (
+		ItemIsEnabled(Feat_SniperRifle) &&
+		TF2Attrib_HookValueFloat(0.0, "no_jump", entity) > 0.0
+	) {
+		TF2Attrib_SetByDefIndex(entity, 819, 0.0);
 	}
 	return MRES_Ignored;
 }
