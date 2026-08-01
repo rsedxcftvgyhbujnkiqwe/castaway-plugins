@@ -7078,12 +7078,7 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 }
 
 MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int client, DHookReturn returnValue, DHookParam parameters) {
-	if (
-		client >= 1 &&
-		client <= MaxClients
-	) {
-		//LogMessage("CTFPlayer::PickupWeaponFromOther(%L, %d) -> %s", client, parameters.Get(1), returnValue.Value ? "true" : "false");
-		
+	if (client >= 1 && client <= MaxClients) {
 		CacheWeapons(client);
 	}
 	return MRES_Ignored;
@@ -7138,8 +7133,6 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 		attacker >= 1 &&
 		attacker <= MaxClients
 	) {
-		//LogMessage("CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
-
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
 
@@ -7151,12 +7144,28 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 		}
 
 		if (
-			ItemIsEnabled(Wep_Bonk) &&
-			victim == attacker &&
-			stun_fls == TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND
+			GetItemVariant(Wep_Natascha) >= 1 &&
+			StrEqual(class, "tf_weapon_minigun")
 		) {
-			// cancel bonk stun
-			// LogMessage("Canceled bonk stun");
+			override = true;
+			switch (GetItemVariant(Wep_Natascha)) {
+				case 1: {
+					// old slow falloff
+					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
+					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
+					stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
+				}
+				case 2: {
+					// full slow amount regardless of range
+					stun_amt = 0.75;
+				}
+			}
+		}
+		else if (
+			ItemIsEnabled(Wep_LooseCannon) &&
+			StrEqual(class, "tf_weapon_cannon")
+		) {
+			// cancel cannon stun
 			return MRES_Supercede;
 		}
 		else if (
@@ -7228,46 +7237,27 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 				) {
 					// If max range, freeze them in place -- otherwise adjust it based on distance
 					stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
-					stun_fls = TF_STUNFLAG_SLOWDOWN;
+					stun_fls = TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND;
 					if (moonshot) {
 						stun_fls |= TF_STUNFLAG_CHEERSOUND;
 					}
 				}
 			}
 			else {
-				//LogMessage("Canceled close-range stun");
+				// cancel close range stun
 				return MRES_Supercede;
 			}
 		}
 		else if (
-			GetItemVariant(Wep_Natascha) >= 1 &&
-			StrEqual(class, "tf_weapon_minigun")
+			ItemIsEnabled(Wep_Bonk) &&
+			inflictor >= 1 && inflictor <= MaxClients &&
+			victim == attacker
 		) {
-			override = true;
-			switch (GetItemVariant(Wep_Natascha)) {
-				case 1: {
-					// old slow falloff
-					GetEntPropVector(attacker, Prop_Send, "m_vecOrigin", pos1);
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-					stun_amt = ValveRemapVal(GetVectorDistance(pos1, pos2, true), 0.0, Pow(1500.0, 2.0), 0.60, 0.40);
-				}
-				case 2: {
-					// full slow amount regardless of range
-					stun_amt = 0.75;
-				}
-			}
-		}
-		else if (
-			ItemIsEnabled(Wep_LooseCannon) &&
-			StrEqual(class, "tf_weapon_cannon")
-		) {
-			// cancel cannon stun
-			// LogMessage("Canceled loose cannon stun");
+			// cancel bonk stun
 			return MRES_Supercede;
 		}
 
 		if (override) {
-			//LogMessage("POST: CTFPlayerShared::StunPlayer(%L (0x%08X), %f, %f, %d, %L)", victim, pThis, stun_dur, stun_amt, stun_fls, attacker);
 			parameters.Set(1, stun_dur);
 			parameters.Set(2, stun_amt);
 			parameters.Set(3, stun_fls);
@@ -7377,7 +7367,6 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam pa
 		// Hijack tf_damageforcescale_other for the old cannon knockback		
 		cvar_ref_tf_damageforcescale_other.FloatValue = TF_CANNONBALL_FORCE_SCALE;
 
-		// Adjust vertical axis for correct upward force
 		float size[3], mins[3];
 		GetEntPropVector(client, Prop_Send, "m_vecMaxs", size);
 		GetEntPropVector(client, Prop_Send, "m_vecMins", mins);
@@ -7391,14 +7380,15 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam pa
 			force = 1000.0;
 		}
 
-		float targetUpwardForce = TF_CANNONBALL_FORCE_UPWARD;
+		// Adjust vertical axis for correct upward force
+		float force_z = TF_CANNONBALL_FORCE_UPWARD;
 		
 		if (TF2_GetPlayerClass(client) == TFClass_Heavy) {
 			// Double knockback to compensate for it being halved
-			targetUpwardForce *= 2.0; 
+			force_z *= 2.0; 
 		}
 
-		parameters.Set(4, (targetUpwardForce / force) * -1.0);
+		parameters.Set(4, -(force_z / force));
 		return MRES_ChangedHandled;
 	}
 	return MRES_Ignored;
