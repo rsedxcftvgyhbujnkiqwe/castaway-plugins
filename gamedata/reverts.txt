@@ -38,14 +38,6 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x24\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x57"
 				"linux"		"@_ZN19CTFProjectile_Arrow20BuildingHealingArrowEP11CBaseEntity"
 			}
-			// "crossbow_heal" string reference -> CTFProjectile_HealingBolt::ImpactTeamPlayer
-			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x2A\x8B\xF1\x89\x75\x2A\x85\xFF\x0F\x84"
-				"linux"		"@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
-			}
-
 			"CBaseMultiplayerPlayer::AwardAchievement"
 			{
 				"library"	"server"
@@ -195,13 +187,6 @@
 				"windows"	"\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
 				"linux"		"@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
 			}
-			// sole xref of CBaseObject::OnConstructionHit
-			"CBaseObject::InputWrenchHit"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x70\x53\x8B\x5D\x2A\x56\x57\x8B\xF9\x89\x7D"
-				"linux"		"@_ZN11CBaseObject14InputWrenchHitEP9CTFPlayerP9CTFWrench6Vector"
-			}
 			// "mult_dmgself_push_force"
 			"CTFPlayer::ApplyPushFromDamage"
 			{
@@ -311,6 +296,16 @@
 			{
 				"windows"	"477"
 				"linux"		"484"
+			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"windows"	"256"
+				"linux"		"259"
+			}
+			"CBaseObject::InputWrenchHit"
+			{
+				"windows"	"364"
+				"linux"		"366"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -561,6 +556,43 @@
 					}
 				}
 			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"offset"	"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CBaseObject::InputWrenchHit"
+			{
+				"offset"	"CBaseObject::InputWrenchHit"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"pWrench"
+					{
+						"type"	"cbaseentity"
+					}
+					"hitLoc"
+					{
+						"type"	"object"
+						"size"	"12"
+					}
+				}
+			}
 
 			// Signature
 			"CTFPlayer::CanDisguise"
@@ -605,20 +637,6 @@
 			"CTFProjectile_Arrow::BuildingHealingArrow"
 			{
 				"signature"	"CTFProjectile_Arrow::BuildingHealingArrow"
-				"callconv"	"thiscall"
-				"this"		"entity"
-				"return"	"void"
-				"arguments"
-				{
-					"pOther"
-					{
-						"type"	"cbaseentity"
-					}
-				}
-			}
-			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
-			{
-				"signature"	"CTFProjectile_HealingBolt::ImpactTeamPlayer"
 				"callconv"	"thiscall"
 				"this"		"entity"
 				"return"	"void"
@@ -931,29 +949,6 @@
 					"trace"
 					{
 						"type"	"int"
-					}
-				}
-			}
-			"CBaseObject::InputWrenchHit"
-			{
-				"signature"	"CBaseObject::InputWrenchHit"
-				"callconv"	"thiscall"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-					"pWrench"
-					{
-						"type"	"cbaseentity"
-					}
-					"hitLoc"
-					{
-						"type"	"object"
-						"size"	"12"
 					}
 				}
 			}

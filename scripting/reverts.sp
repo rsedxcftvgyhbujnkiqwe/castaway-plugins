@@ -383,12 +383,13 @@ DynamicHook dhook_CTFRevolver_CanFireCriticalShot;
 DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
 DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
 DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
+DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
+DynamicHook dhook_CBaseObject_InputWrenchHit;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
 DynamicDetour dhook_CTFPlayer_AddToSpyKnife;
 DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
-DynamicDetour dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
@@ -406,7 +407,6 @@ DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
 DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
-DynamicDetour dhook_CBaseObject_InputWrenchHit;
 DynamicDetour dhook_CTFPlayer_ApplyPushFromDamage;
 DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
 DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
@@ -930,12 +930,13 @@ public void OnPluginStart() {
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim = DynamicHook.FromConf(conf, "CTFStunBall::ApplyBallImpactEffectOnVictim");
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::GetEnemy");
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage = DynamicHook.FromConf(conf, "CTFWeaponBaseMelee::GetMeleeDamage");
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
+		dhook_CBaseObject_InputWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::InputWrenchHit");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
 		dhook_CTFPlayer_AddToSpyKnife = DynamicDetour.FromConf(conf, "CTFPlayer::AddToSpyKnife");
 		dhook_CTFProjectile_Arrow_BuildingHealingArrow = DynamicDetour.FromConf(conf, "CTFProjectile_Arrow::BuildingHealingArrow");
-		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicDetour.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
@@ -953,7 +954,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
 		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
-		dhook_CBaseObject_InputWrenchHit = DynamicDetour.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CTFPlayer_ApplyPushFromDamage = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPushFromDamage");
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
 		dhook_CTFProjectile_EnergyRing_ShouldPenetrate = DynamicDetour.FromConf(conf, "CTFProjectile_EnergyRing::ShouldPenetrate");
@@ -1067,12 +1067,13 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFStunBall_ApplyBallImpactEffectOnVictim);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_GetEnemy);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_GetMeleeDamage);
+	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
+	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
 	VALIDATE_HANDLE(dhook_CTFPlayer_AddToSpyKnife);
 	VALIDATE_HANDLE(dhook_CTFProjectile_Arrow_BuildingHealingArrow);
-	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	VALIDATE_HANDLE(dhook_CTFPlayer_RegenThink);
 	VALIDATE_HANDLE(dhook_CTFPlayer_GiveAmmo);
 	VALIDATE_HANDLE(dhook_CTFLunchBox_DrainAmmo);
@@ -1090,7 +1091,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayerShared_RemoveCond);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPunchImpulseX);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_OnSwingHit);
-	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPushFromDamage);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyAbsVelocityImpulse);
 	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
@@ -1128,8 +1128,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
-	dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.Enable(Hook_Pre, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre);
-	dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.Enable(Hook_Post, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
@@ -1148,7 +1146,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
 	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
-	dhook_CBaseObject_InputWrenchHit.Enable(Hook_Post, DHookCallback_CBaseObject_InputWrenchHit);
 	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage);
 	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
 	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate);
@@ -2116,6 +2113,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "tf_projectile_pipe")) {
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy);
 	}
+	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Pre, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre);
+		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Post, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post);
+	}
 	else if (
 		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
@@ -2138,6 +2139,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
+			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit);
 		} 
 	} 
 	else if (StrContains(class, "item_ammopack") == 0) {
