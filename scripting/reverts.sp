@@ -6965,6 +6965,8 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
 	int weapon;
 	bool overheal_blocked;
 
+	cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
+
 	// No Uber rate penalties from overheal/other healers. Sourced from SDK code
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
@@ -6977,10 +6979,8 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
 		divisor = 1.0;
 
 		patient = GetEntPropEnt(entity, Prop_Send, "m_hHealingTarget");
-		if (
-			patient >= 1 &&
-			patient <= MaxClients
-		) {
+		if (patient >= 1 && patient <= MaxClients)
+		{
 			health_cur = GetClientHealth(patient);
 			health_max = SDKCall(sdkcall_GetMaxHealth, patient);
 			health_max_boost = RoundToFloor(float(TF2Util_GetPlayerMaxHealthBoost(patient)) * 0.95);
@@ -7018,15 +7018,9 @@ MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
 			}
 		}
 
-		if (
-			divisor != 0.0 &&
-			divisor != 1.0
-		) {
+		if (divisor != 0.0 && divisor != 1.0) {
 			cvar_ref_weapon_medigun_charge_rate.FloatValue /= divisor;
 		}
-	}
-	else {
-		cvar_ref_weapon_medigun_charge_rate.RestoreDefault();
 	}
 	return MRES_Ignored;
 }
@@ -7344,6 +7338,8 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 }
 
 MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam parameters) {
+	cvar_ref_tf_damageforcescale_other.RestoreDefault();
+
 	Address info = parameters.Get(1);
 	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
 	if (
@@ -7384,9 +7380,6 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam pa
 
 		parameters.Set(4, (targetUpwardForce / force) * -1.0);
 		return MRES_ChangedHandled;
-	}
-	else {
-		cvar_ref_tf_damageforcescale_other.RestoreDefault();
 	}
 	return MRES_Ignored;
 }
