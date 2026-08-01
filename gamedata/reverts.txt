@@ -38,6 +38,13 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x24\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x57"
 				"linux"		"@_ZN19CTFProjectile_Arrow20BuildingHealingArrowEP11CBaseEntity"
 			}
+			// "crossbow_heal" string reference -> CTFProjectile_HealingBolt::ImpactTeamPlayer
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x56\x57\x8B\x7D\x2A\x8B\xF1\x89\x75\x2A\x85\xFF\x0F\x84"
+				"linux"		"@_ZN25CTFProjectile_HealingBolt16ImpactTeamPlayerEP9CTFPlayer"
+			}
 
 			"CBaseMultiplayerPlayer::AwardAchievement"
 			{
@@ -285,7 +292,7 @@
 				"windows"	"428"
 				"linux"		"435"
 			}
-			"CWeaponMedigun::ItemPostFrame"
+			"CBaseCombatWeapon::ItemPostFrame"
 			{
 				"windows"	"273"
 				"linux"		"279"
@@ -465,9 +472,9 @@
 				"this"		"entity"
 				"return"	"float"
 			}
-			"CWeaponMedigun::ItemPostFrame"
+			"CBaseCombatWeapon::ItemPostFrame"
 			{
-				"offset"	"CWeaponMedigun::ItemPostFrame"
+				"offset"	"CBaseCombatWeapon::ItemPostFrame"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
@@ -598,6 +605,20 @@
 			"CTFProjectile_Arrow::BuildingHealingArrow"
 			{
 				"signature"	"CTFProjectile_Arrow::BuildingHealingArrow"
+				"callconv"	"thiscall"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFProjectile_HealingBolt::ImpactTeamPlayer"
+			{
+				"signature"	"CTFProjectile_HealingBolt::ImpactTeamPlayer"
 				"callconv"	"thiscall"
 				"this"		"entity"
 				"return"	"void"
