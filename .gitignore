@@ -30,6 +30,7 @@ scripting/nativevotes/*
 !scripting/mgehandler.sp
 !scripting/old-flame-mechanics.sp
 !scripting/voterandomizer.sp
+!scripting/sourcetv_handler.sp
 
 #includes
 !scripting/include/
