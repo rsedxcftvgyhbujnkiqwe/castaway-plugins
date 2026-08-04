@@ -363,6 +363,7 @@ Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 Handle sdkcall_CWeaponMedigun_CanAttack;
+Handle sdkcall_CBaseGrenade_GetDamage;
 #if defined MEMORY_PATCHES
 Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
 #endif
@@ -913,6 +914,11 @@ public void OnPluginStart() {
 		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CWeaponMedigun::CanAttack");
 		PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
 		sdkcall_CWeaponMedigun_CanAttack = EndPrepSDKCall();
+
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CBaseGrenade::GetDamage");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CBaseGrenade_GetDamage = EndPrepSDKCall();
 
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
@@ -3095,14 +3101,15 @@ public void ApplyRevertsToItem(int entity) {
 	// part 2
 	if (
 		ItemIsEnabled(Feat_Grenade) &&
-		StrEqual(class, "tf_weapon_grenadelauncher")
+		(
+			StrEqual(class, "tf_weapon_grenadelauncher") ||
+			StrEqual(class, "tf_weapon_cannon")
+		)
 	) {
 		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
 		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
 	}
 	else if (
-		ItemIsEnabled(Feat_Grenade) &&
-		StrEqual(class, "tf_weapon_cannon") ||
 		ItemIsEnabled(Feat_Stickybomb) &&
 		StrEqual(class, "tf_weapon_pipebomblauncher")
 	) {
@@ -4290,19 +4297,15 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
 					StrEqual(class, "tf_weapon_cannon") &&
+					inflictor > MaxClients &&
 					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
 					if (TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == false) {
 						players[victim].stun_frame = GetGameTickCount();
 						players[victim].stun_inflictor = weapon;
 					}
-					if (
-						damage >= 25.0 &&
-						damage <= 50.0
-					) {
-						damage = 60.0;
-						return Plugin_Changed;
-					}
+					damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+					return Plugin_Changed;
 				}
 			}
 
@@ -4635,7 +4638,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
 	//int idx;
-	char class[64];
+	//char class[64];
 	//int health_cur;
 	//int health_max;
 	//float damage1;
@@ -4643,20 +4646,20 @@ Action SDKHookCB_OnTakeDamage_Building(
 
 	if (
 		victim > MaxClients &&
-		attacker >= 1 && attacker <= MaxClients &&
-		weapon > MaxClients
+		attacker >= 1 && attacker <= MaxClients
+		//&& weapon > MaxClients
 	) {
-		GetEntityClassname(weapon, class, sizeof(class));
+		//GetEntityClassname(weapon, class, sizeof(class));
 
 		{
 			// cannon impact damage
 
 			if (
 				ItemIsEnabled(Wep_LooseCannon) &&
-				StrEqual(class, "tf_weapon_cannon") &&
+				inflictor > MaxClients &&
 				damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 			) {
-				damage = 60.0;
+				damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
 				return Plugin_Changed;
 			}
 		}
