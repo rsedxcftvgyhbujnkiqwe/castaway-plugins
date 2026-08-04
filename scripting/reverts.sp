@@ -1123,32 +1123,32 @@ public void OnPluginStart() {
 		SetFailState("Failed to load dhooks, sdkcalls or patches");
 	}
 
-	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise);
-	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed);
-	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife);
+	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise_Post);
+	dhook_CTFPlayer_CalculateMaxSpeed.Enable(Hook_Post, DHookCallback_CTFPlayer_CalculateMaxSpeed_Post);
+	dhook_CTFPlayer_AddToSpyKnife.Enable(Hook_Pre, DHookCallback_CTFPlayer_AddToSpyKnife_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
-	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink);
-	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo);
-	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo);
+	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
+	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo_Pre);
+	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo_Pre);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
-	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria);
-	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit);
-	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack);
-	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter);
-	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets);
+	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria_Pre);
+	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit_Pre);
+	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack_Pre);
+	dhook_CTFPlayerShared_AddToSpyCloakMeter.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddToSpyCloakMeter_Pre);
+	dhook_CWeaponMedigun_FindAndHealTargets.Enable(Hook_Pre, DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Pre, DHookCallback_CTFLunchBox_ApplyBiteEffects_Pre);
 	dhook_CTFLunchBox_ApplyBiteEffects.Enable(Hook_Post, DHookCallback_CTFLunchBox_ApplyBiteEffects_Post);
-	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther);
-	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink);
-	dhook_CTFPlayerShared_StunPlayer.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_StunPlayer);
-	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond);
-	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond);
-	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX);
-	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit);
-	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage);
-	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse);
-	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate);
+	dhook_CTFPlayer_PickupWeaponFromOther.Enable(Hook_Post, DHookCallback_CTFPlayer_PickupWeaponFromOther_Post);
+	dhook_CTFDroppedWeapon_ChargeLevelDegradeThink.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink_Pre);
+	dhook_CTFPlayerShared_StunPlayer.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_StunPlayer_Pre);
+	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond_Pre);
+	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond_Pre);
+	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX_Pre);
+	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit_Pre);
+	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
+	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse_Pre);
+	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre);
 
 #if defined MEMORY_PATCHES
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
@@ -2108,10 +2108,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 		rocket_create_entity = entity;
 		rocket_create_frame = GetGameTickCount();
 
-		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius);
+		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius_Post);
 	}
 	else if (StrEqual(class, "tf_projectile_pipe")) {
-		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy);
+		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre);
 	}
 	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Pre, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre);
@@ -2127,7 +2127,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 
 		if (StrEqual(class, "tf_projectile_stun_ball")) {
-			dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim);
+			dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
 		}
 	}
 	else if (StrContains(class, "obj_") == 0) {
@@ -2136,14 +2136,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 		if (StrEqual(class, "obj_sentrygun")) {
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
-			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding);
+			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding_Post);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
 			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
-			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit);
+			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
 		} 
 	} 
 	else if (StrContains(class, "item_ammopack") == 0) {
-		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch);
+		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	} 
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
@@ -2156,36 +2156,36 @@ public void OnEntityCreated(int entity, const char[] class) {
 		StrEqual(class, "tf_weapon_flamethrower") ||
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
 	) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 	}
 	else if (StrEqual(class, "tf_weapon_stickbomb")) {
-		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage);
+		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
 	}
 	else if (StrEqual(class, "tf_weapon_minigun")) {
-		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage);
-		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread);
+		dhook_CTFMinigun_GetProjectileDamage.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetProjectileDamage_Pre);
+		dhook_CTFMinigun_GetWeaponSpread.HookEntity(Hook_Pre, entity, DHookCallback_CTFMinigun_GetWeaponSpread_Pre);
 	}
 	else if (StrEqual(class, "tf_weapon_lunchbox")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Post);
 	}
 	else if (StrEqual(class, "tf_weapon_mechanical_arm")) {
-		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack_Pre);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 	}
 	else if (StrEqual(class, "tf_weapon_medigun")) {
-		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack);
+		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre);
 	}
 	else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
-			dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod);
-			dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack);
+			dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre);
+			dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack_Pre);
 		}
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
-		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot);
+		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot_Pre);
 	}
 }
 
@@ -5842,7 +5842,7 @@ void RefillCharge(int weapon) {
 
 // dynamic hooks and detours
 
-MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
+MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack_Pre(int entity) {
 	int owner;
 	char class[64];
 
@@ -5878,7 +5878,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack(int entity) {
+MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 	int idx;
 	int owner;
 	char class[64];
@@ -6128,13 +6128,13 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Post(int entity) {
 				GetItemVariant(Wep_BuffaloSteak) >= 1 && player_weapons[owner][Wep_BuffaloSteak]
 			)
 		) {
-			dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, lunchbox, DHookCallback_CHealthKit_MyTouch_Sandvich);
+			dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, lunchbox, DHookCallback_CHealthKit_MyTouch_Pre);
 		}
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFLunchBox_DrainAmmo(int entity) {
+MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	
 	if (
@@ -6173,7 +6173,7 @@ MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFBaseRocket_GetRadius_Post(int entity, DHookReturn returnValue) {
 	int owner;
 	int weapon;
 	char class[64];
@@ -6206,7 +6206,7 @@ MRESReturn DHookCallback_CTFBaseRocket_GetRadius(int entity, DHookReturn returnV
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookReturn returnValue) {
 	if (
 		client >= 1 &&
 		client <= MaxClients &&
@@ -6292,7 +6292,7 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed(int client, DHookReturn ret
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFPlayer_CanDisguise_Post(int entity, DHookReturn returnValue) {
 	if (
 		IsPlayerAlive(entity) &&
 		TF2_GetPlayerClass(entity) == TFClass_Spy &&
@@ -6344,7 +6344,7 @@ MRESReturn DHookCallback_CTFPlayer_CanDisguise(int entity, DHookReturn returnVal
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CAmmoPack_MyTouch(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CAmmoPack_MyTouch_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
 	if (
 		client > 0 &&
@@ -6531,7 +6531,7 @@ MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 }
 #endif
 
-MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Spycicle)) {
 		returnValue.Value = false;
 		return MRES_Supercede;
@@ -6539,7 +6539,7 @@ MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife(int entity, DHookReturn returnV
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_RegenThink(int client) {
+MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client) {
 	int weapon;
 	bool full_regen = false;
 	float regen_amount;
@@ -6668,7 +6668,7 @@ MRESReturn DHookCallback_CObjectSentrygun_OnWrenchHit_Post(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectSentrygun_StartBuilding(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_StartBuilding_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
@@ -6719,7 +6719,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookParam parameters) {
+MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookParam parameters) {
 	char class[64];
 	construction_hit = false;
 	if (
@@ -6736,7 +6736,7 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit(int entity, DHookParam pa
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_InputWrenchHit(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CBaseObject_InputWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (construction_hit) {
 		construction_hit = false;
 
@@ -6747,7 +6747,7 @@ MRESReturn DHookCallback_CBaseObject_InputWrenchHit(int entity, DHookReturn retu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CBaseObject_CreateAmmoPack_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	// Allow metal to be picked up from mini sentry gibs.
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
@@ -6760,7 +6760,7 @@ MRESReturn DHookCallback_CBaseObject_CreateAmmoPack(int entity, DHookReturn retu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_GiveAmmo_Pre(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		client > 0 &&
 		client <= MaxClients
@@ -6834,32 +6834,29 @@ MRESReturn DHookCallback_CTFPlayer_GiveAmmo(int client, DHookReturn returnValue,
 	return MRES_Ignored;
 }
 
-// Sandvich revert specific MyTouch hook.
-MRESReturn DHookCallback_CHealthKit_MyTouch_Sandvich(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CHealthKit_MyTouch_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	int client = parameters.Get(1);
 	if (
-		client >= 1 &&
-		client <= MaxClients
+		client >= 1 && client <= MaxClients &&
+		TF2_GetPlayerClass(client) == TFClass_Heavy
 	) {
-		if (TF2_GetPlayerClass(client) == TFClass_Heavy) {
-			if (GetClientHealth(client) >= SDKCall(sdkcall_GetMaxHealth, client)) {
-				// If currenthealth above or at max health, do not allow the sandvich to recharge by denying pickup.
-				// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
-				returnValue.Value = false;
-				return MRES_Supercede;
-			} else if (client == GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity")) {
-				// Change the owner of the healthkit sandvich to be 0 aka the world in Prehook.
-				// This prevents the Sandvich from recharging the heavy's meter but still makes him get health from it.
-				// Sometimes the simplest of solutions are not so obvious when tunnel vision is involved. :)
-				SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", 0);
-			}
+		if (GetClientHealth(client) >= SDKCall(sdkcall_GetMaxHealth, client)) {
+			// If currenthealth above or at max health, do not allow the sandvich to recharge by denying pickup.
+			// Heavy can stand over his sandvich all day long and nothing will happen. Blyat.
+			returnValue.Value = false;
+			return MRES_Supercede;
+		} else if (client == GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity")) {
+			// Change the owner of the healthkit sandvich to be 0 aka the world in Prehook.
+			// This prevents the Sandvich from recharging the heavy's meter but still makes him get health from it.
+			// Sometimes the simplest of solutions are not so obvious when tunnel vision is involved. :)
+			SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", 0);
 		}
 	}
 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Ambassador)) {
 		// Set pTarget to NULL such that the distance check for crit fails and allows the Ambassador to headshot from any range.
 		parameters.Set(2, Address_Null);
@@ -6869,7 +6866,7 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot(int entity, DHookReturn
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre(int entity, DHookReturn returnValue) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 	if (
 		ItemIsEnabled(Wep_BazaarBargain) &&
@@ -6883,7 +6880,7 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod(int entity
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam parameters) {
+MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria_Pre(Address pThis, DHookParam parameters) {
 	if (GetItemVariant(Wep_Spycicle) == 1) {
 		char criteria[32];
 		parameters.GetString(1, criteria, sizeof(criteria));
@@ -6911,7 +6908,7 @@ MRESReturn DHookCallback_AI_CriteriaSet_AppendCriteria(Address pThis, DHookParam
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFMinigun_GetProjectileDamage(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFMinigun_GetProjectileDamage_Pre(int entity, DHookReturn returnValue) {
 	if (ItemIsEnabled(Feat_Minigun)) {
 		returnValue.Value = SDKCall(sdkcall_CTFWeaponBaseGun_GetProjectileDamage, entity);
 		return MRES_Supercede;
@@ -6919,7 +6916,7 @@ MRESReturn DHookCallback_CTFMinigun_GetProjectileDamage(int entity, DHookReturn 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread_Pre(int entity, DHookReturn returnValue) {
 	if (ItemIsEnabled(Feat_Minigun)) {
 		returnValue.Value = SDKCall(sdkcall_CTFWeaponBaseGun_GetWeaponSpread, entity);
 		return MRES_Supercede;
@@ -6927,7 +6924,7 @@ MRESReturn DHookCallback_CTFMinigun_GetWeaponSpread(int entity, DHookReturn retu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter(Address pThis, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter_Pre(Address pThis, DHookReturn returnValue, DHookParam parameters) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
 	if (
 		client >= 1 &&
@@ -6978,7 +6975,7 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets(int entity) {
+MRESReturn DHookCallback_CWeaponMedigun_FindAndHealTargets_Pre(int entity) {
 	float divisor;
 	float flMod;
 	int patient;
@@ -7081,14 +7078,14 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther(int client, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther_Post(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (client >= 1 && client <= MaxClients) {
 		CacheWeapons(client);
 	}
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink(int entity) {
+MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink_Pre(int entity) {
 	if (ItemIsEnabled(Feat_Medigun)) {
 		// Supercede, prevents any think code from running, which drains charge and sets the next think to drain again
 		return MRES_Supercede;
@@ -7096,7 +7093,7 @@ MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink(int entity) {
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim(int entity, DHookParam parameters) {
+MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entity, DHookParam parameters) {
 	int victim = parameters.Get(1);
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
@@ -7118,7 +7115,7 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim(int entity, D
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookParam parameters) {
 	int victim = TF2Util_GetPlayerFromSharedAddress(pThis);
 	float stun_dur = parameters.Get(1);
 	float stun_amt = parameters.Get(2);
@@ -7271,7 +7268,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer(Address pThis, DHookParam pa
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayerShared_AddCond(Address pThis, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayerShared_AddCond_Pre(Address pThis, DHookParam parameters) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
 	if (
 		client >= 1 &&
@@ -7299,7 +7296,7 @@ MRESReturn DHookCallback_CTFPlayerShared_AddCond(Address pThis, DHookParam param
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayerShared_RemoveCond(Address pThis, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayerShared_RemoveCond_Pre(Address pThis, DHookParam parameters) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
 	if (
 		client >= 1 &&
@@ -7319,7 +7316,7 @@ MRESReturn DHookCallback_CTFPlayerShared_RemoveCond(Address pThis, DHookParam pa
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX_Pre(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_CozyCamper) &&
 		client >= 1 &&
@@ -7337,7 +7334,7 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX(int client, DHookReturn re
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Disciplinary)) {
 		Address trace = parameters.Get(1);
 		int target = GetEntityFromAddress(LoadFromAddress(trace + CGameTrace_m_pEnt, NumberType_Int32));
@@ -7351,7 +7348,7 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit(int entity, DHookReturn r
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookParam parameters) {
 	cvar_ref_tf_damageforcescale_other.RestoreDefault();
 
 	Address info = parameters.Get(1);
@@ -7398,7 +7395,7 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage(int client, DHookParam pa
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse(int client, DHookParam parameters) {
+MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse_Pre(int client, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_LooseCannon) &&
 		client >= 1 &&
@@ -7418,7 +7415,7 @@ MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse(int client, DHookPara
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre(int entity, DHookReturn returnValue) {
 	if (ItemIsEnabled(Feat_Grenade)) {
 		// return NULL such that the radius damage function doesn't deal full damage and varies it by hit location
 		returnValue.Value = Address_Null;
@@ -7427,7 +7424,7 @@ MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (ItemIsEnabled(Wep_Caber)) {
 		float scale = 35.0 / 55.0; // Set 35 melee damage (from 55)
 		Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
@@ -7440,7 +7437,7 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage(int entity, DHookRetu
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate(int entity, DHookReturn returnValue) {
+MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity, DHookReturn returnValue) {
 	int weapon;
 	char class[64];
 
