@@ -4006,8 +4006,8 @@ void SDKHookCB_SpawnPost(int entity) {
 				weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
 			
 				if (weapon > 0) {
-					GetEntityClassname(weapon, class, sizeof(class));								
-			
+					GetEntityClassname(weapon, class, sizeof(class));
+
 					if (StrEqual(class, "tf_weapon_medigun")) {
 						players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 						// PrintToChat(owner, "GetEntPropFloat for m_flChargeLevel = %f", players[owner].medic_amputator_current_uber);
@@ -6488,8 +6488,10 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int enti
 		medic <= MaxClients
 	) {
 		medigun = GetPlayerWeaponSlot(medic, TFWeaponSlot_Secondary);
-
-		if (medigun > 0) {
+		if (
+			medigun > 0 &&
+			HasEntProp(medigun, Prop_Send, "m_flChargeLevel")
+		) {
 			crossbow_medigun = medigun;
 			crossbow_charge_before = GetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel");
 		}
