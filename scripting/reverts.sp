@@ -214,6 +214,13 @@ enum
 	MELEE_CRIT = 2,
 };
 
+enum
+{
+	SHOVEL_STANDARD = 0,
+	SHOVEL_DAMAGE_BOOST,
+	SHOVEL_SPEED_BOOST,
+};
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -1403,9 +1410,9 @@ public void OnGameFrame() {
 	int airdash_value;
 	int airdash_limit_old;
 	int airdash_limit_new;
-	int health_cur;
-	int health_max;
-	int item_index;
+	//int health_cur;
+	//int health_max;
+	//int item_index;
 	int effects;
 
 	frame++;
@@ -1718,36 +1725,6 @@ public void OnGameFrame() {
 								}
 
 								players[idx].beggars_ammo = clip;
-							}
-						}
-					}
-
-					{
-						// equalizer damage bonus
-
-						if (ItemIsEnabled(Wep_Pickaxe)) {
-							weapon = GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee);
-
-							if (weapon > 0) {
-
-								item_index = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-								if (
-									item_index == 128 ||
-									item_index == 775
-								) {
-									health_cur = GetClientHealth(idx);
-									health_max = SDKCall(sdkcall_GetMaxHealth, idx);
-
-									float multiplier = 1.65; // 107 dmg at 1 HP
-
-									switch (GetItemVariant(Wep_Pickaxe))
-									{
-										case 1: multiplier = 1.75; // Pre-Hatless Update: 113 dmg at 1 HP
-										case 2: multiplier = 2.50; // Release: 162 dmg at 1 HP
-									}
-
-									TF2Attrib_SetByDefIndex(weapon, 476, ValveRemapVal(float(health_cur), 0.0, float(health_max), multiplier, 0.5));
-								}
 							}
 						}
 					}
@@ -2164,7 +2141,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 	}
-	else if (StrEqual(class, "tf_weapon_stickbomb")) {
+	else if (
+		StrEqual(class, "tf_weapon_shovel") ||
+		StrEqual(class, "tf_weapon_stickbomb")
+	) {
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
 	}
 	else if (StrEqual(class, "tf_weapon_minigun")) {
@@ -7428,14 +7408,50 @@ MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre(int entity, DHook
 }
 
 MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_Caber)) {
-		float scale = 35.0 / 55.0; // Set 35 melee damage (from 55)
-		Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
-		if (attrib != Address_Null) {
-			scale /= TF2Attrib_GetValue(attrib); // Undo the attrib
+	int owner;
+	float multiplier = 1.0;
+	char class[64];
+
+	owner = GetEntityOwner(entity);
+	if (owner > 0) {
+		GetEntityClassname(entity, class, sizeof(class));
+
+		if (
+			ItemIsEnabled(Wep_Pickaxe) &&
+			StrEqual(class, "tf_weapon_shovel") &&
+			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
+		) {
+			multiplier = 1.65; // 107 damage at 1 HP
+			switch (GetItemVariant(Wep_Pickaxe))
+			{
+				case 1: multiplier = 1.75; // Pre-Hatless Update: 113 damage at 1 HP
+				case 2: multiplier = 2.50; // Release: 162 damage at 1 HP
+			}
+
+			multiplier = ValveRemapVal(
+				float(GetClientHealth(owner)),
+				0.0,
+				float(SDKCall(sdkcall_GetMaxHealth, owner)),
+				multiplier,
+				0.5
+			);
 		}
-		returnValue.Value = view_as<float>(returnValue.Value) * scale;
-		return MRES_Override;
+		else if (
+			ItemIsEnabled(Wep_Caber) &&
+			StrEqual(class, "tf_weapon_stickbomb")
+		) {
+			multiplier = 35.0 / 55.0; // Set 35 melee damage (from 55)
+
+			Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
+			if (attrib != Address_Null) {
+				multiplier /= TF2Attrib_GetValue(attrib); // Undo the attrib
+			}
+		}
+
+		if (multiplier != 1.0) {
+			returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
+			return MRES_Override;
+		}
 	}
 	return MRES_Ignored;
 }
