@@ -558,7 +558,7 @@
 	}
 	"Grenade_Pre2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, has hit location damage variance (more damage near player's feet)"
+		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, 112 base damage with hit location variance (more damage near player's feet)"
 	}
 	"Lunchbox_Pre2012"
 	{
@@ -906,7 +906,7 @@
 	}
 	"Cannon_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 damage impacts, increased knockback, no stun"
+		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 base damage impacts, increased knockback, no stun"
 	}
 	"MadMilk_Release"
 	{

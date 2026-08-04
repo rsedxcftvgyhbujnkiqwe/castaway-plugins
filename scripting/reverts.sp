@@ -7421,11 +7421,10 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHoo
 			StrEqual(class, "tf_weapon_shovel") &&
 			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
 		) {
-			multiplier = 1.65; // 107 damage at 1 HP
-			switch (GetItemVariant(Wep_Pickaxe))
-			{
-				case 1: multiplier = 1.75; // Pre-Hatless Update: 113 damage at 1 HP
-				case 2: multiplier = 2.50; // Release: 162 damage at 1 HP
+			switch (GetItemVariant(Wep_Pickaxe)) {
+				case 0: multiplier = 1.65; // 107 damage at 1 HP
+				case 1: multiplier = 1.75; // 113 damage at 1 HP
+				case 2: multiplier = 2.50; // 162 damage at 1 HP
 			}
 
 			multiplier = ValveRemapVal(
