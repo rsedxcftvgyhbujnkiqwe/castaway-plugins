@@ -375,7 +375,7 @@ DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
 DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
 DynamicHook dhook_CObjectSentrygun_StartBuilding;
-DynamicHook dhook_CObjectSentrygun_Construct;
+DynamicHook dhook_CBaseObject_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
 DynamicHook dhook_CBaseCombatWeapon_ItemPostFrame;
@@ -922,7 +922,7 @@ public void OnPluginStart() {
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
-		dhook_CObjectSentrygun_Construct = DynamicHook.FromConf(conf, "CObjectSentrygun::Construct");
+		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
 		dhook_CBaseCombatWeapon_ItemPostFrame = DynamicHook.FromConf(conf, "CBaseCombatWeapon::ItemPostFrame");
@@ -1059,7 +1059,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CHealthKit_MyTouch);
 	VALIDATE_HANDLE(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
-	VALIDATE_HANDLE(dhook_CObjectSentrygun_Construct);
+	VALIDATE_HANDLE(dhook_CBaseObject_Construct);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetWeaponSpread);
 	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_ItemPostFrame);
@@ -2137,8 +2137,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
 			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding_Post);
-			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
-			dhook_CObjectSentrygun_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
+			dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
+			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
 			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
 		} 
 	} 
@@ -6680,7 +6680,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding_Post(int entity, DHookRe
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
@@ -6691,7 +6691,7 @@ MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&

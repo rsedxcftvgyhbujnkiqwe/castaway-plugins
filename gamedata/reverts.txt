@@ -257,7 +257,7 @@
 				"windows"	"342"
 				"linux"		"344"
 			}
-			"CObjectSentrygun::Construct" // look for CBaseObject::Construct in CObjectSentrygun
+			"CBaseObject::Construct" // windows offset on CBaseObject via asherkin's dumper is incorrect
 			{
 				"windows"	"350"
 				"linux"		"352"
@@ -439,9 +439,9 @@
 					}
 				}
 			}
-			"CObjectSentrygun::Construct"
+			"CBaseObject::Construct"
 			{
-				"offset"	"CObjectSentrygun::Construct"
+				"offset"	"CBaseObject::Construct"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
