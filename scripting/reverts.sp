@@ -4117,8 +4117,8 @@ Action SDKHookCB_OnTakeDamage(
 ) {
 	//int idx;
 	char class[64];
-	float pos1[3];
-	float pos2[3];
+	//float pos1[3];
+	//float pos2[3];
 	float charge;
 	float damage1;
 	//int health_cur;
@@ -4191,25 +4191,6 @@ Action SDKHookCB_OnTakeDamage(
 				damage_custom == TF_CUSTOM_PLAYER_SENTRY
 			) {
 				damage_type &= ~DMG_USEDISTANCEMOD;
-
-				if (
-					attacker >= 1 &&
-					attacker <= MaxClients
-				) {
-					// calculate rampup based on Engineer's position
-					damage1 = damage;
-
-					GetClientEyePosition(attacker, pos1);
-
-					GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos2);
-					pos2[2] += PLAYER_CENTER_HEIGHT;
-
-					damage *= 1.0 + 0.20 * (1.0 - GetVectorDistance(pos1, pos2) / 1024.00); // apply 20% rampup
-
-					if (damage < damage1) // no falloff
-						damage = damage1;
-				}
-
 				return Plugin_Changed;
 			}
 		}
