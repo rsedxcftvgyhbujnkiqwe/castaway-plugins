@@ -1410,9 +1410,6 @@ public void OnGameFrame() {
 	int airdash_value;
 	int airdash_limit_old;
 	int airdash_limit_new;
-	//int health_cur;
-	//int health_max;
-	//int item_index;
 	int effects;
 
 	frame++;
@@ -2313,9 +2310,8 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 				players[client].mmmph_use_tick = GetGameTickCount();
 
 				// Refill health on mmmph activation
-				int health_cur = GetClientHealth(client);
 				int health_max = SDKCall(sdkcall_GetMaxHealth, client);
-				if (health_cur < health_max) {
+				if (GetClientHealth(client) < health_max) {
 					SetEntProp(client, Prop_Send, "m_iHealth", health_max);
 				}
 			}
@@ -3229,10 +3225,8 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 					StrEqual(class, "tf_weapon_katana")
 				) {
 					// zatoichi heal on kill
-					int health_cur = GetClientHealth(attacker);
 					int health_max = SDKCall(sdkcall_GetMaxHealth, attacker);
-
-					if (health_cur < health_max) {
+					if (GetClientHealth(attacker) < health_max) {
 						SetEntProp(attacker, Prop_Send, "m_iHealth", health_max);
 
 						Event healOnHitEvent = CreateEvent("player_healonhit", true);
@@ -4115,14 +4109,11 @@ Action SDKHookCB_OnTakeDamage(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
-	//int idx;
 	char class[64];
 	//float pos1[3];
 	//float pos2[3];
 	float charge;
 	float damage1;
-	//int health_cur;
-	//int health_max;
 	int weapon1;
 
 	// bool resist_damage = false;
@@ -4598,12 +4589,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
-	//int idx;
 	//char class[64];
-	//int health_cur;
-	//int health_max;
-	//float damage1;
-	//int weapon1;
 
 	if (
 		victim > MaxClients &&
@@ -4958,7 +4944,6 @@ void SDKHookCB_OnTakeDamagePost(
 	int victim, int attacker, int inflictor, float damage, int damage_type,
 	int weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
-	//int idx;
 	char class[64];
 	float pos1[3];
 	float pos2[3];
@@ -5767,12 +5752,11 @@ void ApplyOverhealOnKill(int weapon) {
 	int owner = GetEntityOwner(weapon);
 
 	if (owner >= 1 && owner <= MaxClients) {
-		int max_overheal = TF2Util_GetPlayerMaxHealthBoost(owner);
 		int health_cur = GetClientHealth(owner);
 
 		int heal_amt = TF2Attrib_HookValueInt(0, "heal_on_kill", weapon);
 		heal_amt = intMin(
-			max_overheal - health_cur,
+			TF2Util_GetPlayerMaxHealthBoost(owner) - health_cur,
 			heal_amt - (health_cur - players[owner].old_health)
 		);
 
