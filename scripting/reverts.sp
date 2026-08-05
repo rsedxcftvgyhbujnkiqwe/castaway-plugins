@@ -4209,8 +4209,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_Caber) &&
-					StrEqual(class, "tf_weapon_stickbomb") &&
-					damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION
+					StrEqual(class, "tf_weapon_stickbomb")
 				) {
 					if (damage_type & DMG_NOCLOSEDISTANCEMOD == 0) {
 						// bump this to 5x to counter the 0.2x multiplier for demo explosives
@@ -4219,7 +4218,10 @@ Action SDKHookCB_OnTakeDamage(
 					}
 
 					// self-damage (counter 25% reduction to self in radiusdamage)
-					if (victim == attacker) {
+					if (
+						victim == attacker &&
+						damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION
+					) {
 						damage /= 0.75;
 						return Plugin_Changed;
 					}
