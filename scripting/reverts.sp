@@ -287,6 +287,7 @@ enum struct Player {
 	int whip_frame;
 	int fireproof_frame;
 	int cannonball_frame;
+	int old_metal;
 }
 
 enum struct Entity {
@@ -365,7 +366,6 @@ MemoryPatch patch_RevertSteakBoostValue;
 
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
-Handle sdkcall_AwardAchievement;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
@@ -393,6 +393,7 @@ DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
 DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
 DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicHook dhook_CBaseObject_InputWrenchHit;
+DynamicHook dhook_CBaseObject_Command_Repair;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -423,6 +424,7 @@ DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 
+// EntData offsets derived from SendProps
 int CBaseObject_m_flHealth;
 int CObjectSentrygun_m_flShieldFadeTime;
 int CWeaponMedigun_m_bReloadDown;
@@ -431,11 +433,7 @@ int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
 int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
 
-// OS-Specific m_ offsets for *EntData usage (Such as GetEntDataFloat) when they are private/protected/non-networked
-// (as in they cannot be found in datamaps/netprop).
-// These offsets are discovered using tools such as IDA and Ghidra.
-// It's recommended that you name the int the same as the member.
-// We later load these with GameConfGetOffset(Handle gc, const char[] key)
+// Offsets loaded from gamedata
 int CTFPlayer_m_flTauntNextStartTime;
 Address CGameTrace_m_pEnt;
 Address CTakeDamageInfo_m_flDamage;
@@ -452,6 +450,7 @@ int team_round_timer_entity;
 bool construction_hit;
 int crossbow_medigun;
 float crossbow_charge_before;
+bool bolt_heal;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -896,12 +895,6 @@ public void OnPluginStart() {
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer); // char* pszSound
 		sdkcall_JarExplode = EndPrepSDKCall();
 
-		StartPrepSDKCall(SDKCall_Player);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseMultiplayerPlayer::AwardAchievement");
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		sdkcall_AwardAchievement = EndPrepSDKCall();
-
 		StartPrepSDKCall(SDKCall_Entity);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CBaseObject::GetReversesBuildingConstructionSpeed");
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
@@ -945,6 +938,7 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage = DynamicHook.FromConf(conf, "CTFWeaponBaseMelee::GetMeleeDamage");
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 		dhook_CBaseObject_InputWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::InputWrenchHit");
+		dhook_CBaseObject_Command_Repair = DynamicHook.FromConf(conf, "CBaseObject::Command_Repair");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -971,7 +965,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
 		dhook_CTFProjectile_EnergyRing_ShouldPenetrate = DynamicDetour.FromConf(conf, "CTFProjectile_EnergyRing::ShouldPenetrate");
 
-		// Load OS Specific Member offsets from reverts.txt for non-memorypatching purposes.
 		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
 		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
@@ -1058,7 +1051,6 @@ public void OnPluginStart() {
 
 	VALIDATE_HANDLE(sdkcall_JarExplode);
 	VALIDATE_HANDLE(sdkcall_GetMaxHealth);
-	VALIDATE_HANDLE(sdkcall_AwardAchievement);
 	VALIDATE_HANDLE(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
@@ -1082,6 +1074,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_GetMeleeDamage);
 	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
+	VALIDATE_HANDLE(dhook_CBaseObject_Command_Repair);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -1168,6 +1161,10 @@ public void OnPluginStart() {
 #endif
 
 	team_round_timer_entity = -1;
+	construction_hit = false;
+	crossbow_medigun = -1;
+	crossbow_charge_before = 0.0;
+	bolt_heal = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2112,6 +2109,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
+		dhook_CBaseObject_Command_Repair.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Command_Repair_Pre);
 
 		if (StrEqual(class, "obj_sentrygun")) {
 			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
@@ -5713,19 +5711,6 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 	return true;
 }
 
-bool AddProgressOnAchievement(int playerID, int achievementID, int Amount) {
-	if (sdkcall_AwardAchievement == null || achievementID < 1 || Amount < 1) {
-		return false; //SDKcall not prepared or Handle not created.
-	}
-
-	if (!IsFakeClient(playerID)) {
-		return false; //Client (aka player) is not valid, are they connected?
-	}
-		SDKCall(sdkcall_AwardAchievement, playerID, achievementID, Amount);
-
-	return true;
-}
-
 int GetChargeType(int entity)
 {
 	int iTmp = MEDIGUN_CHARGE_INVULN;
@@ -6317,110 +6302,81 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch_Pre(int entity, DHookReturn returnVal
 }
 
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity, DHookParam parameters) {
-	int attacker = GetEntityOwner(entity);
-	int building = parameters.Get(1);
+	bolt_heal = false;
 
-	// Fake the sentry being unshielded to allow for maximum healing potential.
+	int building = parameters.Get(1);
 	if (
-		ItemIsEnabled(Wep_Wrangler) &&
 		IsValidEntity(building) &&
 		HasEntProp(building, Prop_Send, "m_nShieldLevel")
 	) {
-		entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
-		SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
-	}
+		if (ItemIsEnabled(Wep_Wrangler)) {
+			// Fake the sentry being unshielded to allow for maximum healing potential.
+			entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
+			SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+		}
 
-	char class[64];
-	if (
-		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(building, Prop_Send, "m_bMiniBuilding")
-	) {
-		GetEntityClassname(building, class, sizeof(class));
-
-		if (StrEqual(class, "obj_sentrygun")) {
+		if (
+			ItemIsEnabled(Wep_Gunslinger) &&
+			GetEntProp(building, Prop_Send, "m_bMiniBuilding")
+		) {
 			// Do not allow healing on mini sentries.
 			return MRES_Supercede;
 		}
 	}
 
-	if (ItemIsEnabled(Wep_RescueRanger)) {
-		// It's Sigafoo save time BABY!
+	int attacker = GetEntityOwner(entity);
+	if (
+		ItemIsEnabled(Wep_RescueRanger) &&
+		attacker >= 1 && attacker <= MaxClients
+	) {
+		players[attacker].old_metal = -1;
 
-		// Hook attribute class to get repair amount
-		float repair_amount_float = TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker);
+		if (TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker) > 0.0) {
+			bolt_heal = true;
 
-		// Now we can proceed with healing the building etc.
-		// Sentry and Engineer must be on the same team for heal to happen.
-		if (
-			repair_amount_float != 0.0 &&
-			IsBuildingValidHealTarget(building, attacker)
-		) {
-			// Reduce healing amount if wrangled sentry.
-			// If wrangler revert is enabled, then the sentry is faked as unshielded, thus allowing full heals
-			if (HasEntProp(building, Prop_Send, "m_nShieldLevel")) {
-				if (GetEntProp(building, Prop_Send, "m_nShieldLevel") == SHIELD_NORMAL) {
-					repair_amount_float *= SHIELD_NORMAL_VALUE;
-				}
-			}
-
-			int health_old = GetEntProp(building, Prop_Data, "m_iHealth");
-			repair_amount_float = floatMin(repair_amount_float, float(GetEntProp(building, Prop_Data, "m_iMaxHealth") - health_old));
-
-			int repair_amount = RoundToNearest(repair_amount_float);
-			if (repair_amount > 0) {
-				SetVariantInt(repair_amount);
-				AcceptEntityInput(building, "AddHealth", attacker);
-
-				repair_amount = GetEntProp(building, Prop_Data, "m_iHealth") - health_old;
-
-				if (repair_amount > 0) {
-					Event event = CreateEvent("building_healed");
-					if (event != null)
-					{
-						event.SetInt("priority", 1); // HLTV event priority, not transmitted
-						event.SetInt("building", building); // self-explanatory.
-						event.SetInt("healer", attacker); // Index of the engineer who healed the building.
-						event.SetInt("amount", repair_amount); // Repair amount to display.
-
-						event.Fire(); // FIRE IN THE HOLE!!!!!!!
-					}
-
-					// Spawn heal particles
-					if (GetEntProp(entity, Prop_Data, "m_iTeamNum") == 3) {
-						// [1696] repair_claw_heal_blue
-						AttachTEParticleToEntityAndSend(entity, 1696, 1); // Blue
-					} else {
-						// [1699] repair_claw_heal_red
-						// PATTACH_ABSORIGIN_FOLLOW
-						AttachTEParticleToEntityAndSend(entity, 1699, 1); // Red
-					}
-
-					// Check if building owner and the engineer who shot the bolt
-					// are the same person. If not, give them progress on
-					// the "Circle the Wagons" achievement.
-					if (GetEntPropEnt(building, Prop_Send, "m_hBuilder") != attacker) {
-						AddProgressOnAchievement(attacker, 1836, repair_amount);
-					}
-				}
-			}
-
-			return MRES_Supercede;
+			// Fake the metal count to allow for free healing.
+			players[attacker].old_metal = GetEntProp(attacker, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+			SetEntProp(attacker, Prop_Data, "m_iAmmo", 200, 4, TF_AMMO_METAL);
 		}
 	}
 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entity, DHookParam parameters) {
-	int sentry = parameters.Get(1);
+MRESReturn DHookCallback_CBaseObject_Command_Repair_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_RescueRanger) && bolt_heal) {
+		bolt_heal = false;
 
-	// Revert the sentry's shield.
+		// Set health-to-metal ratio to 1 such that the heal amount is not a multiple of 4 and can be any integer.
+		// Note that teleporters override this value to 5, which cannot be changed with this virtual hook alone.
+		parameters.Set(4, 1.0);
+		return MRES_ChangedHandled;
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entity, DHookParam parameters) {
+	bolt_heal = false;
+
+	int building = parameters.Get(1);
 	if (
 		ItemIsEnabled(Wep_Wrangler) &&
-		IsValidEntity(sentry) &&
-		HasEntProp(sentry, Prop_Send, "m_nShieldLevel")
+		IsValidEntity(building) &&
+		HasEntProp(building, Prop_Send, "m_nShieldLevel")
 	) {
-		SetEntProp(sentry, Prop_Send, "m_nShieldLevel", entities[sentry].old_shield);
+		// Revert the sentry's shield.
+		SetEntProp(building, Prop_Send, "m_nShieldLevel", entities[building].old_shield);
+	}
+
+	int attacker = GetEntityOwner(entity);
+	if (
+		ItemIsEnabled(Wep_RescueRanger) &&
+		attacker >= 1 && attacker <= MaxClients &&
+		players[attacker].old_metal >= 0
+	) {
+		// Restore the player's metal count.
+		SetEntProp(attacker, Prop_Data, "m_iAmmo", players[attacker].old_metal, 4, TF_AMMO_METAL);
+		players[attacker].old_metal = -1;
 	}
 
 	return MRES_Ignored;
@@ -7606,51 +7562,6 @@ stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
 
 	return (team1 == team2);
-}
-
-stock bool IsBuildingValidHealTarget(int building, int engineer)
-{
-	if (!IsValidEntity(building))
-		return false;
-
-	char class[64];
-	GetEntityClassname(building, class, sizeof(class));
-
-	if (StrContains(class, "obj_") == -1) {
-		//PrintToChatAll("Entity did not match buildings");
-		return false;
-	}
-
-	if (
-		GetEntProp(building, Prop_Send, "m_bHasSapper") ||
-		GetEntProp(building, Prop_Send, "m_bPlasmaDisable") ||
-		GetEntProp(building, Prop_Send, "m_bBuilding") ||
-		GetEntProp(building, Prop_Send, "m_bPlacing")
-	) {
-		//PrintToChatAll("Big if statement about sappers etc triggered");
-		return false;
-	}
-
-	if (!AreEntitiesOnSameTeam(building, engineer)) {
-		//PrintToChatAll("Entities were not on the same team");
-		return false;
-	}
-
-	return true;
-}
-
-stock void AttachTEParticleToEntityAndSend(int entityIndex, int particleID, int attachType)
-{
-	if (!IsValidEntity(entityIndex))
-	return;
-
-	TE_Start("TFParticleEffect");
-
-	TE_WriteNum("m_iParticleSystemIndex", particleID); // Particle effect ID (not string)
-	TE_WriteNum("m_iAttachType", attachType);   // Attachment type (e.g., follow entity)
-	TE_WriteNum("entindex", entityIndex);		   // Attach to the given entity
-
-	TE_SendToAll();
 }
 
 // Get the sentry of a specific engineer
