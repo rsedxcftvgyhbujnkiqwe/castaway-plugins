@@ -296,7 +296,7 @@
 				"windows"	"256"
 				"linux"		"259"
 			}
-			"CBaseObject::InputWrenchHit"
+			"CBaseObject::InputWrenchHit" // windows offset on CBaseObject via asherkin's dumper is incorrect
 			{
 				"windows"	"364"
 				"linux"		"366"
@@ -310,6 +310,11 @@
 			{
 				"windows"	"367"
 				"linux"		"369"
+			}
+			"CWeaponMedigun::WeaponReset"
+			{
+				"windows"	"430"
+				"linux"		"437"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -626,6 +631,13 @@
 						"type"	"bool"
 					}
 				}
+			}
+			"CWeaponMedigun::WeaponReset"
+			{
+				"offset"	"CWeaponMedigun::WeaponReset"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
 			}
 
 			// Signature
