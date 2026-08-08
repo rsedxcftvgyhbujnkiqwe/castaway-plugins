@@ -255,8 +255,6 @@ enum struct Player {
 	int sleeper_piss_frame;
 	float sleeper_piss_duration;
 	bool sleeper_piss_explode;
-	int medic_medigun_defidx;
-	float medic_medigun_charge;
 	float medic_amputator_current_uber;
 	bool medic_crossbow_heal;
 	float cleaver_regen_time;
@@ -394,6 +392,7 @@ DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
 DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicHook dhook_CBaseObject_InputWrenchHit;
 DynamicHook dhook_CBaseObject_Command_Repair;
+DynamicHook dhook_CWeaponMedigun_WeaponReset;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -449,7 +448,7 @@ int rocket_create_frame;
 int team_round_timer_entity;
 bool construction_hit;
 int crossbow_medigun;
-float crossbow_charge_before;
+float old_charge_level;
 bool bolt_heal;
 
 //cookies
@@ -939,6 +938,7 @@ public void OnPluginStart() {
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 		dhook_CBaseObject_InputWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CBaseObject_Command_Repair = DynamicHook.FromConf(conf, "CBaseObject::Command_Repair");
+		dhook_CWeaponMedigun_WeaponReset = DynamicHook.FromConf(conf, "CWeaponMedigun::WeaponReset");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1075,6 +1075,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_Command_Repair);
+	VALIDATE_HANDLE(dhook_CWeaponMedigun_WeaponReset);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -1163,7 +1164,7 @@ public void OnPluginStart() {
 	team_round_timer_entity = -1;
 	construction_hit = false;
 	crossbow_medigun = -1;
-	crossbow_charge_before = 0.0;
+	old_charge_level = 0.0;
 	bolt_heal = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
@@ -1431,14 +1432,6 @@ public void OnGameFrame() {
 
 					// 	continue;
 					// }
-				}
-
-				{
-					// reset medigun info
-					// if player is medic, this will be set again this frame
-
-					players[idx].medic_medigun_defidx = 0;
-					players[idx].medic_medigun_charge = 0.0;
 				}
 
 				if (TF2_GetPlayerClass(idx) == TFClass_Scout) {
@@ -1808,15 +1801,6 @@ public void OnGameFrame() {
 										entities[weapon].patient = patient;
 									}
 								}
-
-								// vitasaw charge store
-								if (
-									ItemIsEnabled(Wep_VitaSaw) &&
-									player_weapons[idx][Wep_VitaSaw]
-								) {
-									players[idx].medic_medigun_defidx = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-									players[idx].medic_medigun_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
-								}
 							}
 						}
 					}
@@ -2039,8 +2023,6 @@ public void OnClientConnected(int client) {
 	// reset these per player
 	//players[client].respawn = 0;
 	players[client].resupply_time = 0.0;
-	players[client].medic_medigun_defidx = 0;
-	players[client].medic_medigun_charge = 0.0;
 	players[client].using_vaccinator_uber = false;
 	players[client].vaccinator_charge = 0.0;
 	players[client].vaccinator_charge_end = 0.0;
@@ -2156,6 +2138,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "tf_weapon_medigun")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre);
+		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
+		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
 	else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
@@ -3124,45 +3108,6 @@ public Action Event_OnPlayerSpawn(Event event, const char[] name, bool dontBroad
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	players[client].weapon_switch_time = GetGameTime();
 
-	{
-		// vitasaw charge apply
-
-		if (
-			ItemIsEnabled(Wep_VitaSaw) &&
-			IsPlayerAlive(client) &&
-			TF2_GetPlayerClass(client) == TFClass_Medic &&
-			GameRules_GetRoundState() == RoundState_RoundRunning
-		) {
-			int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
-
-			if (weapon > 0) {
-				char class[64];
-				GetEntityClassname(weapon, class, sizeof(class));
-
-				if (
-					StrEqual(class, "tf_weapon_bonesaw") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 173
-				) {
-					weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-
-					if (weapon > 0) {
-						GetEntityClassname(weapon, class, sizeof(class));
-
-						if (
-							StrEqual(class, "tf_weapon_medigun") &&
-							GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel") < 0.01 &&
-							GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == players[client].medic_medigun_defidx
-						) {
-							float charge = players[client].medic_medigun_charge;
-							charge = charge > 0.20 ? 0.20 : charge;
-
-							SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", charge);
-						}
-					}
-				}
-			}
-		}
-	}
 	return Plugin_Continue;
 }
 
@@ -6399,7 +6344,7 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int enti
 			HasEntProp(medigun, Prop_Send, "m_flChargeLevel")
 		) {
 			crossbow_medigun = medigun;
-			crossbow_charge_before = GetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel");
+			old_charge_level = GetEntPropFloat(medigun, Prop_Send, "m_flChargeLevel");
 		}
 	}
 	return MRES_Ignored;
@@ -6413,14 +6358,14 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int ent
 		patient >= 1 && patient <= MaxClients
 	) {
 		charge = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
-		added = charge - crossbow_charge_before;
+		added = charge - old_charge_level;
 		if (added > 0.0) {
 			// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
 			// The game added (iActualHealed / (24 * flScale)) * frametime.
 			// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
 
 			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
-			charge = crossbow_charge_before + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
+			charge = old_charge_level + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
 			SetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
 		}
 		crossbow_medigun = -1;
@@ -7393,6 +7338,33 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 			}
 		}
 	}}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Pre(int entity) {
+	old_charge_level = 0.0;
+	if (
+		ItemIsEnabled(Wep_VitaSaw) &&
+		GameRules_GetRoundState() == RoundState_RoundRunning
+	) {
+		old_charge_level = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
+	int owner = GetEntityOwner(entity);
+	if (
+		ItemIsEnabled(Wep_VitaSaw) &&
+		GameRules_GetRoundState() == RoundState_RoundRunning &&
+		owner >= 1 && owner <= MaxClients
+	) {
+		// Vita-Saw charge preserving, from leaked TF2 code.
+		// todo: make this additive with the vanilla attribute
+		float preserve_ubercharge = TF2Attrib_HookValueFloat(0.0, "preserve_ubercharge", owner);
+		float charge = floatMin(old_charge_level, preserve_ubercharge / 100.0);
+		SetEntPropFloat(entity, Prop_Send, "m_flChargeLevel", charge);
+	}
 	return MRES_Ignored;
 }
 

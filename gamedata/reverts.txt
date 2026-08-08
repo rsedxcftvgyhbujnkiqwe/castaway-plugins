@@ -311,6 +311,11 @@
 				"windows"	"367"
 				"linux"		"369"
 			}
+			"CWeaponMedigun::WeaponReset"
+			{
+				"windows"	"430"
+				"linux"		"437"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -626,6 +631,13 @@
 						"type"	"bool"
 					}
 				}
+			}
+			"CWeaponMedigun::WeaponReset"
+			{
+				"offset"	"CWeaponMedigun::WeaponReset"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
 			}
 
 			// Signature
