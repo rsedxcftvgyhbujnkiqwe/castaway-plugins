@@ -4193,16 +4193,17 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
-					StrEqual(class, "tf_weapon_cannon") &&
-					inflictor > MaxClients &&
 					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
 					if (TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == false) {
 						players[victim].stun_frame = GetGameTickCount();
 						players[victim].stun_inflictor = weapon;
 					}
-					damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
-					return Plugin_Changed;
+
+					if (inflictor > MaxClients) {
+						damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+						return Plugin_Changed;
+					}
 				}
 			}
 
