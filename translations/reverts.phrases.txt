@@ -678,7 +678,7 @@
 	}
 	"BrassBeast_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health"
 	}
 	"Bushwacka_PreLW"
 	{
@@ -758,7 +758,7 @@
 	}
 	"Darwin_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, +25 max HP, 15%% bullet resist (5%% against crit bullets), 20%% blast vuln, no fire resists"
+		"en"	"Reverted to pre-inferno, +25 max health, 15%% bullet resist, 20%% blast vuln, no fire resists"
 	}
 	"Ringer_PreGM"
 	{
@@ -922,7 +922,7 @@
 	}
 	"Natascha_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health (6.7%% against crits)"
+		"en"	"Reverted to pre-matchmaking, 20%% damage resistance when spun up regardless of health"
 	}
 	"Natascha_PreGM"
 	{
