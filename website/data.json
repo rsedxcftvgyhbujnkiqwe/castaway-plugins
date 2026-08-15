@@ -4009,7 +4009,11 @@
         "current_attributes": [
             {
                 "type": "att_negative",
-                "text": "25% reduced explosion damage"
+                "text": "-25% base explosion damage"
+            },
+            {
+                "type": "att_negative",
+                "text": "-80% close-range ramp-up bonus damage"
             },
             {
                 "type": "att_negative",
@@ -4017,11 +4021,15 @@
             },
             {
                 "type": "att_negative",
-                "text": "This weapon deploys 100% slower"
+                "text": "No random critical hits"
             },
             {
                 "type": "att_negative",
-                "text": "No random critical hits"
+                "text": "This weapon deploys 100% slower"
+            },
+            {
+                "type": "att_neutral",
+                "text": "55 melee damage"
             },
             {
                 "type": "att_neutral",
@@ -4030,8 +4038,16 @@
         ],
         "reverted_attributes": [
             {
+                "type": "att_positive",
+                "text": "Explosion deals full damage"
+            },
+            {
                 "type": "att_negative",
                 "text": "No random critical hits"
+            },
+            {
+                "type": "att_neutral",
+                "text": "35 melee damage"
             },
             {
                 "type": "att_neutral",
