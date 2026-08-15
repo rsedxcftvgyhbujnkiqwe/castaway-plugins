@@ -40,9 +40,9 @@
 #include <tf2attributes>
 #include <dhooks>
 #include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
-#undef REQUIRE_PLUGIN
+#if defined MEMORY_PATCHES
 #include <sourcescramble>
-#define REQUIRE_PLUGIN
+#endif
 #pragma semicolon 1
 #pragma newdecls required
 
