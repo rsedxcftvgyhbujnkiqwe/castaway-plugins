@@ -101,6 +101,7 @@ int resistance_mapping[] =
 #define CLASSFLAG_ENGINEER	(1 << 8)
 
 #define ITEMFLAG_DISABLED	(1 << 9) // Disabled by default
+#define ITEMFLAG_MEMPATCH	(1 << 10) // Uses memory patches
 
 // game code defs
 #define EF_NODRAW 0x20
@@ -232,7 +233,6 @@ enum struct Item {
 	int flags;
 	int num_variants;
 	ConVar cvar;
-	bool mem_patch;
 }
 
 enum struct Player {
@@ -670,7 +670,7 @@ public void OnPluginStart() {
 	// Generic class features
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 #if defined MEMORY_PATCHES
-	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO, Feat_Flamethrower, true);
+	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Feat_Flamethrower);
 #endif
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
 	ItemDefine("lunchbox", "Lunchbox_Pre2012", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Feat_Lunchbox);
@@ -719,7 +719,7 @@ public void OnPluginStart() {
 	ItemDefine("brassbeast", "BrassBeast_PreMYM", CLASSFLAG_HEAVY, Wep_BrassBeast);
 	ItemDefine("bushwacka", "Bushwacka_PreLW", CLASSFLAG_SNIPER, Wep_Bushwacka);
 	ItemVariant(Wep_Bushwacka, "Bushwacka_PreGM");
-	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY, Wep_BuffaloSteak, true);
+	ItemDefine("buffalosteak", "BuffaloSteak_PreMYM", CLASSFLAG_HEAVY | ITEMFLAG_MEMPATCH, Wep_BuffaloSteak);
 	ItemVariant(Wep_BuffaloSteak, "BuffaloSteak_Release");
 	ItemDefine("buffbanner", "BuffBanner_Release", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_BuffBanner);
 	ItemDefine("targe", "Targe_PreTB", CLASSFLAG_DEMOMAN, Wep_CharginTarge);
@@ -743,7 +743,7 @@ public void OnPluginStart() {
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO, Wep_DragonFury, true);
+	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Wep_DragonFury);
 #else
 	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 #endif
@@ -767,7 +767,7 @@ public void OnPluginStart() {
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES
-	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_IronBomber, true);
+	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED | ITEMFLAG_MEMPATCH, Wep_IronBomber);
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");
@@ -776,7 +776,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 #if defined MEMORY_PATCHES
-	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT, Wep_MadMilk, true);
+	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT | ITEMFLAG_MEMPATCH, Wep_MadMilk);
 #endif
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -799,7 +799,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 	ItemVariant(Wep_PocketPistol, "Pocket_PreJI");
 #if defined MEMORY_PATCHES
-	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix, true);
+	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_MEMPATCH, Wep_QuickFix);
 #else
 	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
 #endif
@@ -851,7 +851,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Vaccinator, "Vaccinator_PreGM");
 	ItemDefine("vitasaw", "VitaSaw_PreJI", CLASSFLAG_MEDIC, Wep_VitaSaw);
 	ItemDefine("warrior", "Warrior_PreTB", CLASSFLAG_HEAVY, Wep_WarriorSpirit);
-	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER, Wep_Wrangler, true);
+	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER | ITEMFLAG_MEMPATCH, Wep_Wrangler);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
 #if defined MEMORY_PATCHES
 	ItemVariant(Wep_Wrangler, "Wrangler_Release");
@@ -5316,14 +5316,12 @@ void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
  * @param desc				Key for description of the item in the translation file.
  * @param flags				Class flags.
  * @param wep_enum			Weapon enum, this identifies a weapon.
- * @param mem_patch			This revert requires a memory patch?
  */
-void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum, bool mem_patch=false) {
+void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum) {
 	strcopy(items[wep_enum].key, sizeof(items[].key), key);
 	strcopy(items_desc[wep_enum][0], sizeof(items_desc[][]), desc);
 	items[wep_enum].flags = flags;
 	items[wep_enum].num_variants = 0;
-	items[wep_enum].mem_patch = mem_patch;
 }
 
 /**
@@ -5365,7 +5363,7 @@ void ItemFinalize() {
 
 		items[idx].cvar = CreateConVar(cvar_name, items[idx].flags & ITEMFLAG_DISABLED == 0 ? "1" : "0", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 #if defined MEMORY_PATCHES
-		if (items[idx].mem_patch) {
+		if (items[idx].flags & ITEMFLAG_MEMPATCH) {
 			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
 		}
 #endif
