@@ -6085,9 +6085,8 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookRetur
 				player_weapons[client][Wep_BabyFace]
 			) {
 				// Release Baby Face's Blaster proper speed application.
-				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
 				float boost = GetEntPropFloat(client, Prop_Send, "m_flHypeMeter");
-				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
+				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 2.0) / ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.45);
 			}
 		}
 
