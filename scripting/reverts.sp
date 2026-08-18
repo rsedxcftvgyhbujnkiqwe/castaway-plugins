@@ -1491,17 +1491,23 @@ public void OnGameFrame() {
 						airdash_limit_old = cvar_ref_tf_scout_air_dash_count.IntValue; // multijumps allowed by game
 						airdash_limit_new = airdash_limit_old; // multijumps we want to allow
 
+						airdash_value = GetEntProp(idx, Prop_Send, "m_iAirDash");
+
 						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
 							airdash_limit_old = TF2Attrib_HookValueInt(airdash_limit_old, "air_dash_count", weapon);
 							airdash_limit_new = airdash_limit_old;
 
 							if (
-								GetItemVariant(Wep_Atomizer) == 1 &&
-								player_weapons[idx][Wep_Atomizer] &&
-								weapon == GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee)
+								airdash_limit_old >= 2 &&
+								airdash_value == 1 && // only blocks the 3rd jump, not the 1st or 2nd
+								(GetGameTime() - players[idx].weapon_switch_time) < 0.7
 							) {
-								airdash_limit_new++;
+								airdash_limit_old = 1;
+
+								if (!ItemIsEnabled(Wep_Atomizer)) {
+									airdash_limit_new = 1;
+								}
 							}
 						}
 
@@ -1525,8 +1531,6 @@ public void OnGameFrame() {
 							airdash_limit_new = 999;
 						}
 
-						airdash_value = GetEntProp(idx, Prop_Send, "m_iAirDash");
-
 						if (airdash_value > players[idx].scout_airdash_value) {
 							// airdash happened this frame
 
@@ -1535,7 +1539,7 @@ public void OnGameFrame() {
 							if (airdash_limit_new == 2) {
 								if (
 									GetItemVariant(Wep_Atomizer) == 0 ||
-									GetItemVariant(Wep_Atomizer) == 1 && players[idx].scout_airdash_count == 2
+									airdash_limit_new > airdash_limit_old
 								) {
 									// emit purple smoke (still shows white smoke too but good enough for now)
 									GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
@@ -2483,16 +2487,11 @@ public void ApplyRevertsToItem(int entity) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
 			TF2Attrib_SetByDefIndex(entity, 868, 0.0); // crit dmg falloff
 		}}
-		case 450: { switch (GetItemVariant(Wep_Atomizer)) {
-			case 0: { // Pre-Jungle Inferno
-				TF2Attrib_SetByDefIndex(entity, 5, 1.30); // fire rate penalty
-				TF2Attrib_SetByDefIndex(entity, 138, 0.80); // dmg penalty vs players
-				TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
-				TF2Attrib_SetByDefIndex(entity, 773, 1.0); // single wep deploy time increased
-			}
-			case 1: { // Pre-Blue Moon
-				TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
-			}
+		case 450: { if (GetItemVariant(Wep_Atomizer) == 0) {
+			TF2Attrib_SetByDefIndex(entity, 5, 1.30); // fire rate penalty
+			TF2Attrib_SetByDefIndex(entity, 138, 0.80); // dmg penalty vs players
+			TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
+			TF2Attrib_SetByDefIndex(entity, 773, 1.0); // single wep deploy time increased
 		}}
 		case 38, 457, 1000: {
 			// common
@@ -4215,9 +4214,11 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 					if (
-						(GetGameTime() - players[attacker].weapon_switch_time <= time_to_minicrit) ||
-						(TF2Attrib_HookValueInt(0, "mini_crit_airborne", weapon) == 1 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir))
+						(GetGameTime() - players[attacker].weapon_switch_time) < time_to_minicrit ||
+						(
+							TF2Attrib_HookValueInt(0, "mini_crit_airborne", weapon) == 1 &&
+							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir)
+						)
 					) {
 						// seems to be the best way to force a minicrit
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -4231,20 +4232,6 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					GetItemVariant(Wep_SodaPopper) == 1 &&
 					TF2_IsPlayerInCondition(attacker, TFCond_CritHype)
-				) {
-					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-				}
-			}
-
-			{
-				// pre-bluemoon atomizer airborne minicrits
-
-				if (
-					GetItemVariant(Wep_Atomizer) == 1 &&
-					StrEqual(class, "tf_weapon_bat") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450 &&
-					(GetEntityFlags(attacker) & FL_ONGROUND) == 0 &&
-					GetEntProp(attacker, Prop_Data, "m_nWaterLevel") == 0
 				) {
 					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
 				}
