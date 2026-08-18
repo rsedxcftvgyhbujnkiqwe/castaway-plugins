@@ -393,6 +393,9 @@ DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicHook dhook_CBaseObject_InputWrenchHit;
 DynamicHook dhook_CBaseObject_Command_Repair;
 DynamicHook dhook_CWeaponMedigun_WeaponReset;
+DynamicHook dhook_CBaseCombatWeapon_Deploy;
+DynamicHook dhook_CBaseCombatWeapon_Holster;
+DynamicHook dhook_CTFWeaponBase_GetSpeedMod;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -939,6 +942,9 @@ public void OnPluginStart() {
 		dhook_CBaseObject_InputWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CBaseObject_Command_Repair = DynamicHook.FromConf(conf, "CBaseObject::Command_Repair");
 		dhook_CWeaponMedigun_WeaponReset = DynamicHook.FromConf(conf, "CWeaponMedigun::WeaponReset");
+		dhook_CBaseCombatWeapon_Deploy = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Deploy");
+		dhook_CBaseCombatWeapon_Holster = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Holster");
+		dhook_CTFWeaponBase_GetSpeedMod = DynamicHook.FromConf(conf, "CTFWeaponBase::GetSpeedMod");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1076,6 +1082,9 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_Command_Repair);
 	VALIDATE_HANDLE(dhook_CWeaponMedigun_WeaponReset);
+	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Deploy);
+	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Holster);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_GetSpeedMod);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -2118,10 +2127,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 	}
-	else if (
-		StrEqual(class, "tf_weapon_shovel") ||
-		StrEqual(class, "tf_weapon_stickbomb")
-	) {
+	else if (StrEqual(class, "tf_weapon_shovel")) {
+		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
+		dhook_CBaseCombatWeapon_Deploy.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_Deploy_Post);
+		dhook_CBaseCombatWeapon_Holster.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_Holster_Post);
+		dhook_CTFWeaponBase_GetSpeedMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFShovel_GetSpeedMod_Pre);
+		dhook_CTFWeaponBase_GetSpeedMod.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_GetSpeedMod_Post);
+	}
+	else if (StrEqual(class, "tf_weapon_stickbomb")) {
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
 	}
 	else if (StrEqual(class, "tf_weapon_minigun")) {
@@ -5671,6 +5684,16 @@ int GetResistType(int entity)
 	return GetChargeType(entity);
 }
 
+void SetShovelDamageBoost(int entity) {
+	TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
+}
+
+void SetShovelSpeedBoost(int entity) {
+	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
+}
+
 void SetFeignDeathEnd(int client) {
 	if (!IsClientInGame(client))
 		return;
@@ -7286,23 +7309,20 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHoo
 		GetEntityClassname(entity, class, sizeof(class));
 
 		if (
-			ItemIsEnabled(Wep_Pickaxe) &&
+			GetItemVariant(Wep_Pickaxe) > 0 &&
 			StrEqual(class, "tf_weapon_shovel") &&
-			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
+			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_DAMAGE_BOOST
 		) {
 			switch (GetItemVariant(Wep_Pickaxe)) {
-				case 0: multiplier = 1.65; // 107 damage at 1 HP
 				case 1: multiplier = 1.75; // 113 damage at 1 HP
 				case 2: multiplier = 2.50; // 162 damage at 1 HP
+				default: multiplier = 1.65; // 107 damage at 1 HP; failsafe
 			}
 
-			multiplier = ValveRemapVal(
-				float(GetClientHealth(owner)),
-				0.0,
-				float(SDKCall(sdkcall_GetMaxHealth, owner)),
-				multiplier,
-				0.5
-			);
+			float health_cur = float(GetClientHealth(owner));
+			float health_max = float(SDKCall(sdkcall_GetMaxHealth, owner));
+			float health_ratio = health_cur / health_max;
+			multiplier = ValveRemapVal(health_ratio, 0.0, 1.0, multiplier, 0.5) / ValveRemapVal(health_ratio, 0.0, 1.0, 1.65, 0.5);
 		}
 		else if (
 			ItemIsEnabled(Wep_Caber) &&
@@ -7366,6 +7386,34 @@ MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
 		float preserved = TF2Attrib_HookValueFloat(0.0, "preserve_ubercharge", owner) * 0.01;
 		charge = floatMax(charge, floatMin(old_charge_level, preserved));
 		SetEntPropFloat(entity, Prop_Send, "m_flChargeLevel", charge);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFShovel_Deploy_Post(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set damage boost after deploying
+		SetShovelDamageBoost(entity);
+	}
+	return MRES_Ignored;
+}
+MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set speed boost after holstering. This should help with client prediction when deployed.
+		SetShovelSpeedBoost(entity);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Pre(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		SetShovelSpeedBoost(entity);
+	}
+	return MRES_Ignored;
+}
+MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Post(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		SetShovelDamageBoost(entity);
 	}
 	return MRES_Ignored;
 }
