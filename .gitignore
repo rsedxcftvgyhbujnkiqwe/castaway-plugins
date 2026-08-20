@@ -16,7 +16,6 @@ scripting/nativevotes/*
 !scripting/nextmap.sp
 !scripting/reverts.sp
 !scripting/chat-adverts.sp
-!scripting/changelevel.sp
 !scripting/votescramble.sp
 !scripting/legacy
 !scripting/legacy/*
