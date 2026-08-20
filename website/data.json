@@ -139,6 +139,10 @@
         "qua_unique": "All Sniper Rifles",
         "att_level": "Level 1-100 Sniper Rifle",
         "current_attributes": [
+            {
+                "type": "att_negative",
+                "text": "After firing a scoped shot, cannot jump until unscoped"
+            }
         ],
         "reverted_attributes": [
             {
@@ -160,15 +164,19 @@
         "att_level": "Level 1-100 Stickybomb Launcher",
         "current_attributes": [
             {
-                "type": "att_negative",
-                "text": "-9% reduced blast radius"
+                "type": "att_neutral",
+                "text": "146 Hu base blast radius"
             },
             {
                 "type": "att_negative",
-                "text": "Air detonated stickies have reduced blast radius"
+                "text": "Air detonated stickies have blast radius ramp-up"
             }
         ],
         "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "159 Hu base blast radius"
+            },
             {
                 "type": "att_positive",
                 "text": "Air detonated stickies have full blast radius"
@@ -339,15 +347,15 @@
             },
             {
                 "type": "att_positive",
+                "text": "+10% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
                 "text": "+200% increase in turning control while charging"
             },
             {
                 "type": "att_positive",
-                "text": "Melee kills refill 25% of your charge meter."
-            },
-            {
-                "type": "att_positive",
-                "text": "+10% faster move speed on wearer"
+                "text": "Melee kills refill 25% of your charge meter"
             }
         ]
     },
@@ -452,6 +460,10 @@
                 "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
             },
             {
+                "type": "att_neutral",
+                "text": "While deployed, air speed is capped at 300 Hu/s"
+            },
+            {
                 "type": "att_negative",
                 "text": "Can only deploy once per fall"
             }
@@ -459,7 +471,11 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Press 'JUMP' key in the air to deploy.\nDeployed Parachutes slow your descent."
+                "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_neutral",
+                "text": "While deployed, air speed is capped at 400 Hu/s"
             },
             {
                 "type": "att_positive",
@@ -484,6 +500,10 @@
                 "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
             },
             {
+                "type": "att_neutral",
+                "text": "While deployed, air speed is capped at 300 Hu/s"
+            },
+            {
                 "type": "att_negative",
                 "text": "Can only deploy once per fall"
             }
@@ -491,7 +511,11 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Press 'JUMP' key in the air to deploy.\nDeployed Parachutes slow your descent."
+                "text": "Press 'JUMP' key in the air to deploy.<br>Deployed Parachutes slow your descent."
+            },
+            {
+                "type": "att_neutral",
+                "text": "While deployed, air speed is capped at 400 Hu/s"
             },
             {
                 "type": "att_positive",
@@ -583,15 +607,95 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "100% critical hits from behind"
-            },
-            {
-                "type": "att_positive",
                 "text": "+20% damage bonus"
             },
             {
+                "type": "att_positive",
+                "text": "100% critical hits from behind"
+            },
+            {
                 "type": "att_negative",
-                "text": "No airblast"
+                "text": "No compression blast"
+            }
+        ]
+    },
+    {
+        "name": "Battalion's Backup",
+        "classes": [
+            "Soldier"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Battalion%27s_Backup.png",
+        "qua_unique": "The Battalion's_Backup",
+        "att_level": "Level 10 Battle Banner",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "+20 max health on wearer"
+            },
+            {
+                "type": "att_neutral",
+                "text": "Defensive buff protects nearby teammates from crits, incoming sentry damage by 50%, and 35% from all other sources."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Rage increases through damage done (600 damage)"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Grenadier's Softcap"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_neutral",
+                "text": "Defensive buff protects nearby teammates from crits and blocks 35% of incoming damage."
+            },
+            {
+                "type": "att_neutral",
+                "text": "Rage increases through damage taken (175 damage)"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% sentry damage resistance on wearer"
             }
         ]
     },
@@ -651,7 +755,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "No ammo from dispensers"
+                "text": "Cannot collect ammo from dispensers"
             }
         ]
     },
@@ -674,6 +778,30 @@
             {
                 "type": "att_negative",
                 "text": "-25% clip size"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_setitem",
+                "text": "Grenadier's Softcap"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "Leave a Calling Card on your victims"
             }
         ],
         "reverted_attributes": [
@@ -684,6 +812,26 @@
             {
                 "type": "att_negative",
                 "text": "-25% clip size"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>The Tank Buster"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Black Box"
+            },
+            {
+                "type": "att_setitem",
+                "text": "The Battalion's Backup"
+            },
+            {
+                "type": "att_settitle",
+                "text": "<br>Item Set Bonus:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+20% sentry damage resistance on wearer"
             }
         ]
     },
@@ -711,11 +859,11 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "On Hit: Gain up to +3 health"
+                "text": "On Hit: +3 health"
             },
             {
                 "type": "att_negative",
-                "text": "No random critical hits"
+                "text": "No critical hits"
             }
         ]
     },
@@ -733,13 +881,13 @@
         "current_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds.  Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time.<br>Damage absorbed will slow you when the effect ends."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time"
+                "text": "Drink to become invulnerable for 8 seconds. Cannot attack during this time."
             }
         ]
     },
@@ -804,22 +952,58 @@
         "att_level": "Level 1 Lunch Box",
         "current_attributes": [
             {
+                "type": "att_neutral",
+                "text": "While under the effects:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+30% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Damage done will be mini-crits"
+            },
+            {
                 "type": "att_negative",
-                "text": "+20% damage vulnerability while active"
+                "text": "+20% damage vulnerability on wearer"
+            },
+            {
+                "type": "att_negative",
+                "text": "Player may only use melee weapons"
+            },
+            {
+                "type": "att_negative",
+                "text": "Move speed is capped at +35% of base move speed"
             },
             {
                 "type": "att_neutral",
-                "text": "After consuming, 30% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+                "text": "Lasts 16 seconds.<br>Alt-fire: Share with a friend (Medium Health Kit)"
             }
         ],
         "reverted_attributes": [
             {
+                "type": "att_neutral",
+                "text": "While under the effects:"
+            },
+            {
+                "type": "att_positive",
+                "text": "+35% faster move speed on wearer"
+            },
+            {
+                "type": "att_positive",
+                "text": "Damage done will be mini-crits"
+            },
+            {
                 "type": "att_negative",
-                "text": "+10% damage vulnerability while active"
+                "text": "Damage taken will be mini-crits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Player may only use melee weapons"
             },
             {
                 "type": "att_neutral",
-                "text": "After consuming, 35% increased move speed, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds. Alt-fire: Share with a friend (Medium Health Kit)"
+                "text": "Lasts 16 seconds.<br>Alt-fire: Throw a Steak on the ground (Medium Health Kit)"
             }
         ]
     },
@@ -885,11 +1069,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Shield bash deals damage at any range"
-            },
-            {
-                "type": "att_negative",
-                "text": "Shield bash damage scales with charge depleted"
+                "text": "Can deal charge impact damage at any range, scaled with charge depleted"
             },
             {
                 "type": "att_neutral",
@@ -954,16 +1134,12 @@
         ],
         "reverted_attributes": [
             {
-                "type": "att_neutral",
-                "text": "This Weapon has a large melee range"
-            },
-            {
                 "type": "att_positive",
                 "text": "0.5 sec increase in charge duration"
             },
             {
                 "type": "att_positive",
-                "text": "Melee kills refill 25% of your charge meter."
+                "text": "Melee kills refill 25% of your charge meter"
             },
             {
                 "type": "att_negative",
@@ -972,6 +1148,10 @@
             {
                 "type": "att_negative",
                 "text": "-15 max health on wearer"
+            },
+            {
+                "type": "att_neutral",
+                "text": "This weapon has a large melee range"
             }
         ]
     },
@@ -1263,15 +1443,27 @@
         "reverted_attributes": [
             {
                 "type": "att_neutral",
-                "text": "Cloak Type: Feign Death"
+                "text": "Cloak Type: Feign Death.<br>Leave a fake corpse on taking damage<br>and temporarily gain invisibility, speed and damage resistance."
             },
             {
                 "type": "att_positive",
-                "text": "+80% cloak regen rate"
+                "text": "+50% cloak regen rate"
+            },
+            {
+                "type": "att_positive",
+                "text": "+40% cloak duration"
             },
             {
                 "type": "att_negative",
-                "text": "+60% cloak drain rate"
+                "text": "-50% cloak meter when Feign Death is activated"
+            },
+            {
+                "type": "att_negative",
+                "text": "No cloak meter from ammo boxes while invisible"
+            },
+            {
+                "type": "att_negative",
+                "text": "-35% cloak meter from ammo boxes"
             }
         ]
     },
@@ -1312,6 +1504,10 @@
             {
                 "type": "att_positive",
                 "text": "65% faster weapon switch"
+            },
+            {
+                "type": "att_positive",
+                "text": "Extinguishing teammates restores 20 health"
             },
             {
                 "type": "att_negative",
@@ -1425,7 +1621,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "+50% re-pressurization rate on hit"
+                "text": "+50% repressurization rate on hit"
             },
             {
                 "type": "att_negative",
@@ -1447,7 +1643,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "+50% re-pressurization rate on hit"
+                "text": "+50% repressurization rate on hit"
             },
             {
                 "type": "att_negative",
@@ -1517,7 +1713,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Damage increases as the user becomes injured"
+                "text": "Damage increases as the user becomes injured (up to 107 damage)"
             },
             {
                 "type": "att_negative",
@@ -1527,15 +1723,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 113 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
@@ -1575,15 +1763,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Move speed increases as the user becomes injured"
-            },
-            {
-                "type": "att_positive",
-                "text": "Deal up to 107 damage at low health"
-            },
-            {
-                "type": "att_negative",
-                "text": "Reduced damage when at high health"
+                "text": "Damage and move speed increase as the user becomes injured (up to 113 damage)"
             },
             {
                 "type": "att_negative",
@@ -1761,7 +1941,7 @@
         "current_attributes": [
             {
                 "type": "att_positive",
-                "text": "Throw at your enemies to make them bleed!  Long distance hits reduce recharge time"
+                "text": "Throw at your enemies to make them bleed!<br>Long distance hits reduce recharge time"
             },
             {
                 "type": "att_negative",
@@ -1771,11 +1951,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Throw at your enemies to make them bleed!"
-            },
-            {
-                "type": "att_positive",
-                "text": "Long distance hits cause mini-crits"
+                "text": "Throw at your enemies to make them bleed!<br>Long distance hits cause mini-crits"
             },
             {
                 "type": "att_positive",
@@ -1805,11 +1981,11 @@
             },
             {
                 "type": "att_negative",
-                "text": "Maximum health is drained while item is active"
+                "text": "This weapon holsters 50% slower"
             },
             {
                 "type": "att_negative",
-                "text": "This weapon holsters 50% slower"
+                "text": "Maximum health is drained while item is active"
             }
         ],
         "reverted_attributes": [
@@ -2030,11 +2206,11 @@
         "current_attributes": [
             {
                 "type": "att_positive",
-                "text": "Construction hit speed boost increased by 30%"
+                "text": "+15% faster firing speed"
             },
             {
                 "type": "att_positive",
-                "text": "+15% faster firing speed"
+                "text": "Construction hit speed boost increased by 30%"
             },
             {
                 "type": "att_negative",
@@ -2052,11 +2228,11 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Construction hit speed boost increased by 30%"
+                "text": "+15% faster firing speed"
             },
             {
                 "type": "att_positive",
-                "text": "+15% faster firing speed"
+                "text": "Construction hit speed boost increased by 30%"
             },
             {
                 "type": "att_negative",
@@ -2120,7 +2296,7 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+40% cloak duration"
+                "text": "+40% cloak duration when set bonus not active"
             },
             {
                 "type": "att_positive",
@@ -2152,7 +2328,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     },
@@ -2210,11 +2386,11 @@
         "current_attributes": [
             {
                 "type": "att_positive",
-                "text": "+20% damage vs buildings"
+                "text": "+25% projectile speed"
             },
             {
                 "type": "att_positive",
-                "text": "+25% projectile speed"
+                "text": "+20% damage vs buildings"
             },
             {
                 "type": "att_negative",
@@ -2282,7 +2458,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "Cannonball impacts affected by damage falloff"
+                "text": "Cannonball impacts have reduced knockback<br>and are affected by damage falloff"
             },
             {
                 "type": "att_neutral",
@@ -2637,20 +2813,20 @@
         ],
         "reverted_attributes": [
             {
-                "type": "att_neutral",
-                "text": "This Weapon has a large melee range"
-            },
-            {
                 "type": "att_positive",
                 "text": "+100% increase in charge recharge rate"
             },
             {
                 "type": "att_positive",
-                "text": "All ammo collected becomes health"
+                "text": "Ammo collected from ammo boxes becomes health"
             },
             {
                 "type": "att_negative",
                 "text": "No random critical hits"
+            },
+            {
+                "type": "att_neutral",
+                "text": "This weapon has a large melee range"
             }
         ]
     },
@@ -2676,7 +2852,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "On Hit: Victim loses up to 10% Medigun"
+                "text": "On Hit: Victim loses up to 10% Medigun charge"
             },
             {
                 "type": "att_positive",
@@ -2706,11 +2882,15 @@
             },
             {
                 "type": "att_positive",
-                "text": "Deals untyped damage that ignores resistances"
+                "text": "Projectile ignites friendly Huntsman arrows"
             },
             {
                 "type": "att_positive",
-                "text": "On Hit: Victim loses 10% Medigun"
+                "text": "Attacks pierce bullet resistances"
+            },
+            {
+                "type": "att_positive",
+                "text": "On Hit: Victim loses 10% Medigun charge"
             },
             {
                 "type": "att_positive",
@@ -2766,7 +2946,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "75% damage resist while 'Mmmph' taunting."
+                "text": "75% damage resistance while 'Mmmph' taunting."
             },
             {
                 "type": "att_negative",
@@ -2879,50 +3059,6 @@
             {
                 "type": "att_negative",
                 "text": "50% fire damage vulnerability on wearer"
-            }
-        ]
-    },
-    {
-        "name": "Postal Pummeler",
-        "classes": [
-            "Pyro"
-        ],
-        "categories": [
-            "Melee"
-        ],
-        "backpack_image": "/images/backpack/Backpack_Postal_Pummeler.png",
-        "qua_unique": "The Postal Pummeler",
-        "att_level": "Level 10 Mailbox",
-        "current_attributes": [
-            {
-                "type": "att_positive",
-                "text": "Mini-crits burning targets and extinguishes them.<br>Damage increases based on remaining duration of afterburn<br>Killing blows on burning players grant a speed boost."
-            },
-            {
-                "type": "att_negative",
-                "text": "-33% damage penalty"
-            },
-            {
-                "type": "att_negative",
-                "text": "No random critical hits"
-            },
-            {
-                "type": "att_negative",
-                "text": "This weapon holsters 35% slower"
-            }
-        ],
-        "reverted_attributes": [
-            {
-                "type": "att_positive",
-                "text": "100% critical hit vs burning players"
-            },
-            {
-                "type": "att_negative",
-                "text": "-50% damage vs non-burning players"
-            },
-            {
-                "type": "att_negative",
-                "text": "No critical hits vs non-burning players"
             }
         ]
     },
@@ -3107,11 +3243,11 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "Mini-crits all airborne targets for 5 seconds after being deployed"
+                "text": "15% faster weapon switch"
             },
             {
                 "type": "att_positive",
-                "text": "15% faster weapon switch "
+                "text": "Mini-crits airborne targets for 5 seconds after being deployed"
             },
             {
                 "type": "att_negative",
@@ -3167,11 +3303,11 @@
             },
             {
                 "type": "att_positive",
-                "text": "Projectile can hit target multiple times"
+                "text": "Projectile ignites friendly Huntsman arrows"
             },
             {
                 "type": "att_positive",
-                "text": "Deals untyped damage that ignores resistances"
+                "text": "Attacks pierce bullet resistances"
             },
             {
                 "type": "att_negative",
@@ -3256,8 +3392,8 @@
                 "text": "-15 max health on wearer"
             },
             {
-                "type": "att_negative",
-                "text": "Ball recharges in 10 seconds if not picked up"
+                "type": "att_neutral",
+                "text": "10 second recharge time"
             }
         ],
         "reverted_attributes": [
@@ -3270,8 +3406,8 @@
                 "text": "-15 max health on wearer"
             },
             {
-                "type": "att_negative",
-                "text": "Ball recharges in 15 seconds if not picked up"
+                "type": "att_neutral",
+                "text": "15 second recharge time"
             }
         ]
     },
@@ -3293,19 +3429,19 @@
             },
             {
                 "type": "att_positive",
-                "text": "Alt-fire: Throw a Sandvich on the ground (Medium Health Kit)"
+                "text": "Alt-Fire: Throw a Sandvich on the ground (Medium Health Kit)"
             },
             {
                 "type": "att_positive",
-                "text": "Picking up a health kit or sandvich while at full health will recharge the meter"
+                "text": "Picking up a dropped Sandvich restores the Sandvich"
             },
             {
                 "type": "att_positive",
-                "text": "Picking up a dropped sandvich recharges the meter"
+                "text": "Picking up a health kit at full health restores the Sandvich"
             },
             {
                 "type": "att_negative",
-                "text": "30 second recharge time after eating or throwing"
+                "text": "30 second cooldown after eating or throwing"
             }
         ],
         "reverted_attributes": [
@@ -3315,19 +3451,19 @@
             },
             {
                 "type": "att_positive",
-                "text": "Alt-fire: Throw a Sandvich on the ground (Medium Health Kit)"
+                "text": "No cooldown when eaten"
             },
             {
                 "type": "att_positive",
-                "text": "Picking up a health kit while at full health will recharge the meter"
+                "text": "Alt-Fire: Throw a Sandvich on the ground (Medium Health Kit)"
             },
             {
                 "type": "att_positive",
-                "text": "Picking up a dropped sandvich functions as a medium health kit"
+                "text": "Picking up a dropped Sandvich restores 50% of maximum health"
             },
             {
                 "type": "att_positive",
-                "text": "Sandvich has no cooldown when eaten"
+                "text": "Picking up a health kit at full health restores the Sandvich"
             },
             {
                 "type": "att_negative",
@@ -3335,7 +3471,63 @@
             },
             {
                 "type": "att_negative",
-                "text": "Cannot pick up a dropped sandvich while at maximum health"
+                "text": "Cannot pick up a dropped Sandvich to restore it"
+            }
+        ]
+    },
+    {
+        "name": "The Short Circuit",
+        "classes": [
+            "Engineer"
+        ],
+        "categories": [
+            "Secondary"
+        ],
+        "backpack_image": "/images/backpack/Backpack_Short_Circuit.png",
+        "qua_unique": "The Short Circuit",
+        "att_level": "Level 5 Robot Arm",
+        "current_attributes": [
+            {
+                "type": "att_positive",
+                "text": "Alt-Fire: Launches a projectile-consuming energy ball. Costs 65 metal."
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
+            }
+        ],
+        "reverted_attributes": [
+            {
+                "type": "att_positive",
+                "text": "On Fire: Generates an electrical field that destroys<br>projectiles and damages enemies in front of the player<br>Consumes 15 ammo per projectile destroyed"
+            },
+            {
+                "type": "att_positive",
+                "text": "No reload necessary"
+            },
+            {
+                "type": "att_negative",
+                "text": "No random critical hits"
+            },
+            {
+                "type": "att_negative",
+                "text": "Per Shot: -5 ammo"
+            },
+            {
+                "type": "att_negative",
+                "text": "Uses metal for ammo"
             }
         ]
     },
@@ -3357,7 +3549,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "50% slower reload speed"
+                "text": "50% slower reload time"
             },
             {
                 "type": "att_negative",
@@ -3467,11 +3659,11 @@
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "+50% faster reloading speed"
+                "text": "+50% faster firing speed"
             },
             {
                 "type": "att_positive",
-                "text": "+25% firing speed"
+                "text": "25% faster reload time"
             },
             {
                 "type": "att_negative",
@@ -3483,7 +3675,7 @@
             },
             {
                 "type": "att_neutral",
-                "text": "Builds Hype as you run. When the hype meter is full, unleash mini-crits!"
+                "text": "Builds Hype as you run. When the Hype Meter is full, unleash mini-crits!<br>This weapon reloads its entire clip at once."
             }
         ]
     },
@@ -3544,8 +3736,8 @@
                 "text": "+50% increase in charge recharge rate"
             },
             {
-                "type": "att_negative",
-                "text": "Shield bash damage scales with charge depleted"
+                "type": "att_positive",
+                "text": "Can deal charge impact damage at any range, scaled with charge depleted"
             },
             {
                 "type": "att_neutral",
@@ -3564,6 +3756,10 @@
             {
                 "type": "att_positive",
                 "text": "+70% increase in charge impact damage"
+            },
+            {
+                "type": "att_positive",
+                "text": "Deal full charge impact damage at any range"
             },
             {
                 "type": "att_neutral",
@@ -3765,11 +3961,7 @@
             },
             {
                 "type": "att_positive",
-                "text": "Shield bash deals damage at any range"
-            },
-            {
-                "type": "att_negative",
-                "text": "Shield bash damage scales with charge depleted"
+                "text": "Can deal charge impact damage at any range, scaled with charge depleted"
             },
             {
                 "type": "att_negative",
@@ -3921,13 +4113,13 @@
             },
             {
                 "type": "att_neutral",
-                "text": "A percentage of your \u00dcberCharge level is retained on death, based on the number of organs harvested (15% per). Total \u00dcberCharge retained on spawn caps at 60%."
+                "text": "A percentage of your ÜberCharge level is retained on death, based on the number of organs harvested (15% per). Total ÜberCharge retained on spawn caps at 60%."
             }
         ],
         "reverted_attributes": [
             {
                 "type": "att_positive",
-                "text": "On death up to 20% of your stored \u00dcberCharge is retained"
+                "text": "On death up to 20% of your stored ÜberCharge is retained"
             },
             {
                 "type": "att_negative",
@@ -3948,6 +4140,10 @@
         "att_level": "Level 10 Boxing Gloves",
         "current_attributes": [
             {
+                "type": "att_neutral",
+                "text": "When weapon is active:"
+            },
+            {
                 "type": "att_positive",
                 "text": "+30% damage bonus"
             },
@@ -3957,7 +4153,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "30% damage vulnerability on wearer while active"
+                "text": "30% damage vulnerability on wearer"
             }
         ],
         "reverted_attributes": [
@@ -3992,10 +4188,6 @@
                 "text": "Take manual control of your Sentry Gun."
             },
             {
-                "type": "att_neutral",
-                "text": "Damage falloff based on sentry position"
-            },
-            {
                 "type": "att_positive",
                 "text": "Wrangled sentries gain a shield that reduces damage by 66%."
             },
@@ -4006,6 +4198,10 @@
             {
                 "type": "att_negative",
                 "text": "Sentries are disabled for 3 seconds after becoming unwrangled."
+            },
+            {
+                "type": "att_negative",
+                "text": "Sentry bullets have a wider cone and are affected by damage falloff."
             }
         ],
         "reverted_attributes": [
@@ -4014,16 +4210,12 @@
                 "text": "Take manual control of your Sentry Gun."
             },
             {
-                "type": "att_neutral",
-                "text": "Damage falloff based on engineer position"
-            },
-            {
                 "type": "att_positive",
                 "text": "Wrangled sentries gain a shield that reduces damage by 66%."
             },
             {
                 "type": "att_negative",
-                "text": "Sentries are disabled for 3 seconds after becoming unwrangled, and 1 second after death."
+                "text": "Sentries are disabled for 3 seconds after becoming unwrangled."
             }
         ]
     },
@@ -4115,7 +4307,7 @@
             },
             {
                 "type": "att_negative",
-                "text": "0.5 sec longer Cloak blink time"
+                "text": "0.5 sec longer cloak blink time"
             }
         ]
     }
