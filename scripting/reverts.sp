@@ -208,6 +208,14 @@ enum
 	SHOVEL_SPEED_BOOST,
 };
 
+enum
+{
+	TF_GL_MODE_REGULAR = 0,
+	TF_GL_MODE_REMOTE_DETONATE,
+	TF_GL_MODE_REMOTE_DETONATE_PRACTICE,
+	TF_GL_MODE_CANNONBALL,
+};
+
 enum OperatingSystem
 {
 	LINUX = 0,
@@ -367,7 +375,6 @@ Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 Handle sdkcall_CWeaponMedigun_CanAttack;
-Handle sdkcall_CBaseGrenade_GetDamage;
 Handle sdkcall_CTFSniperRifle_SniperRifleChargeRateMod;
 #if defined MEMORY_PATCHES
 Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
@@ -399,6 +406,7 @@ DynamicHook dhook_CBaseCombatWeapon_Deploy;
 DynamicHook dhook_CBaseCombatWeapon_Holster;
 DynamicHook dhook_CTFWeaponBase_GetSpeedMod;
 DynamicHook dhook_CTFGameRules_PlayerMayCapturePoint;
+DynamicHook dhook_CTFWeaponBaseGrenadeProj_InitGrenade;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -952,11 +960,6 @@ public void OnPluginStart() {
 		sdkcall_CWeaponMedigun_CanAttack = EndPrepSDKCall();
 
 		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CBaseGrenade::GetDamage");
-		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
-		sdkcall_CBaseGrenade_GetDamage = EndPrepSDKCall();
-
-		StartPrepSDKCall(SDKCall_Entity);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CTFSniperRifle::SniperRifleChargeRateMod");
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CTFSniperRifle_SniperRifleChargeRateMod = EndPrepSDKCall();
@@ -987,6 +990,7 @@ public void OnPluginStart() {
 		dhook_CBaseCombatWeapon_Holster = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Holster");
 		dhook_CTFWeaponBase_GetSpeedMod = DynamicHook.FromConf(conf, "CTFWeaponBase::GetSpeedMod");
 		dhook_CTFGameRules_PlayerMayCapturePoint = DynamicHook.FromConf(conf, "CTFGameRules::PlayerMayCapturePoint");
+		dhook_CTFWeaponBaseGrenadeProj_InitGrenade = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::InitGrenade");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1111,7 +1115,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
 	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
-	VALIDATE_HANDLE(sdkcall_CBaseGrenade_GetDamage);
 	VALIDATE_HANDLE(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod);
 
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
@@ -1140,6 +1143,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Holster);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_GetSpeedMod);
 	VALIDATE_HANDLE(dhook_CTFGameRules_PlayerMayCapturePoint);
+	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_InitGrenade);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -2138,9 +2142,12 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius_Post);
 	}
-	else if (StrEqual(class, "tf_projectile_pipe")) {
+	else if (
+		StrEqual(class, "tf_projectile_pipe") ||
+		StrEqual(class, "tf_projectile_pipe_remote")
+	) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
-		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre);
+		dhook_CTFWeaponBaseGrenadeProj_InitGrenade.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseGrenadeProj_InitGrenade_Post);
 	}
 	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Pre, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre);
@@ -3163,29 +3170,6 @@ public void ApplyRevertsToItem(int entity) {
 
 	// part 2
 	if (
-		ItemIsEnabled(Feat_Grenade) &&
-		(
-			StrEqual(class, "tf_weapon_grenadelauncher") ||
-			StrEqual(class, "tf_weapon_cannon")
-		)
-	) {
-		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
-
-		Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
-		if (attrib != Address_Null) {
-			TF2Attrib_SetByDefIndex(entity, 476, 1.12 * TF2Attrib_GetValue(attrib)); // +12% damage bonus
-		}
-		else {
-			TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
-		}
-	}
-	else if (
-		ItemIsEnabled(Feat_Stickybomb) &&
-		StrEqual(class, "tf_weapon_pipebomblauncher")
-	) {
-		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
-	}
-	else if (
 		ItemIsEnabled(Feat_Sword) &&
 		TF2Attrib_HookValueInt(0, "is_a_sword", entity)
 	) {
@@ -3889,14 +3873,7 @@ Action OnSoundNormal(
 }
 
 Action SDKHookCB_Spawn(int entity) {
-	char class[64];
-
-	GetEntityClassname(entity, class, sizeof(class));
-
-	if (StrContains(class, "tf_projectile_") == 0) {
-		entities[entity].spawn_time = GetGameTime();
-	}
-
+	entities[entity].spawn_time = GetGameTime();
 	return Plugin_Continue;
 }
 
@@ -3986,18 +3963,13 @@ Action SDKHookCB_Touch(int entity, int other) {
 
 	GetEntityClassname(entity, class, sizeof(class));
 
-	{
-		// projectile touch
-
-		if (StrContains(class, "tf_projectile_") == 0) {
-			if (
-				other >= 1 &&
-				other <= MaxClients
-			) {
-				players[other].projectile_touch_frame = GetGameTickCount();
-				players[other].projectile_touch_entity = entity;
-			}
-		}
+	// projectile touch tracking
+	if (
+		strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0 &&
+		other >= 1 && other <= MaxClients
+	) {
+		players[other].projectile_touch_frame = GetGameTickCount();
+		players[other].projectile_touch_entity = entity;
 	}
 
 	{
@@ -4231,7 +4203,7 @@ Action SDKHookCB_OnTakeDamage(
 					}
 
 					if (inflictor > MaxClients) {
-						damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+						damage = GetEntPropFloat(inflictor, Prop_Send, "m_flDamage");
 
 						if (GetItemVariant(Wep_LooseCannon) == 1) {
 							cvar_ref_tf_double_donk_window.FloatValue = 0.0;
@@ -4584,7 +4556,7 @@ Action SDKHookCB_OnTakeDamage_Building(
 				inflictor > MaxClients &&
 				damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 			) {
-				damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+				damage = GetEntPropFloat(inflictor, Prop_Send, "m_flDamage");
 
 				if (GetItemVariant(Wep_LooseCannon) == 1) {
 					damage *= ValveRemapVal(GetGameTime() - entities[inflictor].spawn_time, 0.1, 0.8, 0.5, 1.0);
@@ -7271,13 +7243,33 @@ MRESReturn DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse_Pre(int client, DHook
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre(int entity, DHookReturn returnValue) {
-	if (ItemIsEnabled(Feat_Grenade)) {
-		// return NULL such that the radius damage function doesn't deal full damage and varies it by hit location
-		returnValue.Value = Address_Null;
-		return MRES_Supercede;
+MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_InitGrenade_Post(int entity, DHookParam parameters) {
+	int type = GetEntProp(entity, Prop_Send, "m_iType");
+	bool is_sticky = (type == TF_GL_MODE_REMOTE_DETONATE || type == TF_GL_MODE_REMOTE_DETONATE_PRACTICE);
+	float damage, radius;
+
+	if (!is_sticky && ItemIsEnabled(Feat_Grenade)) {
+		damage = GetEntPropFloat(entity, Prop_Send, "m_flDamage");
+		SetEntPropFloat(entity, Prop_Send, "m_flDamage", damage * 112.0 / 100.0);
+		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre);
 	}
+
+	if (
+		!is_sticky && ItemIsEnabled(Feat_Grenade) ||
+		is_sticky && ItemIsEnabled(Feat_Stickybomb)
+	) {
+		radius = GetEntPropFloat(entity, Prop_Send, "m_DmgRadius");
+		SetEntPropFloat(entity, Prop_Send, "m_DmgRadius", radius * 159.0 / 146.0);
+	}
+
 	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre(int entity, DHookReturn returnValue) {
+	// return NULL such that the radius damage function doesn't deal full damage and varies it by hit location
+	// no checks here as this is only hooked for each pipe when grenade revert is enabled
+	returnValue.Value = Address_Null;
+	return MRES_Supercede;
 }
 
 MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHookReturn returnValue, DHookParam parameters) {

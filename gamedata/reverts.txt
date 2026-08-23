@@ -320,11 +320,6 @@
 				"windows"	"364"
 				"linux"		"366"
 			}
-			"CBaseGrenade::GetDamage"
-			{
-				"windows"	"135"
-				"linux"		"136"
-			}
 			"CBaseObject::Command_Repair" // windows offset on CBaseObject via asherkin's dumper is incorrect
 			{
 				"windows"	"367"
@@ -364,6 +359,11 @@
 			{
 				"windows"	"160"
 				"linux"		"161"
+			}
+			"CTFWeaponBaseGrenadeProj::InitGrenade" // 4-argument version, one with CTFWeaponInfo ref
+			{
+				"windows"	"245"
+				"linux"		"245"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -783,6 +783,32 @@
 						"type"	"charptr"
 					}
 					"iMaxReasonLength"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFWeaponBaseGrenadeProj::InitGrenade"
+			{
+				"offset"	"CTFWeaponBaseGrenadeProj::InitGrenade"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"velocity"
+					{
+						"type"	"vectorptr"
+					}
+					"angVelocity"
+					{
+						"type"	"vectorptr"
+					}
+					"pOther"
+					{
+						"type"	"cbaseentity"
+					}
+					"weaponInfo"
 					{
 						"type"	"int"
 					}
