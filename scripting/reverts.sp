@@ -144,7 +144,7 @@ enum
 	EUREKA_FIRST_TARGET = 0,
 	EUREKA_TELEPORT_HOME = 0,
 	EUREKA_TELEPORT_TELEPORTER_EXIT,
-	EUREKA_LAST_TARGET = EUREKA_TELEPORT_TELEPORTER_EXIT,	
+	EUREKA_LAST_TARGET = EUREKA_TELEPORT_TELEPORTER_EXIT,
 	EUREKA_NUM_TARGETS
 };
 
@@ -492,7 +492,7 @@ enum
 	Set_Medieval,		// Medic
 	Set_CrocoStyle,		// Sniper
 	Set_Saharan, 		// Spy
-	
+
 	// Specific weapons
 	Wep_Airstrike,
 	Wep_Ambassador,
@@ -503,7 +503,7 @@ enum
 	Wep_Backburner,
 	Wep_BaseJumper,
 	Wep_Battalions,
-	Wep_BazaarBargain,	
+	Wep_BazaarBargain,
 	Wep_Beggars,
 	Wep_BlackBox,
 	Wep_Blutsauger,
@@ -523,7 +523,7 @@ enum
 	Wep_Crossbow,
 	Wep_Dalokohs,
 	Wep_Darwin,
-	Wep_DeadRinger,	
+	Wep_DeadRinger,
 	Wep_Degreaser,
 	Wep_DirectHit,
 	Wep_Disciplinary,
@@ -539,7 +539,7 @@ enum
 	Wep_Gunslinger,
 	Wep_Zatoichi, // Half-Zatoichi
 	Wep_Huntsman,
-#if defined MEMORY_PATCHES	
+#if defined MEMORY_PATCHES
 	Wep_IronBomber,
 #endif
 	Wep_Jag,
@@ -577,7 +577,7 @@ enum
 	Wep_StickyJumper,
 	Wep_SydneySleeper,
 	Wep_TideTurner,
-	Wep_Tomislav,	
+	Wep_Tomislav,
 	Wep_TribalmansShiv,
 	Wep_Caber, // Ullapool Caber
 	Wep_Vaccinator,
@@ -795,7 +795,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Pomson, "Pomson_PreMYM");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Powerjack_Release");
-	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
+	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");
 	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 	ItemVariant(Wep_PocketPistol, "Pocket_PreJI");
@@ -1340,7 +1340,7 @@ bool ValidatePatch(const char[] name, MemoryPatch patch)
 void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
 	char cvarName[128];
-	convar.GetName(cvarName, sizeof(cvarName));	
+	convar.GetName(cvarName, sizeof(cvarName));
 	if (StrContains(cvarName, "sm_reverts__item_") != -1)
 	{
 		char item[64];
@@ -1570,7 +1570,7 @@ public void OnGameFrame() {
 									if (airdash_limit_new > airdash_limit_old) {
 										// only play sound if the game doesn't play it
 										EmitSoundToAll("misc/banana_slip.wav", idx, SNDCHAN_AUTO, 30, (SND_CHANGEVOL|SND_CHANGEPITCH), 1.0, 100);
-									}	
+									}
 								}
 							}
 						}
@@ -2013,7 +2013,7 @@ public void OnGameFrame() {
 								}
 							}
 						}
-					}						
+					}
 				}
 
 				if (
@@ -2168,11 +2168,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
 			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
 			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
-		} 
-	} 
+		}
+	}
 	else if (StrContains(class, "item_ammopack") == 0) {
 		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
-	} 
+	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 	}
@@ -2688,7 +2688,7 @@ public void ApplyRevertsToItem(int entity) {
 				}
 				case 1: {
 					TF2Attrib_SetByDefIndex(entity, 5, 1.00); // 0% slower firing speed
-					TF2Attrib_SetByDefIndex(entity, 15, 1.0); // enable random critical hits 
+					TF2Attrib_SetByDefIndex(entity, 15, 1.0); // enable random critical hits
 					TF2Attrib_SetByDefIndex(entity, 253, 0.5); // 0.5 sec increase in time taken to cloak
 					TF2Attrib_SetByDefIndex(entity, 410, 1.0); // +0% damage bonus while disguised
 				}
@@ -3220,7 +3220,7 @@ public Action Event_OnPostInventoryApplication(Event event, const char[] name, b
 		TF2Attrib_RemoveByDefIndex(client, 177);
 
 	CreateTimer(cvar_weapon_cache_delay.FloatValue, Timer_CacheWeapons, userid);
-	
+
 	return Plugin_Continue;
 }
 
@@ -3274,7 +3274,7 @@ void CacheWeapons(int client) {
 				}
 
 				else if (StrEqual(class, "tf_weapon_lunchbox")) {
-					player_weapons[client][Feat_Lunchbox] = true;					
+					player_weapons[client][Feat_Lunchbox] = true;
 				}
 
 				else if (
@@ -3442,7 +3442,7 @@ void CacheWeapons(int client) {
 			case TFClass_Pyro:
 			{
 				TF2Attrib_RemoveByDefIndex(client, 489); // SET BONUS: move speed set bonus
-				TF2Attrib_RemoveByDefIndex(client, 516); // SET BONUS: dmg taken from bullets increased 
+				TF2Attrib_RemoveByDefIndex(client, 516); // SET BONUS: dmg taken from bullets increased
 			}
 			case TFClass_DemoMan:
 			{
@@ -3800,7 +3800,7 @@ Action CommandListener_EurekaTeleport(int client, const char[] command, int argc
 			players[client].eureka_teleport_target = EUREKA_TELEPORT_HOME;
 			return Plugin_Continue;
 		}
-		
+
 		char buf[8];
 		GetCmdArg(1, buf, sizeof(buf));
 		int teleport_target = StringToInt(buf);
@@ -3919,7 +3919,7 @@ void SDKHookCB_SpawnPost(int entity) {
 				maxs[1] = 2.0;
 				// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
 				maxs[2] = 8.0;
-				
+
 				mins[0] = -maxs[0];
 				mins[1] = -maxs[1];
 				mins[2] = -maxs[2];
@@ -3956,7 +3956,7 @@ void SDKHookCB_SpawnPost(int entity) {
 				StrEqual(scene, "scenes/player/medic/low/taunt03.vcd")
 			) {
 				weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
-			
+
 				if (weapon > 0) {
 					GetEntityClassname(weapon, class, sizeof(class));
 
@@ -4002,7 +4002,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (
-					ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
+					ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
 					ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 				) {
 					if (other >= 1 && other <= MaxClients) {
@@ -4020,7 +4020,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 						}
 					}
 					else if (other > MaxClients) {
-						
+
 						GetEntityClassname(other, class, sizeof(class));
 
 						// Pass through friendly buildings
@@ -4030,7 +4030,7 @@ Action SDKHookCB_Touch(int entity, int other) {
 						) {
 							return Plugin_Handled;
 						}
-						
+
 						// Don't collide with projectiles
 						if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
 							return Plugin_Handled;
@@ -4435,7 +4435,7 @@ Action SDKHookCB_OnTakeDamage(
 
 					// increase damage from splendid screen attribute
 					damage = TF2Attrib_HookValueFloat(damage, "charge_impact_damage", attacker);
-					
+
 					return Plugin_Changed;
 				}
 			}
@@ -4523,7 +4523,7 @@ Action SDKHookCB_OnTakeDamage(
 						return Plugin_Changed;
 					}
 				} else if (
-					ItemIsEnabled(Wep_CowMangler) && 
+					ItemIsEnabled(Wep_CowMangler) &&
 					StrEqual(class, "tf_projectile_energy_ball")
 				) {
 					// no crits for reverted mangler
@@ -4637,7 +4637,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 						health_cur = GetClientHealth(victim);
 						health_max = SDKCall(sdkcall_GetMaxHealth, victim);
 						float spunup_resist = TF2Attrib_HookValueFloat(1.0, "spunup_damage_resistance", victim);
-						
+
 						// apply resistance only when above 50% of max health
 						if (
 							(float(health_cur) - damage) / float(health_max) > 0.5 &&
@@ -4912,7 +4912,7 @@ void SDKHookCB_OnTakeDamagePost(
 				) {
 					delta *= 0.0; // no rage gain from damage dealt
 				}
-				
+
 				if (
 					ItemIsEnabled(Wep_Phlogistinator) &&
 					player_weapons[attacker][Wep_Phlogistinator]
@@ -5032,12 +5032,12 @@ void SDKHookCB_OnTakeDamagePost(
 					if (TF2_GetPlayerClass(victim) == TFClass_Spy) {
 						damage1 = (20.0 * (1.0 - damage1));
 						damage1 = float(RoundToCeil(damage1));
-						
+
 						charge = GetEntPropFloat(victim, Prop_Send, "m_flCloakMeter");
-						
+
 						charge = (charge - damage1);
 						charge = (charge < 0.0 ? 0.0 : charge);
-						
+
 						SetEntPropFloat(victim, Prop_Send, "m_flCloakMeter", charge);
 					}
 
@@ -5108,7 +5108,7 @@ public Action OnPlayerRunCmd(
 				IsPlayerAlive(client)
 			) {
 				// additional code for shortstop shove removal
-				
+
 				weapon1 = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 				if (weapon1 > 0) {
 					GetEntityClassname(weapon1, class, sizeof(class));
@@ -5130,7 +5130,7 @@ public Action OnPlayerRunCmd(
 						}
 					}
 				}
-			}			
+			}
 		}
 
 		case TFClass_Heavy:
@@ -5167,7 +5167,7 @@ public Action OnPlayerRunCmd(
 	} else {
 		players[client].holding_attack2 = false;
 	}
-	
+
 	return returnValue;
 }
 
@@ -5258,7 +5258,7 @@ void DetonateDemomanStickies(int client) {
 
 	if (demoman_secondaryweapon > 0) {
 	GetEntityClassname(demoman_secondaryweapon, weaponclass, sizeof(weaponclass));
-						
+
 		if (StrEqual(weaponclass, "tf_weapon_pipebomblauncher")) {
 			SDKCall(sdkcall_CTFPipebombLauncher_SecondaryAttack, demoman_secondaryweapon);
 		}
@@ -5318,7 +5318,7 @@ void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 
 /**
  * Define an item used for reverts.
- * 
+ *
  * @param key				Key for item used for the cvar and as the item name key in
  * 							the translation file.
  * @param desc				Key for description of the item in the translation file.
@@ -5334,7 +5334,7 @@ void ItemDefine(const char[] key, const char[] desc, int flags, int wep_enum) {
 
 /**
  * Define an item variant.
- * 
+ *
  * @param wep_enum		Weapon enum.
  * @param desc			Key for description of the item variant in the translation file.
  */
@@ -5380,7 +5380,7 @@ void ItemFinalize() {
 
 /**
  * Check if an item is enabled.
- * 
+ *
  * @param wep_enum		Weapon enum.
  * @return				True if an item revert is enabled on the server, false otherwise.
  */
@@ -5390,7 +5390,7 @@ bool ItemIsEnabled(int wep_enum) {
 
 /**
  * Get the item variant enabled on a server.
- * 
+ *
  * @param wep_enum		Weapon enum.
  * @return				The weapon variant.
  */
@@ -5705,7 +5705,7 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack_Pre(int entity) {
 			players[owner].bazaar_shot = BAZAAR_LOSE;
 		}
 	}
-	
+
 	return MRES_Ignored;
 }
 
@@ -5718,7 +5718,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 	GetEntityClassname(entity, class, sizeof(class));
 
 	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	
+
 	if (owner > 0) {
 		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 		if (
@@ -5901,7 +5901,7 @@ bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 										hit = true;
 
 										// damage players
-										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);	
+										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
 									}
 								} else {
 									hit = true;
@@ -5967,7 +5967,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Post(int entity) {
 
 MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	
+
 	if (
 		GetItemVariant(Wep_Sandvich) == 0 &&
 		player_weapons[owner][Wep_Sandvich]
@@ -5983,7 +5983,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 	) {
 		return MRES_Supercede;
 	}
-	
+
 	return MRES_Ignored;
 }
 
@@ -6407,7 +6407,7 @@ MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client) {
 			}
 		}
 	}
-	
+
 	return MRES_Ignored;
 }
 
@@ -6750,7 +6750,7 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter_Pre(Address pThis, D
 			// cap dead ringer cloak gain to 35%
 			float val = parameters.Get(1);
 			parameters.Set(1, floatMin(val, 35.00));
-			return MRES_ChangedHandled;	
+			return MRES_ChangedHandled;
 		}
 	}
 	return MRES_Ignored;
@@ -6949,7 +6949,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	bool override = false;
 	float pos1[3], pos2[3];
 	float lifetime, lifetime_ratio;
-	
+
 	if (
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
@@ -7197,7 +7197,7 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookPara
 		// vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), TF_CANNONBALL_FORCE_SCALE );
 		// vecForce.z = ( ( GetPlayerClass()->GetClassIndex() == TF_CLASS_HEAVYWEAPONS ) ? ( TF_CANNONBALL_FORCE_UPWARD * 2 ) : TF_CANNONBALL_FORCE_UPWARD );
 
-		// Hijack tf_damageforcescale_other for the old cannon knockback		
+		// Hijack tf_damageforcescale_other for the old cannon knockback
 		cvar_ref_tf_damageforcescale_other.FloatValue = TF_CANNONBALL_FORCE_SCALE;
 
 		float size[3], mins[3];
@@ -7215,10 +7215,10 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookPara
 
 		// Adjust vertical axis for correct upward force
 		float force_z = TF_CANNONBALL_FORCE_UPWARD;
-		
+
 		if (TF2_GetPlayerClass(client) == TFClass_Heavy) {
 			// Double knockback to compensate for it being halved
-			force_z *= 2.0; 
+			force_z *= 2.0;
 		}
 
 		parameters.Set(4, -(force_z / force));
@@ -7601,27 +7601,27 @@ stock int PrecacheParticleSystem(const char[] particleSystem)
 		if (numStrings >= GetStringTableMaxStrings(particleEffectNames)) {
 			return INVALID_STRING_INDEX;
 		}
-		
+
 		AddToStringTable(particleEffectNames, particleSystem);
 		index = numStrings;
 	}
-	
+
 	return index;
 }
 
 stock int FindStringIndex2(int tableidx, const char[] str)
 {
 	char buf[1024];
-	
+
 	int numStrings = GetStringTableNumStrings(tableidx);
 	for (int i=0; i < numStrings; i++) {
 		ReadStringTable(tableidx, i, buf, sizeof(buf));
-		
+
 		if (StrEqual(buf, str)) {
 			return i;
 		}
 	}
-	
+
 	return INVALID_STRING_INDEX;
 }
 
@@ -7697,9 +7697,9 @@ stock int GetEntityFromAddress(Address pEntity)
 
 // math stocks
 
-/** 
+/**
  * Get an absolute value of an integer.
- * 
+ *
  * @param x		Integer.
  * @return		Absolute value of x.
  */
@@ -7711,7 +7711,7 @@ stock int abs(int x)
 
 /**
  * Get the lesser integer between two integers.
- * 
+ *
  * @param x		Integer x.
  * @param y		Integer y.
  * @return		The lesser integer between x and y.
@@ -7723,7 +7723,7 @@ stock int intMin(int x, int y)
 
 /**
  * Get the greater integer between two integers.
- * 
+ *
  * @param x		Integer x.
  * @param y		Integer y.
  * @return		The greater integer between x and y.
@@ -7735,7 +7735,7 @@ stock int intMax(int x, int y)
 
 /**
  * Get the lesser float between two floats.
- * 
+ *
  * @param x		Float x.
  * @param y		Float y.
  * @return		The lesser float between x and y.
@@ -7747,7 +7747,7 @@ stock float floatMin(float x, float y)
 
 /**
  * Get the greater float between two floats.
- * 
+ *
  * @param x		Float x.
  * @param y		Float y.
  * @return		The greater float between x and y.
