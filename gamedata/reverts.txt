@@ -1,5 +1,21 @@
 "Games"
 {
+	"#default"
+	{
+		"Offsets"
+		{
+			// arbitrary values for detecting the operating system
+			"OperatingSystem"
+			{
+				"linux"		"0"
+				"windows"	"1"
+				"mac"		"2"
+				"linux64"	"3"
+				"windows64"	"4"
+				"mac64"		"5"
+			}
+		}
+	}
 	"tf"
 	{
 		"Signatures"
