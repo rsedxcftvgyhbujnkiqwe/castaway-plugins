@@ -601,6 +601,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		strcopy(error, err_max, "Gamedata has no OperatingSystem value");
 		return APLRes_Failure;
 	}
+	operatingSystem = view_as<OperatingSystem>(osOffset);
 	switch (operatingSystem) {
 		case MAC, MAC64: {
 			delete gamedata;
