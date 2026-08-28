@@ -91,354 +91,353 @@
 				"windows"
 			}
 		}
-
 		"MemPatches"
+		{
+			// ╔══════════════════════════════════════════════╗
+			// ║                    Scout                     ║
+			// ╚══════════════════════════════════════════════╝
+
+			"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount"
 			{
-				// ╔══════════════════════════════════════════════╗
-				// ║                    Scout                     ║
-				// ╚══════════════════════════════════════════════╝
-
-				"CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount"
+				"signature"     "CTFWeaponBase::ApplyOnHitAttributes"
+				"linux"
 				{
-					"signature"     "CTFWeaponBase::ApplyOnHitAttributes"
-					"linux"
-					{
-						"offset"    "4361"
-						"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
-						"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
-					}
-					"windows"
-					{
-						"offset"    "996"
-						"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // mulss xmm0, ds:flt_1077A508 (0.6 in flt_1077A508), f3 0f 59 05 08 a5 77 10
-						"patch"     "\xF3\x0F\x59\x05\x00\x00\x00\x00" // mulss xmm0, 0 (retrieve from plugin)
-					}
+					"offset"    "4361"
+					"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
+					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
 				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                   Soldier                    ║
-				// ╚══════════════════════════════════════════════╝
-
-				// No patches for Soldier at the moment.
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                    Pyro                      ║
-				// ╚══════════════════════════════════════════════╝
-
-				// ================================================
-				//  Dragons Fury bonus requires center of fireball hitbox
-				//  to hit enemy, removal
-
-				"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement"
+				"windows"
 				{
-					"signature" "CTFProjectile_BallOfFire::Burn"
-					"linux"
-					{
-						"offset"    "2357"
-						"verify"    "\x77\x2A\x80\xBD\x5E\xFF\xFF\xFF\x00" // JA rel8 (wildcarded offset); CMP BYTE PTR [EBP - 0xA2], 0
-						"patch"     "\xE9\x24\x0A\x00\x00\x90\x90\x90\x90" // JMP +0xA24 (2596 bytes forward); 4× NOP
-
-					}
-					"windows"
-					{
-						"offset"    "1676"
-						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
-						"patch"     "\x90\x90" // 2x NOP
-					}
+					"offset"    "996"
+					"verify"    "\xF3\x0F\x59\x05\x2A\x2A\x2A\x2A" // mulss xmm0, ds:flt_1077A508 (0.6 in flt_1077A508), f3 0f 59 05 08 a5 77 10
+					"patch"     "\xF3\x0F\x59\x05\x00\x00\x00\x00" // mulss xmm0, 0 (retrieve from plugin)
 				}
-
-				// ================================================
-				//  Revert flamethrower damage and mechanics to Pre-Bluemoon/Jungle Inferno.
- 
-				"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
-				{
-					"signature" "CTFFlameManager::GetFlameDamageScale"
-					"linux"
-					{
-						"offset"    "239"
-						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-						"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
- 
-					}
-					"windows"
-					{
-						"offset"    "349"
-						"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-						"patch"  "\xE9\x88\x00\x00\x00\x90" // JMP 136 bytes forward, NOP
-					}
-				}
- 
-				"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage"
-				{
-					"signature" "CTFFlameManager::OnCollide"
-					"linux"
-					{
-						"offset"    "254"
-						"verify"    "\x74\x2A"
-						"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
- 
-					}
-					"windows"
-					{
-						"offset"    "270"
-						"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
-						"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
-					}
-				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                   Demoman                    ║
-				// ╚══════════════════════════════════════════════╝
-
-				//  Demoman related MemoryPatches go here.
-
-				// ================================================
-				//  Iron Bomber - Pre-July 7, 2022 patch
-				//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
-				//	Normal pipe grenade hitbox size is 4x4x4. 
-				//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
-				//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
-				//	Function can be found via the DevMsg "Fire bomb at %f %f %f\n" string in a decompiler.
-
-				"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert"
-				{
-					"signature"	"CTFWeaponBaseGun::FirePipeBomb"
-					"linux"
-					{
-						"offset"	"2092"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
-					}
-					"windows"
-					{
-						"offset"	"1383"
-						"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x, e8 d4 34 d3 ff
-						"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
-					}
-				}
-
-				// ================================================
-				//  Demoman cannot detonate stickies while taunting, removal.
-				//  Removes the CanAttack check.
-				//  Note: We take over the responsbility for the CanAttack check to ensure shenanigans
-				//  such as a demoman in the team that lost cannot detonate their stickies.
-
-				"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck" 
-				{
-					"signature" "CTFPipebombLauncher::SecondaryAttack"
-					// Linux contains a special "hot" part, the rest of the logic is in
-					// _ZN19CTFPipebombLauncher15SecondaryAttackEv.part.0
-					// But we DON'T want to patch that!
-					"linux"
-					{
-						"offset" "24"
-						"verify" "\x74\x2A"   // JZ short (CanAttack == 0 -> return)
-						"patch"  "\x90\x90"   // NOP jump -> ignore CanAttack entirely
-					}
-					"windows"
-					{
-						"offset"	"15"
-						"verify"	"\x0F\x84\x2A\x2A\x2A\x2A" // JZ, wildcard
-						"patch"		"\x90\x90\x90\x90\x90\x90" // NOP 6x, prevent if !CanAttack() statement
-					}
-				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                    Heavy                     ║
-				// ╚══════════════════════════════════════════════╝
-
-				// Direct modification of steak boost/cap values
-				"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue"
-				{
-					"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
-					"linux"
-					{
-						"offset"	"1957"
-						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
-						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
-					}
-					"windows"
-					{
-						"offset"	"1620"
-						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
-						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
-					}
-				}
-				"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue"
-				{
-					"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
-					"linux"
-					{
-						"offset"	"1949"
-						"verify"	"\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx] ; original should point to 1.3
-						"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
-					}
-					"windows"
-					{
-						"offset"	"1653"
-						"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.3
-						"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
-					}
-				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                  Engineer                    ║
-				// ╚══════════════════════════════════════════════╝
-
-				// Increased accuracy for release Wrangler.
-				// Change VECTOR_CONE_3DEGREES -> VECTOR_CONE_2DEGREES
-				// https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/basecombatweapon_shared.h#L100
-
-				// Linux uses one SSE instruction for the float constant
-				"CObjectSentrygun::Fire_2DegreeConeSSE"
-				{
-					"signature" "CObjectSentrygun::Fire"
-					"linux"
-					{
-						"offset"	"1450"
-						"verify"	"\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, [dat_xxxxxxxx]
-						"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
-					}
-				}
-				// Windows has three instructions for the float constant for each axis
-				"CObjectSentrygun::Fire_2DegreeConeX"
-				{
-					"signature" "CObjectSentrygun::Fire"
-					"windows"
-					{
-						"offset"	"1080"
-						"verify"	"\xc7\x85\x7c\xff\xff\xff\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
-						"patch"		"\xc7\x85\x7c\xff\xff\xff\x00\x00\x00\x00" // retrieve from plugin
-					}
-				}
-				"CObjectSentrygun::Fire_2DegreeConeY"
-				{
-					"signature" "CObjectSentrygun::Fire"
-					"windows"
-					{
-						"offset"	"1090"
-						"verify"	"\xc7\x45\x80\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
-						"patch"		"\xc7\x45\x80\x00\x00\x00\x00" // retrieve from plugin
-					}
-				}
-				"CObjectSentrygun::Fire_2DegreeConeZ"
-				{
-					"signature" "CObjectSentrygun::Fire"
-					"windows"
-					{
-						"offset"	"1097"
-						"verify"	"\xc7\x45\x84\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
-						"patch"		"\xc7\x45\x84\x00\x00\x00\x00" // retrieve from plugin
-					}
-				}
-				
-				// ╔══════════════════════════════════════════════╗
-				// ║                    Medic                     ║
-				// ╚══════════════════════════════════════════════╝
-
-				// ================================================
-				//  Quick-Fix ubercharge does not allow
-				//  point capture, removal.
-				
-
-				"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint"
-				{
-					"signature" "CTFGameRules::PlayerMayCapturePoint"
-					"linux"
-					{
-						"offset"    "264"
-						"verify"    "\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Read readme-memorypatches.md for details
-						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
-					}
-					"windows"
-					{
-						"offset"    "92"
-						"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
-						"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
-					}
-				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                   Sniper                     ║
-				// ╚══════════════════════════════════════════════╝
-
-				// No patches for Sniper at the moment.
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                     Spy                      ║
-				// ╚══════════════════════════════════════════════╝
-
-				//  Spy related MemoryPatches go here.
-				// ================================================
-				//  Spy cannot taunt and cloak check, removal.
-				//  Basically restores so the Spy can do this:
-				//  https://www.youtube.com/watch?v=L_aFprOzvUA
-
-				"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck"
-				{
-					"signature" "CTFPlayer::DoClassSpecialSkill"
-					"linux"
-					{
-						"offset"    "288"
-						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x106
-						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-					}
-					"windows"
-					{
-						"offset"    "173"
-						"verify"    "\x75\x50" // JNZ 0x50
-						"patch"     "\x90\x90" // NOP x2
-					}
-				}
-				"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer"
-				{
-					"signature" "CTFPlayer::OnTakeDamage"
-					"linux"
-					{
-						"offset"    "15807"
-						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x2653
-						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-					}
-					"windows"
-					{
-						"offset"    "9621"
-						"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
-						"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-					}	
-				}
-
-				// ╔══════════════════════════════════════════════╗
-				// ║                    Misc                      ║
-				// ╚══════════════════════════════════════════════╝
-			
-				// Dropped weapon revert
-				// Push pszWorldModel instead of "models/items/ammopack_medium.mdl" on the
-				// parameter stack when calling CTFAmmoPack::Create
-
-				// see src/game/server/tf/tf_player.cpp:13113
-
-				// This will not work on listen servers as we're not precaching the "ammo pack"
-				// model.
-
-				"CTFPlayer::DropAmmoPack"
-				{
-					"signature" "CTFPlayer::DropAmmoPack"
-					"linux"
-					{
-						// edi will have the pointer to our string
-						"offset"	"506"
-						"verify"	"\x68\x2A\x2A\x2A\x2A"
-						"patch"		"\x90\x90\x90\x90\x57"
-					}
-					"windows"
-					{
-						"offset"	"581"
-						"verify"	"\x68\x2A\x2A\x2A\x2A"
-						"patch"		"\x90\x90\xFF\x75\xF0"
-					}
-				}
-
 			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                   Soldier                    ║
+			// ╚══════════════════════════════════════════════╝
+
+			// No patches for Soldier at the moment.
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                    Pyro                      ║
+			// ╚══════════════════════════════════════════════╝
+
+			// ================================================
+			//  Dragons Fury bonus requires center of fireball hitbox
+			//  to hit enemy, removal
+
+			"CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement"
+			{
+				"signature" "CTFProjectile_BallOfFire::Burn"
+				"linux"
+				{
+					"offset"    "2357"
+					"verify"    "\x77\x2A\x80\xBD\x5E\xFF\xFF\xFF\x00" // JA rel8 (wildcarded offset); CMP BYTE PTR [EBP - 0xA2], 0
+					"patch"     "\xE9\x24\x0A\x00\x00\x90\x90\x90\x90" // JMP +0xA24 (2596 bytes forward); 4× NOP
+
+				}
+				"windows"
+				{
+					"offset"    "1676"
+					"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
+					"patch"     "\x90\x90" // 2x NOP
+				}
+			}
+
+			// ================================================
+			//  Revert flamethrower damage and mechanics to Pre-Bluemoon/Jungle Inferno.
+ 
+			"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
+			{
+				"signature" "CTFFlameManager::GetFlameDamageScale"
+				"linux"
+				{
+					"offset"    "239"
+					"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
+					"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
+ 
+				}
+				"windows"
+				{
+					"offset"    "349"
+					"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
+					"patch"  "\xE9\x88\x00\x00\x00\x90" // JMP 136 bytes forward, NOP
+				}
+			}
+ 
+			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage"
+			{
+				"signature" "CTFFlameManager::OnCollide"
+				"linux"
+				{
+					"offset"    "254"
+					"verify"    "\x74\x2A"
+					"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
+ 
+				}
+				"windows"
+				{
+					"offset"    "270"
+					"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
+					"patch"     "\xEB\x58" // JMP SHORT +0x58, jump 88 bytes forward from the instruction immediately following it
+				}
+			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                   Demoman                    ║
+			// ╚══════════════════════════════════════════════╝
+
+			//  Demoman related MemoryPatches go here.
+
+			// ================================================
+			//  Iron Bomber - Pre-July 7, 2022 patch
+			//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
+			//	Normal pipe grenade hitbox size is 4x4x4. 
+			//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
+			//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
+			//	Function can be found via the DevMsg "Fire bomb at %f %f %f\n" string in a decompiler.
+
+			"CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert"
+			{
+				"signature"	"CTFWeaponBaseGun::FirePipeBomb"
+				"linux"
+				{
+					"offset"	"2092"
+					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x
+					"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
+				}
+				"windows"
+				{
+					"offset"	"1383"
+					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x, e8 d4 34 d3 ff
+					"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
+				}
+			}
+
+			// ================================================
+			//  Demoman cannot detonate stickies while taunting, removal.
+			//  Removes the CanAttack check.
+			//  Note: We take over the responsbility for the CanAttack check to ensure shenanigans
+			//  such as a demoman in the team that lost cannot detonate their stickies.
+
+			"CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck" 
+			{
+				"signature" "CTFPipebombLauncher::SecondaryAttack"
+				// Linux contains a special "hot" part, the rest of the logic is in
+				// _ZN19CTFPipebombLauncher15SecondaryAttackEv.part.0
+				// But we DON'T want to patch that!
+				"linux"
+				{
+					"offset" "24"
+					"verify" "\x74\x2A"   // JZ short (CanAttack == 0 -> return)
+					"patch"  "\x90\x90"   // NOP jump -> ignore CanAttack entirely
+				}
+				"windows"
+				{
+					"offset"	"15"
+					"verify"	"\x0F\x84\x2A\x2A\x2A\x2A" // JZ, wildcard
+					"patch"		"\x90\x90\x90\x90\x90\x90" // NOP 6x, prevent if !CanAttack() statement
+				}
+			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                    Heavy                     ║
+			// ╚══════════════════════════════════════════════╝
+
+			// Direct modification of steak boost/cap values
+			"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue"
+			{
+				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+				"linux"
+				{
+					"offset"	"1957"
+					"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+				}
+				"windows"
+				{
+					"offset"	"1620"
+					"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+				}
+			}
+			"CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue"
+			{
+				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
+				"linux"
+				{
+					"offset"	"1949"
+					"verify"	"\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+					"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
+				}
+				"windows"
+				{
+					"offset"	"1653"
+					"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
+				}
+			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                  Engineer                    ║
+			// ╚══════════════════════════════════════════════╝
+
+			// Increased accuracy for release Wrangler.
+			// Change VECTOR_CONE_3DEGREES -> VECTOR_CONE_2DEGREES
+			// https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/shared/basecombatweapon_shared.h#L100
+
+			// Linux uses one SSE instruction for the float constant
+			"CObjectSentrygun::Fire_2DegreeConeSSE"
+			{
+				"signature" "CObjectSentrygun::Fire"
+				"linux"
+				{
+					"offset"	"1450"
+					"verify"	"\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, [dat_xxxxxxxx]
+					"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
+				}
+			}
+			// Windows has three instructions for the float constant for each axis
+			"CObjectSentrygun::Fire_2DegreeConeX"
+			{
+				"signature" "CObjectSentrygun::Fire"
+				"windows"
+				{
+					"offset"	"1080"
+					"verify"	"\xc7\x85\x7c\xff\xff\xff\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+					"patch"		"\xc7\x85\x7c\xff\xff\xff\x00\x00\x00\x00" // retrieve from plugin
+				}
+			}
+			"CObjectSentrygun::Fire_2DegreeConeY"
+			{
+				"signature" "CObjectSentrygun::Fire"
+				"windows"
+				{
+					"offset"	"1090"
+					"verify"	"\xc7\x45\x80\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+					"patch"		"\xc7\x45\x80\x00\x00\x00\x00" // retrieve from plugin
+				}
+			}
+			"CObjectSentrygun::Fire_2DegreeConeZ"
+			{
+				"signature" "CObjectSentrygun::Fire"
+				"windows"
+				{
+					"offset"	"1097"
+					"verify"	"\xc7\x45\x84\x2a\x2a\x2a\x2a" // mov dword ptr [ebp + ...], constant
+					"patch"		"\xc7\x45\x84\x00\x00\x00\x00" // retrieve from plugin
+				}
+			}
+			
+			// ╔══════════════════════════════════════════════╗
+			// ║                    Medic                     ║
+			// ╚══════════════════════════════════════════════╝
+
+			// ================================================
+			//  Quick-Fix ubercharge does not allow
+			//  point capture, removal.
+			
+
+			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint"
+			{
+				"signature" "CTFGameRules::PlayerMayCapturePoint"
+				"linux"
+				{
+					"offset"    "264"
+					"verify"    "\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Read readme-memorypatches.md for details
+					"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
+				}
+				"windows"
+				{
+					"offset"    "92"
+					"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
+					"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
+				}
+			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                   Sniper                     ║
+			// ╚══════════════════════════════════════════════╝
+
+			// No patches for Sniper at the moment.
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                     Spy                      ║
+			// ╚══════════════════════════════════════════════╝
+
+			//  Spy related MemoryPatches go here.
+			// ================================================
+			//  Spy cannot taunt and cloak check, removal.
+			//  Basically restores so the Spy can do this:
+			//  https://www.youtube.com/watch?v=L_aFprOzvUA
+
+			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck"
+			{
+				"signature" "CTFPlayer::DoClassSpecialSkill"
+				"linux"
+				{
+					"offset"    "288"
+					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x106
+					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
+				}
+				"windows"
+				{
+					"offset"    "173"
+					"verify"    "\x75\x50" // JNZ 0x50
+					"patch"     "\x90\x90" // NOP x2
+				}
+			}
+			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer"
+			{
+				"signature" "CTFPlayer::OnTakeDamage"
+				"linux"
+				{
+					"offset"    "15807"
+					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x2653
+					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
+				}
+				"windows"
+				{
+					"offset"    "9621"
+					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
+					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
+				}	
+			}
+
+			// ╔══════════════════════════════════════════════╗
+			// ║                    Misc                      ║
+			// ╚══════════════════════════════════════════════╝
+		
+			// Dropped weapon revert
+			// Push pszWorldModel instead of "models/items/ammopack_medium.mdl" on the
+			// parameter stack when calling CTFAmmoPack::Create
+
+			// see src/game/server/tf/tf_player.cpp:13113
+
+			// This will not work on listen servers as we're not precaching the "ammo pack"
+			// model.
+
+			"CTFPlayer::DropAmmoPack"
+			{
+				"signature" "CTFPlayer::DropAmmoPack"
+				"linux"
+				{
+					// edi will have the pointer to our string
+					"offset"	"506"
+					"verify"	"\x68\x2A\x2A\x2A\x2A"
+					"patch"		"\x90\x90\x90\x90\x57"
+				}
+				"windows"
+				{
+					"offset"	"581"
+					"verify"	"\x68\x2A\x2A\x2A\x2A"
+					"patch"		"\x90\x90\xFF\x75\xF0"
+				}
+			}
+
+		}
 		"Functions"
 		{
 			"CTFAmmoPack::MakeHolidayPack"
