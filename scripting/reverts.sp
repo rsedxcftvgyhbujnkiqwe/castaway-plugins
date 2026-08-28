@@ -20,16 +20,6 @@
 #undef MEMORY_PATCHES
 #endif
 
-//#define WIN32
-/*
- ^ ^ ^ ^ ^ ^ ^ ^ ^
-	Additionally, you will need to select your compile OS.
-	Memory patches are different for Windows and Linux servers.
-	For Windows, either uncomment the above line
-	or pass in WIN32= as a parameter to spcomp.exe.
-	For Linux, leave this line commented.
-*/
-
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -51,18 +41,10 @@
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
 #define PLUGIN_VERSION_NUM "2.0.3"
-// Add a OS suffix if Memorypatch reverts are used
-// to make it easier to see which OS the plugin is compiled for. 
-// To server owners, before you raise hell, do: sm plugins list 
-// and check that you compiled for the correct OS.
 #if defined MEMORY_PATCHES
-#if defined WIN32
-#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-win32"
-#else
-#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-linux32"
-#endif
-#else
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM
+#else
+#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-patchless"
 #endif
 
 //#define GIT_COMMIT
@@ -222,6 +204,16 @@ enum
 	SHOVEL_SPEED_BOOST,
 };
 
+enum OperatingSystem
+{
+	LINUX = 0,
+	WINDOWS,
+	MAC,
+	LINUX64,
+	WINDOWS64,
+	MAC64
+}
+
 char class_names[][] = {
 	"SCOUT",
 	"SNIPER",
@@ -345,14 +337,13 @@ Address AddressOf_g_flMadMilkHealTarget;
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
 float g_flWranglerSpreadTarget = 0.01745;
-#if defined WIN32
+// windows
 MemoryPatch patch_RevertWranglerSpreadCone_X;
 MemoryPatch patch_RevertWranglerSpreadCone_Y;
 MemoryPatch patch_RevertWranglerSpreadCone_Z;
-#else
+// linux
 MemoryPatch patch_RevertWranglerSpreadCone_SSE;
 Address AddressOf_g_flWranglerSpreadTarget;
-#endif
 
 float g_flSteakCapTarget = 10.0; // arbitrary
 float g_flSteakBoostTarget = 1.35;
@@ -456,6 +447,8 @@ int crossbow_medigun;
 float old_charge_level;
 bool bolt_heal;
 float lifetime_ratio;
+
+OperatingSystem operatingSystem;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -598,6 +591,33 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
+	// load the game data now so we can refuse to load if we're on 64-bit
+	GameData gamedata = new GameData("reverts");
+	if (!gamedata) {
+		strcopy(error, err_max, "Cannot load gamedata to determine the operating system");
+		return APLRes_Failure;
+	}
+	int osOffset = gamedata.GetOffset("OperatingSystem");
+	if (osOffset == -1) {
+		delete gamedata;
+		strcopy(error, err_max, "Gamedata has no OperatingSystem value");
+		return APLRes_Failure;
+	}
+	operatingSystem = view_as<OperatingSystem>(osOffset);
+	switch (operatingSystem) {
+		case MAC, MAC64: {
+			delete gamedata;
+			strcopy(error, err_max, "This plugin will not work for your operating system");
+			return APLRes_SilentFailure;
+		}
+		case WINDOWS64, LINUX64: {
+			delete gamedata;
+			strcopy(error, err_max, "This plugin doesn't support 64-bit yet");
+			return APLRes_SilentFailure;
+		}
+	}
+
+	delete gamedata;
 	return APLRes_Success;
 }
 
@@ -1003,20 +1023,20 @@ public void OnPluginStart() {
 		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
 		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
-#if defined WIN32
-		patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
-		patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
-		patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
-#else
-		patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
-#endif
+		if (operatingSystem == WINDOWS) {
+			patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
+			patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
+			patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
+		} else {
+			patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+		}
 		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
 		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
 
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-#if !defined WIN32
-		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
-#endif
+		if (operatingSystem != WINDOWS) {
+			AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+		}
 		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
 		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
 
@@ -1125,13 +1145,13 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_DroppedWeapon);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
 	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
-#if defined WIN32
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
-#else
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
-#endif
+	if (operatingSystem == WINDOWS) {
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
+	} else {
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
+	}
 	VALIDATE_PATCH(patch_RevertSteakCapValue);
 	VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
@@ -1353,25 +1373,25 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_Wrangler: {
 			if (enable && GetItemVariant(Wep_Wrangler) == 2) {
-#if defined WIN32
-				patch_RevertWranglerSpreadCone_X.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
-				patch_RevertWranglerSpreadCone_Y.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
-				patch_RevertWranglerSpreadCone_Z.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
-#else
-				patch_RevertWranglerSpreadCone_SSE.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
-#endif
+				if (operatingSystem == WINDOWS) {
+					patch_RevertWranglerSpreadCone_X.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
+					patch_RevertWranglerSpreadCone_Y.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+					patch_RevertWranglerSpreadCone_Z.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+				} else {
+					patch_RevertWranglerSpreadCone_SSE.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
+				}
 			} else {
-#if defined WIN32
-				patch_RevertWranglerSpreadCone_X.Disable();
-				patch_RevertWranglerSpreadCone_Y.Disable();
-				patch_RevertWranglerSpreadCone_Z.Disable();
-#else
-				patch_RevertWranglerSpreadCone_SSE.Disable();
-#endif
+				if (operatingSystem == WINDOWS) {
+					patch_RevertWranglerSpreadCone_X.Disable();
+					patch_RevertWranglerSpreadCone_Y.Disable();
+					patch_RevertWranglerSpreadCone_Z.Disable();
+				} else {
+					patch_RevertWranglerSpreadCone_SSE.Disable();
+				}
 			}
 		}
 		case Wep_BuffaloSteak: {
