@@ -335,7 +335,6 @@ MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
 MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
-MemoryPatch patch_DroppedWeapon;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
@@ -420,6 +419,8 @@ DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
 DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 
 #if defined MEMORY_PATCHES
+MemoryPatch patch_DroppedWeapon;
+DynamicDetour dhook_CTFDroppedWeapon_Create;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
 #endif
 
@@ -991,7 +992,6 @@ public void OnPluginStart() {
 		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
 		patch_RevertQuickFix_Uber_CannotCapturePoint = MemoryPatch.CreateFromConf(conf, "CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
 		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
-		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
 		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
 #if defined WIN32
@@ -1011,6 +1011,8 @@ public void OnPluginStart() {
 		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
 		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
 
+		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+		dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
 		StartPrepSDKCall(SDKCall_Entity);
@@ -1108,7 +1110,6 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
 	VALIDATE_PATCH(patch_RevertQuickFix_Uber_CannotCapturePoint);
 	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
-	VALIDATE_PATCH(patch_DroppedWeapon);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
 	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
 #if defined WIN32
@@ -1121,6 +1122,8 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertSteakCapValue);
 	VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
+	VALIDATE_PATCH(patch_DroppedWeapon);
+	VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
 	VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
 
 	VALIDATE_HANDLE(sdkcall_CTFPipebombLauncher_SecondaryAttack);
@@ -1158,6 +1161,7 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre);
 
 #if defined MEMORY_PATCHES
+	dhook_CTFDroppedWeapon_Create.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_Create);
 	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
 #endif
 
@@ -6375,6 +6379,14 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int ent
 }
 
 #if defined MEMORY_PATCHES
+MRESReturn DHookCallback_CTFDroppedWeapon_Create(DHookReturn hReturn, DHookParam hParams) {
+	if (cvar_dropped_weapon_enable.BoolValue) {
+		hReturn.Value = INVALID_ENT_REFERENCE;
+		return MRES_Supercede;
+	}
+	return MRES_Ignored;
+}
+
 MRESReturn DHookCallback_CTFAmmoPack_MakeHolidayPack(int pThis) {
 	if (cvar_dropped_weapon_enable.BoolValue) {
 		return MRES_Supercede;

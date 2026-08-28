@@ -84,11 +84,12 @@
 				"windows" "\x55\x8B\xEC\x83\xEC\x18\x56\x8B\xF1\x8B\x0D\x2A\x2A\x2A\x2A" //  offset aMultPlayerAimi ; "mult_player_aiming_movespeed"
 				"linux"	  "@_ZNK9CTFPlayer30TeamFortress_CalculateMaxSpeedEb"
 			}
-		}
-
-		"Offsets"
-		{
-			
+			"CTFDroppedWeapon::Create"
+			{
+				"library" "server"
+				"linux"	  "@_ZN16CTFDroppedWeapon6CreateEP9CTFPlayerRK6VectorRK6QAnglePKcPK13CEconItemView"
+				"windows"
+			}
 		}
 
 		"MemPatches"
@@ -411,15 +412,10 @@
 				// ╚══════════════════════════════════════════════╝
 			
 				// Dropped weapon revert
+				// Push pszWorldModel instead of "models/items/ammopack_medium.mdl" on the
+				// parameter stack when calling CTFAmmoPack::Create
 
-				// NOP outs the entire dropped weapon creation section
-				// (src/game/server/tf/tf_player.cpp:13084-13088) and pushes pszWorldModel onto
-				// the stack as the world model parameter for CTFAmmoPack::Create instead of
-				// "models/items/ammopack_medium.mdl".
-				//
-				// Special thanks to VerdiusArcana for figuring out the offset and verify.
-				//
-				// - Eric Zhang
+				// see src/game/server/tf/tf_player.cpp:13113
 
 				// This will not work on listen servers as we're not precaching the "ammo pack"
 				// model.
@@ -429,16 +425,16 @@
 					"signature" "CTFPlayer::DropAmmoPack"
 					"linux"
 					{
-						"offset"    "453"
-						"verify"    "\x8D\x45\xDC\x83\xEC\x0C\xFF\x75\xBC\x57\x50\x56\xFF\x75\x08\xE8\x2A\x2A\x2A\x2A\x83\xC4\x20\x85\xC0\x74\x17\x0F\xB6\x55\xC4\x83\xEC\x0C\x52\x6A\x00\x53\xFF\x75\x08\x50\xE8\x2A\x2A\x2A\x2A\x83\xC4\x20\x8D\x45\xDC\x68\x2A\x2A\x2A\x2A"
-						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x8D\x45\xDC\x90\x90\x90\x90\x57"
+						// edi will have the pointer to our string
+						"offset"	"506"
+						"verify"	"\x68\x2A\x2A\x2A\x2A"
+						"patch"		"\x90\x90\x90\x90\x57"
 					}
 					"windows"
 					{
-						"offset"    "540"
-						// not sure why this works, but if it works it works ig
-						"verify"    "\xFF\x75\xEC\x8D\x45\xE0\xFF\x75\xF0\x50\x8D\x45\xD4\x50\x56\xE8\x2A\x2A\x2A\x2A\x83\xC4\x14\x85\xC0\x74\x0E\xFF\x75\x10\x8B\xC8\x6A\x00\x57\x56\xE8\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A\x2A"
-						"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\xFF\x75\xF0"
+						"offset"	"581"
+						"verify"	"\x68\x2A\x2A\x2A\x2A"
+						"patch"		"\x90\x90\xFF\x75\xF0"
 					}
 				}
 
@@ -466,6 +462,35 @@
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
+			}
+			"CTFDroppedWeapon::Create"
+			{
+				"signature"	"CTFDroppedWeapon::Create"
+				"callconv"	"cdecl"
+				"return"	"cbaseentity"
+				"arguments"
+				{
+					"pLastOwner"
+					{
+						"type"	"cbaseentity"
+					}
+					"vecOrigin"
+					{
+						"type"	"vectorptr"
+					}
+					"vecAngles"
+					{
+						"type"	"vectorptr"
+					}
+					"pszModelName"
+					{
+						"type"	"charptr"
+					}
+					"pItem"
+					{
+						"type"	"int"
+					}
+				}
 			}
 		}
 	}
