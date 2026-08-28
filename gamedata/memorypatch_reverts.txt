@@ -88,7 +88,7 @@
 			{
 				"library" "server"
 				"linux"	  "@_ZN16CTFDroppedWeapon6CreateEP9CTFPlayerRK6VectorRK6QAnglePKcPK13CEconItemView"
-				"windows"
+				"windows" "\x55\x8B\xEC\x51\xA1\x2A\x2A\x2A\x2A\x80\xB8\x72\x0C\x00\x00\x00"
 			}
 		}
 		"MemPatches"
