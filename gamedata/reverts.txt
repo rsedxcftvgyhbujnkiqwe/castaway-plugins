@@ -332,6 +332,15 @@
 				"windows"	"430"
 				"linux"		"437"
 			}
+			"CTFPlayer::Event_KilledOther"
+			{
+				"windows"	"69"
+				"linux"		"70"
+			}
+			"CTFPlayer::TakeHealth"
+			{
+				"windows"	"66"
+				"linux"		"67"
 			"CBaseCombatWeapon::Deploy"
 			{
 				"windows"	"262"
@@ -377,6 +386,11 @@
 			{
 				"windows"	"76"
 				"linux"		"76"
+			}
+			"CTakeDamageInfo.m_hWeapon"
+			{
+				"windows"	"44"
+				"linux"		"44"
 			}
 			"CTakeDamageInfo.m_flDamage"
 			{
@@ -670,6 +684,41 @@
 				"this"		"entity"
 				"return"	"void"
 			}
+			"CTFPlayer::Event_KilledOther"
+			{
+				"offset"	"CTFPlayer::Event_KilledOther"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"void"
+				"arguments"
+				{
+					"pVictim"
+					{
+						"type"	"cbaseentity"
+					}
+					"info"
+					{
+						"type"	"int"
+					}
+				}
+			}
+			"CTFPlayer::TakeHealth"
+			{
+				"offset"	"CTFPlayer::TakeHealth"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"int"
+				"arguments"
+				{
+					"flHealth"
+					{
+						"type"	"float"
+					}
+					"bitsDamageType"
+					{
+						"type"	"int"
+					}
+				}
 			"CBaseCombatWeapon::Deploy"
 			{
 				"offset"	"CBaseCombatWeapon::Deploy"
