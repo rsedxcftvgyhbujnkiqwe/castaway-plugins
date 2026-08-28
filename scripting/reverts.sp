@@ -41,10 +41,6 @@
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
 #define PLUGIN_VERSION_NUM "2.0.3"
-// Add a OS suffix if Memorypatch reverts are used
-// to make it easier to see which OS the plugin is compiled for. 
-// To server owners, before you raise hell, do: sm plugins list 
-// and check that you compiled for the correct OS.
 #if defined MEMORY_PATCHES
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM
 #else
