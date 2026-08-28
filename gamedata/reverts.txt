@@ -341,6 +341,7 @@
 			{
 				"windows"	"66"
 				"linux"		"67"
+			}
 			"CBaseCombatWeapon::Deploy"
 			{
 				"windows"	"262"
@@ -361,9 +362,9 @@
 			// ║       Private/Protected Member Offsets       ║
 			// ╚══════════════════════════════════════════════╝
 			// Add offsets below for when you need OS specific offsets for a m_ member on a entity
-			// This is used for Set/GetEntData and stuff like Set/GetEntDataFloat that we cannot 
+			// This is used for Set/GetEntData and stuff like Set/GetEntDataFloat that we cannot
 			// find in datamaps and netprop files.
-			// If it's a m_h* member that you intend to add offset for. 
+			// If it's a m_h* member that you intend to add offset for.
 			// Then use the "*2" version of the methods, for example: GetEntDataEnt2 when using the offset.
 			//
 			// See the Huntsman Staring Contest revert for a example of usage with a normal m_ member.
@@ -377,7 +378,7 @@
 			// offset in Ghidra and then look at the Listing view. As of the October 30, 2025 patch it's
 			// f3 0f 11 86 44 21 00 00, notice how memory is displayed in little endian, but you can see the 44 21 turns into 21 44)
 
-			"CTFPlayer.m_flTauntNextStartTime" 
+			"CTFPlayer.m_flTauntNextStartTime"
 			{
 				"windows"	"8516"
 				"linux"		"8524"
@@ -719,6 +720,7 @@
 						"type"	"int"
 					}
 				}
+			}
 			"CBaseCombatWeapon::Deploy"
 			{
 				"offset"	"CBaseCombatWeapon::Deploy"
@@ -870,7 +872,7 @@
 						"type"	"int"
 					}
 				}
-			}			
+			}
 			"AI_CriteriaSet::AppendCriteria"
 			{
 				"signature"	"AI_CriteriaSet::AppendCriteria"
