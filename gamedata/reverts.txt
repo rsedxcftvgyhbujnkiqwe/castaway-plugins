@@ -1,5 +1,21 @@
 "Games"
 {
+	"#default"
+	{
+		"Offsets"
+		{
+			// arbitrary values for detecting the operating system
+			"OperatingSystem"
+			{
+				"linux"		"0"
+				"windows"	"1"
+				"mac"		"2"
+				"linux64"	"3"
+				"windows64"	"4"
+				"mac64"		"5"
+			}
+		}
+	}
 	"tf"
 	{
 		"Signatures"
@@ -325,6 +341,20 @@
 			{
 				"windows"	"66"
 				"linux"		"67"
+			"CBaseCombatWeapon::Deploy"
+			{
+				"windows"	"262"
+				"linux"		"268"
+			}
+			"CBaseCombatWeapon::Holster"
+			{
+				"windows"	"263"
+				"linux"		"269"
+			}
+			"CTFWeaponBase::GetSpeedMod"
+			{
+				"windows"	"438"
+				"linux"		"445"
 			}
 
 			// ╔══════════════════════════════════════════════╗
@@ -689,6 +719,33 @@
 						"type"	"int"
 					}
 				}
+			"CBaseCombatWeapon::Deploy"
+			{
+				"offset"	"CBaseCombatWeapon::Deploy"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
+			}
+			"CBaseCombatWeapon::Holster"
+			{
+				"offset"	"CBaseCombatWeapon::Holster"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
+				"arguments"
+				{
+					"pSwitchingTo"
+					{
+						"type"	"cbaseentity"
+					}
+				}
+			}
+			"CTFWeaponBase::GetSpeedMod"
+			{
+				"offset"	"CTFWeaponBase::GetSpeedMod"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"float"
 			}
 
 			// Signature

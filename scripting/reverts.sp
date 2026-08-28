@@ -20,16 +20,6 @@
 #undef MEMORY_PATCHES
 #endif
 
-//#define WIN32
-/*
- ^ ^ ^ ^ ^ ^ ^ ^ ^
-	Additionally, you will need to select your compile OS.
-	Memory patches are different for Windows and Linux servers.
-	For Windows, either uncomment the above line
-	or pass in WIN32= as a parameter to spcomp.exe.
-	For Linux, leave this line commented.
-*/
-
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -51,18 +41,10 @@
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
 #define PLUGIN_VERSION_NUM "2.0.3"
-// Add a OS suffix if Memorypatch reverts are used
-// to make it easier to see which OS the plugin is compiled for. 
-// To server owners, before you raise hell, do: sm plugins list 
-// and check that you compiled for the correct OS.
 #if defined MEMORY_PATCHES
-#if defined WIN32
-#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-win32"
-#else
-#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-linux32"
-#endif
-#else
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM
+#else
+#define PLUGIN_VERSION PLUGIN_VERSION_NUM ... "-patchless"
 #endif
 
 //#define GIT_COMMIT
@@ -133,7 +115,8 @@ int resistance_mapping[] =
 #define OBJ_ATTACHMENT_SAPPER 3
 #define MAX_HEAD_BONUS 6
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
-#define FLIGHT_TIME_TO_MAX_STUN	1.0
+#define FLIGHT_TIME_TO_MAX_STUN_OLD	1.0
+#define FLIGHT_TIME_TO_MAX_STUN_NEW	0.8
 #define TF_CANNONBALL_FORCE_SCALE 80.0
 #define TF_CANNONBALL_FORCE_UPWARD 300.0
 
@@ -220,6 +203,16 @@ enum
 	SHOVEL_DAMAGE_BOOST,
 	SHOVEL_SPEED_BOOST,
 };
+
+enum OperatingSystem
+{
+	LINUX = 0,
+	WINDOWS,
+	MAC,
+	LINUX64,
+	WINDOWS64,
+	MAC64
+}
 
 char class_names[][] = {
 	"SCOUT",
@@ -346,14 +339,13 @@ Address AddressOf_g_flMadMilkHealTarget;
 MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
 
 float g_flWranglerSpreadTarget = 0.01745;
-#if defined WIN32
+// windows
 MemoryPatch patch_RevertWranglerSpreadCone_X;
 MemoryPatch patch_RevertWranglerSpreadCone_Y;
 MemoryPatch patch_RevertWranglerSpreadCone_Z;
-#else
+// linux
 MemoryPatch patch_RevertWranglerSpreadCone_SSE;
 Address AddressOf_g_flWranglerSpreadTarget;
-#endif
 
 float g_flSteakCapTarget = 10.0; // arbitrary
 float g_flSteakBoostTarget = 1.35;
@@ -397,6 +389,9 @@ DynamicHook dhook_CBaseObject_Command_Repair;
 DynamicHook dhook_CWeaponMedigun_WeaponReset;
 DynamicHook dhook_CTFPlayer_Event_KilledOther;
 DynamicHook dhook_CTFPlayer_TakeHealth;
+DynamicHook dhook_CBaseCombatWeapon_Deploy;
+DynamicHook dhook_CBaseCombatWeapon_Holster;
+DynamicHook dhook_CTFWeaponBase_GetSpeedMod;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -435,6 +430,7 @@ int CTFPlayerShared_m_flFeignDeathEnd;
 int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
 int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
+int CTFStunBall_m_flCreationTime;
 
 // Offsets loaded from gamedata
 int CTFPlayer_m_flTauntNextStartTime;
@@ -455,6 +451,9 @@ bool construction_hit;
 int crossbow_medigun;
 float old_charge_level;
 bool bolt_heal;
+float lifetime_ratio;
+
+OperatingSystem operatingSystem;
 
 //cookies
 Cookie g_hClientMessageCookie;
@@ -597,6 +596,33 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_SilentFailure;
 	}
 
+	// load the game data now so we can refuse to load if we're on 64-bit
+	GameData gamedata = new GameData("reverts");
+	if (!gamedata) {
+		strcopy(error, err_max, "Cannot load gamedata to determine the operating system");
+		return APLRes_Failure;
+	}
+	int osOffset = gamedata.GetOffset("OperatingSystem");
+	if (osOffset == -1) {
+		delete gamedata;
+		strcopy(error, err_max, "Gamedata has no OperatingSystem value");
+		return APLRes_Failure;
+	}
+	operatingSystem = view_as<OperatingSystem>(osOffset);
+	switch (operatingSystem) {
+		case MAC, MAC64: {
+			delete gamedata;
+			strcopy(error, err_max, "This plugin will not work for your operating system");
+			return APLRes_SilentFailure;
+		}
+		case WINDOWS64, LINUX64: {
+			delete gamedata;
+			strcopy(error, err_max, "This plugin doesn't support 64-bit yet");
+			return APLRes_SilentFailure;
+		}
+	}
+
+	delete gamedata;
 	return APLRes_Success;
 }
 
@@ -946,6 +972,9 @@ public void OnPluginStart() {
 		dhook_CWeaponMedigun_WeaponReset = DynamicHook.FromConf(conf, "CWeaponMedigun::WeaponReset");
 		dhook_CTFPlayer_Event_KilledOther = DynamicHook.FromConf(conf, "CTFPlayer::Event_KilledOther");
 		dhook_CTFPlayer_TakeHealth = DynamicHook.FromConf(conf, "CTFPlayer::TakeHealth");
+		dhook_CBaseCombatWeapon_Deploy = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Deploy");
+		dhook_CBaseCombatWeapon_Holster = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Holster");
+		dhook_CTFWeaponBase_GetSpeedMod = DynamicHook.FromConf(conf, "CTFWeaponBase::GetSpeedMod");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1003,20 +1032,20 @@ public void OnPluginStart() {
 		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
 		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
-#if defined WIN32
-		patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
-		patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
-		patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
-#else
-		patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
-#endif
+		if (operatingSystem == WINDOWS) {
+			patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
+			patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
+			patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
+		} else {
+			patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+		}
 		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
 		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
 
 		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-#if !defined WIN32
-		AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
-#endif
+		if (operatingSystem != WINDOWS) {
+			AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+		}
 		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
 		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
 
@@ -1044,6 +1073,7 @@ public void OnPluginStart() {
 	}
 
 	{
+		// EntData offsets
 		CBaseObject_m_flHealth = FindSendPropInfo("CBaseObject", "m_bHasSapper") - 4;
 		CObjectSentrygun_m_flShieldFadeTime = FindSendPropInfo("CObjectSentrygun", "m_nShieldLevel") + 4;
 		CWeaponMedigun_m_bReloadDown = FindSendPropInfo("CWeaponMedigun", "m_nChargeResistType") + 11;
@@ -1051,6 +1081,7 @@ public void OnPluginStart() {
 		CTFLunchBox_m_hThrownPowerUp = FindSendPropInfo("CTFLunchBox", "m_bBroken") - 4;
 		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
 		CTFPlayerShared_m_fEnergyDrinkConsumeRate = FindSendPropInfo("CTFPlayer", "m_flInvisChangeCompleteTime") + 24;
+		CTFStunBall_m_flCreationTime = FindSendPropInfo("CTFStunBall", "m_iType") + 4;
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -1087,6 +1118,9 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CWeaponMedigun_WeaponReset);
 	VALIDATE_HANDLE(dhook_CTFPlayer_Event_KilledOther);
 	VALIDATE_HANDLE(dhook_CTFPlayer_TakeHealth);
+	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Deploy);
+	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Holster);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_GetSpeedMod);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -1122,13 +1156,13 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_DroppedWeapon);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
 	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
-#if defined WIN32
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
-#else
-	VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
-#endif
+	if (operatingSystem == WINDOWS) {
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
+	} else {
+		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
+	}
 	VALIDATE_PATCH(patch_RevertSteakCapValue);
 	VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
@@ -1350,25 +1384,25 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_Wrangler: {
 			if (enable && GetItemVariant(Wep_Wrangler) == 2) {
-#if defined WIN32
-				patch_RevertWranglerSpreadCone_X.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
-				patch_RevertWranglerSpreadCone_Y.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
-				patch_RevertWranglerSpreadCone_Z.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
-#else
-				patch_RevertWranglerSpreadCone_SSE.Enable();
-				StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
-#endif
+				if (operatingSystem == WINDOWS) {
+					patch_RevertWranglerSpreadCone_X.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
+					patch_RevertWranglerSpreadCone_Y.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+					patch_RevertWranglerSpreadCone_Z.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+				} else {
+					patch_RevertWranglerSpreadCone_SSE.Enable();
+					StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
+				}
 			} else {
-#if defined WIN32
-				patch_RevertWranglerSpreadCone_X.Disable();
-				patch_RevertWranglerSpreadCone_Y.Disable();
-				patch_RevertWranglerSpreadCone_Z.Disable();
-#else
-				patch_RevertWranglerSpreadCone_SSE.Disable();
-#endif
+				if (operatingSystem == WINDOWS) {
+					patch_RevertWranglerSpreadCone_X.Disable();
+					patch_RevertWranglerSpreadCone_Y.Disable();
+					patch_RevertWranglerSpreadCone_Z.Disable();
+				} else {
+					patch_RevertWranglerSpreadCone_SSE.Disable();
+				}
 			}
 		}
 		case Wep_BuffaloSteak: {
@@ -2090,17 +2124,15 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer.HookEntity(Hook_Post, entity, DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post);
 	}
 	else if (
-		StrEqual(class, "tf_projectile_stun_ball") ||
 		StrEqual(class, "tf_projectile_energy_ring") ||
 		StrEqual(class, "tf_projectile_cleaver")
 	) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
-
-		if (StrEqual(class, "tf_projectile_stun_ball")) {
-			dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
-		}
+	}
+	else if (StrEqual(class, "tf_projectile_stun_ball")) {
+		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
 	}
 	else if (StrContains(class, "obj_") == 0) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
@@ -2131,10 +2163,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 	}
-	else if (
-		StrEqual(class, "tf_weapon_shovel") ||
-		StrEqual(class, "tf_weapon_stickbomb")
-	) {
+	else if (StrEqual(class, "tf_weapon_shovel")) {
+		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
+		dhook_CBaseCombatWeapon_Deploy.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_Deploy_Post);
+		dhook_CBaseCombatWeapon_Holster.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_Holster_Post);
+		dhook_CTFWeaponBase_GetSpeedMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFShovel_GetSpeedMod_Pre);
+		dhook_CTFWeaponBase_GetSpeedMod.HookEntity(Hook_Post, entity, DHookCallback_CTFShovel_GetSpeedMod_Post);
+	}
+	else if (StrEqual(class, "tf_weapon_stickbomb")) {
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage.HookEntity(Hook_Post, entity, DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post);
 	}
 	else if (StrEqual(class, "tf_weapon_minigun")) {
@@ -5627,6 +5663,16 @@ int GetResistType(int entity)
 	return GetChargeType(entity);
 }
 
+void SetShovelDamageBoost(int entity) {
+	TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
+}
+
+void SetShovelSpeedBoost(int entity) {
+	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
+}
+
 void SetFeignDeathEnd(int client) {
 	if (!IsClientInGame(client))
 		return;
@@ -6879,22 +6925,44 @@ MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink_Pre(int entity
 }
 
 MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entity, DHookParam parameters) {
+	int attacker = GetEntityOwner(entity);
 	int victim = parameters.Get(1);
+	float m_flCreationTime, lifetime;
+	lifetime_ratio = 0.0;
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
-		victim >= 1 &&
-		victim <= MaxClients
+		!GetEntProp(entity, Prop_Send, "m_bTouched") &&
+		attacker >= 1 && attacker <= MaxClients &&
+		victim >= 1 && victim <= MaxClients
 	) {
-		//LogMessage("CTFStunBall::ApplyBallImpactEffectOnVictim(%d, %L)", entity, victim);
-		players[victim].stun_frame = GetGameTickCount();
-		players[victim].stun_inflictor = entity;
-		if (
-			GetItemVariant(Wep_Sandman) == 3 &&
-			(PlayerIsUbered(victim) || TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading))
-		) {
-			// stun ubers, apply a fake stun so the hook will override it
-			TF2_StunPlayer(victim, 0.0, 0.0, TF_STUNFLAG_SOUND, GetEntityOwner(entity));
-			SetEntProp(entity, Prop_Send, "m_bTouched", 1);
+		m_flCreationTime = GetEntDataFloat(entity, CTFStunBall_m_flCreationTime);
+		lifetime = GetGameTime() - m_flCreationTime;
+
+		// Move the stored creation time forward
+		// so the engine's new calculation produces the old lifetime ratio.
+		m_flCreationTime += lifetime * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
+
+		lifetime = GetGameTime() - m_flCreationTime;
+		lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
+		if (lifetime_ratio > 0.1) {
+			SetEntDataFloat(entity, CTFStunBall_m_flCreationTime, m_flCreationTime);
+
+			if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
+				if (
+					!PlayerIsUbered(victim) &&
+					!TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading)
+				) {
+					players[victim].stun_frame = GetGameTickCount();
+					players[victim].stun_inflictor = entity;
+				}
+				else if (GetItemVariant(Wep_Sandman) >= 3) {
+					// stun ubers, manually apply a stun which the hook will override
+					players[victim].stun_frame = GetGameTickCount();
+					players[victim].stun_inflictor = entity;
+					TF2_StunPlayer(victim, 1.0, 1.0, TF_STUNFLAGS_NORMALBONK, attacker);
+					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
+				}
+			}
 		}
 	}
 	return MRES_Ignored;
@@ -6906,18 +6974,14 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	float stun_amt = parameters.Get(2);
 	int stun_fls = parameters.Get(3);
 	int attacker = GetEntityFromAddress(parameters.Get(4));
-	float lifetime_ratio;
 	int inflictor = -1;
 	char class[64];
-	float pos1[3];
-	float pos2[3];
 	bool override = false;
+	float pos1[3], pos2[3];
 	
 	if (
-		victim >= 1 &&
-		victim <= MaxClients &&
-		attacker >= 1 &&
-		attacker <= MaxClients
+		victim >= 1 && victim <= MaxClients &&
+		attacker >= 1 && attacker <= MaxClients
 	) {
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
@@ -6956,83 +7020,87 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 		}
 		else if (
 			ItemIsEnabled(Wep_Sandman) &&
-			StrEqual(class, "tf_projectile_stun_ball")
+			StrEqual(class, "tf_projectile_stun_ball") &&
+			lifetime_ratio > 0.1
 		) {
 			// sandman stun override
 			override = true;
 
-			lifetime_ratio = floatMin(GetGameTime() - entities[inflictor].spawn_time, FLIGHT_TIME_TO_MAX_STUN) / FLIGHT_TIME_TO_MAX_STUN;
-			if (lifetime_ratio > 0.1) {
+			bool moonshot = (stun_fls & TF_STUNFLAG_CHEERSOUND) != 0;
+
+			// Close-range stuns in vanilla are min 2 seconds, undo that here
+			// This code also runs for the 2009 uber stun
+			if (stun_dur <= 2.0) {
 				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
-				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
-					stun_dur += 2.0;
+				// Vanilla code adds 1 to duration on moonshots
+				// Not the case here, add it manually
+				if (moonshot) stun_dur += 1.0;
+			}
+
+			if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
+				stun_dur += 2.0;
+			}
+
+			// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
+			// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
+			// anything that has the stun amount greater than 0.5, they will momentarily gain control
+			// and then immediately go back to the bonked state
+			switch (GetItemVariant(Wep_Sandman)) {
+				case 0, 1: {
+					stun_fls = TF_STUNFLAGS_SMALLBONK;
+					stun_amt = 0.5;
 				}
-
-				// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
-				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
-				// anything that has the stun amount greater than 0.5, they will momentarily gain control
-				// and then immediately go back to the bonked state
-				switch (GetItemVariant(Wep_Sandman)) {
-					case 0, 1: {
-						stun_fls = TF_STUNFLAGS_SMALLBONK;
-						stun_amt = 0.5;
-					}
-					case 2, 3: {
-						stun_fls = TF_STUNFLAGS_NORMALBONK;
-						stun_amt = 1.0;
-					}
+				case 2, 3: {
+					stun_fls = TF_STUNFLAGS_NORMALBONK;
+					stun_amt = 1.0;
 				}
+			}
 
-				// todo: fix vanilla moonshots (0.8s) giving two bonus points
-				bool moonshot = lifetime_ratio >= 1.0;
-				if (moonshot) {
-					// moonshot!
+			if (moonshot) {
+				// moonshot!
+				stun_fls = TF_STUNFLAGS_BIGBONK;
 
-					stun_dur += 1.0;
-					stun_fls = TF_STUNFLAGS_BIGBONK;
+				// Vanilla code already added 1 to duration
 
-					if (cvar_show_moonshot.BoolValue) {
-						SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+				if (cvar_show_moonshot.BoolValue) {
+					SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
 
-						char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
-						GetClientName(attacker, attackerName, sizeof(attackerName));
-						GetClientName(victim, victimName, sizeof(victimName));
+					char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+					GetClientName(attacker, attackerName, sizeof(attackerName));
+					GetClientName(victim, victimName, sizeof(victimName));
 
-						for (int idx = 1; idx <= MaxClients; idx++) {
-							if (
-								IsClientInGame(idx) &&
-								!IsFakeClient(idx) &&
-								!IsClientSourceTV(idx) &&
-								!IsClientReplay(idx) &&
-								g_hClientShowMoonshot.GetInt(idx, 1)
-							) {
-								ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
-							}
+					for (int idx = 1; idx <= MaxClients; idx++) {
+						if (
+							IsClientInGame(idx) &&
+							!IsFakeClient(idx) &&
+							!IsClientSourceTV(idx) &&
+							!IsClientReplay(idx) &&
+							g_hClientShowMoonshot.GetInt(idx, 1)
+						) {
+							ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
 						}
 					}
 				}
+			}
 
-				// MvM bosses
-				if (
-					GameRules_GetProp("m_bPlayingMannVsMachine") &&
-					(
-						GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
-						GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
-					)
-				) {
-					// If max range, freeze them in place -- otherwise adjust it based on distance
-					stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
-					stun_fls = TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND;
-					if (moonshot) {
-						stun_fls |= TF_STUNFLAG_CHEERSOUND;
-					}
+			// MvM bosses
+			if (
+				GameRules_GetProp("m_bPlayingMannVsMachine") &&
+				(
+					GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
+					GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
+				)
+			) {
+				// If max range, freeze them in place -- otherwise adjust it based on distance
+				stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
+				stun_fls = TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND;
+				if (moonshot) {
+					stun_fls |= TF_STUNFLAG_CHEERSOUND;
 				}
 			}
-			else {
-				// cancel close range stun
-				return MRES_Supercede;
-			}
+
+			lifetime_ratio = 0.0;
 		}
 		else if (
 			ItemIsEnabled(Wep_Bonk) &&
@@ -7219,23 +7287,20 @@ MRESReturn DHookCallback_CTFWeaponBaseMelee_GetMeleeDamage_Post(int entity, DHoo
 		GetEntityClassname(entity, class, sizeof(class));
 
 		if (
-			ItemIsEnabled(Wep_Pickaxe) &&
+			GetItemVariant(Wep_Pickaxe) > 0 &&
 			StrEqual(class, "tf_weapon_shovel") &&
-			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
+			TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_DAMAGE_BOOST
 		) {
 			switch (GetItemVariant(Wep_Pickaxe)) {
-				case 0: multiplier = 1.65; // 107 damage at 1 HP
 				case 1: multiplier = 1.75; // 113 damage at 1 HP
 				case 2: multiplier = 2.50; // 162 damage at 1 HP
+				default: multiplier = 1.65; // 107 damage at 1 HP; failsafe
 			}
 
-			multiplier = ValveRemapVal(
-				float(GetClientHealth(owner)),
-				0.0,
-				float(SDKCall(sdkcall_GetMaxHealth, owner)),
-				multiplier,
-				0.5
-			);
+			float health_cur = float(GetClientHealth(owner));
+			float health_max = float(SDKCall(sdkcall_GetMaxHealth, owner));
+			float health_ratio = health_cur / health_max;
+			multiplier = ValveRemapVal(health_ratio, 0.0, 1.0, multiplier, 0.5) / ValveRemapVal(health_ratio, 0.0, 1.0, 1.65, 0.5);
 		}
 		else if (
 			ItemIsEnabled(Wep_Caber) &&
@@ -7326,6 +7391,21 @@ MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Pre(int client, DHookParam 
 	return MRES_Ignored;
 }
 
+MRESReturn DHookCallback_CTFShovel_Deploy_Post(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set damage boost after deploying
+		SetShovelDamageBoost(entity);
+	}
+	return MRES_Ignored;
+}
+MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set speed boost after holstering. This should help with client prediction when deployed.
+		SetShovelSpeedBoost(entity);
+	}
+	return MRES_Ignored;
+}
+
 MRESReturn DHookCallback_CTFPlayer_TakeHealth_Pre(int client, DHookReturn returnValue, DHookParam parameters) {
 	int flags;
 	if (client >= 1 && client <= MaxClients) {
@@ -7351,6 +7431,19 @@ MRESReturn DHookCallback_CTFPlayer_TakeHealth_Pre(int client, DHookReturn return
 			parameters.Set(2, flags);
 			return MRES_ChangedHandled;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Pre(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		SetShovelSpeedBoost(entity);
+	}
+	return MRES_Ignored;
+}
+MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Post(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		SetShovelDamageBoost(entity);
 	}
 	return MRES_Ignored;
 }
