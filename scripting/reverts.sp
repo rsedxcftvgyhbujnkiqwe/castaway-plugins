@@ -3241,10 +3241,10 @@ void CacheWeapons(int client) {
 					if (StrEqual(class, "tf_weapon_flamethrower")) {
 						player_weapons[client][Feat_Flamethrower] = true;
 					}
+#endif
 				}
 				else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
 					player_weapons[client][Feat_SniperRifle] = true;
-#endif
 				}
 
 				else if (StrEqual(class, "tf_weapon_lunchbox")) {
