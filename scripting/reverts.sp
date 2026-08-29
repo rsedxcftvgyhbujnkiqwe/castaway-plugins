@@ -5668,13 +5668,17 @@ int GetResistType(int entity)
 }
 
 void SetShovelDamageBoost(int entity) {
-	TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
-	TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
+	if (TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) != SHOVEL_STANDARD) {
+		TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
+		TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
+	}
 }
 
 void SetShovelSpeedBoost(int entity) {
-	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
-	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
+	if (TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) != SHOVEL_STANDARD) {
+		TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
+		TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
+	}
 }
 
 void SetFeignDeathEnd(int client) {
@@ -7403,21 +7407,6 @@ MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Pre(int client, DHookParam 
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFShovel_Deploy_Post(int entity, DHookReturn returnValue) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
-		// Set damage boost after deploying
-		SetShovelDamageBoost(entity);
-	}
-	return MRES_Ignored;
-}
-MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
-		// Set speed boost after holstering. This should help with client prediction when deployed.
-		SetShovelSpeedBoost(entity);
-	}
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CTFPlayer_TakeHealth_Pre(int client, DHookReturn returnValue, DHookParam parameters) {
 	int flags;
 	if (client >= 1 && client <= MaxClients) {
@@ -7443,6 +7432,21 @@ MRESReturn DHookCallback_CTFPlayer_TakeHealth_Pre(int client, DHookReturn return
 			parameters.Set(2, flags);
 			return MRES_ChangedHandled;
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFShovel_Deploy_Post(int entity, DHookReturn returnValue) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set damage boost after deploying
+		SetShovelDamageBoost(entity);
+	}
+	return MRES_Ignored;
+}
+MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+	if (ItemIsEnabled(Wep_Pickaxe)) {
+		// Set speed boost after holstering. This should help with client prediction when deployed.
+		SetShovelSpeedBoost(entity);
 	}
 	return MRES_Ignored;
 }
