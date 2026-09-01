@@ -7024,12 +7024,12 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 		else if (
 			ItemIsEnabled(Wep_Sandman) &&
 			StrEqual(class, "tf_projectile_stun_ball") &&
-			lifetime_ratio > 0.1
+			lifetime_ratio > 0.0
 		) {
 			// sandman stun override
 			override = true;
 
-			bool moonshot = (stun_fls & TF_STUNFLAG_CHEERSOUND) != 0;
+			bool moonshot = lifetime_ratio >= 1.0;
 
 			// Close-range stuns in vanilla are min 2 seconds, undo that here
 			// This code also runs for the 2009 uber stun
@@ -7064,7 +7064,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 				// moonshot!
 				stun_fls = TF_STUNFLAGS_BIGBONK;
 
-				// Vanilla code already added 1 to duration
+				// 1 sec already added to duration, don't re-add
 
 				if (cvar_show_moonshot.BoolValue) {
 					SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
