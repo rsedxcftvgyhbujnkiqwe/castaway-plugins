@@ -302,6 +302,7 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
+ConVar cvar_weapon_cache_delay;
 
 ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
@@ -653,6 +654,7 @@ public void OnPluginStart() {
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
+	cvar_weapon_cache_delay = CreateConVar("sm_reverts__weapon_cache_delay", "0.15", (PLUGIN_NAME ... " - Time delay for weapon caching on inventory application"), _, true, 0.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -3193,7 +3195,8 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 }
 
 public Action Event_OnPostInventoryApplication(Event event, const char[] name, bool dontBroadcast) {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int userid = GetEventInt(event, "userid");
+	int client = GetClientOfUserId(userid);
 
 	// keep track of resupply time
 	players[client].resupply_time = GetGameTime();
@@ -3204,9 +3207,20 @@ public Action Event_OnPostInventoryApplication(Event event, const char[] name, b
 	else
 		TF2Attrib_RemoveByDefIndex(client, 177);
 
-	CacheWeapons(client);
+	CreateTimer(cvar_weapon_cache_delay.FloatValue, Timer_CacheWeapons, userid);
 	
 	return Plugin_Continue;
+}
+
+public Action Timer_CacheWeapons(Handle timer, any data) {
+	int client = GetClientOfUserId(data);
+	if (
+		client >= 1 && client <= MaxClients &&
+		IsClientInGame(client)
+	) {
+		CacheWeapons(client);
+	}
+	return Plugin_Stop;
 }
 
 void CacheWeapons(int client) {
