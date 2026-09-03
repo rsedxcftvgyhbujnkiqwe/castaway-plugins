@@ -452,7 +452,6 @@ bool construction_hit;
 int crossbow_medigun;
 float old_charge_level;
 bool bolt_heal;
-float lifetime_ratio;
 
 OperatingSystem operatingSystem;
 
@@ -6931,7 +6930,6 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entit
 	int attacker = GetEntityOwner(entity);
 	int victim = parameters.Get(1);
 	float m_flCreationTime, lifetime;
-	lifetime_ratio = 0.0;
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
 		!GetEntProp(entity, Prop_Send, "m_bTouched") &&
@@ -6944,9 +6942,6 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entit
 		lifetime = GetGameTime() - m_flCreationTime;
 		m_flCreationTime += lifetime * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
 		SetEntDataFloat(entity, CTFStunBall_m_flCreationTime, m_flCreationTime);
-
-		lifetime = GetGameTime() - m_flCreationTime;
-		lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
 
 		if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
 			if (
@@ -6978,6 +6973,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	char class[64];
 	bool override = false;
 	float pos1[3], pos2[3];
+	float lifetime, lifetime_ratio;
 	
 	if (
 		victim >= 1 && victim <= MaxClients &&
@@ -7022,6 +7018,8 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 			ItemIsEnabled(Wep_Sandman) &&
 			StrEqual(class, "tf_projectile_stun_ball")
 		) {
+			lifetime = GetGameTime() - GetEntDataFloat(inflictor, CTFStunBall_m_flCreationTime);
+			lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
 			if (lifetime_ratio > 0.1) {
 				// sandman stun override
 				override = true;
@@ -7098,12 +7096,9 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 						stun_fls |= TF_STUNFLAG_CHEERSOUND;
 					}
 				}
-
-				lifetime_ratio = 0.0;
 			}
 			else {
 				// cancel close-range stun
-				lifetime_ratio = 0.0;
 				return MRES_Supercede;	
 			}
 		}
