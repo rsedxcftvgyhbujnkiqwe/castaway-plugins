@@ -452,7 +452,6 @@ bool construction_hit;
 int crossbow_medigun;
 float old_charge_level;
 bool bolt_heal;
-float lifetime_ratio;
 
 OperatingSystem operatingSystem;
 
@@ -1491,17 +1490,23 @@ public void OnGameFrame() {
 						airdash_limit_old = cvar_ref_tf_scout_air_dash_count.IntValue; // multijumps allowed by game
 						airdash_limit_new = airdash_limit_old; // multijumps we want to allow
 
+						airdash_value = GetEntProp(idx, Prop_Send, "m_iAirDash");
+
 						weapon = GetEntPropEnt(idx, Prop_Send, "m_hActiveWeapon");
 						if (weapon > 0) {
 							airdash_limit_old = TF2Attrib_HookValueInt(airdash_limit_old, "air_dash_count", weapon);
 							airdash_limit_new = airdash_limit_old;
 
 							if (
-								GetItemVariant(Wep_Atomizer) == 1 &&
-								player_weapons[idx][Wep_Atomizer] &&
-								weapon == GetPlayerWeaponSlot(idx, TFWeaponSlot_Melee)
+								airdash_limit_old >= 2 &&
+								airdash_value == 1 && // only blocks the 3rd jump, not the 1st or 2nd
+								(GetGameTime() - players[idx].weapon_switch_time) < 0.7
 							) {
-								airdash_limit_new++;
+								airdash_limit_old = 1;
+
+								if (!ItemIsEnabled(Wep_Atomizer)) {
+									airdash_limit_new = 1;
+								}
 							}
 						}
 
@@ -1525,8 +1530,6 @@ public void OnGameFrame() {
 							airdash_limit_new = 999;
 						}
 
-						airdash_value = GetEntProp(idx, Prop_Send, "m_iAirDash");
-
 						if (airdash_value > players[idx].scout_airdash_value) {
 							// airdash happened this frame
 
@@ -1535,7 +1538,7 @@ public void OnGameFrame() {
 							if (airdash_limit_new == 2) {
 								if (
 									GetItemVariant(Wep_Atomizer) == 0 ||
-									GetItemVariant(Wep_Atomizer) == 1 && players[idx].scout_airdash_count == 2
+									airdash_limit_new > airdash_limit_old
 								) {
 									// emit purple smoke (still shows white smoke too but good enough for now)
 									GetEntPropVector(idx, Prop_Send, "m_vecOrigin", pos1);
@@ -2483,16 +2486,11 @@ public void ApplyRevertsToItem(int entity) {
 		case 61, 1006: { if (ItemIsEnabled(Wep_Ambassador)) {
 			TF2Attrib_SetByDefIndex(entity, 868, 0.0); // crit dmg falloff
 		}}
-		case 450: { switch (GetItemVariant(Wep_Atomizer)) {
-			case 0: { // Pre-Jungle Inferno
-				TF2Attrib_SetByDefIndex(entity, 5, 1.30); // fire rate penalty
-				TF2Attrib_SetByDefIndex(entity, 138, 0.80); // dmg penalty vs players
-				TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
-				TF2Attrib_SetByDefIndex(entity, 773, 1.0); // single wep deploy time increased
-			}
-			case 1: { // Pre-Blue Moon
-				TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
-			}
+		case 450: { if (GetItemVariant(Wep_Atomizer) == 0) {
+			TF2Attrib_SetByDefIndex(entity, 5, 1.30); // fire rate penalty
+			TF2Attrib_SetByDefIndex(entity, 138, 0.80); // dmg penalty vs players
+			TF2Attrib_SetByDefIndex(entity, 250, 0.0); // air dash count
+			TF2Attrib_SetByDefIndex(entity, 773, 1.0); // single wep deploy time increased
 		}}
 		case 38, 457, 1000: {
 			// common
@@ -4215,9 +4213,11 @@ Action SDKHookCB_OnTakeDamage(
 				) {
 					float time_to_minicrit = TF2Attrib_HookValueFloat(0.0, "mini_crit_airborne_deploy", weapon);
 					if (
-						(GetGameTime() - players[attacker].weapon_switch_time <= time_to_minicrit) ||
-						(TF2Attrib_HookValueInt(0, "mini_crit_airborne", weapon) == 1 &&
-						TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir))
+						(GetGameTime() - players[attacker].weapon_switch_time) < time_to_minicrit ||
+						(
+							TF2Attrib_HookValueInt(0, "mini_crit_airborne", weapon) == 1 &&
+							TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir)
+						)
 					) {
 						// seems to be the best way to force a minicrit
 						TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
@@ -4237,26 +4237,12 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// pre-bluemoon atomizer airborne minicrits
-
-				if (
-					GetItemVariant(Wep_Atomizer) == 1 &&
-					StrEqual(class, "tf_weapon_bat") &&
-					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 450 &&
-					(GetEntityFlags(attacker) & FL_ONGROUND) == 0 &&
-					GetEntProp(attacker, Prop_Data, "m_nWaterLevel") == 0
-				) {
-					TF2_AddCondition(victim, TFCond_MarkedForDeathSilent, 0.001, 0);
-				}
-			}
-
-			{
 				// sandman damage
 
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_CUSTOM_BASEBALL &&
-					damage == cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5
+					FloatAbs(damage - cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5) < 0.01
 				) {
 					// always deal 15 impact damage at any range
 					// stun handled elsewhere
@@ -6944,40 +6930,33 @@ MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entit
 	int attacker = GetEntityOwner(entity);
 	int victim = parameters.Get(1);
 	float m_flCreationTime, lifetime;
-	lifetime_ratio = 0.0;
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
 		!GetEntProp(entity, Prop_Send, "m_bTouched") &&
 		attacker >= 1 && attacker <= MaxClients &&
 		victim >= 1 && victim <= MaxClients
 	) {
-		m_flCreationTime = GetEntDataFloat(entity, CTFStunBall_m_flCreationTime);
-		lifetime = GetGameTime() - m_flCreationTime;
-
 		// Move the stored creation time forward
 		// so the engine's new calculation produces the old lifetime ratio.
-		m_flCreationTime += lifetime * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
-
+		m_flCreationTime = GetEntDataFloat(entity, CTFStunBall_m_flCreationTime);
 		lifetime = GetGameTime() - m_flCreationTime;
-		lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
-		if (lifetime_ratio > 0.1) {
-			SetEntDataFloat(entity, CTFStunBall_m_flCreationTime, m_flCreationTime);
+		m_flCreationTime += lifetime * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
+		SetEntDataFloat(entity, CTFStunBall_m_flCreationTime, m_flCreationTime);
 
-			if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
-				if (
-					!PlayerIsUbered(victim) &&
-					!TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading)
-				) {
-					players[victim].stun_frame = GetGameTickCount();
-					players[victim].stun_inflictor = entity;
-				}
-				else if (GetItemVariant(Wep_Sandman) >= 3) {
-					// stun ubers, manually apply a stun which the hook will override
-					players[victim].stun_frame = GetGameTickCount();
-					players[victim].stun_inflictor = entity;
-					TF2_StunPlayer(victim, 1.0, 1.0, TF_STUNFLAGS_NORMALBONK, attacker);
-					SetEntProp(entity, Prop_Send, "m_bTouched", 1);
-				}
+		if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
+			if (
+				!PlayerIsUbered(victim) &&
+				!TF2_IsPlayerInCondition(victim, TFCond_UberchargeFading)
+			) {
+				players[victim].stun_frame = GetGameTickCount();
+				players[victim].stun_inflictor = entity;
+			}
+			else if (GetItemVariant(Wep_Sandman) >= 3) {
+				// stun ubers, manually apply a stun which the hook will override
+				players[victim].stun_frame = GetGameTickCount();
+				players[victim].stun_inflictor = entity;
+				TF2_StunPlayer(victim, 1.0, 1.0, TF_STUNFLAGS_NORMALBONK, attacker);
+				SetEntProp(entity, Prop_Send, "m_bTouched", 1);
 			}
 		}
 	}
@@ -6994,6 +6973,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	char class[64];
 	bool override = false;
 	float pos1[3], pos2[3];
+	float lifetime, lifetime_ratio;
 	
 	if (
 		victim >= 1 && victim <= MaxClients &&
@@ -7036,87 +7016,91 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 		}
 		else if (
 			ItemIsEnabled(Wep_Sandman) &&
-			StrEqual(class, "tf_projectile_stun_ball") &&
-			lifetime_ratio > 0.1
+			StrEqual(class, "tf_projectile_stun_ball")
 		) {
-			// sandman stun override
-			override = true;
+			lifetime = GetGameTime() - GetEntDataFloat(inflictor, CTFStunBall_m_flCreationTime);
+			lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
+			if (lifetime_ratio > 0.1) {
+				// sandman stun override
+				override = true;
 
-			bool moonshot = (stun_fls & TF_STUNFLAG_CHEERSOUND) != 0;
+				bool moonshot = lifetime_ratio >= 1.0;
 
-			// Close-range stuns in vanilla are min 2 seconds, undo that here
-			// This code also runs for the 2009 uber stun
-			if (stun_dur <= 2.0) {
-				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
+				// Close-range stuns in vanilla are min 2 seconds, undo that here
+				// This code also runs for the 2009 uber stun
+				if (stun_dur <= 2.0) {
+					stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
-				// Vanilla code adds 1 to duration on moonshots
-				// Not the case here, add it manually
-				if (moonshot) stun_dur += 1.0;
-			}
-
-			if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
-				stun_dur += 2.0;
-			}
-
-			// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
-			// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
-			// anything that has the stun amount greater than 0.5, they will momentarily gain control
-			// and then immediately go back to the bonked state
-			switch (GetItemVariant(Wep_Sandman)) {
-				case 0, 1: {
-					stun_fls = TF_STUNFLAGS_SMALLBONK;
-					stun_amt = 0.5;
+					// For 2009 uber stuns, manually add 1 second to duration
+					if (moonshot) stun_dur += 1.0;
 				}
-				case 2, 3: {
-					stun_fls = TF_STUNFLAGS_NORMALBONK;
-					stun_amt = 1.0;
+
+				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
+					stun_dur += 2.0;
 				}
-			}
 
-			if (moonshot) {
-				// moonshot!
-				stun_fls = TF_STUNFLAGS_BIGBONK;
+				// StunPlayer cares about the stun amount whether it should "stomp" the current stun or not
+				// e.g. if a player is sandman (pre-JI) stunned and they get hit by e.g. FaN, vanilla loose cannon,
+				// anything that has the stun amount greater than 0.5, they will momentarily gain control
+				// and then immediately go back to the bonked state
+				switch (GetItemVariant(Wep_Sandman)) {
+					case 0, 1: {
+						stun_fls = TF_STUNFLAGS_SMALLBONK;
+						stun_amt = 0.5;
+					}
+					case 2, 3: {
+						stun_fls = TF_STUNFLAGS_NORMALBONK;
+						stun_amt = 1.0;
+					}
+				}
 
-				// Vanilla code already added 1 to duration
+				if (moonshot) {
+					// moonshot!
+					stun_fls = TF_STUNFLAGS_BIGBONK;
 
-				if (cvar_show_moonshot.BoolValue) {
-					SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
+					// 1 sec already added to duration, don't re-add
 
-					char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
-					GetClientName(attacker, attackerName, sizeof(attackerName));
-					GetClientName(victim, victimName, sizeof(victimName));
+					if (cvar_show_moonshot.BoolValue) {
+						SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
 
-					for (int idx = 1; idx <= MaxClients; idx++) {
-						if (
-							IsClientInGame(idx) &&
-							!IsFakeClient(idx) &&
-							!IsClientSourceTV(idx) &&
-							!IsClientReplay(idx) &&
-							g_hClientShowMoonshot.GetInt(idx, 1)
-						) {
-							ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+						char attackerName[MAX_NAME_LENGTH], victimName[MAX_NAME_LENGTH];
+						GetClientName(attacker, attackerName, sizeof(attackerName));
+						GetClientName(victim, victimName, sizeof(victimName));
+
+						for (int idx = 1; idx <= MaxClients; idx++) {
+							if (
+								IsClientInGame(idx) &&
+								!IsFakeClient(idx) &&
+								!IsClientSourceTV(idx) &&
+								!IsClientReplay(idx) &&
+								g_hClientShowMoonshot.GetInt(idx, 1)
+							) {
+								ShowSyncHudText(idx, hudsync, "%t", "REVERT_MOONSHOT_MESSAGE", attackerName, victimName);
+							}
 						}
 					}
 				}
-			}
 
-			// MvM bosses
-			if (
-				GameRules_GetProp("m_bPlayingMannVsMachine") &&
-				(
-					GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
-					GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
-				)
-			) {
-				// If max range, freeze them in place -- otherwise adjust it based on distance
-				stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
-				stun_fls = TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND;
-				if (moonshot) {
-					stun_fls |= TF_STUNFLAG_CHEERSOUND;
+				// MvM bosses
+				if (
+					GameRules_GetProp("m_bPlayingMannVsMachine") &&
+					(
+						GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
+						GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
+					)
+				) {
+					// If max range, freeze them in place -- otherwise adjust it based on distance
+					stun_amt = moonshot ? 1.0 : ValveRemapVal(lifetime_ratio, 0.1, 0.99, 0.5, 0.75);
+					stun_fls = TF_STUNFLAG_SLOWDOWN | TF_STUNFLAG_SOUND;
+					if (moonshot) {
+						stun_fls |= TF_STUNFLAG_CHEERSOUND;
+					}
 				}
 			}
-
-			lifetime_ratio = 0.0;
+			else {
+				// cancel close-range stun
+				return MRES_Supercede;	
+			}
 		}
 		else if (
 			ItemIsEnabled(Wep_Bonk) &&
