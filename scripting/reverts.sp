@@ -4243,7 +4243,7 @@ Action SDKHookCB_OnTakeDamage(
 				if (
 					ItemIsEnabled(Wep_Sandman) &&
 					damage_custom == TF_CUSTOM_BASEBALL &&
-					damage == cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5
+					FloatAbs(damage - cvar_ref_sv_proj_stunball_damage.FloatValue * 1.5) < 0.01
 				) {
 					// always deal 15 impact damage at any range
 					// stun handled elsewhere
