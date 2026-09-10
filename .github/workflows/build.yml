@@ -61,7 +61,7 @@ jobs:
       - name: Build reverts
         run: |
           cd scripting
-          ./compile.sh reverts-*.sp
+          ./compile.sh reverts*.sp
         if: ${{ inputs.reverts_only }}
       
       - name: Build plugins
@@ -105,5 +105,5 @@ jobs:
       - name: Upload artifact (reverts)
         uses: actions/upload-artifact@v7
         with:
-          path: reverts-*_sm-${{ matrix.sm-target }}.zip
+          path: reverts*_sm-${{ matrix.sm-target }}.zip
         if: ${{ inputs.reverts_only }}
