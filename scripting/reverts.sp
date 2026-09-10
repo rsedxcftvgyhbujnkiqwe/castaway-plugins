@@ -1557,13 +1557,12 @@ public void OnGameFrame() {
 									}	
 								}
 							}
-						} else {
-							if (GetEntityFlags(idx) & FL_ONGROUND) {
-								players[idx].scout_airdash_count = 0;
-							}
+						}
+						else if (GetEntityFlags(idx) & FL_ONGROUND) {
+							players[idx].scout_airdash_count = 0;
 						}
 
-						if (airdash_value >= 1) {
+						if (players[idx].scout_airdash_count >= 1) {
 							if (
 								airdash_value >= airdash_limit_old &&
 								players[idx].scout_airdash_count < airdash_limit_new
