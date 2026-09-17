@@ -818,8 +818,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Sandman, "Sandman_PreApr2010");
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
 	ItemVariant(Wep_Sandman, "Sandman_PreClassless");
-	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
-	ItemVariant(Wep_Sandvich, "Sandvich_Pre2012");
+	ItemDefine("sandvich", "Sandvich_Pre2012", CLASSFLAG_HEAVY, Wep_Sandvich);
+	ItemVariant(Wep_Sandvich, "Sandvich_PreEngineer");
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -2970,7 +2970,7 @@ public void ApplyRevertsToItem(int entity) {
 				TF2Attrib_SetByDefIndex(entity, 125, 0.0); // -0 max health on wearer
 			}
 		}}
-		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 0) {
+		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 1) {
 			TF2Attrib_SetByDefIndex(entity, 801, 0.0); // item_meter_charge_rate: 0
 			TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
@@ -5927,7 +5927,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
 	if (
-		GetItemVariant(Wep_Sandvich) == 0 &&
+		GetItemVariant(Wep_Sandvich) == 1 &&
 		player_weapons[owner][Wep_Sandvich]
 	) {
 		return MRES_Supercede;
