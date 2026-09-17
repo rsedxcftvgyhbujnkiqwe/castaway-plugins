@@ -805,9 +805,9 @@ public void OnPluginStart() {
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("redtape", "RedTape_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTape);
-	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
-	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
+	ItemDefine("rescueranger", "RescueRanger_PreJI", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreTB");
+	ItemVariant(Wep_RescueRanger, "RescueRanger_PreGM");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemVariant(Wep_ReserveShooter, "Reserve_Release");
@@ -2917,11 +2917,11 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// specific
 			switch (GetItemVariant(Wep_RescueRanger)) {
-				case 0: {
-					TF2Attrib_SetByDefIndex(entity, 469, 130.0); // ranged pickup metal cost
+				case 1: {
 					TF2Attrib_SetByDefIndex(entity, 474, 75.0); // repair bolt healing amount
 				}
 				case 2: {
+					TF2Attrib_SetByDefIndex(entity, 469, 130.0); // ranged pickup metal cost
 					TF2Attrib_SetByDefIndex(entity, 474, 75.0); // repair bolt healing amount
 				}
 			}
