@@ -785,9 +785,9 @@ public void OnPluginStart() {
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
 	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
-	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
-	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Pre2016");
+	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
+	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreMYM");
@@ -2368,7 +2368,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			}
 
 			if (
-				GetItemVariant(Wep_Phlogistinator) < 3 &&
+				GetItemVariant(Wep_Phlogistinator) != 1 &&
 				TF2_IsPlayerInCondition(client, TFCond_CritMmmph) &&
 				players[client].mmmph_use_tick == GetGameTickCount() &&
 				FloatAbs(2.6 - time) < 0.01
@@ -2825,7 +2825,7 @@ public void ApplyRevertsToItem(int entity) {
 			case 0, 2: {
 				TF2Attrib_SetByDefIndex(entity, 1, 0.90); // -10% damage penalty
 			}
-			case 1: {
+			case 3: {
 				TF2Attrib_SetByDefIndex(entity, 357, 1.30); // +30% buff duration (hidden)
 			}
 			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
@@ -4703,7 +4703,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 
 			// 90% damage resistance for pre-Pyromania Phlog
 			if (
-				GetItemVariant(Wep_Phlogistinator) >= 1 &&
+				GetItemVariant(Wep_Phlogistinator) >= 2 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
 				damage_custom != TF_CUSTOM_BACKSTAB
 			) {
