@@ -908,6 +908,10 @@
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 base damage impacts, increased knockback, no stun"
 	}
+	"Cannon_Pre2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, 2s fuse time, +50%% projectile speed, impact damage increases at range, no double-donk, increased knockback, no stun, -50%% damage on world contact"
+	}
 	"MadMilk_Release"
 	{
 		"en"	"Reverted to release, players heal 75%% of the damage done to an enemy covered with milk, extinguishing teammates does not reduce cooldown"
