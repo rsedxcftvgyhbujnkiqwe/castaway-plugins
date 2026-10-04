@@ -4584,21 +4584,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 		victim >= 1 &&
 		victim <= MaxClients
 	) {
-		{
-			if (
-				GetItemVariant(Wep_DeadRinger) == 0 &&
-				TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-			) {
-				// dead ringer buff reduction (formula reverse-engineered from decompiled build)
-				float m_flFeignDeathEnd = GetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd);
-				SetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd, m_flFeignDeathEnd - ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5));
-			}
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+		) {
+			// dead ringer buff reduction (formula reverse-engineered from decompiled build)
+			float m_flFeignDeathEnd = GetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd);
+			SetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd, m_flFeignDeathEnd - ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5));
 		}
-		{
+
+		if (resist_damage) {
 			// pre-WAR! sandman victims receive a portion of damage dealt
 
 			if (
-				resist_damage &&
 				GetItemVariant(Wep_Sandman) >= 2 &&
 				TF2_IsPlayerInCondition(victim, TFCond_Dazed) &&
 				GetEntProp(victim, Prop_Send, "m_iStunFlags") & STUNFLAG_RESIST_DAMAGE
@@ -4606,12 +4604,10 @@ Action SDKHookCB_OnTakeDamageAlive(
 				damage *= GetItemVariant(Wep_Sandman) == 3 ? 0.50 : 0.75;
 				returnValue = Plugin_Changed;
 			}
-		}
-		{
+
 			// spunup resistance regardless of health
 
 			if (
-				resist_damage &&
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
 				TF2_IsPlayerInCondition(victim, TFCond_Slowed)
 			) {
@@ -4653,8 +4649,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					}
 				}
 			}
-		}
-		{
+
 			if (ItemIsEnabled(Wep_Vaccinator)) {
 				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
 					healer = TF2Util_GetPlayerHealer(victim, i);
@@ -4711,8 +4706,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					}
 				}
 			}
-		}
-		{
+
 			// pre-GM vaccinator full crit resist
 			if (
 				GetItemVariant(Wep_Vaccinator) == 1 &&
@@ -4735,11 +4729,9 @@ Action SDKHookCB_OnTakeDamageAlive(
 					);
 				}
 			}
-		}
-		{
+
 			// 90% damage resistance for pre-Pyromania Phlog
 			if (
-				resist_damage &&
 				GetItemVariant(Wep_Phlogistinator) >= 1 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
 				damage_custom != TF_CUSTOM_BACKSTAB
@@ -4749,20 +4741,19 @@ Action SDKHookCB_OnTakeDamageAlive(
 				returnValue = Plugin_Changed;
 			}
 		}
-		{
-			// battalion's rage gain from damage taken
-			if (
-				ItemIsEnabled(Wep_Battalions) &&
-				player_weapons[victim][Wep_Battalions] &&
-				victim != attacker &&
-				damage_type & DMG_FALL == 0 &&
-				!GetEntProp(victim, Prop_Send, "m_bRageDraining") &&
-				!PlayerIsUbered(victim)
-			) {
-				rage = players[victim].rage_meter;
-				rage += damage * 4.0 / 7.0; // 175 damage total
-				SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
-			}
+
+		// battalion's rage gain from damage taken
+		if (
+			ItemIsEnabled(Wep_Battalions) &&
+			player_weapons[victim][Wep_Battalions] &&
+			victim != attacker &&
+			damage_type & DMG_FALL == 0 &&
+			!GetEntProp(victim, Prop_Send, "m_bRageDraining") &&
+			!PlayerIsUbered(victim)
+		) {
+			rage = players[victim].rage_meter;
+			rage += damage * 4.0 / 7.0; // 175 damage total
+			SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
 		}
 
 		if (inflictor > MaxClients) {
