@@ -439,6 +439,7 @@ int CTFPlayer_m_flTauntNextStartTime;
 Address CGameTrace_m_pEnt;
 Address CTakeDamageInfo_m_hWeapon;
 Address CTakeDamageInfo_m_flDamage;
+Address CTakeDamageInfo_m_bitsDamageType;
 Address CTakeDamageInfo_m_iDamageCustom;
 
 Player players[MAXPLAYERS+1];
@@ -1009,12 +1010,14 @@ public void OnPluginStart() {
 		CGameTrace_m_pEnt = view_as<Address>(GameConfGetOffset(conf, "CGameTrace.m_pEnt"));
 		CTakeDamageInfo_m_hWeapon = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_hWeapon"));
 		CTakeDamageInfo_m_flDamage = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_flDamage"));
+		CTakeDamageInfo_m_bitsDamageType = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_bitsDamageType"));
 		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_iDamageCustom"));
 
 		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
 		VALIDATE_OFFSET(CGameTrace_m_pEnt);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_hWeapon);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_flDamage);
+		VALIDATE_OFFSET(CTakeDamageInfo_m_bitsDamageType);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_iDamageCustom);
 
 		delete conf;
@@ -2093,6 +2096,7 @@ public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamagePost, SDKHookCB_OnTakeDamagePost);
 	SDKHook(client, SDKHook_WeaponSwitchPost, SDKHookCB_WeaponSwitchPost);
 	dhook_CTFPlayer_Event_KilledOther.HookEntity(Hook_Pre, client, DHookCallback_CTFPlayer_Event_KilledOther_Pre);
+	dhook_CTFPlayer_Event_KilledOther.HookEntity(Hook_Post, client, DHookCallback_CTFPlayer_Event_KilledOther_Post);
 	dhook_CTFPlayer_TakeHealth.HookEntity(Hook_Pre, client, DHookCallback_CTFPlayer_TakeHealth_Pre);
 }
 
@@ -3072,7 +3076,7 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// specific
 			if (GetItemVariant(Wep_TideTurner) == 1) {
-				TF2Attrib_SetByDefIndex(entity, 2034, 1.0); // Melee kills refill 100% of your charge meter.
+				TF2Attrib_SetByDefIndex(entity, 2034, 1.0); // Kills while charging refill 100% of your charge meter
 			}
 		}
 		case 171: { if (ItemIsEnabled(Wep_TribalmansShiv)) {
@@ -4421,7 +4425,7 @@ Action SDKHookCB_OnTakeDamage(
 					damage = 50.0 + 10.0 * intMin(GetEntProp(attacker, Prop_Send, "m_iDecapitations"), 5);
 
 					// increase damage from splendid screen attribute
-					damage *= TF2Attrib_HookValueFloat(1.0, "charge_impact_damage", weapon);
+					damage = TF2Attrib_HookValueFloat(damage, "charge_impact_damage", attacker);
 					
 					return Plugin_Changed;
 				}
@@ -4567,7 +4571,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int health_max;
 	int healer;
 	float rage;
-	float charge;
 
 	bool resist_damage = false;
 	if (weapon > 0) {
@@ -4854,28 +4857,6 @@ Action SDKHookCB_OnTakeDamageAlive(
 				}
 			}
 		}
-
-		if (weapon > 0) {
-			// release tide turner: don't grant charge on regular melee kills
-			if (
-				GetItemVariant(Wep_TideTurner) == 1 &&
-				player_weapons[attacker][Wep_TideTurner] &&
-				damage_type & DMG_MELEE &&
-				!GetEntData(weapon, CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge, 1)
-			) {
-				for (int i = 0; i < TF2Util_GetPlayerWearableCount(attacker); i++) {
-					weapon1 = TF2Util_GetPlayerWearable(attacker, i);
-					if (
-						weapon1 > 0 &&
-						GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex") == 1099
-					) {
-						charge = TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon1);
-						TF2Attrib_AddCustomPlayerAttribute(attacker, "kill refills meter", -charge, 0.001);
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	return returnValue;
@@ -4998,15 +4979,6 @@ void SDKHookCB_OnTakeDamagePost(
 				) {
 					// Bazaar Bargain: do not gain two heads in one time.
 					SetEntProp(attacker, Prop_Send, "m_iDecapitations", GetEntProp(attacker, Prop_Send, "m_iDecapitations") - 1);
-				}
-
-				// refill charge on bash kills
-				if (
-					GetItemVariant(Wep_TideTurner) == 1 &&
-					player_weapons[attacker][Wep_TideTurner] &&
-					damage_custom == TF_CUSTOM_CHARGE_IMPACT
-				) {
-					RequestFrame(RefillCharge, weapon);
 				}
 			}
 		}
@@ -5694,18 +5666,18 @@ void SetMeleeCrit(int client) {
 	SetEntProp(client, Prop_Send, "m_iNextMeleeCrit", MELEE_CRIT);
 }
 
-void RefillCharge(int weapon) {
-	if (!IsValidEntity(weapon))
+void SetDemoChargeMeter(DataPack pack) {
+	pack.Reset();
+
+	int client = pack.ReadCell();
+	float charge = pack.ReadFloat();
+
+	delete pack;
+
+	if (!IsClientInGame(client))
 		return;
-
-	int client = GetEntityOwner(weapon);
-	float charge;
-
-	if (client >= 1 && client <= MaxClients) {
-		charge = GetEntPropFloat(client, Prop_Send, "m_flChargeMeter");
-		charge += TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", weapon) * 100.0;
-		SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
-	}
+	
+	SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 }
 
 // dynamic hooks and detours
@@ -6113,9 +6085,8 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookRetur
 				player_weapons[client][Wep_BabyFace]
 			) {
 				// Release Baby Face's Blaster proper speed application.
-				// Without this, the max boost speed would be only 376 HU/s, so we boost it further by ~38% at max boost
 				float boost = GetEntPropFloat(client, Prop_Send, "m_flHypeMeter");
-				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.3829787);
+				multiplier *= ValveRemapVal(boost, 0.0, 100.0, 1.0, 2.0) / ValveRemapVal(boost, 0.0, 100.0, 1.0, 1.45);
 			}
 		}
 
@@ -7384,10 +7355,41 @@ MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
 MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Pre(int client, DHookParam parameters) {
 	Address info = parameters.Get(2);
 	int weapon = LoadEntityFromHandleAddress(info + CTakeDamageInfo_m_hWeapon);
+	int damage_type = LoadFromAddress(info + CTakeDamageInfo_m_bitsDamageType, NumberType_Int32);
+	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
+	int wearable = -1;
+	float refill = 0.0;
 	if (
 		client >= 1 && client <= MaxClients &&
 		IsValidEntity(weapon)
 	) {
+		if (
+			GetItemVariant(Wep_TideTurner) == 1 &&
+			player_weapons[client][Wep_TideTurner]
+		) {
+			for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); i++) {
+				wearable = TF2Util_GetPlayerWearable(client, i);
+				if (
+					wearable > 0 &&
+					GetEntProp(wearable, Prop_Send, "m_iItemDefinitionIndex") == 1099
+				) {
+					refill = TF2Attrib_HookValueFloat(refill, "kill_refills_meter", wearable);
+					break;
+				}
+			}
+			if (damage_custom == TF_CUSTOM_CHARGE_IMPACT) {
+				// only grant the tide turner value
+				refill -= TF2Attrib_HookValueFloat(0.0, "kill_refills_meter", client);
+				TF2Attrib_AddCustomPlayerAttribute(client, "kill refills meter", refill, 0.001);
+			}
+			else if (
+				damage_type & DMG_MELEE &&
+				!GetEntData(weapon, CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge, 1)
+			) {
+				// don't grant charge on regular melee kills
+				TF2Attrib_AddCustomPlayerAttribute(client, "kill refills meter", -refill, 0.001);
+			}
+		}
 		if (
 			ItemIsEnabled(Wep_Zatoichi) &&
 			TF2Attrib_HookValueInt(0, "restore_health_on_kill", weapon) > 50
@@ -7400,6 +7402,24 @@ MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Pre(int client, DHookParam 
 		) {
 			players[client].powerjack_frame = GetGameTickCount();
 		}
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Post(int client, DHookParam parameters) {
+	Address info = parameters.Get(2);
+	int damage_custom = LoadFromAddress(info + CTakeDamageInfo_m_iDamageCustom, NumberType_Int32);
+	if (
+		client >= 1 && client <= MaxClients &&
+		GetItemVariant(Wep_TideTurner) == 1 &&
+		player_weapons[client][Wep_TideTurner] &&
+		damage_custom == TF_CUSTOM_CHARGE_IMPACT
+	) {
+		// set charge on next frame
+		DataPack pack = new DataPack();
+		pack.WriteCell(client);
+		pack.WriteFloat(GetEntPropFloat(client, Prop_Send, "m_flChargeMeter"));
+		RequestFrame(SetDemoChargeMeter, pack);
 	}
 	return MRES_Ignored;
 }
