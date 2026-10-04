@@ -73,6 +73,7 @@ public Plugin myinfo = {
 #define BALANCE_CIRCUIT_RECOVERY 0.67
 #define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 #define TF_COND_RESIST_OFFSET 58
+#define STUNFLAG_RESIST_DAMAGE (1 << 9) // No such flag exists in the game, used here for 2009 Sandman
 
 enum
 {
@@ -4584,41 +4585,32 @@ Action SDKHookCB_OnTakeDamageAlive(
 		victim >= 1 &&
 		victim <= MaxClients
 	) {
-		{
-			if (
-				GetItemVariant(Wep_DeadRinger) == 0 &&
-				TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
-			) {
-				// dead ringer buff reduction (formula reverse-engineered from decompiled build)
-				float m_flFeignDeathEnd = GetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd);
-				SetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd, m_flFeignDeathEnd - ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5));
-			}
+		if (
+			GetItemVariant(Wep_DeadRinger) == 0 &&
+			TF2_IsPlayerInCondition(victim, TFCond_DeadRingered)
+		) {
+			// dead ringer buff reduction (formula reverse-engineered from decompiled build)
+			float m_flFeignDeathEnd = GetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd);
+			SetEntDataFloat(victim, CTFPlayerShared_m_flFeignDeathEnd, m_flFeignDeathEnd - ValveRemapVal(damage, 1.0, 250.0, 0.1, 2.5));
 		}
-		{
+
+		if (resist_damage) {
 			// pre-WAR! sandman victims receive a portion of damage dealt
 
 			if (
 				GetItemVariant(Wep_Sandman) >= 2 &&
 				TF2_IsPlayerInCondition(victim, TFCond_Dazed) &&
-				resist_damage
+				GetEntProp(victim, Prop_Send, "m_iStunFlags") & STUNFLAG_RESIST_DAMAGE
 			) {
-				int stun_fls = GetEntProp(victim, Prop_Send, "m_iStunFlags");
-				if (
-					stun_fls & TF_STUNFLAG_BONKSTUCK != 0 &&
-					stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT == 0
-				) {
-					damage *= GetItemVariant(Wep_Sandman) == 2 ? 0.75 : 0.50;
-					returnValue = Plugin_Changed;
-				}
+				damage *= GetItemVariant(Wep_Sandman) == 3 ? 0.50 : 0.75;
+				returnValue = Plugin_Changed;
 			}
-		}
-		{
+
 			// spunup resistance regardless of health
 
 			if (
 				TF2_GetPlayerClass(victim) == TFClass_Heavy &&
-				TF2_IsPlayerInCondition(victim, TFCond_Slowed) &&
-				resist_damage
+				TF2_IsPlayerInCondition(victim, TFCond_Slowed)
 			) {
 				weapon1 = GetPlayerWeaponSlot(victim, TFWeaponSlot_Primary);
 
@@ -4658,8 +4650,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					}
 				}
 			}
-		}
-		{
+
 			if (ItemIsEnabled(Wep_Vaccinator)) {
 				for (int i = 0; i < GetEntProp(victim, Prop_Send, "m_nNumHealers"); i++) {
 					healer = TF2Util_GetPlayerHealer(victim, i);
@@ -4716,8 +4707,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 					}
 				}
 			}
-		}
-		{
+
 			// pre-GM vaccinator full crit resist
 			if (
 				GetItemVariant(Wep_Vaccinator) == 1 &&
@@ -4740,34 +4730,31 @@ Action SDKHookCB_OnTakeDamageAlive(
 					);
 				}
 			}
-		}
-		{
+
 			// 90% damage resistance for pre-Pyromania Phlog
 			if (
 				GetItemVariant(Wep_Phlogistinator) >= 1 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
-				damage_custom != TF_CUSTOM_BACKSTAB &&
-				resist_damage
+				damage_custom != TF_CUSTOM_BACKSTAB
 			) {
 				// TFCond_DefenseBuffMmmph applies 75% resistance normally, buff it here by 60% for 90% resistance
 				damage *= 0.40;
 				returnValue = Plugin_Changed;
 			}
 		}
-		{
-			// battalion's rage gain from damage taken
-			if (
-				ItemIsEnabled(Wep_Battalions) &&
-				player_weapons[victim][Wep_Battalions] &&
-				victim != attacker &&
-				damage_type & DMG_FALL == 0 &&
-				!GetEntProp(victim, Prop_Send, "m_bRageDraining") &&
-				!PlayerIsUbered(victim)
-			) {
-				rage = players[victim].rage_meter;
-				rage += damage * 4.0 / 7.0; // 175 damage total
-				SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
-			}
+
+		// battalion's rage gain from damage taken
+		if (
+			ItemIsEnabled(Wep_Battalions) &&
+			player_weapons[victim][Wep_Battalions] &&
+			victim != attacker &&
+			damage_type & DMG_FALL == 0 &&
+			!GetEntProp(victim, Prop_Send, "m_bRageDraining") &&
+			!PlayerIsUbered(victim)
+		) {
+			rage = players[victim].rage_meter;
+			rage += damage * 4.0 / 7.0; // 175 damage total
+			SetEntPropFloat(victim, Prop_Send, "m_flRageMeter", floatMin(rage, 100.0));
 		}
 
 		if (inflictor > MaxClients) {
@@ -7061,6 +7048,10 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 							}
 						}
 					}
+				}
+
+				if (GetItemVariant(Wep_Sandman) >= 2) {
+					stun_fls |= STUNFLAG_RESIST_DAMAGE;
 				}
 
 				// MvM bosses
