@@ -303,6 +303,8 @@ ConVar cvar_allow_detonate_stickies_while_taunting;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_weapon_cache_delay;
+ConVar cvar_bison_damage_formula;
+ConVar cvar_pomson_damage_formula;
 
 ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
@@ -655,6 +657,8 @@ public void OnPluginStart() {
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
 	cvar_weapon_cache_delay = CreateConVar("sm_reverts__weapon_cache_delay", "0.15", (PLUGIN_NAME ... " - Time delay for weapon caching on inventory application"), _, true, 0.0);
+	cvar_bison_damage_formula = CreateConVar("sm_reverts__bison_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Bison\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
+	cvar_pomson_damage_formula = CreateConVar("sm_reverts__pomson_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Pomson\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
@@ -786,8 +790,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Phlogistinator, "Phlog_Pre2016");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
-	ItemVariant(Wep_Pomson, "Pomson_PreGM_Historical");
-	ItemVariant(Wep_Pomson, "Pomson_Release_Historical");
+	ItemVariant(Wep_Pomson, "Pomson_PreMYM");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
 	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");	
@@ -809,7 +812,6 @@ public void OnPluginStart() {
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemVariant(Wep_ReserveShooter, "Reserve_Release");
 	ItemDefine("bison", "Bison_PreMYM", CLASSFLAG_SOLDIER, Wep_Bison);
-	ItemVariant(Wep_Bison, "Bison_PreTB");
 	ItemDefine("rocketjmp", "RocketJmp_Pre2013", CLASSFLAG_SOLDIER, Wep_RocketJumper);
 	ItemVariant(Wep_RocketJumper, "RocketJmp_Release");
 	ItemDefine("sandman", "Sandman_PreJI", CLASSFLAG_SCOUT, Wep_Sandman);
@@ -2851,9 +2853,9 @@ public void ApplyRevertsToItem(int entity) {
 				}
 			}
 		}
-		case 588: { switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+		case 588: { if (GetItemVariant(Wep_Pomson) == 1) {
 			TF2Attrib_SetByDefIndex(entity, 283, 0.0); // Projectile penetrates enemy targets; make attrib visible but does nothing
-		}}}
+		}}
 		case 214: {
 			// common (also pre-Gun Mettle)
 			if (ItemIsEnabled(Wep_Powerjack)) {
@@ -3900,23 +3902,29 @@ void SDKHookCB_SpawnPost(int entity) {
 			GetEntityClassname(weapon, class, sizeof(class));
 
 			if (
-				(ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun")) ||
-				(ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson"))
+				ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
+				ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 			) {	// old pomson/bison projectile hitbox was a cube that was about 48 HU on all sides and only around its center would it collide with world
-				maxs[0] = 2.0;	// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
-				maxs[1] = 2.0;	// 2.0 equals to ~48.0 HU in the Y axis with m_triggerBloat set to 26
-				maxs[2] = 8.0;	// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
+				// 2.0 equals to ~48.0 HU in the X axis with m_triggerBloat set to 26
+				maxs[0] = 2.0;
+				maxs[1] = 2.0;
+				// 8.0 equals to ~48.0 HU in the Z axis with m_triggerBloat set to 26 & with m_bUniformTriggerBloat set to true
+				maxs[2] = 8.0;
 				
-				mins[0] = (0.0 - maxs[0]);
-				mins[1] = (0.0 - maxs[1]);
-				mins[2] = (0.0 - maxs[2]);
+				mins[0] = -maxs[0];
+				mins[1] = -maxs[1];
+				mins[2] = -maxs[2];
+
 				// m_vecMaxs and m_vecMins is the actual size of the projectile hitbox which can collide with world geometry (bounding box)
 				SetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
 				SetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
-				// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
+
 				SetEntProp(entity, Prop_Send, "m_usSolidFlags", (GetEntProp(entity, Prop_Send, "m_usSolidFlags") | FSOLID_USE_TRIGGER_BOUNDS));
-				SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true); // m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
-				SetEntProp(entity, Prop_Send, "m_triggerBloat", 26); // using m_triggerBloat ensures that the projectile does not collide with world geometry but still increases the trigger hitbox against players and buildings
+
+				// m_triggerBloat increases the size of the projectile's trigger hitbox but not the bounding box size. This means that the trigger hitbox does not collide with world geometry.
+				SetEntProp(entity, Prop_Send, "m_triggerBloat", 26);
+				// m_triggerBloat only increases the trigger hitbox in X and Y axes; this is necessary to resize the Z axis
+				SetEntProp(entity, Prop_Send, "m_bUniformTriggerBloat", true);
 				// setting the maxs values to 2.0 and m_triggerBloat to 26 ensures that the projectile hitbox is a 48 HU cube, just like the old projectile hitbox
 				// as for why its 26, its to account for the default hitbox being a 2 HU cube, and through experimental testing via puppet bots, cl_showpos, getpos, and setpos
 			}
@@ -3981,49 +3989,41 @@ Action SDKHookCB_Touch(int entity, int other) {
 			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 
-			if (
-				owner > 0 &&
-				weapon > 0
-			) {
+			if (owner > 0 && weapon > 0) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (
 					ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") || 
 					ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 				) {
-					if (
-						other >= 1 &&
-						other <= MaxClients
-					) {
+					if (other >= 1 && other <= MaxClients) {
 						if (AreEntitiesOnSameTeam(entity, other)) {
-
-							// Bison and Pomson ignite friendly Huntsman arrows
+							// Ignite friendly Huntsman arrows
 							weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
 							if (weapon > 0) {
 								if (HasEntProp(weapon, Prop_Send, "m_bArrowAlight")) {
 									SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 								}
 							}
-							
-							// Pomson pass through teammates, unless pre-Gun Mettle variant is used
-							if (GetItemVariant(Wep_Pomson) != 2) {
-								return Plugin_Handled;
-							}
+
+							// Pass through teammates
+							return Plugin_Handled;
 						}
-					} else if (other > MaxClients) {
+					}
+					else if (other > MaxClients) {
 						
 						GetEntityClassname(other, class, sizeof(class));
 
-						// Pomson pass through teammate buildings
+						// Pass through friendly buildings
 						if (
-							StrContains(class, "obj_") == 0 &&
+							strncmp(class, "obj_", sizeof("obj_") - 1) == 0 &&
 							AreEntitiesOnSameTeam(entity, other)
 						) {
 							return Plugin_Handled;
 						}
 						
 						// Don't collide with projectiles
-						if (StrContains(class, "tf_projectile_") == 0) {
+						if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
 							return Plugin_Handled;
 						}
 					}
@@ -4483,43 +4483,41 @@ Action SDKHookCB_OnTakeDamage(
 			if (inflictor > MaxClients) {
 				GetEntityClassname(inflictor, class, sizeof(class));
 
-				// bison/pomson stuff
 				if (StrEqual(class, "tf_projectile_energy_ring")) {
+					// bison/pomson damage
 					GetEntityClassname(weapon, class, sizeof(class));
 
 					if (
 						ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
 						ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
 					) {
-						// cloak/uber drain is done in OnTakeDamagePost
+						// charge drains in OnTakeDamagePost
 
-						// Historically accurate Pre-TB Bison/Pomson damage numbers against players ported from NotnHeavy's pre-GM plugin
+						// old damage formula
 						if (
-							GetItemVariant(Wep_Bison) >= 1 && StrEqual(class, "tf_weapon_raygun") ||
-							GetItemVariant(Wep_Pomson) >= 2 && StrEqual(class, "tf_weapon_drg_pomson")
+							cvar_bison_damage_formula.BoolValue && StrEqual(class, "tf_weapon_raygun") ||
+							cvar_pomson_damage_formula.BoolValue && StrEqual(class, "tf_weapon_drg_pomson")
 						) {
-							// Reduce base damage by 20% (Pomson 48, Bison 16)
-							damage *= 0.8;
+							float falloff = (
+								cvar_bison_damage_formula.IntValue == 2 && StrEqual(class, "tf_weapon_raygun") ||
+								cvar_pomson_damage_formula.IntValue == 2 && StrEqual(class, "tf_weapon_drg_pomson")
+							) ? 0.60 : 0.70;
 
-							// Do not use internal rampup/falloff.
-							damage_type &= ~DMG_USEDISTANCEMOD;
-
-							// Deal damage with 125% rampup, 75% falloff.
-							damage *= ValveRemapVal(floatMin(0.35, GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time), 0.35 / 2, 0.35, 1.25, 0.75);
+							damage_type &= ~(DMG_NOCLOSEDISTANCEMOD | DMG_USEDISTANCEMOD);
+							damage *= ValveRemapVal(GetGameTime() - entities[players[victim].projectile_touch_entity].spawn_time, 0.35 / 2, 0.35, 1.0, falloff);
 						}
 
 						// Remove bullet damage type (untyped damage) and restore knockback
 						damage_type &= ~(DMG_BULLET | DMG_PREVENT_PHYSICS_FORCE);
 						// Enable sonic damage type so Fists of Steel ranged resist still works
 						damage_type |= DMG_SONIC;
-
 						return Plugin_Changed;
 					}
 				} else if (
 					ItemIsEnabled(Wep_CowMangler) && 
 					StrEqual(class, "tf_projectile_energy_ball")
 				) {
-					// no crits.
+					// no crits for reverted mangler
 					damage_type &= ~DMG_CRIT;
 					return Plugin_Changed;
 				}
@@ -4986,13 +4984,13 @@ void SDKHookCB_OnTakeDamagePost(
 		if (inflictor > MaxClients) {
 			GetEntityClassname(inflictor, class, sizeof(class));
 
-			// pomson cloak/uber drain
-
+			// pomson charge drains
 			if (StrEqual(class, "tf_projectile_energy_ring")) {
 				GetEntityClassname(weapon, class, sizeof(class));
 
 				if (
 					ItemIsEnabled(Wep_Pomson) &&
+					GetItemVariant(Wep_Pomson) != 2 &&
 					StrEqual(class, "tf_weapon_drg_pomson") &&
 					PlayerIsInvulnerable(victim) == false &&
 					players[victim].using_vaccinator_uber == false &&
@@ -7310,7 +7308,7 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 	int weapon;
 	char class[64];
 
-	switch (GetItemVariant(Wep_Pomson)) { case 1, 3: {
+	if (GetItemVariant(Wep_Pomson) == 1) {
 		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));
@@ -7320,7 +7318,7 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 				return MRES_Override;
 			}
 		}
-	}}
+	}
 	return MRES_Ignored;
 }
 
