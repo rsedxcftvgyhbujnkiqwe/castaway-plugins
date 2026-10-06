@@ -2147,6 +2147,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
 	}
 	else if (StrEqual(class, "tf_projectile_stun_ball")) {
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
 	}
 	else if (StrContains(class, "obj_") == 0) {
@@ -6896,18 +6897,17 @@ MRESReturn DHookCallback_CTFDroppedWeapon_ChargeLevelDegradeThink_Pre(int entity
 MRESReturn DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre(int entity, DHookParam parameters) {
 	int attacker = GetEntityOwner(entity);
 	int victim = parameters.Get(1);
-	float m_flCreationTime, lifetime;
+	float m_flCreationTime;
 	if (
 		ItemIsEnabled(Wep_Sandman) &&
 		!GetEntProp(entity, Prop_Send, "m_bTouched") &&
 		attacker >= 1 && attacker <= MaxClients &&
 		victim >= 1 && victim <= MaxClients
 	) {
-		// Move the stored creation time forward
-		// so the engine's new calculation produces the old lifetime ratio.
+		// Move m_flCreationTime forward such that the new calculation produces the old lifetime ratio.
+		// This fixes vanilla "moonshots" giving 2 bonus points
 		m_flCreationTime = GetEntDataFloat(entity, CTFStunBall_m_flCreationTime);
-		lifetime = GetGameTime() - m_flCreationTime;
-		m_flCreationTime += lifetime * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
+		m_flCreationTime += (GetGameTime() - m_flCreationTime) * (1.0 - FLIGHT_TIME_TO_MAX_STUN_NEW / FLIGHT_TIME_TO_MAX_STUN_OLD);
 		SetEntDataFloat(entity, CTFStunBall_m_flCreationTime, m_flCreationTime);
 
 		if (GetEntProp(victim, Prop_Data, "m_nWaterLevel") != 3) {
@@ -6940,7 +6940,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	char class[64];
 	bool override = false;
 	float pos1[3], pos2[3];
-	float lifetime, lifetime_ratio;
+	float lifetime_ratio;
 
 	if (
 		victim >= 1 && victim <= MaxClients &&
@@ -6985,22 +6985,12 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 			ItemIsEnabled(Wep_Sandman) &&
 			StrEqual(class, "tf_projectile_stun_ball")
 		) {
-			lifetime = GetGameTime() - GetEntDataFloat(inflictor, CTFStunBall_m_flCreationTime);
-			lifetime_ratio = floatMin(lifetime, FLIGHT_TIME_TO_MAX_STUN_NEW) / FLIGHT_TIME_TO_MAX_STUN_NEW;
+			lifetime_ratio = floatMin(GetGameTime() - entities[inflictor].spawn_time, FLIGHT_TIME_TO_MAX_STUN_OLD) / FLIGHT_TIME_TO_MAX_STUN_OLD;
 			if (lifetime_ratio > 0.1) {
 				// sandman stun override
 				override = true;
 
-				bool moonshot = lifetime_ratio >= 1.0;
-
-				// Close-range stuns in vanilla are min 2 seconds, undo that here
-				// This code also runs for the 2009 uber stun
-				if (stun_dur <= 2.0) {
-					stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
-
-					// For 2009 uber stuns, manually add 1 second to duration
-					if (moonshot) stun_dur += 1.0;
-				}
+				stun_dur = lifetime_ratio * cvar_ref_tf_scout_stunball_base_duration.FloatValue;
 
 				if (GetEntProp(inflictor, Prop_Send, "m_bCritical") != 0) {
 					stun_dur += 2.0;
@@ -7021,11 +7011,11 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 					}
 				}
 
+				bool moonshot = lifetime_ratio >= 1.0;
 				if (moonshot) {
 					// moonshot!
+					stun_dur += 1.0;
 					stun_fls = TF_STUNFLAGS_BIGBONK;
-
-					// 1 sec already added to duration, don't re-add
 
 					if (cvar_show_moonshot.BoolValue) {
 						SetHudTextParams(-1.0, 0.09, 4.0, 255, 255, 255, 255, 2, 0.5, 0.01, 1.0);
