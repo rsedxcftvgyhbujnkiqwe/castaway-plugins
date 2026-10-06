@@ -5651,7 +5651,7 @@ void SetDemoChargeMeter(DataPack pack) {
 
 	if (!IsClientInGame(client))
 		return;
-	
+
 	SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 }
 
@@ -7060,7 +7060,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 			}
 			else {
 				// cancel close-range stun
-				return MRES_Supercede;	
+				return MRES_Supercede;
 			}
 		}
 		else if (
