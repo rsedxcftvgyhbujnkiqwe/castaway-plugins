@@ -285,7 +285,6 @@ enum struct Player {
 }
 
 enum struct Entity {
-	bool exists;
 	float spawn_time;
 	int old_shield;
 	float minisentry_health;
@@ -2111,7 +2110,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 		return;
 	}
 
-	entities[entity].exists = true;
 	entities[entity].spawn_time = 0.0;
 	entities[entity].old_shield = 0;
 	entities[entity].minisentry_health = 0.0;
@@ -2224,8 +2222,6 @@ public void OnEntityDestroyed(int entity) {
 	if (entity < 0 || entity >= MAX_NETWORKED_ENTITIES) {
 		return;
 	}
-
-	entities[entity].exists = false;
 
 	if (
 		rocket_create_entity == entity &&
