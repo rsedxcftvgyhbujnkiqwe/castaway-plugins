@@ -1908,9 +1908,9 @@ public void OnGameFrame() {
 
 									effects = GetEntProp(weapon, Prop_Send, "m_fEffects");
 									if (
+										effects & EF_NODRAW &&
 										TF2Attrib_HookValueInt(0, "set_blockbackstab_once", weapon) &&
-										GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) >= 100.0 &&
-										effects & EF_NODRAW
+										GetEntPropFloat(idx, Prop_Send, "m_flItemChargeMeter", LOADOUT_POSITION_SECONDARY) >= 100.0
 									) {
 										SetEntProp(weapon, Prop_Send, "m_fEffects", effects & ~EF_NODRAW);
 										break;
@@ -2896,8 +2896,7 @@ public void ApplyRevertsToItem(int entity) {
 		case 57: { if (ItemIsEnabled(Wep_Razorback)) {
 			TF2Attrib_SetByDefIndex(entity, 800, 1.0); // -0% maximum overheal on wearer
 			TF2Attrib_SetByDefIndex(entity, 801, 0.0); // item_meter_charge_rate: 0
-			// Line below removes HUD meter
-			// TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
+			TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
 		case 411: { if (ItemIsEnabled(Wep_QuickFix)) {
 			TF2Attrib_SetByDefIndex(entity, 10, 1.25); // +25% ÜberCharge rate
