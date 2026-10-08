@@ -7290,6 +7290,12 @@ MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
 		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
 		float preserved = TF2Attrib_HookValueFloat(0.0, "preserve_ubercharge", owner) * 0.01;
 		charge = floatMax(charge, floatMin(old_charge_level, preserved));
+
+		if (charge > 0.0) {
+			// fix charge showing as 19%
+			charge += 0.001;
+		}
+
 		SetEntPropFloat(entity, Prop_Send, "m_flChargeLevel", charge);
 	}
 	return MRES_Ignored;
