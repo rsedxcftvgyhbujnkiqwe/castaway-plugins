@@ -263,8 +263,6 @@ enum struct Player {
 	bool holding_attack2;
 	int drain_victim;
 	float drain_time;
-	bool is_eureka_teleporting;
-	int eureka_teleport_target;
 	float rage_meter;
 	int mmmph_use_tick;
 	float aiming_cond_time;
@@ -435,6 +433,8 @@ int CTFLunchBox_m_hThrownPowerUp;
 int CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge;
 int CTFPlayerShared_m_fEnergyDrinkConsumeRate;
 int CTFStunBall_m_flCreationTime;
+int CTFPlayer_m_bIsTeleportingUsingEurekaEffect;
+int CTFPlayer_m_eEurekaTeleportTarget;
 
 // Offsets loaded from gamedata
 int CTFPlayer_m_flTauntNextStartTime;
@@ -905,8 +905,6 @@ public void OnPluginStart() {
 	HookEvent("post_inventory_application", Event_OnPostInventoryApplication, EventHookMode_Post);
 	HookEvent("object_destroyed", Event_OnObjectDestroyed, EventHookMode_Post);
 
-	AddCommandListener(CommandListener_EurekaTeleport, "eureka_teleport");
-
 	AddNormalSoundHook(OnSoundNormal);
 
 	{
@@ -1089,6 +1087,8 @@ public void OnPluginStart() {
 		CTFWeaponBase_m_bCurrentAttackIsDuringDemoCharge = FindSendPropInfo("CTFWeaponBase", "m_flReloadPriorNextFire") + 12;
 		CTFPlayerShared_m_fEnergyDrinkConsumeRate = FindSendPropInfo("CTFPlayer", "m_flInvisChangeCompleteTime") + 24;
 		CTFStunBall_m_flCreationTime = FindSendPropInfo("CTFStunBall", "m_iType") + 4;
+		CTFPlayer_m_bIsTeleportingUsingEurekaEffect = FindSendPropInfo("CTFPlayer", "m_flKartNextAvailableBoost") + 8;
+		CTFPlayer_m_eEurekaTeleportTarget = FindSendPropInfo("CTFPlayer", "m_flHandScale") + 16;
 	}
 
 	// this is done this way so all failures are logged simultaneously rather than one by one
@@ -2031,19 +2031,12 @@ public void OnGameFrame() {
 						}
 					}
 				}
-
-				if (TF2_GetPlayerClass(idx) != TFClass_Engineer) {
-					// reset if player isn't engineer
-					players[idx].is_eureka_teleporting = false;
-				}
 			} else {
 				// reset if player is dead
 				players[idx].scout_airdash_value = 0;
 				players[idx].scout_airdash_count = 0;
 				players[idx].is_under_hype = false;
 				players[idx].holding_jump = false;
-				players[idx].is_eureka_teleporting = false;
-				players[idx].eureka_teleport_target = -1;
 				players[idx].deny_metal_collection = false;
 				players[idx].using_vaccinator_uber = false;
 				players[idx].vaccinator_charge = 0.0;
@@ -2276,16 +2269,21 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 		}
 		case TFClass_Engineer: {
 			if (
+				ItemIsEnabled(Wep_EurekaEffect) &&
 				condition == TFCond_Taunting &&
-				players[client].is_eureka_teleporting == true
+				IsPlayerAlive(client) &&
+				GetEntData(client, CTFPlayer_m_bIsTeleportingUsingEurekaEffect, 1)
 			) {
-				players[client].is_eureka_teleporting = false;
+				int teleport_target = GetEntData(client, CTFPlayer_m_eEurekaTeleportTarget, 4);
+
+				if (teleport_target != EUREKA_TELEPORT_TELEPORTER_EXIT) {
+					teleport_target = EUREKA_TELEPORT_HOME;
+				}
 
 				if (
-					ItemIsEnabled(Wep_EurekaEffect) &&
-					(players[client].eureka_teleport_target == EUREKA_TELEPORT_HOME ||
-					players[client].eureka_teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
-					FindBuiltTeleporterExitOwnedByClient(client) == -1)
+					teleport_target == EUREKA_TELEPORT_HOME ||
+					teleport_target == EUREKA_TELEPORT_TELEPORTER_EXIT &&
+					FindBuiltTeleporterExitOwnedByClient(client) == -1
 				) {
 					// Refill player health and ammo
 					TF2_RegeneratePlayer(client);
@@ -3772,34 +3770,6 @@ public Action Event_OnObjectDestroyed(Event event, const char[] name, bool dontB
 	return Plugin_Continue;
 }
 
-Action CommandListener_EurekaTeleport(int client, const char[] command, int argc) {
-	if (TF2_GetPlayerClass(client) != TFClass_Engineer)
-		return Plugin_Continue;
-
-	if (
-		client >= 1 &&
-		client <= MaxClients
-	) {
-
-		if (argc == 0) {
-			players[client].eureka_teleport_target = EUREKA_TELEPORT_HOME;
-			return Plugin_Continue;
-		}
-
-		char buf[8];
-		GetCmdArg(1, buf, sizeof(buf));
-		int teleport_target = StringToInt(buf);
-
-		if (teleport_target != EUREKA_TELEPORT_TELEPORTER_EXIT) {
-			teleport_target = EUREKA_TELEPORT_HOME;
-		}
-
-		players[client].eureka_teleport_target = teleport_target;
-	}
-
-	return Plugin_Continue;
-}
-
 // game hooks
 
 Action OnSoundNormal(
@@ -3932,10 +3902,7 @@ void SDKHookCB_SpawnPost(int entity) {
 			owner >= 1 &&
 			owner <= MaxClients
 		) {
-			if (StrEqual(scene, "scenes/player/engineer/low/taunt_drg_melee.vcd")) {
-				players[owner].is_eureka_teleporting = true;
-			}
-			else if (
+			if (
 				GetItemVariant(Wep_Amputator) == 1 &&
 				StrEqual(scene, "scenes/player/medic/low/taunt03.vcd")
 			) {
