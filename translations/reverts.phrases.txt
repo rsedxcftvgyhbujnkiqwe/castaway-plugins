@@ -650,7 +650,7 @@
 	}
 	"Bazaar_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +7.5%% charge rate per head up to +45%%, lose heads on scoped bodyshots/misses"
+		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +20%% charge rate per head up to +100%%, lose heads on scoped bodyshots/misses"
 	}
 	"Bazaar_PreJuly2013"
 	{
