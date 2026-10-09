@@ -116,8 +116,8 @@ int resistance_mapping[] =
 #define SENTRYGUN_ADD_SHELLS 40
 #define SENTRYGUN_MAX_SHELLS_1 150
 #define OBJ_ATTACHMENT_SAPPER 3
-#define MAX_HEAD_BONUS 6
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
+#define TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX 150.0
 #define FLIGHT_TIME_TO_MAX_STUN_OLD	1.0
 #define FLIGHT_TIME_TO_MAX_STUN_NEW	0.8
 #define TF_CANNONBALL_FORCE_SCALE 80.0
@@ -288,6 +288,7 @@ enum struct Entity {
 	float minisentry_health;
 	int patient;
 	bool has_run_post;
+	float prev_charge;
 }
 
 ConVar cvar_enable;
@@ -710,6 +711,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
 	ItemDefine("battalions", "Battalions_PreHat", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Battalions);
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
+	ItemVariant(Wep_BazaarBargain, "Bazaar_PreJuly2013");
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
@@ -2112,6 +2114,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].minisentry_health = 0.0;
 	entities[entity].patient = -1;
 	entities[entity].has_run_post = false;
+	entities[entity].prev_charge = 0.0;
 
 	if (
 		strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
@@ -2204,7 +2207,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
-	else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+	else if (strncmp(class, "tf_weapon_sniperrifle", sizeof("tf_weapon_sniperrifle") - 1) == 0) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
@@ -2566,8 +2569,13 @@ public void ApplyRevertsToItem(int entity) {
 		case 226: { if (ItemIsEnabled(Wep_Battalions)) {
 			TF2Attrib_SetByDefIndex(entity, 26, 0.0); // +0 max health on wearer
 		}}
-		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
-			TF2Attrib_SetByDefIndex(entity, 268, 1.20); // Base charge rate decreased by 20%
+		case 402: { switch (GetItemVariant(Wep_BazaarBargain)) {
+			case 0: {
+				TF2Attrib_SetByDefIndex(entity, 268, 1.20); // Base charge rate decreased by 20%
+			}
+			case 1: {
+				TF2Attrib_SetByDefIndex(entity, 268, 1.40); // Base charge rate decreased by 40%
+			}
 		}}
 		case 237: { if (GetItemVariant(Wep_RocketJumper) == 1) {
 			TF2Attrib_SetByDefIndex(entity, 15, 1.0); // crit mod disabled
@@ -5641,6 +5649,16 @@ void SetShovelSpeedBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
 }
 
+float BazaarBargainChargeRateMod(int owner) {
+	int heads = GetEntProp(owner, Prop_Send, "m_iDecapitations");
+
+	if (GetItemVariant(Wep_BazaarBargain) == 1) {
+		return 0.4 * float(intMin(heads, 7) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+	}
+
+	return 0.2 * float(intMin(heads, 6) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+}
+
 void SetFeignDeathEnd(int client) {
 	if (!IsClientInGame(client))
 		return;
@@ -6688,8 +6706,8 @@ MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre(int en
 		ItemIsEnabled(Wep_BazaarBargain) &&
 		owner > 0
 	) {
-		// Change the recharge rate for the Bazaar Bargain.
-		returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+		// Change the charge rate for the Bazaar Bargain.
+		returnValue.Value = BazaarBargainChargeRateMod(owner);
 		return MRES_Supercede;
 	}
 
@@ -6787,6 +6805,33 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 	) {
 		TF2Attrib_SetByDefIndex(entity, 819, 0.0);
 	}
+
+	// Uncapped charge rate for Pre-2013 Bazaar Bargain
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (
+		GetItemVariant(Wep_BazaarBargain) == 1 &&
+		owner > 0
+	) {
+		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargedDamage");
+		float prev_charge = entities[entity].prev_charge;
+		entities[entity].prev_charge = charge;
+
+		if (
+			charge > prev_charge &&
+			charge < TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX &&
+			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+		) {
+			float rate = TF2Attrib_HookValueFloat(TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC, "mult_sniper_charge_per_sec", entity);
+			rate += BazaarBargainChargeRateMod(owner);
+
+			// the game clamps the charge rate to 200%, so top up whatever the clamp ate.
+			if (rate > 2.0 * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC) {
+				charge = floatMin(charge + (rate - 2.0 * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC) * GetGameFrameTime(), TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX);
+				SetEntPropFloat(entity, Prop_Send, "m_flChargedDamage", charge);
+			}
+		}
+	}
+
 	return MRES_Ignored;
 }
 
