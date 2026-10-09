@@ -3778,14 +3778,13 @@ Action OnSoundNormal(
 ) {
 	int idx;
 
-	if (cvar_old_falldmg_sfx.BoolValue)
-	{
-		if (StrContains(sample, "pl_fallpain") != -1)
-		{
-			for (idx = 1; idx <= MaxClients; idx++)
-			{
-				if (players[idx].fall_dmg_tick == GetGameTickCount())
-				{
+	if (cvar_old_falldmg_sfx.BoolValue) {
+		if (StrContains(sample, "pl_fallpain") != -1) {
+			for (idx = 1; idx <= MaxClients; idx++) {
+				if (
+					IsClientInGame(idx) &&
+					players[idx].fall_dmg_tick == GetGameTickCount()
+				) {
 					// play old bone crunch
 					strcopy(sample, PLATFORM_MAX_PATH, "player/pl_fleshbreak.wav");
 					pitch = 92;
@@ -3793,12 +3792,12 @@ Action OnSoundNormal(
 				}
 			}
 		}
-		else if (StrContains(sample, "PainSevere") != -1)
-		{
-			for (idx = 1; idx <= MaxClients; idx++)
-			{
-				if (players[idx].fall_dmg_tick == GetGameTickCount())
-				{
+		else if (StrContains(sample, "PainSevere") != -1) {
+			for (idx = 1; idx <= MaxClients; idx++) {
+				if (
+					IsClientInGame(idx) &&
+					players[idx].fall_dmg_tick == GetGameTickCount()
+				) {
 					// cancel hurt sound by fall dmg
 					return Plugin_Stop;
 				}
@@ -3810,15 +3809,15 @@ Action OnSoundNormal(
 	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
+				IsClientInGame(idx) &&
+				TF2_IsPlayerInCondition(idx, TFCond_Charging) &&
 				(
 					ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge] ||
 					ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner]
-				) &&
-				TF2_IsPlayerInCondition(idx, TFCond_Charging)
+				)
 			) {
 				char path[64];
-				if (GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter") > 40.0)
-				{
+				if (GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter") > 40.0) {
 					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
 					strcopy(sample, PLATFORM_MAX_PATH, path);
 					return Plugin_Changed;
