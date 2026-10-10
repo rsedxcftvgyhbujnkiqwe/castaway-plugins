@@ -5579,17 +5579,13 @@ int GetResistType(int entity)
 }
 
 void SetShovelDamageBoost(int entity) {
-	if (TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) != SHOVEL_STANDARD) {
-		TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
-		TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
-	}
+	TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
 }
 
 void SetShovelSpeedBoost(int entity) {
-	if (TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) != SHOVEL_STANDARD) {
-		TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
-		TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
-	}
+	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
+	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
 }
 
 void SetFeignDeathEnd(int client) {
@@ -7402,14 +7398,20 @@ MRESReturn DHookCallback_CTFPlayer_TakeHealth_Pre(int client, DHookReturn return
 }
 
 MRESReturn DHookCallback_CTFShovel_Deploy_Post(int entity, DHookReturn returnValue) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
+	if (
+		ItemIsEnabled(Wep_Pickaxe) &&
+		TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
+	) {
 		// Set damage boost after deploying
 		SetShovelDamageBoost(entity);
 	}
 	return MRES_Ignored;
 }
 MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
+	if (
+		ItemIsEnabled(Wep_Pickaxe) &&
+		TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_DAMAGE_BOOST
+	) {
 		// Set speed boost after holstering. This should help with client prediction when deployed.
 		SetShovelSpeedBoost(entity);
 	}
@@ -7417,13 +7419,19 @@ MRESReturn DHookCallback_CTFShovel_Holster_Post(int entity, DHookReturn returnVa
 }
 
 MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Pre(int entity, DHookReturn returnValue) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
+	if (
+		ItemIsEnabled(Wep_Pickaxe) &&
+		TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_DAMAGE_BOOST
+	) {
 		SetShovelSpeedBoost(entity);
 	}
 	return MRES_Ignored;
 }
 MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Post(int entity, DHookReturn returnValue) {
-	if (ItemIsEnabled(Wep_Pickaxe)) {
+	if (
+		ItemIsEnabled(Wep_Pickaxe) &&
+		TF2Attrib_HookValueInt(0, "set_weapon_mode", entity) == SHOVEL_SPEED_BOOST
+	) {
 		SetShovelDamageBoost(entity);
 	}
 	return MRES_Ignored;
