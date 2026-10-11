@@ -654,7 +654,7 @@
 	}
 	"Bazaar_PreJuly2013"
 	{
-		"en"	"Reverted to pre-Summer 2013, heads only require headshots (kills not required), -40%% base charge rate, +40%% charge rate per head up to +240%%, lose heads on scoped bodyshots/misses"
+		"en"	"Reverted to pre-Summer 2013, heads only require headshots (kills not required), -40%% base charge rate, +40%% charge rate per head up to +240%% (uncapped), lose heads on scoped bodyshots/misses"
 	}
 	"Beggars_Pre2013"
 	{

@@ -6782,12 +6782,11 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter_Pre(Address pThis, D
 }
 
 MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre(int entity) {
-	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	int owner = GetEntityOwner(entity);
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
 		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998 &&
-		owner >= 1 &&
-		owner <= MaxClients &&
+		owner >= 1 && owner <= MaxClients &&
 		players[owner].using_vaccinator_uber
 	) {
 		// Prevent resistance cycling while Ubering with the Vaccinator.
@@ -6807,10 +6806,11 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 	}
 
 	// Uncapped charge rate for Pre-2013 Bazaar Bargain
-	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	int owner = GetEntityOwner(entity);
 	if (
 		GetItemVariant(Wep_BazaarBargain) == 1 &&
-		owner > 0
+		owner >= 1 && owner <= MaxClients &&
+		TF2_IsPlayerInCondition(owner, TFCond_Slowed)
 	) {
 		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargedDamage");
 		float prev_charge = entities[entity].prev_charge;
@@ -6818,10 +6818,23 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 
 		if (
 			charge > prev_charge &&
-			charge < TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX &&
-			TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+			charge < TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX
 		) {
 			float rate = TF2Attrib_HookValueFloat(TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC, "mult_sniper_charge_per_sec", entity);
+
+			if (
+				TF2_IsPlayerInCondition(owner, TFCond_RuneHaste) ||
+				TF2_IsPlayerInCondition(owner, TFCond_RunePrecision)
+			) {
+				rate *= TF2_IsPlayerInCondition(owner, TFCond_PowerupModeDominant) ? 2.0 : 3.0;
+			}
+			else if (
+				TF2_IsPlayerInCondition(owner, TFCond_KingRune) ||
+				TF2_IsPlayerInCondition(owner, TFCond_KingAura)
+			) {
+				rate *= 1.5;
+			}
+
 			rate += BazaarBargainChargeRateMod(owner);
 
 			// the game clamps the charge rate to 200%, so top up whatever the clamp ate.
