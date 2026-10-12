@@ -1182,7 +1182,7 @@ public void OnPluginStart() {
 #endif
 
 	if (hook_fail) {
-		SetFailState("Failed to load dhooks, sdkcalls or patches");
+		LogError("Failed to load dhooks, sdkcalls or patches");
 	}
 
 	dhook_CTFPlayer_CanDisguise.Enable(Hook_Post, DHookCallback_CTFPlayer_CanDisguise_Post);
