@@ -133,16 +133,16 @@
 				"signature" "CTFProjectile_BallOfFire::Burn"
 				"linux"
 				{
-					"offset"    "2357"
-					"verify"    "\x77\x2A\x80\xBD\x5E\xFF\xFF\xFF\x00" // JA rel8 (wildcarded offset); CMP BYTE PTR [EBP - 0xA2], 0
-					"patch"     "\xE9\x24\x0A\x00\x00\x90\x90\x90\x90" // JMP +0xA24 (2596 bytes forward); 4× NOP
+					"offset"    "2473"
+					"verify"    "\x83\xEC\x08\x6A\x16" // Oct12: existing default branch InCond(22) setup
+					"patch"     "\xE9\xBD\x09\x00\x00" // Route validated default path to existing conditional bonus block
 
 				}
 				"windows"
 				{
-					"offset"    "1676"
-					"verify"    "\x74\x2A" // JZ rel8 (wildcarded offset)
-					"patch"     "\x90\x90" // 2x NOP
+					"offset"    "1682"
+					"verify"    "\x74\x2A" // JZ rel8 (skip bonus damage when center hit requirement fails)
+					"patch"     "\x90\x90" // 2x NOP to remove center hit requirement while preserving InCond(22) check
 				}
 			}
 
