@@ -656,7 +656,7 @@ public void OnPluginStart() {
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
-	cvar_weapon_cache_delay = CreateConVar("sm_reverts__weapon_cache_delay", "0.15", (PLUGIN_NAME ... " - Time delay for weapon caching on inventory application"), _, true, 0.0);
+	cvar_weapon_cache_delay = CreateConVar("sm_reverts__weapon_cache_delay", "0", (PLUGIN_NAME ... " - Time delay for weapon caching on inventory application. Set to 0 for no delay"), _, true, 0.0);
 	cvar_bison_damage_formula = CreateConVar("sm_reverts__bison_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Bison\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
 	cvar_pomson_damage_formula = CreateConVar("sm_reverts__pomson_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Pomson\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
 
@@ -1225,7 +1225,7 @@ public void OnPluginStart() {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
 		if (IsClientInGame(idx)) {
 			OnClientPutInServer(idx);
-			if (IsPlayerAlive(idx)) CacheWeapons(idx,false);
+			if (IsPlayerAlive(idx)) CacheWeapons(idx, false);
 		}
 	}
 
@@ -3215,7 +3215,13 @@ public Action Event_OnPostInventoryApplication(Event event, const char[] name, b
 	else
 		TF2Attrib_RemoveByDefIndex(client, 177);
 
-	CreateTimer(cvar_weapon_cache_delay.FloatValue, Timer_CacheWeapons, userid);
+	float delay = cvar_weapon_cache_delay.FloatValue;
+	if (delay > 0.0) {
+		CreateTimer(delay, Timer_CacheWeapons, userid);
+	}
+	else {
+		CacheWeapons(client, true);
+	}
 
 	return Plugin_Continue;
 }
@@ -3226,12 +3232,12 @@ public Action Timer_CacheWeapons(Handle timer, any data) {
 		client >= 1 && client <= MaxClients &&
 		IsClientInGame(client)
 	) {
-		CacheWeapons(client,true);
+		CacheWeapons(client, true);
 	}
 	return Plugin_Stop;
 }
 
-void CacheWeapons(int client, bool spawn_event) {
+void CacheWeapons(int client, bool spawn_event = false) {
 	bool should_display_info_msg = false;
 
 	//cache players weapons for later funcs
@@ -6847,7 +6853,7 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 
 MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther_Post(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (client >= 1 && client <= MaxClients) {
-		CacheWeapons(client,false);
+		CacheWeapons(client, false);
 	}
 	return MRES_Ignored;
 }
