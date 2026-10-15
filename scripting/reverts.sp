@@ -1225,7 +1225,7 @@ public void OnPluginStart() {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
 		if (IsClientInGame(idx)) {
 			OnClientPutInServer(idx);
-			if (IsPlayerAlive(idx)) CacheWeapons(idx);
+			if (IsPlayerAlive(idx)) CacheWeapons(idx,false);
 		}
 	}
 
@@ -3226,12 +3226,12 @@ public Action Timer_CacheWeapons(Handle timer, any data) {
 		client >= 1 && client <= MaxClients &&
 		IsClientInGame(client)
 	) {
-		CacheWeapons(client);
+		CacheWeapons(client,true);
 	}
 	return Plugin_Stop;
 }
 
-void CacheWeapons(int client) {
+void CacheWeapons(int client, bool spawn_event) {
 	bool should_display_info_msg = false;
 
 	//cache players weapons for later funcs
@@ -3660,6 +3660,11 @@ void CacheWeapons(int client) {
 					{
 						player_weapons[client][Set_SpDelivery] = true;
 						TF2Attrib_SetByDefIndex(client, 517, 25.0); // SET BONUS: max health additive bonus
+						if (spawn_event) {
+							// Players don't get set to full health on spawn with this set due to the cache delay
+							// so we give them the health back, but only on spawn, as pickups should not heal
+							TF2Util_TakeHealth(client,25.0);
+						}
 					}
 					case Set_TankBuster:
 					{
@@ -6842,7 +6847,7 @@ MRESReturn DHookCallback_CTFLunchBox_ApplyBiteEffects_Post(int entity, DHookPara
 
 MRESReturn DHookCallback_CTFPlayer_PickupWeaponFromOther_Post(int client, DHookReturn returnValue, DHookParam parameters) {
 	if (client >= 1 && client <= MaxClients) {
-		CacheWeapons(client);
+		CacheWeapons(client,false);
 	}
 	return MRES_Ignored;
 }
