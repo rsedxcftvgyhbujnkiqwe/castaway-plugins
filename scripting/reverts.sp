@@ -40,7 +40,7 @@
 #define PLUGIN_DESC "Reverts nerfed weapons back to their glory days"
 #define PLUGIN_AUTHOR "Bakugo, NotnHeavy, random, huutti, VerdiusArcana, MindfulProtons, EricZhang456"
 
-#define PLUGIN_VERSION_NUM "2.0.3"
+#define PLUGIN_VERSION_NUM "2.0.4"
 #if defined MEMORY_PATCHES
 #define PLUGIN_VERSION PLUGIN_VERSION_NUM
 #else
