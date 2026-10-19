@@ -710,7 +710,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
 	ItemDefine("battalions", "Battalions_PreHat", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Battalions);
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
-	ItemVariant(Wep_BazaarBargain, "Bazaar_PreJuly2013");
+	ItemVariant(Wep_BazaarBargain, "Bazaar_Pre2013");
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
