@@ -280,6 +280,7 @@ enum struct Player {
 	int old_metal;
 	int zatoichi_frame;
 	int powerjack_frame;
+	float old_charge_level;
 }
 
 enum struct Entity {
@@ -289,6 +290,8 @@ enum struct Entity {
 	int patient;
 	bool has_run_post;
 	float prev_charge;
+	bool construction_hit;
+	bool bolt_heal;
 }
 
 ConVar cvar_enable;
@@ -454,10 +457,6 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
-bool construction_hit;
-int crossbow_medigun;
-float old_charge_level;
-bool bolt_heal;
 
 OperatingSystem operatingSystem;
 
@@ -1221,10 +1220,6 @@ public void OnPluginStart() {
 #endif
 
 	team_round_timer_entity = -1;
-	construction_hit = false;
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
-	bolt_heal = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2115,6 +2110,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].patient = -1;
 	entities[entity].has_run_post = false;
 	entities[entity].prev_charge = 0.0;
+	entities[entity].construction_hit = false;
+	entities[entity].bolt_heal = false;
 
 	if (
 		strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
@@ -6213,41 +6210,40 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch_Pre(int entity, DHookReturn returnVal
 }
 
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity, DHookParam parameters) {
-	bolt_heal = false;
-
 	int building = parameters.Get(1);
-	if (
-		IsValidEntity(building) &&
-		HasEntProp(building, Prop_Send, "m_nShieldLevel")
-	) {
-		if (ItemIsEnabled(Wep_Wrangler)) {
-			// Fake the sentry being unshielded to allow for maximum healing potential.
-			entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
-			SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+	if (IsValidEntity(building)) {
+		entities[building].bolt_heal = false;
+
+		if (HasEntProp(building, Prop_Send, "m_nShieldLevel")) {
+			if (ItemIsEnabled(Wep_Wrangler)) {
+				// Fake the sentry being unshielded to allow for maximum healing potential.
+				entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
+				SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+			}
+
+			if (
+				ItemIsEnabled(Wep_Gunslinger) &&
+				GetEntProp(building, Prop_Send, "m_bMiniBuilding")
+			) {
+				// Do not allow healing on mini sentries.
+				return MRES_Supercede;
+			}
 		}
 
+		int attacker = GetEntityOwner(entity);
 		if (
-			ItemIsEnabled(Wep_Gunslinger) &&
-			GetEntProp(building, Prop_Send, "m_bMiniBuilding")
+			ItemIsEnabled(Wep_RescueRanger) &&
+			attacker >= 1 && attacker <= MaxClients
 		) {
-			// Do not allow healing on mini sentries.
-			return MRES_Supercede;
-		}
-	}
+			players[attacker].old_metal = -1;
 
-	int attacker = GetEntityOwner(entity);
-	if (
-		ItemIsEnabled(Wep_RescueRanger) &&
-		attacker >= 1 && attacker <= MaxClients
-	) {
-		players[attacker].old_metal = -1;
+			if (TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker) > 0.0) {
+				entities[building].bolt_heal = true;
 
-		if (TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker) > 0.0) {
-			bolt_heal = true;
-
-			// Fake the metal count to allow for free healing.
-			players[attacker].old_metal = GetEntProp(attacker, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
-			SetEntProp(attacker, Prop_Data, "m_iAmmo", 200, 4, TF_AMMO_METAL);
+				// Fake the metal count to allow for free healing.
+				players[attacker].old_metal = GetEntProp(attacker, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+				SetEntProp(attacker, Prop_Data, "m_iAmmo", 200, 4, TF_AMMO_METAL);
+			}
 		}
 	}
 
@@ -6255,8 +6251,8 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 }
 
 MRESReturn DHookCallback_CBaseObject_Command_Repair_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_RescueRanger) && bolt_heal) {
-		bolt_heal = false;
+	if (ItemIsEnabled(Wep_RescueRanger) && entities[entity].bolt_heal) {
+		entities[entity].bolt_heal = false;
 
 		// Set health-to-metal ratio to 1 such that the heal amount is not a multiple of 4 and can be any integer.
 		// Note that teleporters override this value to 5, which cannot be changed with this virtual hook alone.
@@ -6267,16 +6263,17 @@ MRESReturn DHookCallback_CBaseObject_Command_Repair_Pre(int entity, DHookReturn 
 }
 
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entity, DHookParam parameters) {
-	bolt_heal = false;
-
 	int building = parameters.Get(1);
-	if (
-		ItemIsEnabled(Wep_Wrangler) &&
-		IsValidEntity(building) &&
-		HasEntProp(building, Prop_Send, "m_nShieldLevel")
-	) {
-		// Revert the sentry's shield.
-		SetEntProp(building, Prop_Send, "m_nShieldLevel", entities[building].old_shield);
+	if (IsValidEntity(building)) {
+		entities[building].bolt_heal = false;
+
+		if (
+			ItemIsEnabled(Wep_Wrangler) &&
+			HasEntProp(building, Prop_Send, "m_nShieldLevel")
+		) {
+			// Revert the sentry's shield.
+			SetEntProp(building, Prop_Send, "m_nShieldLevel", entities[building].old_shield);
+		}
 	}
 
 	int attacker = GetEntityOwner(entity);
@@ -6294,57 +6291,57 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entit
 }
 
 MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int entity, DHookParam parameters) {
-	// Reset in case we return early.
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
-
 	int owner = GetEntityOwner(entity);
-	int weapon;
 	if (owner >= 1 && owner <= MaxClients) {
-		weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
+		players[owner].old_charge_level = 0.0;
+
+		int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
 		if (
 			weapon > 0 &&
 			HasEntProp(weapon, Prop_Send, "m_flChargeLevel")
 		) {
-			crossbow_medigun = weapon;
-			old_charge_level = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+			players[owner].old_charge_level = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 		}
 	}
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int entity, DHookParam parameters) {
-	int patient = parameters.Get(1);
-	float charge, added, time_since_damage;
-	if (
-		crossbow_medigun > 0 &&
-		patient >= 1 && patient <= MaxClients
-	) {
-		if (ItemIsEnabled(Wep_Crossbow)) {
-			charge = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
-			added = charge - old_charge_level;
-			if (added > 0.0) {
-				// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
-				// The game added (iActualHealed / (24 * flScale)) * frametime.
-				// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
+	int owner, weapon, patient;
+	float added, time_since_damage, charge;
 
-				time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
-				charge = old_charge_level + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
-				SetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
+	owner = GetEntityOwner(entity);
+	if (owner >= 1 && owner <= MaxClients) {
+		weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
+		if (
+			weapon > 0 &&
+			HasEntProp(weapon, Prop_Send, "m_flChargeLevel")
+		) {
+			if (ItemIsEnabled(Wep_Crossbow)) {
+				patient = parameters.Get(1);
+				added = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel") - players[owner].old_charge_level;
+				if (
+					patient >= 1 && patient <= MaxClients &&
+					added > 0.0
+				) {
+					// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
+					// The game added (iActualHealed / (24 * flScale)) * frametime.
+					// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
+
+					time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
+					charge = players[owner].old_charge_level + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
+					SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
+				}
 			}
-		}
-		if (GetItemVariant(Wep_Amputator) == 1) {
-			int owner = GetEntityOwner(entity);
 			if (
-				owner >= 1 && owner <= MaxClients &&
+				GetItemVariant(Wep_Amputator) == 1 &&
 				players[owner].medic_amputator_current_uber >= 0.0
 			) {
-				players[owner].medic_amputator_current_uber = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
+				players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 			}
 		}
+		players[owner].old_charge_level = 0.0;
 	}
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
 	return MRES_Ignored;
 }
 
@@ -6555,7 +6552,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookParam parameters) {
 	char class[64];
-	construction_hit = false;
+	entities[entity].construction_hit = false;
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
@@ -6563,7 +6560,7 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookPara
 		GetEntityClassname(entity, class, sizeof(class));
 		if (StrEqual(class, "obj_sentrygun")) {
 			// Do not allow mini sentries to be construction boosted.
-			construction_hit = true;
+			entities[entity].construction_hit = true;
 			return MRES_Supercede;
 		}
 	}
@@ -6571,8 +6568,8 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookPara
 }
 
 MRESReturn DHookCallback_CBaseObject_InputWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (construction_hit) {
-		construction_hit = false;
+	if (entities[entity].construction_hit) {
+		entities[entity].construction_hit = false;
 
 		// Return false such that the 'ding' plays instead of the regular wrench hit sound
 		returnValue.Value = false;
@@ -7374,12 +7371,12 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 }
 
 MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Pre(int entity) {
-	old_charge_level = 0.0;
+	entities[entity].prev_charge = 0.0;
 	if (
 		ItemIsEnabled(Wep_VitaSaw) &&
 		GameRules_GetRoundState() == RoundState_RoundRunning
 	) {
-		old_charge_level = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
+		entities[entity].prev_charge = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
 	}
 	return MRES_Ignored;
 }
@@ -7395,7 +7392,7 @@ MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
 		// todo: make this additive with the vanilla attribute
 		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
 		float preserved = TF2Attrib_HookValueFloat(0.0, "preserve_ubercharge", owner) * 0.01;
-		charge = floatMax(charge, floatMin(old_charge_level, preserved));
+		charge = floatMax(charge, floatMin(entities[entity].prev_charge, preserved));
 
 		if (charge > 0.0) {
 			// fix charge showing as 19%
