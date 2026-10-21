@@ -280,7 +280,6 @@ enum struct Player {
 	int old_metal;
 	int zatoichi_frame;
 	int powerjack_frame;
-	float old_charge_level;
 }
 
 enum struct Entity {
@@ -6293,14 +6292,12 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entit
 MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int entity, DHookParam parameters) {
 	int owner = GetEntityOwner(entity);
 	if (owner >= 1 && owner <= MaxClients) {
-		players[owner].old_charge_level = 0.0;
-
 		int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
 		if (
 			weapon > 0 &&
 			HasEntProp(weapon, Prop_Send, "m_flChargeLevel")
 		) {
-			players[owner].old_charge_level = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+			entities[weapon].prev_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 		}
 	}
 	return MRES_Ignored;
@@ -6319,7 +6316,7 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int ent
 		) {
 			if (ItemIsEnabled(Wep_Crossbow)) {
 				patient = parameters.Get(1);
-				added = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel") - players[owner].old_charge_level;
+				added = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel") - entities[weapon].prev_charge;
 				if (
 					patient >= 1 && patient <= MaxClients &&
 					added > 0.0
@@ -6329,7 +6326,7 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int ent
 					// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
 
 					time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
-					charge = players[owner].old_charge_level + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
+					charge = entities[weapon].prev_charge + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
 					SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
 				}
 			}
@@ -6340,7 +6337,6 @@ MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int ent
 				players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 			}
 		}
-		players[owner].old_charge_level = 0.0;
 	}
 	return MRES_Ignored;
 }
