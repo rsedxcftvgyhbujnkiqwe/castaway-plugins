@@ -367,6 +367,7 @@ Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 Handle sdkcall_CWeaponMedigun_CanAttack;
 Handle sdkcall_CBaseGrenade_GetDamage;
+Handle sdkcall_CTFSniperRifle_SniperRifleChargeRateMod;
 #if defined MEMORY_PATCHES
 Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
 #endif
@@ -377,7 +378,7 @@ DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
-DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
+DynamicHook dhook_CTFSniperRifle_SniperRifleChargeRateMod;
 DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CBaseObject_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
@@ -955,13 +956,18 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CBaseGrenade_GetDamage = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CTFSniperRifle::SniperRifleChargeRateMod");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CTFSniperRifle_SniperRifleChargeRateMod = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
-		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
+		dhook_CTFSniperRifle_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifle::SniperRifleChargeRateMod");
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
@@ -1105,6 +1111,8 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
 	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
+	VALIDATE_HANDLE(sdkcall_CBaseGrenade_GetDamage);
+	VALIDATE_HANDLE(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod);
 
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
@@ -1112,7 +1120,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CAmmoPack_MyTouch);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_OnWrenchHit);
 	VALIDATE_HANDLE(dhook_CHealthKit_MyTouch);
-	VALIDATE_HANDLE(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+	VALIDATE_HANDLE(dhook_CTFSniperRifle_SniperRifleChargeRateMod);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
 	VALIDATE_HANDLE(dhook_CBaseObject_Construct);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
@@ -2207,8 +2215,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
-			dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre);
 			dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack_Pre);
+			dhook_CTFSniperRifle_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre);
 		}
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
@@ -5645,16 +5653,6 @@ void SetShovelSpeedBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
 }
 
-float BazaarBargainChargeRateMod(int owner) {
-	int heads = GetEntProp(owner, Prop_Send, "m_iDecapitations");
-
-	if (GetItemVariant(Wep_BazaarBargain) == 1) {
-		return 0.4 * float(intMin(heads, 7) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
-	}
-
-	return 0.2 * float(intMin(heads, 6) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
-}
-
 void SetFeignDeathEnd(int client) {
 	if (!IsClientInGame(client))
 		return;
@@ -6694,16 +6692,19 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot_Pre(int entity, DHookRe
 }
 
 MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre(int entity, DHookReturn returnValue) {
-	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) &&
-		owner > 0
-	) {
+	if (ItemIsEnabled(Wep_BazaarBargain)) {
+		int owner = GetEntityOwner(entity);
+		int heads = (owner >= 1 && owner <= MaxClients) ? GetEntProp(owner, Prop_Send, "m_iDecapitations") : 0;
+
+		float multiplier = 0.2 * float(intMin(heads, 6) - 1);
+		if (GetItemVariant(Wep_BazaarBargain) == 1) {
+			multiplier = 0.4 * float(intMin(heads, 7) - 1);
+		}
+
 		// Change the charge rate for the Bazaar Bargain.
-		returnValue.Value = BazaarBargainChargeRateMod(owner);
+		returnValue.Value = multiplier * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 		return MRES_Supercede;
 	}
-
 	return MRES_Ignored;
 }
 
@@ -6828,7 +6829,7 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 				rate *= 1.5;
 			}
 
-			rate += BazaarBargainChargeRateMod(owner);
+			rate += view_as<float>(SDKCall(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod, entity));
 
 			// the game clamps the charge rate to 200%, so top up whatever the clamp ate.
 			if (rate > 2.0 * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC) {

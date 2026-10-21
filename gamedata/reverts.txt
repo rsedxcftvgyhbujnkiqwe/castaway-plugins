@@ -260,7 +260,7 @@
 				"windows"	"439"
 				"linux"		"446"
 			}
-			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			"CTFSniperRifle::SniperRifleChargeRateMod"
 			{
 				"windows"	"498"
 				"linux"		"505"
@@ -569,9 +569,9 @@
 					}
 				}
 			}
-			"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+			"CTFSniperRifle::SniperRifleChargeRateMod"
 			{
-				"offset"	"CTFSniperRifleDecap::SniperRifleChargeRateMod"
+				"offset"	"CTFSniperRifle::SniperRifleChargeRateMod"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"float"
