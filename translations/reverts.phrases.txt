@@ -650,7 +650,11 @@
 	}
 	"Bazaar_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +7.5%% charge rate per head up to +45%%, lose heads on scoped bodyshots/misses"
+		"en"	"Reverted to pre-gunmettle, heads only require headshots (kills not required), -20%% base charge rate, +20%% charge rate per head up to +100%%, lose heads on scoped bodyshots/misses"
+	}
+	"Bazaar_Pre2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, heads only require headshots (kills not required), -40%% base charge rate, +40%% charge rate per head up to +240%% (uncapped), lose heads on scoped bodyshots/misses"
 	}
 	"Beggars_Pre2013"
 	{
@@ -907,6 +911,10 @@
 	"Cannon_PreTB"
 	{
 		"en"	"Reverted to pre-toughbreak, +50%% projectile speed, constant 60 base damage impacts, increased knockback, no stun"
+	}
+	"Cannon_Pre2013"
+	{
+		"en"	"Reverted to pre-Summer 2013, 2s fuse time, +50%% projectile speed, impact damage increases at range, no double-donk, increased knockback, no stun, -50%% damage on world contact"
 	}
 	"MadMilk_Release"
 	{
