@@ -566,7 +566,7 @@
 	}
 	"Medigun_PreMYM"
 	{
-		"en"	"Dropped Medigun's stored charge does not decay over time"
+		"en"	"Reverted to pre-matchmaking, stored charge does not decay over time"
 	}
 	"Minigun_ramp_PreLW"
 	{
@@ -602,7 +602,7 @@
 	}
 	"Amputator_PreTB_Historical"
 	{
-		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage, no uber gain when taunting"
+		"en"	"Reverted to pre-toughbreak, regenerates +3 HP/s flat when active regardless if user recently took damage, no uber gain on heal"
 	}
 	"Atomizer_PreJI"
 	{
@@ -690,15 +690,15 @@
 	}
 	"BuffaloSteak_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, immediately gain +35%% faster move speed and +10%% damage vuln while buffed"
+		"en"	"Reverted to pre-matchmaking, +35%% move speed and +10%% damage taken while buffed"
 	}
 	"BuffaloSteak_Release"
 	{
-		"en"	"Reverted to release, +35%% faster move speed on use, damage taken minicrits, no speed cap (stacks with GRU), no cooldown at full health, heal yourself by throwing the Steak"
+		"en"	"Reverted to release, +35%% move speed and damage taken mini-crits while buffed, no speed cap (stacks with GRU), no cooldown at full health, heal yourself by throwing the Steak"
 	}
 	"BuffBanner_Release"
 	{
-		"en"	"Reverted to release, +40%% longer buff effect duration (from 10 sec to 14 sec), requires 1000 damage points (from 600)"
+		"en"	"Reverted to release, +40%% buff duration (from 10 sec to 14 sec), requires 1000 damage points (from 600)"
 	}
 	"Targe_PreTB"
 	{
@@ -834,11 +834,11 @@
 	}
 	"FistSteel_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, 20%% longer weapon switch, no holster penalty, no healing penalties"
+		"en"	"Reverted to pre-toughbreak, no holster penalty, no healing penalties, 20%% longer weapon switch"
 	}
 	"FistSteel_Release"
 	{
-		"en"	"Reverted to release, no healing or switching penalties, -60%% ranged damage while active (from -40%%)"
+		"en"	"Reverted to release, -60%% ranged damage while active (from -40%%), no holster penalty, no healing penalties"
 	}
 	"Guillotine_PreJI"
 	{
@@ -854,7 +854,7 @@
 	}
 	"GlovesRU_PrePyro"
 	{
-		"en"	"Reverted to release, no health drain or holster penalty, -6 HP/s while active, -50%% damage"
+		"en"	"Reverted to release, no max health drain or holster penalty, -6 HP/s while active, -50%% damage"
 	}
 	"Gunboats_Release"
 	{
@@ -886,11 +886,11 @@
 	}
 	"Jag_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, no damage penalty against buildings (destroy Sappers in 2 hits)"
+		"en"	"Reverted to pre-toughbreak, no damage penalty vs buildings (destroy Sappers in 2 hits)"
 	}
 	"Jag_PreGM"
 	{
-		"en"	"Reverted to pre-gunmettle, no damage penalty against buildings (destroy Sappers in 2 hits), no repair rate penalty, no faster firing speed bonus"
+		"en"	"Reverted to pre-gunmettle, no damage penalty vs buildings (destroy Sappers in 2 hits), no firing speed bonus, no repair penalty"
 	}	
 	"Liberty_Release"
 	{
@@ -962,11 +962,11 @@
 	}
 	"Pomson_PreGM"
 	{
-		"en"	"Increased hitbox size, passes through team, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows"
+		"en"	"Increased hitbox size, passes through team, no charge drain falloff, pierces bullet resists, ignites friendly Huntsman arrows"
 	}
 	"Pomson_Release"
 	{
-		"en"	"Increased hitbox size, penetrates targets, no charge drain fall-off, pierces bullet resists, ignites friendly Huntsman arrows, drains cloak per-tick if target is disguised or cloaked"
+		"en"	"Increased hitbox size, penetrates targets, no charge drain falloff, pierces bullet resists, ignites friendly Huntsman arrows, drains cloak per-tick if target is disguised or cloaked"
 	}
 	"Pomson_PreMYM"
 	{
@@ -994,7 +994,7 @@
 	}
 	"Pocket_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, gain up to +5 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
+		"en"	"Reverted to pre-inferno, +5 health on hit, no clip size penalty, 25%% slower fire rate, when active: fall damage immunity and 20%% damage vuln"
 	}
 	"Quickfix_PreTB"
 	{
@@ -1006,7 +1006,7 @@
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"en"	"Reverted to pre-matchmaking, max charge time decreased by 50%%, up to +25%% damage based on charge, -25%% clip size, stickies fizzle 4 seconds after landing"
+		"en"	"Reverted to pre-matchmaking, -25%% clip size, -50%% max charge time, up to +25%% damage based on charge, stickies fizzle 4 seconds after landing"
 	}
 	"Razorback_PreJI"
 	{
@@ -1186,7 +1186,7 @@
 	}
 	"Turner_PreDec2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, crit after bash, no debuff removal, bash damage at end of charge, 100%% charge on charge kill, no charge loss on hit"
+		"en"	"Reverted to pre-Smissmas 2014, can deal full crits, 25%% blast and fire resist, 100%% charge on charge kill, no charge loss on hit, crit after bash, no debuff removal, bash damage at end of charge"
 	}
 	"Tomislav_PreLWSoundOnly"
 	{
@@ -1210,11 +1210,11 @@
 	}
 	"Vaccinator_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, +50%% Uber rate, -66%% Uber rate on overhealed patients, you are healed for 10%% of the matched incoming damage on patient"
+		"en"	"Reverted to pre-toughbreak, you are healed for 10%% of the matched incoming damage on patient, +50%% uber rate, -66%% uber rate on overhealed patients"
 	}	
 	"Vaccinator_PreGM"
 	{
-		"en"	"Pre-GM: full crit base resist, bubbles gone when cut off, no Uber rate penalties from overheal or multiple healers, only 1 resist on patient, 25%% HP regen on proper resist, +50%% Uber rate, -66%% overheal build rate"
+		"en"	"Reverted to pre-gunmettle, full crit base resist, 25%% HP regen on proper resist, no uber rate penalties from any source, +50%% uber rate, bubbles gone when cut off, only 1 resist on patient"
 	}
 	"VitaSaw_PreJI"
 	{
@@ -1222,7 +1222,7 @@
 	}
 	"Warrior_PreTB"
 	{
-		"en"	"Reverted to pre-toughbreak, heals 10 on hit, no damage vuln, -20 max health"
+		"en"	"Reverted to pre-toughbreak, +10 health on hit, no damage vuln, -20 max health"
 	}
 	"Wrangler_PreGM"
 	{
@@ -1238,6 +1238,6 @@
 	}
 	"Eternal_PreJI"
 	{
-		"en"	"Reverted to pre-inferno, cannot disguise, no cloak drain penalty"
+		"en"	"Reverted to pre-inferno, no cloak drain penalty, cannot disguise via kit"
 	}
 }
