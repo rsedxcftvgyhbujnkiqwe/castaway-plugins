@@ -2110,10 +2110,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].has_run_post = false;
 
 	if (
-		strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
-		strncmp(class, "saxxy", sizeof("saxxy") - 1) == 0 ||
-		strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
-		!StrEqual(class, "tf_wearable_vm")
+		(
+			strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
+			StrEqual(class, "saxxy") ||
+			(
+				strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
+				!StrEqual(class, "tf_wearable_vm")
+			)
+		) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")
 	) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 	}
