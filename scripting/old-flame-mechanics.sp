@@ -121,21 +121,21 @@ enum
 // CTFFlameEntity offsets. Should be used with CTFFlameEntity_Base.
 enum
 {
-    CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS = 0,                                                           // Vector m_vecInitialPos;
-    CTFFLAMEENTITY_OFFSET_M_VECPREVPOS = CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS + VECTOR_SIZE,            // Vector m_vecPrevPos;
-    CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECPREVPOS + VECTOR_SIZE,          // Vector m_vecBaseVelocity;
-    CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY + VECTOR_SIZE, // Vector m_vecAttackerVelocity;
-    CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE = CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY + VECTOR_SIZE,    // float m_flTimeRemove;
-    CTFFLAMEENTITY_OFFSET_M_IDMGTYPE = CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE + 4,                         // int m_iDmgType;
-    CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT = CTFFLAMEENTITY_OFFSET_M_IDMGTYPE + 4,                          // float m_flDmgAmount;
-    CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT = CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT + 4,                    // CUtlVector<EHANDLE> m_hEntitiesBurnt;
-    CTFFLAMEENTITY_OFFSET_M_HATTACKER = CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT + OFM_CUTLVECTOR_SIZE,    // EHANDLE m_hAttacker;
-    //CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM = CTFFLAMEENTITY_OFFSET_M_HATTACKER + 4,                       // int m_iAttackerTeam;
-    CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND = CTFFLAMEENTITY_OFFSET_M_HATTACKER/*CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM*/ + 4,                 // bool m_bCritFromBehind;
-    CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY = CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND + 1,                  // bool m_bBurnedEnemy;
-    CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER = CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY + 2,                    // CHandle<CTFFlameThrower> m_hFlameThrower;
+	CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS = 0,                                                           // Vector m_vecInitialPos;
+	CTFFLAMEENTITY_OFFSET_M_VECPREVPOS = CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS + VECTOR_SIZE,            // Vector m_vecPrevPos;
+	CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECPREVPOS + VECTOR_SIZE,          // Vector m_vecBaseVelocity;
+	CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY + VECTOR_SIZE, // Vector m_vecAttackerVelocity;
+	CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE = CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY + VECTOR_SIZE,    // float m_flTimeRemove;
+	CTFFLAMEENTITY_OFFSET_M_IDMGTYPE = CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE + 4,                         // int m_iDmgType;
+	CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT = CTFFLAMEENTITY_OFFSET_M_IDMGTYPE + 4,                          // float m_flDmgAmount;
+	CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT = CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT + 4,                    // CUtlVector<EHANDLE> m_hEntitiesBurnt;
+	CTFFLAMEENTITY_OFFSET_M_HATTACKER = CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT + OFM_CUTLVECTOR_SIZE,    // EHANDLE m_hAttacker;
+	//CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM = CTFFLAMEENTITY_OFFSET_M_HATTACKER + 4,                       // int m_iAttackerTeam;
+	CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND = CTFFLAMEENTITY_OFFSET_M_HATTACKER/*CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM*/ + 4,                 // bool m_bCritFromBehind;
+	CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY = CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND + 1,                  // bool m_bBurnedEnemy;
+	CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER = CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY + 2,                    // CHandle<CTFFlameThrower> m_hFlameThrower;
 
-    CTFFLAMEENTITY_SIZE = CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER + 4
+	CTFFLAMEENTITY_SIZE = CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER + 4
 };
 
 enum FlameThrowerState_t
@@ -254,23 +254,23 @@ enum ETFAmmoType
 
 enum struct player_t
 {
-    int index;
+	int index;
 
-    float m_flNextPrimaryAttack;
-    float m_flStartFiringTime;
-    float m_flNextPrimaryAttackAnim;
-    float m_flAmmoUseRemainder;
-    int m_iFlamethrowerAmmo;
-    float m_flBurnDurationBefore;
+	float m_flNextPrimaryAttack;
+	float m_flStartFiringTime;
+	float m_flNextPrimaryAttackAnim;
+	float m_flAmmoUseRemainder;
+	int m_iFlamethrowerAmmo;
+	float m_flBurnDurationBefore;
 
-    int GetAmmoCount(int iAmmoIndex)
-    {
-        return GetEntProp(this.index, Prop_Send, "m_iAmmo", .element = iAmmoIndex);
-    }
-    void SetAmmoCount(int iCount, int iAmmoIndex)
-    {
-        SetEntProp(this.index, Prop_Send, "m_iAmmo", iCount, .element = iAmmoIndex);
-    }
+	int GetAmmoCount(int iAmmoIndex)
+	{
+		return GetEntProp(this.index, Prop_Send, "m_iAmmo", .element = iAmmoIndex);
+	}
+	void SetAmmoCount(int iCount, int iAmmoIndex)
+	{
+		SetEntProp(this.index, Prop_Send, "m_iAmmo", iCount, .element = iAmmoIndex);
+	}
 }
 static player_t PlayerData[MAXPLAYERS + 1];
 
@@ -320,11 +320,11 @@ static float MemoryPatch_HealDebuff_Float25;
 
 public Plugin myinfo =
 {
-    name = PLUGIN_NAME,
-    author = "NotnHeavy, huutti",
-    description = "An attempt to revert flamethrower mechanics to how they were, pre-Jungle Inferno.",
-    version = "2.0.0",
-    url = "none"
+	name = PLUGIN_NAME,
+	author = "NotnHeavy, huutti",
+	description = "An attempt to revert flamethrower mechanics to how they were, pre-Jungle Inferno.",
+	version = "2.0.0",
+	url = "none"
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -333,125 +333,125 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-    LoadTranslations("common.phrases");
+	LoadTranslations("common.phrases");
 
-    HookEvent("post_inventory_application", PostInventoryApplication);
+	HookEvent("post_inventory_application", PostInventoryApplication);
 
-    // Load config data!
-    GameData config = LoadGameConfigFile(PLUGIN_NAME);
+	// Load config data!
+	GameData config = LoadGameConfigFile(PLUGIN_NAME);
 
-    DHooks_CTFFlameThrower_PrimaryAttack = DynamicDetour.FromConf(config, "CTFFlameThrower::PrimaryAttack()");
-    DHooks_CTFFlameThrower_FireAirBlast = DynamicDetour.FromConf(config, "CTFFlameThrower::FireAirBlast()");
-    DHooks_CTFFlameManager_OnCollide = DynamicDetour.FromConf(config, "Signature::CTFFlameManager::OnCollide()");
-    DHooks_CTFPlayerShared_Burn = DynamicDetour.FromConf(config, "CTFPlayerShared::Burn()");
+	DHooks_CTFFlameThrower_PrimaryAttack = DynamicDetour.FromConf(config, "CTFFlameThrower::PrimaryAttack()");
+	DHooks_CTFFlameThrower_FireAirBlast = DynamicDetour.FromConf(config, "CTFFlameThrower::FireAirBlast()");
+	DHooks_CTFFlameManager_OnCollide = DynamicDetour.FromConf(config, "Signature::CTFFlameManager::OnCollide()");
+	DHooks_CTFPlayerShared_Burn = DynamicDetour.FromConf(config, "CTFPlayerShared::Burn()");
 
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CBaseCombatCharacter::Weapon_ShootPosition()");
-    PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByValue); // Vector
-    SDKCall_CBaseCombatCharacter_Weapon_ShootPosition = EndPrepSDKCall();
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CBaseCombatCharacter::Weapon_ShootPosition()");
+	PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByValue); // Vector
+	SDKCall_CBaseCombatCharacter_Weapon_ShootPosition = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFWeaponBase::CanAttack()");
-    PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain); // bool
-    SDKCall_CTFWeaponBase_CanAttack = EndPrepSDKCall();
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFWeaponBase::CanAttack()");
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain); // bool
+	SDKCall_CTFWeaponBase_CanAttack = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFWeaponBase::CalcIsAttackCritical()");
-    SDKCall_CTFWeaponBase_CalcIsAttackCritical = EndPrepSDKCall();
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFWeaponBase::CalcIsAttackCritical()");
+	SDKCall_CTFWeaponBase_CalcIsAttackCritical = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Entity);
-    PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFWeaponBase::SendWeaponAnim()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iActivity;
-    PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);        // bool
-    SDKCall_CTFWeaponBase_SendWeaponAnim = EndPrepSDKCall();
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CTFWeaponBase::SendWeaponAnim()");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int iActivity;
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);        // bool
+	SDKCall_CTFWeaponBase_SendWeaponAnim = EndPrepSDKCall();
 
-    StartPrepSDKCall(SDKCall_Player);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFPlayer::DoAnimationEvent()");
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // PlayerAnimEvent_t event;
-    PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int mData = 0;
-    SDKCall_CTFPlayer_DoAnimationEvent = EndPrepSDKCall();
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CTFPlayer::DoAnimationEvent()");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // PlayerAnimEvent_t event;
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain); // int mData = 0;
+	SDKCall_CTFPlayer_DoAnimationEvent = EndPrepSDKCall();
 
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
-    MemoryPatch_ConditionGameRulesThink_HealDebuff = MemoryPatch.CreateFromConf(config, "ConditionGameRulesThink_HealDebuff");
-    MemoryPatch_CalcDamageResisted_HealDebuffShield = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffShield");
-    MemoryPatch_CalcDamageResisted_HealDebuffCrit = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffCrit");
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff");
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 = MemoryPatch.CreateFromConf(config, "CTFFlameEntity::OnCollide_Falloff2");
+	MemoryPatch_ConditionGameRulesThink_HealDebuff = MemoryPatch.CreateFromConf(config, "ConditionGameRulesThink_HealDebuff");
+	MemoryPatch_CalcDamageResisted_HealDebuffShield = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffShield");
+	MemoryPatch_CalcDamageResisted_HealDebuffCrit = MemoryPatch.CreateFromConf(config, "CalcDamageResisted_HealDebuffCrit");
 
-    if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
-    if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
-    if (DHooks_CTFFlameManager_OnCollide == null) SetFailState("Failed to create DHooks_CTFFlameManager_OnCollide");
-    if (DHooks_CTFPlayerShared_Burn == null) SetFailState("Failed to create DHooks_CTFPlayerShared_Burn");
-    if (SDKCall_CBaseCombatCharacter_Weapon_ShootPosition == null) SetFailState("Failed to create SDKCall_CBaseCombatCharacter_Weapon_ShootPosition");
-    if (SDKCall_CTFWeaponBase_CanAttack == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CanAttack");
-    if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
-    if (SDKCall_CTFWeaponBase_SendWeaponAnim == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_SendWeaponAnim");
-    if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
-    if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
-    if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
-    if (MemoryPatch_ConditionGameRulesThink_HealDebuff == null)
-        LogError("Failed to create MemoryPatch_ConditionGameRulesThink_HealDebuff — pre-JI mode will use modern values");
-    if (MemoryPatch_CalcDamageResisted_HealDebuffShield == null)
-        LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffShield — pre-JI mode will use modern values");
-    if (MemoryPatch_CalcDamageResisted_HealDebuffCrit == null)
-        LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffCrit — pre-JI mode will use modern values");
+	if (DHooks_CTFFlameThrower_PrimaryAttack == null) SetFailState("Failed to create DHooks_CTFFlameThrower_PrimaryAttack");
+	if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
+	if (DHooks_CTFFlameManager_OnCollide == null) SetFailState("Failed to create DHooks_CTFFlameManager_OnCollide");
+	if (DHooks_CTFPlayerShared_Burn == null) SetFailState("Failed to create DHooks_CTFPlayerShared_Burn");
+	if (SDKCall_CBaseCombatCharacter_Weapon_ShootPosition == null) SetFailState("Failed to create SDKCall_CBaseCombatCharacter_Weapon_ShootPosition");
+	if (SDKCall_CTFWeaponBase_CanAttack == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CanAttack");
+	if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
+	if (SDKCall_CTFWeaponBase_SendWeaponAnim == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_SendWeaponAnim");
+	if (SDKCall_CTFPlayer_DoAnimationEvent == null) SetFailState("Failed to create SDKCall_CTFPlayer_DoAnimationEvent");
+	if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff");
+	if (MemoryPatch_CTFFlameEntity_OnCollide_Falloff2 == null) SetFailState("Failed to create MemoryPatch_CTFFlameEntity_OnCollide_Falloff2");
+	if (MemoryPatch_ConditionGameRulesThink_HealDebuff == null)
+		LogError("Failed to create MemoryPatch_ConditionGameRulesThink_HealDebuff — pre-JI mode will use modern values");
+	if (MemoryPatch_CalcDamageResisted_HealDebuffShield == null)
+		LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffShield — pre-JI mode will use modern values");
+	if (MemoryPatch_CalcDamageResisted_HealDebuffCrit == null)
+		LogError("Failed to create MemoryPatch_CalcDamageResisted_HealDebuffCrit — pre-JI mode will use modern values");
 
-    DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Pre, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
-    DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Post, DHookCallback_PrimaryAttack_Post);
-    DHooks_CTFFlameThrower_FireAirBlast.Enable(Hook_Post, DHookCallback_FireAirBlast);
-    DHooks_CTFFlameManager_OnCollide.Enable(Hook_Pre, DHookCallback_OnCollide);
-    DHooks_CTFPlayerShared_Burn.Enable(Hook_Pre, DHookCallback_Burn_Pre);
-    DHooks_CTFPlayerShared_Burn.Enable(Hook_Post, DHookCallback_Burn);
+	DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Pre, DHookCallback_PrimaryAttack_Pre); // just because i don't want to re-write ammo management entirely.
+	DHooks_CTFFlameThrower_PrimaryAttack.Enable(Hook_Post, DHookCallback_PrimaryAttack_Post);
+	DHooks_CTFFlameThrower_FireAirBlast.Enable(Hook_Post, DHookCallback_FireAirBlast);
+	DHooks_CTFFlameManager_OnCollide.Enable(Hook_Pre, DHookCallback_OnCollide);
+	DHooks_CTFPlayerShared_Burn.Enable(Hook_Pre, DHookCallback_Burn_Pre);
+	DHooks_CTFPlayerShared_Burn.Enable(Hook_Post, DHookCallback_Burn);
 
-    CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
-    CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
+	CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
+	CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
 
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
 
-    delete config;
+	delete config;
 
-    // Load ConVars.
-    tf_fireball_burn_duration = FindConVar("tf_fireball_burn_duration");
-    tf_flamethrower_velocity = FindConVar("tf_flamethrower_velocity");
-    tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
+	// Load ConVars.
+	tf_fireball_burn_duration = FindConVar("tf_fireball_burn_duration");
+	tf_flamethrower_velocity = FindConVar("tf_flamethrower_velocity");
+	tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
-    // Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-    sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?", _, true, 0.0, true, 1.0);
-    sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
-    sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
-    sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
-    sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
-    sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
-    sm_oldflames_healing_debuff = CreateConVar("sm_oldflames_healing_debuff", "1", "Healing debuff mode: 0 = none, 1 = pre-JI (2s on direct flames, 25%), 2 = vanilla post-JI (afterburn, 20%)", _, true, 0.0, true, 2.0);
+	// Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
+	sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?", _, true, 0.0, true, 1.0);
+	sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
+	sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
+	sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
+	sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
+	sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
+	sm_oldflames_healing_debuff = CreateConVar("sm_oldflames_healing_debuff", "1", "Healing debuff mode: 0 = none, 1 = pre-JI (2s on direct flames, 25%), 2 = vanilla post-JI (afterburn, 20%)", _, true, 0.0, true, 2.0);
 
-    sm_oldflames_enable.AddChangeHook(OnEnableChanged);
-    sm_oldflames_flamethrower_falloff.AddChangeHook(AdjustFalloff);
-    sm_oldflames_healing_debuff.AddChangeHook(OnHealingDebuffChanged);
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
-    MemoryPatch_HealingDebuff_Patch();
+	sm_oldflames_enable.AddChangeHook(OnEnableChanged);
+	sm_oldflames_flamethrower_falloff.AddChangeHook(AdjustFalloff);
+	sm_oldflames_healing_debuff.AddChangeHook(OnHealingDebuffChanged);
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+	MemoryPatch_HealingDebuff_Patch();
 
-    // Setup hooks for each client.
-    for (int i = 1; i <= MaxClients; ++i)
-    {
-        if (IsClientInGame(i))
-            SetupPlayerHooks(i);
-    }
+	// Setup hooks for each client.
+	for (int i = 1; i <= MaxClients; ++i)
+	{
+		if (IsClientInGame(i))
+			SetupPlayerHooks(i);
+	}
 
-    PrintToServer("----------------------------------------------------------\n\"%s\" has loaded.\n----------------------------------------------------------", PLUGIN_NAME);
+	PrintToServer("----------------------------------------------------------\n\"%s\" has loaded.\n----------------------------------------------------------", PLUGIN_NAME);
 }
 
 public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    if (newValue[0] == '1')
-    {
-        PrintToServer("\"%s\" enabled.", PLUGIN_NAME);
-        MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
-        MemoryPatch_HealingDebuff_Patch();
-    }
-    else
-    {
-        PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
-        DisableAllPatches();
-    }
+	if (newValue[0] == '1')
+	{
+		PrintToServer("\"%s\" enabled.", PLUGIN_NAME);
+		MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+		MemoryPatch_HealingDebuff_Patch();
+	}
+	else
+	{
+		PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
+		DisableAllPatches();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -460,66 +460,66 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
 
 static void DisableAllPatches()
 {
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
-    if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
-    if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
-    if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
+	if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
+	if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
+	if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
 }
 
 public void OnPluginEnd()
 {
-    DisableAllPatches();
+	DisableAllPatches();
 }
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return;
+	if (!sm_oldflames_enable.BoolValue)
+		return;
 
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_flamethrower_falloff.FloatValue;
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
-    WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_flamethrower_falloff.FloatValue;
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
+	WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
+	WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
 }
 
 static void MemoryPatch_HealingDebuff_Patch()
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return;
+	if (!sm_oldflames_enable.BoolValue)
+		return;
 
-    if (sm_oldflames_healing_debuff.IntValue == 1) {
-        MemoryPatch_HealDebuff_Float75 = 0.75;
-        MemoryPatch_HealDebuff_Float25 = 0.25;
+	if (sm_oldflames_healing_debuff.IntValue == 1) {
+		MemoryPatch_HealDebuff_Float75 = 0.75;
+		MemoryPatch_HealDebuff_Float25 = 0.25;
 
-        if (MemoryPatch_ConditionGameRulesThink_HealDebuff && MemoryPatch_ConditionGameRulesThink_HealDebuff.Enable())
-            WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
-        else
-            LogError("ConditionGameRulesThink_HealDebuff patch failed — using modern value");
+		if (MemoryPatch_ConditionGameRulesThink_HealDebuff && MemoryPatch_ConditionGameRulesThink_HealDebuff.Enable())
+			WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+		else
+			LogError("ConditionGameRulesThink_HealDebuff patch failed — using modern value");
 
-        if (MemoryPatch_CalcDamageResisted_HealDebuffShield && MemoryPatch_CalcDamageResisted_HealDebuffShield.Enable())
-            WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
-        else
-            LogError("CalcDamageResisted_HealDebuffShield patch failed — using modern value");
+		if (MemoryPatch_CalcDamageResisted_HealDebuffShield && MemoryPatch_CalcDamageResisted_HealDebuffShield.Enable())
+			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+		else
+			LogError("CalcDamageResisted_HealDebuffShield patch failed — using modern value");
 
-        if (MemoryPatch_CalcDamageResisted_HealDebuffCrit && MemoryPatch_CalcDamageResisted_HealDebuffCrit.Enable())
-            WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float25));
-        else
-            LogError("CalcDamageResisted_HealDebuffCrit patch failed — using modern value");
-    }
-    else {
-        if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
-        if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
-        if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
-    }
+		if (MemoryPatch_CalcDamageResisted_HealDebuffCrit && MemoryPatch_CalcDamageResisted_HealDebuffCrit.Enable())
+			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float25));
+		else
+			LogError("CalcDamageResisted_HealDebuffCrit patch failed — using modern value");
+	}
+	else {
+		if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
+		if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
+		if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
+	}
 }
 
 public void OnHealingDebuffChanged(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    MemoryPatch_HealingDebuff_Patch();
-    PrintToServer("Healing debuff mode set to %d (0=none, 1=pre-JI 25%%, 2=vanilla 20%%).", sm_oldflames_healing_debuff.IntValue);
+	MemoryPatch_HealingDebuff_Patch();
+	PrintToServer("Healing debuff mode set to %d (0=none, 1=pre-JI 25%%, 2=vanilla 20%%).", sm_oldflames_healing_debuff.IntValue);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -528,23 +528,23 @@ public void OnHealingDebuffChanged(ConVar convar, const char[] oldValue, const c
 
 static bool CTraceFilterIgnoreObjects(int entity, int mask, int owner)
 {
-    char class[MAX_NAME_LENGTH];
-    GetEntityClassname(entity, class, sizeof(class));
-    if (StrContains(class, "obj_") != -1 || entity == owner)
-        return false;
-    return true;
+	char class[MAX_NAME_LENGTH];
+	GetEntityClassname(entity, class, sizeof(class));
+	if (StrContains(class, "obj_") != -1 || entity == owner)
+		return false;
+	return true;
 }
 
 // Weapons that count as flames for healing-debuff purposes.
 static bool IsFlameWeapon(int weapon)
 {
-    if (!IsValidEntity(weapon))
-        return false;
+	if (!IsValidEntity(weapon))
+		return false;
 
-    char class[64];
-    GetEntityClassname(weapon, class, sizeof(class));
-    return StrEqual(class, "tf_weapon_flamethrower")
-        || StrEqual(class, "tf_weapon_rocketlauncher_fireball");
+	char class[64];
+	GetEntityClassname(weapon, class, sizeof(class));
+	return StrEqual(class, "tf_weapon_flamethrower")
+		|| StrEqual(class, "tf_weapon_rocketlauncher_fireball");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -553,16 +553,16 @@ static bool IsFlameWeapon(int weapon)
 
 static RuneTypes_t GetCarryingRuneType(int client)
 {
-    RuneTypes_t retVal = RUNE_NONE;
-    for (RuneTypes_t i = view_as<RuneTypes_t>(0); i < RUNE_TYPES_MAX; ++i)
-    {
-        if (TF2_IsPlayerInCondition(client, view_as<TFCond>(GetConditionFromRuneType(i))))
-        {
-            retVal = i;
-            break;
-        }
-    }
-    return retVal;
+	RuneTypes_t retVal = RUNE_NONE;
+	for (RuneTypes_t i = view_as<RuneTypes_t>(0); i < RUNE_TYPES_MAX; ++i)
+	{
+		if (TF2_IsPlayerInCondition(client, view_as<TFCond>(GetConditionFromRuneType(i))))
+		{
+			retVal = i;
+			break;
+		}
+	}
+	return retVal;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -571,64 +571,64 @@ static RuneTypes_t GetCarryingRuneType(int client)
 
 static void GetMuzzlePosHelper(int entity, bool bVisualPos, float buffer[3])
 {
-    int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-    if (owner != -1)
-    {
-        float vecForward[3];
-        float vecRight[3];
-        float vecUp[3];
-        float vecAngles[3];
-        GetClientAbsAngles(owner, vecAngles);
-        GetAngleVectors(vecAngles, vecForward, vecRight, vecUp);
+	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	if (owner != -1)
+	{
+		float vecForward[3];
+		float vecRight[3];
+		float vecUp[3];
+		float vecAngles[3];
+		GetClientAbsAngles(owner, vecAngles);
+		GetAngleVectors(vecAngles, vecForward, vecRight, vecUp);
 
-        SDKCall(SDKCall_CBaseCombatCharacter_Weapon_ShootPosition, owner, buffer);
-        ScaleVector(vecRight, TF_FLAMETHROWER_MUZZLEPOS_RIGHT);
-        AddVectors(buffer, vecRight, buffer);
+		SDKCall(SDKCall_CBaseCombatCharacter_Weapon_ShootPosition, owner, buffer);
+		ScaleVector(vecRight, TF_FLAMETHROWER_MUZZLEPOS_RIGHT);
+		AddVectors(buffer, vecRight, buffer);
 
-        // if asking for visual position of muzzle, include the forward component
-        if (bVisualPos)
-        {
-            ScaleVector(vecForward, TF_FLAMETHROWER_MUZZLEPOS_FORWARD);
-            AddVectors(buffer, vecForward, buffer);
-        }
-    }
+		// if asking for visual position of muzzle, include the forward component
+		if (bVisualPos)
+		{
+			ScaleVector(vecForward, TF_FLAMETHROWER_MUZZLEPOS_FORWARD);
+			AddVectors(buffer, vecForward, buffer);
+		}
+	}
 }
 
 static void GetVisualMuzzlePos(int entity, float buffer[3])
 {
-    GetMuzzlePosHelper(entity, true, buffer);
+	GetMuzzlePosHelper(entity, true, buffer);
 }
 
 static void GetFlameOriginPos(int entity, float buffer[3])
 {
-    GetMuzzlePosHelper(entity, false, buffer);
+	GetMuzzlePosHelper(entity, false, buffer);
 }
 
 static void SetWeaponState(int weapon, FlameThrowerState_t state)
 {
-    if (GetEntProp(weapon, Prop_Send, "m_iWeaponState") == view_as<int>(state))
-        return;
-    int owner = GetEntPropEnt(weapon, Prop_Data, "m_hOwner");
+	if (GetEntProp(weapon, Prop_Send, "m_iWeaponState") == view_as<int>(state))
+		return;
+	int owner = GetEntPropEnt(weapon, Prop_Data, "m_hOwner");
 
-    switch (state)
-    {
-        case FT_STATE_IDLE:
-        {
-            float flFiringForwardPull = 0.00;
-            flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", weapon);
-            if (flFiringForwardPull)
-                TF2_RemoveCondition(owner, TFCond_SpeedBuffAlly);
-        }
-        case FT_STATE_STARTFIRING:
-        {
-            float flFiringForwardPull = 0.00;
-            flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", weapon);
-            if (flFiringForwardPull)
-                TF2_AddCondition(owner, TFCond_SpeedBuffAlly);
-        }
-    }
+	switch (state)
+	{
+		case FT_STATE_IDLE:
+		{
+			float flFiringForwardPull = 0.00;
+			flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", weapon);
+			if (flFiringForwardPull)
+				TF2_RemoveCondition(owner, TFCond_SpeedBuffAlly);
+		}
+		case FT_STATE_STARTFIRING:
+		{
+			float flFiringForwardPull = 0.00;
+			flFiringForwardPull = TF2Attrib_HookValueFloat(flFiringForwardPull, "firing_forward_pull", weapon);
+			if (flFiringForwardPull)
+				TF2_AddCondition(owner, TFCond_SpeedBuffAlly);
+		}
+	}
 
-    SetEntProp(weapon, Prop_Send, "m_iWeaponState", state);
+	SetEntProp(weapon, Prop_Send, "m_iWeaponState", state);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -639,80 +639,80 @@ static int CreateFlameEntity(
 	float origin[3], float angles[3], int owner, float speed, int damage_type,
 	float damage, bool crit_from_behind, bool randomize = true
 ) {
-    int entity = CreateEntityByName("tf_flame");
-    if (entity == -1)
-        return -1;
+	int entity = CreateEntityByName("tf_flame");
+	if (entity == -1)
+		return -1;
 
-    TeleportEntity(entity, origin, angles, NULL_VECTOR);
-    SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
-    DispatchSpawn(entity);
+	TeleportEntity(entity, origin, angles, NULL_VECTOR);
+	SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
+	DispatchSpawn(entity);
 
-    Address pEntity = GetEntityAddress(entity);
-    if (HasEntProp(owner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1)
-        StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
-    else
-        StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, owner); // pFlame->m_hAttacker = pOwner;
+	Address pEntity = GetEntityAddress(entity);
+	if (HasEntProp(owner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1)
+		StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
+	else
+		StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, owner); // pFlame->m_hAttacker = pOwner;
 
-    // this is not apparent anymore?
-    // 2024.04.28: pre-smtc removal code, this is old however so i'm leaving it as a relic :)
-    // pFlame->m_iAttackerTeam = pAttacker->GetTeamNumber();
-    //if (flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER) != -1)
-    //    flamePointer.Write(GetEntProp(flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER), Prop_Send, "m_iTeamNum"), CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM);
+	// this is not apparent anymore?
+	// 2024.04.28: pre-smtc removal code, this is old however so i'm leaving it as a relic :)
+	// pFlame->m_iAttackerTeam = pAttacker->GetTeamNumber();
+	//if (flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER) != -1)
+	//    flamePointer.Write(GetEntProp(flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER), Prop_Send, "m_iTeamNum"), CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM);
 
-    // Set team.
-    SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum")); // pFlame->ChangeTeam( pOwner->GetTeamNumber() );
-    WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_IDMGTYPE, damage_type); // pFlame->m_iDmgType = iDmgType;
-    WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT, damage); // pFlame->m_flDmgAmount = flDmgAmount;
+	// Set team.
+	SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum")); // pFlame->ChangeTeam( pOwner->GetTeamNumber() );
+	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_IDMGTYPE, damage_type); // pFlame->m_iDmgType = iDmgType;
+	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT, damage); // pFlame->m_flDmgAmount = flDmgAmount;
 
-    // Setup the initial velocity.
-    float m_vecBaseVelocity[3];
-    float vecRight[3];
-    float vecUp[3];
-    GetAngleVectors(angles, m_vecBaseVelocity, vecRight, vecUp);
+	// Setup the initial velocity.
+	float m_vecBaseVelocity[3];
+	float vecRight[3];
+	float vecUp[3];
+	GetAngleVectors(angles, m_vecBaseVelocity, vecRight, vecUp);
 
-    float flFlameLifeMult = 1.00;
+	float flFlameLifeMult = 1.00;
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, flFlameLifeMult, mult_flame_life );
-    flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
+	flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
 
 	float velocity = flFlameLifeMult * speed;
-    // pFlame->m_vecBaseVelocity = vecForward * velocity;
-    ScaleVector(m_vecBaseVelocity, velocity);
+	// pFlame->m_vecBaseVelocity = vecForward * velocity;
+	ScaleVector(m_vecBaseVelocity, velocity);
 
-    float iFlameSizeMult = 1.00;
+	float iFlameSizeMult = 1.00;
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, iFlameSizeMult, mult_flame_size );
-    iFlameSizeMult = TF2Attrib_HookValueFloat(iFlameSizeMult, "mult_flame_size", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
+	iFlameSizeMult = TF2Attrib_HookValueFloat(iFlameSizeMult, "mult_flame_size", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
 
-    // pFlame->m_vecBaseVelocity += RandomVector( -velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat(), velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat() );
-    if (randomize)
-    {
-        float minValue = -velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
-        float maxValue = velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
-        float rand[3];
-        rand[0] = GetRandomFloat(minValue, maxValue);
-        rand[1] = GetRandomFloat(minValue, maxValue);
-        rand[2] = GetRandomFloat(minValue, maxValue);
-        AddVectors(m_vecBaseVelocity, rand, m_vecBaseVelocity);
-    }
+	// pFlame->m_vecBaseVelocity += RandomVector( -velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat(), velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat() );
+	if (randomize)
+	{
+		float minValue = -velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
+		float maxValue = velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
+		float rand[3];
+		rand[0] = GetRandomFloat(minValue, maxValue);
+		rand[1] = GetRandomFloat(minValue, maxValue);
+		rand[2] = GetRandomFloat(minValue, maxValue);
+		AddVectors(m_vecBaseVelocity, rand, m_vecBaseVelocity);
+	}
 
-    // pFlame->m_vecAttackerVelocity = pOwner->GetOwnerEntity()->GetAbsVelocity();
-    if (
+	// pFlame->m_vecAttackerVelocity = pOwner->GetOwnerEntity()->GetAbsVelocity();
+	if (
 		HasEntProp(owner, Prop_Send, "m_hOwnerEntity") &&
 		GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1
 	) {
-        float vel[3];
-        GetEntPropVector(GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"), Prop_Data, "m_vecAbsVelocity", vel);
-        WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
-    }
+		float vel[3];
+		GetEntPropVector(GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"), Prop_Data, "m_vecAbsVelocity", vel);
+		WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
+	}
 
-    // pFlame->SetAbsVelocity( pFlame->m_vecBaseVelocity );
-    // pFlame->SetAbsAngles( vecAngles );
-    TeleportEntity(entity, NULL_VECTOR, angles, m_vecBaseVelocity);
+	// pFlame->SetAbsVelocity( pFlame->m_vecBaseVelocity );
+	// pFlame->SetAbsAngles( vecAngles );
+	TeleportEntity(entity, NULL_VECTOR, angles, m_vecBaseVelocity);
 
 	// pFlame->SetCritFromBehind( bAlwaysCritFromBehind );
 	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND, crit_from_behind, false, NumberType_Int8);
 
-    WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY, m_vecBaseVelocity, false);
-    return entity;
+	WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY, m_vecBaseVelocity, false);
+	return entity;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -721,43 +721,43 @@ static int CreateFlameEntity(
 
 public void OnClientPutInServer(int client)
 {
-    SetupPlayerHooks(client);
+	SetupPlayerHooks(client);
 }
 
 public Action OnPlayerRunCmd(
 	int client, int &buttons, int &impulse, float vel[3], float angles[3],
 	int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2]
 ) {
-    if (
+	if (
 		sm_oldflames_enable.BoolValue &&
 		sm_oldflames_flamethrower_flames.BoolValue
 	) {
-        int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-        if (
+		int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+		if (
 			IsValidEntity(weapon) &&
 			weapon == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
 		) {
-            char class[MAX_NAME_LENGTH];
-            GetEntityClassname(weapon, class, sizeof(class));
-            if (StrEqual(class, "tf_weapon_flamethrower")) {
-                float vecEye[3];
-                float vecMuzzlePos[3];
-                GetClientEyePosition(client, vecEye);
-                GetVisualMuzzlePos(weapon, vecMuzzlePos);
-                TR_TraceRayFilter(vecEye, vecMuzzlePos, MASK_SOLID, RayType_EndPoint, CTraceFilterIgnoreObjects, client);
+			char class[MAX_NAME_LENGTH];
+			GetEntityClassname(weapon, class, sizeof(class));
+			if (StrEqual(class, "tf_weapon_flamethrower")) {
+				float vecEye[3];
+				float vecMuzzlePos[3];
+				GetClientEyePosition(client, vecEye);
+				GetVisualMuzzlePos(weapon, vecMuzzlePos);
+				TR_TraceRayFilter(vecEye, vecMuzzlePos, MASK_SOLID, RayType_EndPoint, CTraceFilterIgnoreObjects, client);
 
-                if (TR_GetFraction() < 1.00 && (TR_GetEntityIndex() == -1 || GetEntProp(TR_GetEntityIndex(), Prop_Data, "m_takedamage") == DAMAGE_NO))
-                {
-                    if (GetEntProp(weapon, Prop_Send, "m_iWeaponState") > view_as<int>(FT_STATE_IDLE))
-                        SetWeaponState(weapon, FT_STATE_IDLE);
-                    buttons &= ~IN_ATTACK;
-                    return Plugin_Changed;
-                }
-            }
-        }
-    }
+				if (TR_GetFraction() < 1.00 && (TR_GetEntityIndex() == -1 || GetEntProp(TR_GetEntityIndex(), Prop_Data, "m_takedamage") == DAMAGE_NO))
+				{
+					if (GetEntProp(weapon, Prop_Send, "m_iWeaponState") > view_as<int>(FT_STATE_IDLE))
+						SetWeaponState(weapon, FT_STATE_IDLE);
+					buttons &= ~IN_ATTACK;
+					return Plugin_Changed;
+				}
+			}
+		}
+	}
 
-    return Plugin_Continue;
+	return Plugin_Continue;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -766,15 +766,15 @@ public Action OnPlayerRunCmd(
 
 public void AdjustFalloff(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-    MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
-    PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4))));
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
+	PrintToServer("Flamethrower falloff with tf_flame has been changed to %f.", Dereference(Dereference(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4))));
 }
 
 static void SetupPlayerHooks(int client)
 {
-    PlayerData[client].index = client; // dumb shortcut but whatever
-    PlayerData[client].m_flNextPrimaryAttack = 0.00;
-    SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
+	PlayerData[client].index = client; // dumb shortcut but whatever
+	PlayerData[client].m_flNextPrimaryAttack = 0.00;
+	SDKHook(client, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage);
 }
 
 // pre-call CTFPlayer::OnTakeDamage(), using SDKHooks.
@@ -784,46 +784,46 @@ Action SDKHookCB_OnTakeDamage(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
 ) {
-    if (!sm_oldflames_enable.BoolValue)
-        return Plugin_Continue;
+	if (!sm_oldflames_enable.BoolValue)
+		return Plugin_Continue;
 
-    if ((damage_type & DMG_IGNITE) && IsFlameWeapon(weapon))
-    {
-        switch (sm_oldflames_healing_debuff.IntValue)
-        {
-            case 0: TF2_RemoveCondition(victim, TFCond_HealingDebuff);
-            case 1: TF2_AddCondition(victim, TFCond_HealingDebuff, 2.0);
-        }
-    }
+	if ((damage_type & DMG_IGNITE) && IsFlameWeapon(weapon))
+	{
+		switch (sm_oldflames_healing_debuff.IntValue)
+		{
+			case 0: TF2_RemoveCondition(victim, TFCond_HealingDebuff);
+			case 1: TF2_AddCondition(victim, TFCond_HealingDebuff, 2.0);
+		}
+	}
 
-    if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damage_type == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
-    {
-        damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
-        return Plugin_Changed;
-    }
-    return Plugin_Continue;
+	if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damage_type == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
+	{
+		damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
+		return Plugin_Changed;
+	}
+	return Plugin_Continue;
 }
 
 public Action PostInventoryApplication(Event event, const char[] name, bool dontBroadcast)
 {
-    int client = GetClientOfUserId(event.GetInt("userid"));
-    PlayerData[client].m_flStartFiringTime = 0.00;
-    PlayerData[client].m_flNextPrimaryAttackAnim = 0.00;
-    PlayerData[client].m_flAmmoUseRemainder = 0.00;
-    return Plugin_Continue;
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	PlayerData[client].m_flStartFiringTime = 0.00;
+	PlayerData[client].m_flNextPrimaryAttackAnim = 0.00;
+	PlayerData[client].m_flAmmoUseRemainder = 0.00;
+	return Plugin_Continue;
 }
 
 // pre-call CTFFlameThrower::PrimaryAttack();
 // This is only just so I don't have to re-write ammo management with the flamethrowers.
 MRESReturn DHookCallback_PrimaryAttack_Pre(int entity)
 {
-    // Get the owner of this weapon.
-    int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
-    if (owner == -1)
-        return MRES_Ignored;
+	// Get the owner of this weapon.
+	int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+	if (owner == -1)
+		return MRES_Ignored;
 
-    PlayerData[owner].m_iFlamethrowerAmmo = PlayerData[owner].GetAmmoCount(view_as<int>(TF_AMMO_PRIMARY));
-    return MRES_Ignored;
+	PlayerData[owner].m_iFlamethrowerAmmo = PlayerData[owner].GetAmmoCount(view_as<int>(TF_AMMO_PRIMARY));
+	return MRES_Ignored;
 }
 
 // post-call CTFFlameThrower::PrimaryAttack();
@@ -834,168 +834,168 @@ MRESReturn DHookCallback_PrimaryAttack_Pre(int entity)
 // This hook emits certain things, either things that I find unnecessary at this moment, or are already handled in the internal function.
 MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return MRES_Ignored;
+	if (!sm_oldflames_enable.BoolValue)
+		return MRES_Ignored;
 
-    if (sm_oldflames_flamethrower_flames.BoolValue)
-    {
-        // Get the pointer for this CTFFlameThrower entity.
-        Address pEntity = GetEntityAddress(entity);
+	if (sm_oldflames_flamethrower_flames.BoolValue)
+	{
+		// Get the pointer for this CTFFlameThrower entity.
+		Address pEntity = GetEntityAddress(entity);
 
-        // Get the owner of this weapon.
-        int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
-        if (pOwner == -1)
-            return MRES_Ignored;
+		// Get the owner of this weapon.
+		int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+		if (pOwner == -1)
+			return MRES_Ignored;
 
-        // Revert ammo to pre-call.
-        PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
+		// Revert ammo to pre-call.
+		PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
 
-        // Check for if we're capable of firing.
-        if (PlayerData[pOwner].m_flNextPrimaryAttack > GetGameTime())
-            return MRES_Ignored;
+		// Check for if we're capable of firing.
+		if (PlayerData[pOwner].m_flNextPrimaryAttack > GetGameTime())
+			return MRES_Ignored;
 
-        if (!SDKCall(SDKCall_CTFWeaponBase_CanAttack, entity))
-        {
-            SetWeaponState(entity, FT_STATE_IDLE);
-            return MRES_Ignored;
-        }
-        WriteToValue(pEntity + CTFWeaponBase_m_iWeaponMode, TF_WEAPON_PRIMARY_MODE);
+		if (!SDKCall(SDKCall_CTFWeaponBase_CanAttack, entity))
+		{
+			SetWeaponState(entity, FT_STATE_IDLE);
+			return MRES_Ignored;
+		}
+		WriteToValue(pEntity + CTFWeaponBase_m_iWeaponMode, TF_WEAPON_PRIMARY_MODE);
 
-        SDKCall(SDKCall_CTFWeaponBase_CalcIsAttackCritical, entity);
+		SDKCall(SDKCall_CTFWeaponBase_CalcIsAttackCritical, entity);
 
-        // Because the muzzle is so long, it can stick through a wall if the player is right up against it.
-        // Make sure the weapon can't fire in this condition by tracing a line between the eye point and the end of the muzzle.
-        /*
-        trace_t trace;
-        Vector vecEye = pOwner->EyePosition();
-        Vector vecMuzzlePos = GetVisualMuzzlePos();
-        CTraceFilterIgnoreObjects traceFilter( this, COLLISION_GROUP_NONE );
-        UTIL_TraceLine( vecEye, vecMuzzlePos, MASK_SOLID, &traceFilter, &trace );
-        if ( trace.fraction < 1.0 && ( !trace.m_pEnt || trace.m_pEnt->m_takedamage == DAMAGE_NO ) )
-        {
-            // there is something between the eye and the end of the muzzle, most likely a wall, don't fire, and stop firing if we already are
-            if ( m_iWeaponState > FT_STATE_IDLE )
-            {
-                SetWeaponState( FT_STATE_IDLE );
-            }
-            return;
-        }
-        */
-        // See OnPlayerRunCmd().
+		// Because the muzzle is so long, it can stick through a wall if the player is right up against it.
+		// Make sure the weapon can't fire in this condition by tracing a line between the eye point and the end of the muzzle.
+		/*
+		trace_t trace;
+		Vector vecEye = pOwner->EyePosition();
+		Vector vecMuzzlePos = GetVisualMuzzlePos();
+		CTraceFilterIgnoreObjects traceFilter( this, COLLISION_GROUP_NONE );
+		UTIL_TraceLine( vecEye, vecMuzzlePos, MASK_SOLID, &traceFilter, &trace );
+		if ( trace.fraction < 1.0 && ( !trace.m_pEnt || trace.m_pEnt->m_takedamage == DAMAGE_NO ) )
+		{
+			// there is something between the eye and the end of the muzzle, most likely a wall, don't fire, and stop firing if we already are
+			if ( m_iWeaponState > FT_STATE_IDLE )
+			{
+				SetWeaponState( FT_STATE_IDLE );
+			}
+			return;
+		}
+		*/
+		// See OnPlayerRunCmd().
 
-        // Deal with weapon animations.
-        switch (view_as<FlameThrowerState_t>(GetEntProp(entity, Prop_Send, "m_iWeaponState")))
-        {
-            case FT_STATE_IDLE:
-            {
-                SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRE, 0);
-                SDKCall(SDKCall_CTFWeaponBase_SendWeaponAnim, entity, ACT_VM_PRIMARYATTACK);
-                PlayerData[pOwner].m_flStartFiringTime = GetGameTime() + 0.16;
-                SetWeaponState(entity, FT_STATE_STARTFIRING);
-            }
-            case FT_STATE_STARTFIRING:
-            {
-                if (GetGameTime() > PlayerData[pOwner].m_flStartFiringTime)
-                {
-                    SetWeaponState(entity, FT_STATE_FIRING);
-                    PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime();
-                }
-            }
-            case FT_STATE_FIRING:
-            {
-                if (GetGameTime() >= PlayerData[pOwner].m_flNextPrimaryAttackAnim)
-                {
-                    SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRIMARY, 0);
-                    PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime() + 1.40;
-                }
-            }
-        }
+		// Deal with weapon animations.
+		switch (view_as<FlameThrowerState_t>(GetEntProp(entity, Prop_Send, "m_iWeaponState")))
+		{
+			case FT_STATE_IDLE:
+			{
+				SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRE, 0);
+				SDKCall(SDKCall_CTFWeaponBase_SendWeaponAnim, entity, ACT_VM_PRIMARYATTACK);
+				PlayerData[pOwner].m_flStartFiringTime = GetGameTime() + 0.16;
+				SetWeaponState(entity, FT_STATE_STARTFIRING);
+			}
+			case FT_STATE_STARTFIRING:
+			{
+				if (GetGameTime() > PlayerData[pOwner].m_flStartFiringTime)
+				{
+					SetWeaponState(entity, FT_STATE_FIRING);
+					PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime();
+				}
+			}
+			case FT_STATE_FIRING:
+			{
+				if (GetGameTime() >= PlayerData[pOwner].m_flNextPrimaryAttackAnim)
+				{
+					SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRIMARY, 0);
+					PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime() + 1.40;
+				}
+			}
+		}
 
-        // Check if we're not underwater, in that case, fire!
-        float flFiringInterval = 0.044;
-        if (GetEntProp(pOwner, Prop_Send, "m_nWaterLevel") != WL_Eyes)
-        {
-            int iDmgType = DMGTYPE;
-            if (GetEntProp(entity, Prop_Send, "m_bCritFire"))
-                iDmgType |= DMG_CRIT;
+		// Check if we're not underwater, in that case, fire!
+		float flFiringInterval = 0.044;
+		if (GetEntProp(pOwner, Prop_Send, "m_nWaterLevel") != WL_Eyes)
+		{
+			int iDmgType = DMGTYPE;
+			if (GetEntProp(entity, Prop_Send, "m_bCritFire"))
+				iDmgType |= DMG_CRIT;
 
-            // Create the flame entity.
-            float flDamage = sm_oldflames_flamethrower_damage.FloatValue; // 6.80 by default
-            flDamage = TF2Attrib_HookValueFloat(flDamage, "mult_dmg", entity);
+			// Create the flame entity.
+			float flDamage = sm_oldflames_flamethrower_damage.FloatValue; // 6.80 by default
+			flDamage = TF2Attrib_HookValueFloat(flDamage, "mult_dmg", entity);
 
-            int iCritFromBehind = 0;
-            iCritFromBehind = TF2Attrib_HookValueInt(iCritFromBehind, "set_flamethrower_back_crit", entity);
+			int iCritFromBehind = 0;
+			iCritFromBehind = TF2Attrib_HookValueInt(iCritFromBehind, "set_flamethrower_back_crit", entity);
 
-            float eyeangles[3];
-            float origin[3];
-            GetFlameOriginPos(entity, origin);
-            GetClientEyeAngles(pOwner, eyeangles);
+			float eyeangles[3];
+			float origin[3];
+			GetFlameOriginPos(entity, origin);
+			GetClientEyeAngles(pOwner, eyeangles);
 
-            CreateFlameEntity(origin, eyeangles, entity, tf_flamethrower_velocity.FloatValue, iDmgType, flDamage, iCritFromBehind == 1);
-        }
+			CreateFlameEntity(origin, eyeangles, entity, tf_flamethrower_velocity.FloatValue, iDmgType, flDamage, iCritFromBehind == 1);
+		}
 
-        // Figure how much ammo we're using.
-        float flAmmoPerSecond = TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK;
-        flAmmoPerSecond = TF2Attrib_HookValueFloat(flAmmoPerSecond, "mult_flame_ammopersec", entity);
-        PlayerData[pOwner].m_flAmmoUseRemainder += flAmmoPerSecond * flFiringInterval;
+		// Figure how much ammo we're using.
+		float flAmmoPerSecond = TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK;
+		flAmmoPerSecond = TF2Attrib_HookValueFloat(flAmmoPerSecond, "mult_flame_ammopersec", entity);
+		PlayerData[pOwner].m_flAmmoUseRemainder += flAmmoPerSecond * flFiringInterval;
 
-        int iAmmoToSubtract = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder); // basically (int)m_flAmmoUseRemainder.
-        if (iAmmoToSubtract > 0)
-        {
-            PlayerData[pOwner].m_iFlamethrowerAmmo -= iAmmoToSubtract;
-            PlayerData[pOwner].m_flAmmoUseRemainder -= iAmmoToSubtract;
+		int iAmmoToSubtract = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder); // basically (int)m_flAmmoUseRemainder.
+		if (iAmmoToSubtract > 0)
+		{
+			PlayerData[pOwner].m_iFlamethrowerAmmo -= iAmmoToSubtract;
+			PlayerData[pOwner].m_flAmmoUseRemainder -= iAmmoToSubtract;
 
-            // round to 2 digits of precision
-            PlayerData[pOwner].m_flAmmoUseRemainder = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder * 100) / 100.00;
-        }
+			// round to 2 digits of precision
+			PlayerData[pOwner].m_flAmmoUseRemainder = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder * 100) / 100.00;
+		}
 
-        // Finish this detour.
-        PlayerData[pOwner].m_flNextPrimaryAttack = GetGameTime() + flFiringInterval;
-        PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
-    }
-    return MRES_Ignored;
+		// Finish this detour.
+		PlayerData[pOwner].m_flNextPrimaryAttack = GetGameTime() + flFiringInterval;
+		PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
+	}
+	return MRES_Ignored;
 }
 
 // CTFFlameThrower::FireAirblast();
 // Fix the next primary attack timer in this detour.
 MRESReturn DHookCallback_FireAirBlast(int entity, DHookParam parameters)
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return MRES_Ignored;
+	if (!sm_oldflames_enable.BoolValue)
+		return MRES_Ignored;
 
-    // Get the owner of this weapon.
-    int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
-    if (pOwner == -1)
-        return MRES_Ignored;
+	// Get the owner of this weapon.
+	int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+	if (pOwner == -1)
+		return MRES_Ignored;
 
-    float fAirblastRefireTimeScale = 1.00;
-    fAirblastRefireTimeScale = TF2Attrib_HookValueFloat(fAirblastRefireTimeScale, "mult_airblast_refire_time", entity);
-    if (fAirblastRefireTimeScale <= 0.00)
-        fAirblastRefireTimeScale = 1.00;
+	float fAirblastRefireTimeScale = 1.00;
+	fAirblastRefireTimeScale = TF2Attrib_HookValueFloat(fAirblastRefireTimeScale, "mult_airblast_refire_time", entity);
+	if (fAirblastRefireTimeScale <= 0.00)
+		fAirblastRefireTimeScale = 1.00;
 
-    float fAirblastPrimaryRefireTimeScale = 1.00;
-    fAirblastPrimaryRefireTimeScale = TF2Attrib_HookValueFloat(fAirblastPrimaryRefireTimeScale, "mult_airblast_primary_refire_time", entity);
-    if (fAirblastPrimaryRefireTimeScale <= 0.00)
-        fAirblastPrimaryRefireTimeScale = 1.00;
+	float fAirblastPrimaryRefireTimeScale = 1.00;
+	fAirblastPrimaryRefireTimeScale = TF2Attrib_HookValueFloat(fAirblastPrimaryRefireTimeScale, "mult_airblast_primary_refire_time", entity);
+	if (fAirblastPrimaryRefireTimeScale <= 0.00)
+		fAirblastPrimaryRefireTimeScale = 1.00;
 
-    // Haste Powerup Rune adds multiplier to fire delay time
-    if (GetCarryingRuneType(pOwner) == RUNE_HASTE)
-        fAirblastRefireTimeScale *= 0.50;
+	// Haste Powerup Rune adds multiplier to fire delay time
+	if (GetCarryingRuneType(pOwner) == RUNE_HASTE)
+		fAirblastRefireTimeScale *= 0.50;
 
-    PlayerData[pOwner].m_flNextPrimaryAttack = GetGameTime() + (1.00 * fAirblastRefireTimeScale * fAirblastPrimaryRefireTimeScale);
-    return MRES_Ignored;
+	PlayerData[pOwner].m_flNextPrimaryAttack = GetGameTime() + (1.00 * fAirblastRefireTimeScale * fAirblastPrimaryRefireTimeScale);
+	return MRES_Ignored;
 }
 
 // CTFFlameManager::OnCollide();
 // Supercede this just to prevent damage-dealing.
 MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return MRES_Ignored;
+	if (!sm_oldflames_enable.BoolValue)
+		return MRES_Ignored;
 
-    if (sm_oldflames_flamethrower_flames.BoolValue)
-        return MRES_Supercede;
-    return MRES_Ignored;
+	if (sm_oldflames_flamethrower_flames.BoolValue)
+		return MRES_Supercede;
+	return MRES_Ignored;
 }
 
 // pre-call CTFPlayerShared::Burn();
@@ -1005,154 +1005,154 @@ MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 // m_flAfterburnDuration with the fixed 0.25s before the post-hook runs).
 MRESReturn DHookCallback_Burn_Pre(Address pThis)
 {
-    int client = TF2Util_GetPlayerFromSharedAddress(pThis);
-    PlayerData[client].m_flBurnDurationBefore = TF2Util_GetPlayerBurnDuration(client);
-    return MRES_Ignored;
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	PlayerData[client].m_flBurnDurationBefore = TF2Util_GetPlayerBurnDuration(client);
+	return MRES_Ignored;
 }
 
 // post-call CTFPlayerShared::Burn();
 // Adjust afterburn duration, if sm_oldflames_flamethrower_oldafterburn_duration is on.
 MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 {
-    if (!sm_oldflames_enable.BoolValue)
-        return MRES_Ignored;
+	if (!sm_oldflames_enable.BoolValue)
+		return MRES_Ignored;
 
-    int client = TF2Util_GetPlayerFromSharedAddress(pThis);
-    int pWeapon = parameters.Get(2);
-    float flBurningTime = parameters.Get(3);
-    if (
-        !IsPlayerAlive(client) ||
-        TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
-        TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
-    )
-        return MRES_Ignored;
+	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
+	int pWeapon = parameters.Get(2);
+	float flBurningTime = parameters.Get(3);
+	if (
+		!IsPlayerAlive(client) ||
+		TF2_IsPlayerInCondition(client, TFCond_Bonked) ||
+		TF2_IsPlayerInCondition(client, TFCond_PasstimeInterception)
+	)
+		return MRES_Ignored;
 
-    // Healing debuff mode handling
-    int healDebuffMode = sm_oldflames_healing_debuff.IntValue;
-    if (healDebuffMode != 2 && PlayerData[client].m_flBurnDurationBefore == 0.0)
-    {
-        TF2_RemoveCondition(client, TFCond_HealingDebuff);
+	// Healing debuff mode handling
+	int healDebuffMode = sm_oldflames_healing_debuff.IntValue;
+	if (healDebuffMode != 2 && PlayerData[client].m_flBurnDurationBefore == 0.0)
+	{
+		TF2_RemoveCondition(client, TFCond_HealingDebuff);
 
-        if (healDebuffMode == 1 && IsFlameWeapon(pWeapon))
-            TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
-    }
+		if (healDebuffMode == 1 && IsFlameWeapon(pWeapon))
+			TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
+	}
 
-    if (!sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
-        return MRES_Ignored;
+	if (!sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
+		return MRES_Ignored;
 
-    int nAfterburnImmunity = TF2_GetPlayerClass(client) == TFClass_Pyro;
+	int nAfterburnImmunity = TF2_GetPlayerClass(client) == TFClass_Pyro;
 
-    if (
-        nAfterburnImmunity &&
-        TF2_IsPlayerInCondition(client, TFCond_BurningPyro)
-    ) {
-        nAfterburnImmunity = 0;
-    }
+	if (
+		nAfterburnImmunity &&
+		TF2_IsPlayerInCondition(client, TFCond_BurningPyro)
+	) {
+		nAfterburnImmunity = 0;
+	}
 
-    int pMyWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-    if (IsValidEntity(pMyWeapon))
-    {
-        nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", pMyWeapon);
-    }
+	int pMyWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if (IsValidEntity(pMyWeapon))
+	{
+		nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", pMyWeapon);
+	}
 
-    if (TF2_IsPlayerInCondition(client, TFCond_AfterburnImmune))
-    {
-        nAfterburnImmunity = 1;
-    }
+	if (TF2_IsPlayerInCondition(client, TFCond_AfterburnImmune))
+	{
+		nAfterburnImmunity = 1;
+	}
 
-    int shield = -1;
-    for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
-    {
-        int wearable = TF2Util_GetPlayerWearable(client, i);
-        char class[MAX_NAME_LENGTH];
-        GetEntityClassname(wearable, class, sizeof(class));
-        if (StrEqual(class, "tf_wearable_demoshield"))
-        {
-            shield = wearable;
-            break;
-        }
-    }
-    if (!nAfterburnImmunity && IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
-    {
-        nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
-    }
+	int shield = -1;
+	for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
+	{
+		int wearable = TF2Util_GetPlayerWearable(client, i);
+		char class[MAX_NAME_LENGTH];
+		GetEntityClassname(wearable, class, sizeof(class));
+		if (StrEqual(class, "tf_wearable_demoshield"))
+		{
+			shield = wearable;
+			break;
+		}
+	}
+	if (!nAfterburnImmunity && IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
+	{
+		nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
+	}
 
-    if (!nAfterburnImmunity && TF2_GetPlayerClass(client) == TFClass_Sniper)
-    {
-        for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
-        {
-            shield = TF2Util_GetPlayerWearable(client, i);
-            if (IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
-                nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
-        }
-    }
+	if (!nAfterburnImmunity && TF2_GetPlayerClass(client) == TFClass_Sniper)
+	{
+		for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
+		{
+			shield = TF2Util_GetPlayerWearable(client, i);
+			if (IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
+				nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
+		}
+	}
 
-    if (!nAfterburnImmunity)
-    {
-        float flFlameLife;
-        if (flBurningTime > 0.00)
-            flFlameLife = flBurningTime;
-        else
-        {
-            float length = TF_BURNING_FLAME_LIFE;
-            if (IsValidEntity(pWeapon))
-            {
-                char class[MAX_NAME_LENGTH];
-                GetEntityClassname(pWeapon, class, sizeof(class));
-                if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
-                    length = tf_fireball_burn_duration.FloatValue;
-                }
-                else if (StrEqual(class, "tf_weapon_particle_cannon")) {
-                    length = TF_BURNING_FLAME_LIFE_PLASMA;
-                }
-            }
-            flFlameLife = length;
-        }
-        flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
+	if (!nAfterburnImmunity)
+	{
+		float flFlameLife;
+		if (flBurningTime > 0.00)
+			flFlameLife = flBurningTime;
+		else
+		{
+			float length = TF_BURNING_FLAME_LIFE;
+			if (IsValidEntity(pWeapon))
+			{
+				char class[MAX_NAME_LENGTH];
+				GetEntityClassname(pWeapon, class, sizeof(class));
+				if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
+					length = tf_fireball_burn_duration.FloatValue;
+				}
+				else if (StrEqual(class, "tf_weapon_particle_cannon")) {
+					length = TF_BURNING_FLAME_LIFE_PLASMA;
+				}
+			}
+			flFlameLife = length;
+		}
+		flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
 
-        if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
-            TF2Util_SetPlayerBurnDuration(client, flFlameLife);
-    }
+		if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
+			TF2Util_SetPlayerBurnDuration(client, flFlameLife);
+	}
 
-    // Afterburn-immune victims (pyro, shields, afterburn_immunity, ...):
-    // Burn() gives them a fixed TF_BURNING_FLAME_LIFE_PYRO (0.25s) burn, but
-    // modern TF2 tracks burn expiry in m_flAfterburnDuration, which is only
-    // decremented on 0.5s damage ticks -- so a "0.25s" burn actually lingers
-    // until the first tick (~0.5s after ignition). Old flames extinguished
-    // immune victims precisely 0.25s after ignition (m_flFlameRemoveTime,
-    // checked every frame). The game still has that machinery: every condition
-    // carries its own per-frame countdown (m_ConditionData[].m_flExpireTime,
-    // decremented by frametime and removed at 0 in
-    // CTFPlayerShared::ConditionGameRulesThink; TF_COND_BURNING is explicitly
-    // listed in ConditionExpiresFast, so being healed still shortens the burn),
-    // but Burn() adds TF_COND_BURNING as a permanent condition (-1.0). Give the
-    // condition itself a duration and let the game expire it on the exact
-    // frame through the normal extinguish path -- no plugin-side bookkeeping.
-    //
-    // Like the old m_flFlameRemoveTime (set to the later of the old and new
-    // removal times) this only ever extends: the condition is given the max
-    // of the fixed 0.25s, the burn time remaining before this hit (tracked in
-    // the pre-hook -- Burn() overwrites m_flAfterburnDuration with 0.25s for
-    // immune victims, so the pre-hit value is gone by the time we run here)
-    // and the game's post-call value. E.g. a Dragon's Fury pyro whose
-    // TF_COND_BURNING_PYRO just expired keeps its remaining multi-second
-    // burn, but precisely timed now.
-    else if (TF2_IsPlayerInCondition(client, TFCond_OnFire))
-    {
-        float flNewDuration = TF_BURNING_FLAME_LIFE_PYRO;
+	// Afterburn-immune victims (pyro, shields, afterburn_immunity, ...):
+	// Burn() gives them a fixed TF_BURNING_FLAME_LIFE_PYRO (0.25s) burn, but
+	// modern TF2 tracks burn expiry in m_flAfterburnDuration, which is only
+	// decremented on 0.5s damage ticks -- so a "0.25s" burn actually lingers
+	// until the first tick (~0.5s after ignition). Old flames extinguished
+	// immune victims precisely 0.25s after ignition (m_flFlameRemoveTime,
+	// checked every frame). The game still has that machinery: every condition
+	// carries its own per-frame countdown (m_ConditionData[].m_flExpireTime,
+	// decremented by frametime and removed at 0 in
+	// CTFPlayerShared::ConditionGameRulesThink; TF_COND_BURNING is explicitly
+	// listed in ConditionExpiresFast, so being healed still shortens the burn),
+	// but Burn() adds TF_COND_BURNING as a permanent condition (-1.0). Give the
+	// condition itself a duration and let the game expire it on the exact
+	// frame through the normal extinguish path -- no plugin-side bookkeeping.
+	//
+	// Like the old m_flFlameRemoveTime (set to the later of the old and new
+	// removal times) this only ever extends: the condition is given the max
+	// of the fixed 0.25s, the burn time remaining before this hit (tracked in
+	// the pre-hook -- Burn() overwrites m_flAfterburnDuration with 0.25s for
+	// immune victims, so the pre-hit value is gone by the time we run here)
+	// and the game's post-call value. E.g. a Dragon's Fury pyro whose
+	// TF_COND_BURNING_PYRO just expired keeps its remaining multi-second
+	// burn, but precisely timed now.
+	else if (TF2_IsPlayerInCondition(client, TFCond_OnFire))
+	{
+		float flNewDuration = TF_BURNING_FLAME_LIFE_PYRO;
 
-        float flPrevBurn = PlayerData[client].m_flBurnDurationBefore;
-        if (flPrevBurn > flNewDuration)
-            flNewDuration = flPrevBurn;
+		float flPrevBurn = PlayerData[client].m_flBurnDurationBefore;
+		if (flPrevBurn > flNewDuration)
+			flNewDuration = flPrevBurn;
 
-        float flCurBurn = TF2Util_GetPlayerBurnDuration(client);
-        if (flCurBurn > flNewDuration)
-            flNewDuration = flCurBurn;
+		float flCurBurn = TF2Util_GetPlayerBurnDuration(client);
+		if (flCurBurn > flNewDuration)
+			flNewDuration = flCurBurn;
 
-        TF2Util_SetPlayerConditionDuration(client, TFCond_OnFire, flNewDuration);
-    }
+		TF2Util_SetPlayerConditionDuration(client, TFCond_OnFire, flNewDuration);
+	}
 
-    return MRES_Ignored;
+	return MRES_Ignored;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1161,44 +1161,44 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 
 stock int LoadEntityHandleFromAddress(Address addr) // From nosoop's stocksoup framework.
 {
-    return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
+	return EntRefToEntIndex(LoadFromAddress(addr, NumberType_Int32) | (1 << 31));
 }
 
 stock void StoreEntityHandleToAddress(Address addr, int handle)
 {
-    StoreToAddress(addr, IsValidEntity(handle) ? EntIndexToEntRef(handle) & ~(1 << 31) : 0, NumberType_Int32);
+	StoreToAddress(addr, IsValidEntity(handle) ? EntIndexToEntRef(handle) & ~(1 << 31) : 0, NumberType_Int32);
 }
 
 stock int GetEntityFromAddress(Address pEntity) // From nosoop's stocksoup framework.
 {
-    static int offs_RefEHandle;
-    if (offs_RefEHandle)
-    {
-        return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
-    }
+	static int offs_RefEHandle;
+	if (offs_RefEHandle)
+	{
+		return LoadEntityHandleFromAddress(pEntity + view_as<Address>(offs_RefEHandle));
+	}
 
-    // if we don't have it already, attempt to lookup offset based on SDK information
-    // CWorld is derived from CBaseEntity so it should have both offsets
-    int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
-    if (offs_angRotation == -1)
-    {
-        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
-    }
-    else if (offs_vecViewOffset == -1)
-    {
-        ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
-    }
-    else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04))
-    {
-        char game[32];
-        GetGameFolderName(game, sizeof(game));
-        ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
-                ... "(incorrect assumption for game '%s'?)", game);
-    }
+	// if we don't have it already, attempt to lookup offset based on SDK information
+	// CWorld is derived from CBaseEntity so it should have both offsets
+	int offs_angRotation = FindDataMapInfo(0, "m_angRotation"), offs_vecViewOffset = FindDataMapInfo(0, "m_vecViewOffset");
+	if (offs_angRotation == -1)
+	{
+		ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_angRotation");
+	}
+	else if (offs_vecViewOffset == -1)
+	{
+		ThrowError("Could not find offset for ((CBaseEntity) CWorld)::m_vecViewOffset");
+	}
+	else if ((offs_angRotation + 0x0C) != (offs_vecViewOffset - 0x04))
+	{
+		char game[32];
+		GetGameFolderName(game, sizeof(game));
+		ThrowError("Could not confirm offset of CBaseEntity::m_RefEHandle "
+				... "(incorrect assumption for game '%s'?)", game);
+	}
 
-    // offset seems right, cache it for the next call
-    offs_RefEHandle = offs_angRotation + 0x0C;
-    return GetEntityFromAddress(pEntity);
+	// offset seems right, cache it for the next call
+	offs_RefEHandle = offs_angRotation + 0x0C;
+	return GetEntityFromAddress(pEntity);
 }
 
 stock any Dereference(any address, NumberType bitdepth = NumberType_Int32)
@@ -1208,7 +1208,7 @@ stock any Dereference(any address, NumberType bitdepth = NumberType_Int32)
 
 stock void WriteToValue(any address, any value, bool updateMemAccess = true, NumberType bitdepth = NumberType_Int32)
 {
-    StoreToAddress(address, value, bitdepth, updateMemAccess);
+	StoreToAddress(address, value, bitdepth, updateMemAccess);
 }
 
 stock void GetVector(any address, float buffer[3])
