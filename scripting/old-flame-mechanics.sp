@@ -65,77 +65,21 @@
 // GLOBALS                                                                  //
 //////////////////////////////////////////////////////////////////////////////
 
-// entity flags, CBaseEntity::m_iEFlags
-enum
-{
-	EFL_KILLME	=				(1<<0),	// This entity is marked for death -- This allows the game to actually delete ents at a safe time
-	EFL_DORMANT	=				(1<<1),	// Entity is dormant, no updates to client
-	EFL_NOCLIP_ACTIVE =			(1<<2),	// Lets us know when the noclip command is active.
-	EFL_SETTING_UP_BONES =		(1<<3),	// Set while a model is setting up its bones.
-	EFL_KEEP_ON_RECREATE_ENTITIES = (1<<4), // This is a special entity that should not be deleted when we restart entities only
-
-	EFL_HAS_PLAYER_CHILD=		(1<<4),	// One of the child entities is a player.
-
-	EFL_DIRTY_SHADOWUPDATE =	(1<<5),	// Client only- need shadow manager to update the shadow...
-	EFL_NOTIFY =				(1<<6),	// Another entity is watching events on this entity (used by teleport)
-
-	// The default behavior in ShouldTransmit is to not send an entity if it doesn't
-	// have a model. Certain entities want to be sent anyway because all the drawing logic
-	// is in the client DLL. They can set this flag and the engine will transmit them even
-	// if they don't have a model.
-	EFL_FORCE_CHECK_TRANSMIT =	(1<<7),
-
-	EFL_BOT_FROZEN =			(1<<8),	// This is set on bots that are frozen.
-	EFL_SERVER_ONLY =			(1<<9),	// Non-networked entity.
-	EFL_NO_AUTO_EDICT_ATTACH =	(1<<10), // Don't attach the edict; we're doing it explicitly
-
-	// Some dirty bits with respect to abs computations
-	EFL_DIRTY_ABSTRANSFORM =	(1<<11),
-	EFL_DIRTY_ABSVELOCITY =		(1<<12),
-	EFL_DIRTY_ABSANGVELOCITY =	(1<<13),
-	EFL_DIRTY_SURROUNDING_COLLISION_BOUNDS	= (1<<14),
-	EFL_DIRTY_SPATIAL_PARTITION = (1<<15),
-//	UNUSED						= (1<<16),
-
-	EFL_IN_SKYBOX =				(1<<17),	// This is set if the entity detects that it's in the skybox.
-											// This forces it to pass the "in PVS" for transmission.
-	EFL_USE_PARTITION_WHEN_NOT_SOLID = (1<<18),	// Entities with this flag set show up in the partition even when not solid
-	EFL_TOUCHING_FLUID =		(1<<19),	// Used to determine if an entity is floating
-
-	// FIXME: Not really sure where I should add this...
-	EFL_IS_BEING_LIFTED_BY_BARNACLE = (1<<20),
-	EFL_NO_ROTORWASH_PUSH =		(1<<21),		// I shouldn't be pushed by the rotorwash
-	EFL_NO_THINK_FUNCTION =		(1<<22),
-	EFL_NO_GAME_PHYSICS_SIMULATION = (1<<23),
-
-	EFL_CHECK_UNTOUCH =			(1<<24),
-	EFL_DONTBLOCKLOS =			(1<<25),		// I shouldn't block NPC line-of-sight
-	EFL_DONTWALKON =			(1<<26),		// NPC;s should not walk on this entity
-	EFL_NO_DISSOLVE =			(1<<27),		// These guys shouldn't dissolve
-	EFL_NO_MEGAPHYSCANNON_RAGDOLL = (1<<28),	// Mega physcannon can't ragdoll these guys.
-	EFL_NO_WATER_VELOCITY_CHANGE  =	(1<<29),	// Don't adjust this entity's velocity when transitioning into water
-	EFL_NO_PHYSCANNON_INTERACTION =	(1<<30),	// Physcannon can't pick these up or punt them
-	EFL_NO_DAMAGE_FORCES =		(1<<31),	// Doesn't accept forces from physics damage
-};
-
 // CTFFlameEntity offsets. Should be used with CTFFlameEntity_Base.
 enum
 {
-	CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS = 0,                                                           // Vector m_vecInitialPos;
-	CTFFLAMEENTITY_OFFSET_M_VECPREVPOS = CTFFLAMEENTITY_OFFSET_M_VECINITIALPOS + VECTOR_SIZE,            // Vector m_vecPrevPos;
-	CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECPREVPOS + VECTOR_SIZE,          // Vector m_vecBaseVelocity;
-	CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY = CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY + VECTOR_SIZE, // Vector m_vecAttackerVelocity;
-	CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE = CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY + VECTOR_SIZE,    // float m_flTimeRemove;
-	CTFFLAMEENTITY_OFFSET_M_IDMGTYPE = CTFFLAMEENTITY_OFFSET_M_FLTIMEREMOVE + 4,                         // int m_iDmgType;
-	CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT = CTFFLAMEENTITY_OFFSET_M_IDMGTYPE + 4,                          // float m_flDmgAmount;
-	CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT = CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT + 4,                    // CUtlVector<EHANDLE> m_hEntitiesBurnt;
-	CTFFLAMEENTITY_OFFSET_M_HATTACKER = CTFFLAMEENTITY_OFFSET_M_HENTITIESBURNT + OFM_CUTLVECTOR_SIZE,    // EHANDLE m_hAttacker;
-	//CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM = CTFFLAMEENTITY_OFFSET_M_HATTACKER + 4,                       // int m_iAttackerTeam;
-	CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND = CTFFLAMEENTITY_OFFSET_M_HATTACKER/*CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM*/ + 4,                 // bool m_bCritFromBehind;
-	CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY = CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND + 1,                  // bool m_bBurnedEnemy;
-	CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER = CTFFLAMEENTITY_OFFSET_M_BBURNEDENEMY + 2,                    // CHandle<CTFFlameThrower> m_hFlameThrower;
-
-	CTFFLAMEENTITY_SIZE = CTFFLAMEENTITY_OFFSET_M_HFLAMETHROWER + 4
+	CTFFlameEntity_m_vecInitialPos_Base = 0,												// Vector m_vecInitialPos;
+	CTFFlameEntity_m_vecPrevPos = CTFFlameEntity_m_vecInitialPos_Base + VECTOR_SIZE,		// Vector m_vecPrevPos;
+	CTFFlameEntity_m_vecBaseVelocity = CTFFlameEntity_m_vecPrevPos + VECTOR_SIZE,			// Vector m_vecBaseVelocity;
+	CTFFlameEntity_m_vecAttackerVelocity = CTFFlameEntity_m_vecBaseVelocity + VECTOR_SIZE,	// Vector m_vecAttackerVelocity;
+	CTFFlameEntity_m_flTimeRemove = CTFFlameEntity_m_vecAttackerVelocity + VECTOR_SIZE,		// float m_flTimeRemove;
+	CTFFlameEntity_m_iDmgType = CTFFlameEntity_m_flTimeRemove + 4,							// int m_iDmgType;
+	CTFFlameEntity_m_flDmgAmount = CTFFlameEntity_m_iDmgType + 4,							// float m_flDmgAmount;
+	CTFFlameEntity_m_EntitiesBurnt = CTFFlameEntity_m_flDmgAmount + 4,						// CUtlVector<EHANDLE> m_hEntitiesBurnt;
+	CTFFlameEntity_m_hAttacker = CTFFlameEntity_m_EntitiesBurnt + OFM_CUTLVECTOR_SIZE,		// EHANDLE m_hAttacker;
+	CTFFlameEntity_m_bCritFromBehind = CTFFlameEntity_m_hAttacker + 4,						// bool m_bCritFromBehind;
+	CTFFlameEntity_m_bBurnedEnemy = CTFFlameEntity_m_bCritFromBehind + 1,					// bool m_bBurnedEnemy;
+	CTFFlameEntity_m_hFlameThrower = CTFFlameEntity_m_bBurnedEnemy + 2						// CHandle<CTFFlameThrower> m_hFlameThrower;
 };
 
 enum FlameThrowerState_t
@@ -647,11 +591,18 @@ static int CreateFlameEntity(
 	SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
 	DispatchSpawn(entity);
 
-	any pEntity = GetEntityAddress(entity);
-	if (HasEntProp(owner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1)
-		StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
-	else
-		StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, owner); // pFlame->m_hAttacker = pOwner;
+	any pEntity_offset = GetEntityAddress(entity) + CTFFlameEntity_m_vecInitialPos;
+	if (
+		HasEntProp(owner, Prop_Send, "m_hOwnerEntity") &&
+		GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1
+	) {
+		// pFlame->m_hAttacker = pOwner->GetOwnerEntity();
+		StoreEntityHandleToAddress(pEntity_offset + CTFFlameEntity_m_hAttacker, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"));
+	}
+	else {
+		// pFlame->m_hAttacker = pOwner;
+		StoreEntityHandleToAddress(pEntity_offset + CTFFlameEntity_m_hAttacker, owner);
+	}
 
 	// this is not apparent anymore?
 	// 2024.04.28: pre-smtc removal code, this is old however so i'm leaving it as a relic :)
@@ -660,9 +611,13 @@ static int CreateFlameEntity(
 	//    flamePointer.Write(GetEntProp(flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER), Prop_Send, "m_iTeamNum"), CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM);
 
 	// Set team.
-	SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum")); // pFlame->ChangeTeam( pOwner->GetTeamNumber() );
-	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_IDMGTYPE, damage_type); // pFlame->m_iDmgType = iDmgType;
-	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_FLDMGAMOUNT, damage); // pFlame->m_flDmgAmount = flDmgAmount;
+	// pFlame->ChangeTeam( pOwner->GetTeamNumber() );
+	SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum"));
+
+	// pFlame->m_iDmgType = iDmgType;
+	WriteToValue(pEntity_offset + CTFFlameEntity_m_iDmgType, damage_type);
+	// pFlame->m_flDmgAmount = flDmgAmount;
+	WriteToValue(pEntity_offset + CTFFlameEntity_m_flDmgAmount, damage);
 
 	// Setup the initial velocity.
 	float m_vecBaseVelocity[3];
@@ -670,23 +625,21 @@ static int CreateFlameEntity(
 	float vecUp[3];
 	GetAngleVectors(angles, m_vecBaseVelocity, vecRight, vecUp);
 
-	float flFlameLifeMult = 1.00;
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, flFlameLifeMult, mult_flame_life );
-	flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
+	float flFlameLifeMult = TF2Attrib_HookValueFloat(1.0, "mult_flame_life", LoadEntityHandleFromAddress(pEntity_offset + CTFFlameEntity_m_hAttacker));
 
 	float velocity = flFlameLifeMult * speed;
 	// pFlame->m_vecBaseVelocity = vecForward * velocity;
 	ScaleVector(m_vecBaseVelocity, velocity);
 
-	float iFlameSizeMult = 1.00;
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, iFlameSizeMult, mult_flame_size );
-	iFlameSizeMult = TF2Attrib_HookValueFloat(iFlameSizeMult, "mult_flame_size", LoadEntityHandleFromAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER));
+	float flFlameSizeMult = TF2Attrib_HookValueFloat(1.0, "mult_flame_size", LoadEntityHandleFromAddress(pEntity_offset + CTFFlameEntity_m_hAttacker));
 
 	// pFlame->m_vecBaseVelocity += RandomVector( -velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat(), velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat() );
 	if (randomize)
 	{
-		float minValue = -velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
-		float maxValue = velocity * iFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
+		float minValue = -velocity * flFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
+		float maxValue = velocity * flFlameSizeMult * tf_flamethrower_vecrand.FloatValue;
 		float rand[3];
 		rand[0] = GetRandomFloat(minValue, maxValue);
 		rand[1] = GetRandomFloat(minValue, maxValue);
@@ -701,7 +654,7 @@ static int CreateFlameEntity(
 	) {
 		float vel[3];
 		GetEntPropVector(GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"), Prop_Data, "m_vecAbsVelocity", vel);
-		WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
+		WriteVector(pEntity_offset + CTFFlameEntity_m_vecAttackerVelocity, vel, false);
 	}
 
 	// pFlame->SetAbsVelocity( pFlame->m_vecBaseVelocity );
@@ -709,9 +662,9 @@ static int CreateFlameEntity(
 	TeleportEntity(entity, NULL_VECTOR, angles, m_vecBaseVelocity);
 
 	// pFlame->SetCritFromBehind( bAlwaysCritFromBehind );
-	WriteToValue(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_BCRITFROMBEHIND, crit_from_behind, false, NumberType_Int8);
+	WriteToValue(pEntity_offset + CTFFlameEntity_m_bCritFromBehind, crit_from_behind, false, NumberType_Int8);
 
-	WriteVector(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECBASEVELOCITY, m_vecBaseVelocity, false);
+	WriteVector(pEntity_offset + CTFFlameEntity_m_vecBaseVelocity, m_vecBaseVelocity, false);
 	return entity;
 }
 
