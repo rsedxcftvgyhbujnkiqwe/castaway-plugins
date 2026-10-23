@@ -725,10 +725,9 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
 // FORWARDS                                                                 //
 //////////////////////////////////////////////////////////////////////////////
 
-public void OnEntityCreated(int entity, const char[] classname)
+public void OnClientPutInServer(int client)
 {
-    if (1 <= entity <= MaxClients)
-        SetupPlayerHooks(entity);
+    SetupPlayerHooks(client);
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
