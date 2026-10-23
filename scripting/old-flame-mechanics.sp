@@ -330,9 +330,9 @@ static float MemoryPatch_HealDebuff_Float25;
 public Plugin myinfo =
 {
     name = PLUGIN_NAME,
-    author = "NotnHeavy",
+    author = "NotnHeavy, huutti",
     description = "An attempt to revert flamethrower mechanics to how they were, pre-Jungle Inferno.",
-    version = "1.0.5",
+    version = "2.0.0",
     url = "none"
 };
 
