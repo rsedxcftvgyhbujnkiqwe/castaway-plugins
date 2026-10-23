@@ -293,11 +293,11 @@ static ConVar tf_flamethrower_velocity;
 static ConVar tf_flamethrower_vecrand;
 
 static ConVar sm_oldflames_enable;
-static ConVar sm_oldflames_flamethrower_flames;
-static ConVar sm_oldflames_flamethrower_damage;
-static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
-static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
-static ConVar sm_oldflames_flamethrower_falloff;
+static ConVar sm_oldflames_flames;
+static ConVar sm_oldflames_damage;
+static ConVar sm_oldflames_oldafterburn_duration;
+static ConVar sm_oldflames_oldafterburn_damage;
+static ConVar sm_oldflames_falloff;
 static ConVar sm_oldflames_healing_debuff;
 
 static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
@@ -415,16 +415,16 @@ public void OnPluginStart()
 	tf_flamethrower_vecrand = FindConVar("tf_flamethrower_vecrand");
 
 	// Setup convars. (These values are adjusted for before Jungle Inferno flame mechanics dropped.)
-	sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics?", _, true, 0.0, true, 1.0);
-	sm_oldflames_flamethrower_flames = CreateConVar("sm_oldflames_flamethrower_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
-	sm_oldflames_flamethrower_oldafterburn_damage = CreateConVar("sm_oldflames_flamethrower_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
-	sm_oldflames_flamethrower_oldafterburn_duration = CreateConVar("sm_oldflames_flamethrower_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
-	sm_oldflames_flamethrower_damage = CreateConVar("sm_oldflames_flamethrower_damage", "6.80", "tf_flame damage number");
-	sm_oldflames_flamethrower_falloff = CreateConVar("sm_oldflames_flamethrower_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
+	sm_oldflames_enable = CreateConVar("sm_oldflames_enable", "1", "enable old flame mechanics? (master toggle)", _, true, 0.0, true, 1.0);
+	sm_oldflames_flames = CreateConVar("sm_oldflames_flames", "1", "use old flamethrower mechanics flames?", _, true, 0.0, true, 1.0);
+	sm_oldflames_oldafterburn_damage = CreateConVar("sm_oldflames_oldafterburn_damage", "1", "use old afterburn damage (3 per tick)", _, true, 0.0, true, 1.0);
+	sm_oldflames_oldafterburn_duration = CreateConVar("sm_oldflames_oldafterburn_duration", "1", "use old afterburn duration (constant 10s, 6s with cow mangler)", _, true, 0.0, true, 1.0);
+	sm_oldflames_damage = CreateConVar("sm_oldflames_damage", "6.80", "tf_flame damage number");
+	sm_oldflames_falloff = CreateConVar("sm_oldflames_falloff", "0.70", "tf_flame falloff percentage when dealing damage");
 	sm_oldflames_healing_debuff = CreateConVar("sm_oldflames_healing_debuff", "1", "Healing debuff mode: 0 = none, 1 = pre-JI (2s on direct flames, 25%), 2 = vanilla post-JI (afterburn, 20%)", _, true, 0.0, true, 2.0);
 
 	sm_oldflames_enable.AddChangeHook(OnEnableChanged);
-	sm_oldflames_flamethrower_falloff.AddChangeHook(AdjustFalloff);
+	sm_oldflames_falloff.AddChangeHook(AdjustFalloff);
 	sm_oldflames_healing_debuff.AddChangeHook(OnHealingDebuffChanged);
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch();
 	MemoryPatch_HealingDebuff_Patch();
@@ -477,8 +477,8 @@ static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 	if (!sm_oldflames_enable.BoolValue)
 		return;
 
-	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_flamethrower_falloff.FloatValue;
-	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_flamethrower_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_falloff.FloatValue;
+	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
 	WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
@@ -730,7 +730,7 @@ public Action OnPlayerRunCmd(
 ) {
 	if (
 		sm_oldflames_enable.BoolValue &&
-		sm_oldflames_flamethrower_flames.BoolValue
+		sm_oldflames_flames.BoolValue
 	) {
 		int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
 		if (
@@ -796,7 +796,7 @@ Action SDKHookCB_OnTakeDamage(
 		}
 	}
 
-	if (sm_oldflames_flamethrower_oldafterburn_damage.BoolValue && damage_type == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
+	if (sm_oldflames_oldafterburn_damage.BoolValue && damage_type == (DMG_BURN | DMG_PREVENT_PHYSICS_FORCE))
 	{
 		damage *= TF_BURNING_DMG_OLD / TF_BURNING_DMG_NEW;
 		return Plugin_Changed;
@@ -837,7 +837,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 	if (!sm_oldflames_enable.BoolValue)
 		return MRES_Ignored;
 
-	if (sm_oldflames_flamethrower_flames.BoolValue)
+	if (sm_oldflames_flames.BoolValue)
 	{
 		// Get the pointer for this CTFFlameThrower entity.
 		Address pEntity = GetEntityAddress(entity);
@@ -920,7 +920,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 				iDmgType |= DMG_CRIT;
 
 			// Create the flame entity.
-			float flDamage = sm_oldflames_flamethrower_damage.FloatValue; // 6.80 by default
+			float flDamage = sm_oldflames_damage.FloatValue; // 6.80 by default
 			flDamage = TF2Attrib_HookValueFloat(flDamage, "mult_dmg", entity);
 
 			int iCritFromBehind = 0;
@@ -993,7 +993,7 @@ MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 	if (!sm_oldflames_enable.BoolValue)
 		return MRES_Ignored;
 
-	if (sm_oldflames_flamethrower_flames.BoolValue)
+	if (sm_oldflames_flames.BoolValue)
 		return MRES_Supercede;
 	return MRES_Ignored;
 }
@@ -1037,7 +1037,7 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 			TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
 	}
 
-	if (!sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
+	if (!sm_oldflames_oldafterburn_duration.BoolValue)
 		return MRES_Ignored;
 
 	int nAfterburnImmunity = TF2_GetPlayerClass(client) == TFClass_Pyro;
