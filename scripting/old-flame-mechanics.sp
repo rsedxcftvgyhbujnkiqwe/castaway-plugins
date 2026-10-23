@@ -41,8 +41,7 @@
 #define WL_Waist 2
 #define WL_Eyes 3
 
-// The duplicated bit is verbatim from TF_WEAPON_FLAMETHROWER in tf_shareddefs.cpp -- Valve's own, not a typo here.
-#define DMGTYPE DMG_IGNITE | DMG_PREVENT_PHYSICS_FORCE | DMG_PREVENT_PHYSICS_FORCE
+#define DMGTYPE DMG_IGNITE | DMG_PREVENT_PHYSICS_FORCE
 
 #define TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK		14.00
 
