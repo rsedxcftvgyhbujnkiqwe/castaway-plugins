@@ -586,63 +586,6 @@ static RuneTypes_t GetCarryingRuneType(int pThis)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// CBASEENTITY                                                              //
-//////////////////////////////////////////////////////////////////////////////
-
-// Not gonna use my own methodmaps here, I don't think it matters so much with this project.
-/*
-static bool IsEFlagSet(int pThis, int nEFlagMask)
-{
-    return (GetEntProp(pThis, Prop_Data, "m_iEFlags") & nEFlagMask) != 0;
-}
-*/
-
-static void GetAbsVelocity(int pThis, float buffer[3])
-{
-    GetEntPropVector(pThis, Prop_Data, "m_vecAbsVelocity", buffer);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// CBASECOMBATCHARACTER                                                     //
-//////////////////////////////////////////////////////////////////////////////
-
-static void Weapon_ShootPosition(int pThis, float buffer[3])
-{
-    SDKCall(SDKCall_CBaseCombatCharacter_Weapon_ShootPosition, pThis, buffer);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// CTFPLAYER                                                                //
-//////////////////////////////////////////////////////////////////////////////
-
-static void DoAnimationEvent(int pThis, PlayerAnimEvent_t event, int mData = 0)
-{
-    SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pThis, event, mData);
-}
-
-static int GetEquippedDemoShield(int client)
-{
-    for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
-    {
-        int wearable = TF2Util_GetPlayerWearable(client, i);
-        char class[MAX_NAME_LENGTH];
-        GetEntityClassname(wearable, class, sizeof(class));
-        if (StrEqual(class, "tf_wearable_demoshield"))
-            return wearable;
-    }
-    return -1;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// CTFWEAPONBASE                                                            //
-//////////////////////////////////////////////////////////////////////////////
-
-static bool SendWeaponAnim(int pThis, int iActivity)
-{
-    return SDKCall(SDKCall_CTFWeaponBase_SendWeaponAnim, pThis, iActivity);
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // CTFFLAMETHROWER                                                          //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -658,7 +601,7 @@ static void GetMuzzlePosHelper(int pThis, bool bVisualPos, float buffer[3])
         GetClientAbsAngles(pOwner, vecAngles);
         GetAngleVectors(vecAngles, vecForward, vecRight, vecUp);
         
-        Weapon_ShootPosition(pOwner, buffer);
+        SDKCall(SDKCall_CBaseCombatCharacter_Weapon_ShootPosition, pOwner, buffer);
         ScaleVector(vecRight, TF_FLAMETHROWER_MUZZLEPOS_RIGHT);
         AddVectors(buffer, vecRight, buffer);
 
@@ -772,7 +715,7 @@ static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner,
     if (HasEntProp(pOwner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity") != -1)
     {
         float vel[3];
-        GetAbsVelocity(GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity"), vel);
+        GetEntPropVector(GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity"), Prop_Data, "m_vecAbsVelocity", vel);
         WriteVector(flamePointer + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_VECATTACKERVELOCITY, vel, false);
     }
 
@@ -955,8 +898,8 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
         {
             case FT_STATE_IDLE:
             {
-                DoAnimationEvent(pOwner, PLAYERANIMEVENT_ATTACK_PRE);
-                SendWeaponAnim(entity, ACT_VM_PRIMARYATTACK);
+                SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRE, 0);
+                SDKCall(SDKCall_CTFWeaponBase_SendWeaponAnim, entity, ACT_VM_PRIMARYATTACK);
                 PlayerData[pOwner].m_flStartFiringTime = GetGameTime() + 0.16;
                 SetWeaponState(entity, FT_STATE_STARTFIRING);
             }
@@ -972,7 +915,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
             {
                 if (GetGameTime() >= PlayerData[pOwner].m_flNextPrimaryAttackAnim)
                 {
-                    DoAnimationEvent(pOwner, PLAYERANIMEVENT_ATTACK_PRIMARY);
+                    SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRIMARY, 0);
                     PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime() + 1.40;
                 }
             }
@@ -1127,7 +1070,18 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
         nAfterburnImmunity = 1;
     }
 
-    int shield = GetEquippedDemoShield(client);
+    int shield = -1;
+    for (int i = 0; i < TF2Util_GetPlayerWearableCount(client); ++i)
+    {
+        int wearable = TF2Util_GetPlayerWearable(client, i);
+        char class[MAX_NAME_LENGTH];
+        GetEntityClassname(wearable, class, sizeof(class));
+        if (StrEqual(class, "tf_wearable_demoshield"))
+        {
+            shield = wearable;
+            break;
+        }
+    }
     if (!nAfterburnImmunity && IsValidEntity(shield) && !GetEntProp(shield, Prop_Send, "m_bDisguiseWearable"))
     {
         nAfterburnImmunity = TF2Attrib_HookValueInt(nAfterburnImmunity, "afterburn_immunity", shield);
