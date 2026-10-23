@@ -269,8 +269,8 @@ enum struct player_t
     float m_flStartFiringTime;
     float m_flNextPrimaryAttackAnim;
     float m_flAmmoUseRemainder;
-    float m_flRemoveBurn;
     int m_iFlamethrowerAmmo;
+    float m_flBurnDurationBefore;
 
     int GetAmmoCount(int iAmmoIndex)
     {
@@ -309,8 +309,6 @@ static ConVar sm_oldflames_flamethrower_oldafterburn_duration;
 static ConVar sm_oldflames_flamethrower_oldafterburn_damage;
 static ConVar sm_oldflames_flamethrower_falloff;
 static ConVar sm_oldflames_healing_debuff;
-
-static bool g_bWasBurning[MAXPLAYERS + 1];
 
 static MemoryPatch MemoryPatch_CTFFlameEntity_OnCollide_Falloff;
 static float MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New;
@@ -823,21 +821,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
     return Plugin_Continue;
 }
 
-public void OnGameFrame()
-{
-    if (!sm_oldflames_enable.BoolValue)
-        return;
-
-    for (int client = 1; client <= MaxClients; ++client)
-    {
-        if (IsClientInGame(client) && PlayerData[client].m_flRemoveBurn < GetGameTime() && PlayerData[client].m_flRemoveBurn != 0.00 && sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
-        {
-            PlayerData[client].m_flRemoveBurn = 0.00;
-            TF2_RemoveCondition(client, TFCond_OnFire);
-        }
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////
 // HOOKS                                                                    //
 //////////////////////////////////////////////////////////////////////////////
@@ -1080,16 +1063,19 @@ MRESReturn DHookCallback_OnCollide(int entity, DHookParam parameters)
 }
 
 // pre-call CTFPlayerShared::Burn();
-// Track whether the player was already burning, for healing debuff mode handling.
+// Track the pre-call burning state: whether the player was already burning
+// (healing debuff mode handling) and their remaining burn time (immune
+// victims must never get a longer burn shortened -- Burn() overwrites
+// m_flAfterburnDuration with the fixed 0.25s before the post-hook runs).
 MRESReturn DHookCallback_Burn_Pre(Address pThis)
 {
     int client = TF2Util_GetPlayerFromSharedAddress(pThis);
-    g_bWasBurning[client] = TF2_IsPlayerInCondition(client, TFCond_OnFire);
+    PlayerData[client].m_flBurnDurationBefore = TF2Util_GetPlayerBurnDuration(client);
     return MRES_Ignored;
 }
 
 // post-call CTFPlayerShared::Burn();
-// Adjust afterburn duration, if notnheavy_flamethrower_oldafterburn_duration is on.
+// Adjust afterburn duration, if sm_oldflames_flamethrower_oldafterburn_duration is on.
 MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 {
     if (!sm_oldflames_enable.BoolValue)
@@ -1107,7 +1093,7 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 
     // Healing debuff mode handling
     int healDebuffMode = sm_oldflames_healing_debuff.IntValue;
-    if (healDebuffMode != 2 && !g_bWasBurning[client])
+    if (healDebuffMode != 2 && PlayerData[client].m_flBurnDurationBefore == 0.0)
     {
         TF2_RemoveCondition(client, TFCond_HealingDebuff);
 
@@ -1163,34 +1149,70 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
         }
     }
 
-    float flFlameLife;
-    if (nAfterburnImmunity)
+    if (!nAfterburnImmunity)
     {
-        flFlameLife = TF_BURNING_FLAME_LIFE;
-        PlayerData[client].m_flRemoveBurn = GetGameTime() + TF_BURNING_FLAME_LIFE_PYRO;
-    }
-    else if (flBurningTime > 0.00)
-        flFlameLife = flBurningTime;
-    else
-    {
-        float length = TF_BURNING_FLAME_LIFE;
-        if (IsValidEntity(pWeapon))
+        float flFlameLife;
+        if (flBurningTime > 0.00)
+            flFlameLife = flBurningTime;
+        else
         {
-            char class[MAX_NAME_LENGTH];
-            GetEntityClassname(pWeapon, class, sizeof(class));
-            if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
-                length = tf_fireball_burn_duration.FloatValue;
+            float length = TF_BURNING_FLAME_LIFE;
+            if (IsValidEntity(pWeapon))
+            {
+                char class[MAX_NAME_LENGTH];
+                GetEntityClassname(pWeapon, class, sizeof(class));
+                if (StrEqual(class, "tf_weapon_rocketlauncher_fireball")) {
+                    length = tf_fireball_burn_duration.FloatValue;
+                }
+                else if (StrEqual(class, "tf_weapon_particle_cannon")) {
+                    length = TF_BURNING_FLAME_LIFE_PLASMA;
+                }
             }
-            else if (StrEqual(class, "tf_weapon_particle_cannon")) {
-                length = TF_BURNING_FLAME_LIFE_PLASMA;
-            }
+            flFlameLife = length;
         }
-        flFlameLife = length;
-    }
-    flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
+        flFlameLife = TF2Attrib_HookValueFloat(flFlameLife, "mult_wpn_burntime", pWeapon);
 
-    if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
-        TF2Util_SetPlayerBurnDuration(client, flFlameLife);
+        if (flFlameLife > TF2Util_GetPlayerBurnDuration(client))
+            TF2Util_SetPlayerBurnDuration(client, flFlameLife);
+    }
+
+    // Afterburn-immune victims (pyro, shields, afterburn_immunity, ...):
+    // Burn() gives them a fixed TF_BURNING_FLAME_LIFE_PYRO (0.25s) burn, but
+    // modern TF2 tracks burn expiry in m_flAfterburnDuration, which is only
+    // decremented on 0.5s damage ticks -- so a "0.25s" burn actually lingers
+    // until the first tick (~0.5s after ignition). Old flames extinguished
+    // immune victims precisely 0.25s after ignition (m_flFlameRemoveTime,
+    // checked every frame). The game still has that machinery: every condition
+    // carries its own per-frame countdown (m_ConditionData[].m_flExpireTime,
+    // decremented by frametime and removed at 0 in
+    // CTFPlayerShared::ConditionGameRulesThink; TF_COND_BURNING is explicitly
+    // listed in ConditionExpiresFast, so being healed still shortens the burn),
+    // but Burn() adds TF_COND_BURNING as a permanent condition (-1.0). Give the
+    // condition itself a duration and let the game expire it on the exact
+    // frame through the normal extinguish path -- no plugin-side bookkeeping.
+    //
+    // Like the old m_flFlameRemoveTime (set to the later of the old and new
+    // removal times) this only ever extends: the condition is given the max
+    // of the fixed 0.25s, the burn time remaining before this hit (tracked in
+    // the pre-hook -- Burn() overwrites m_flAfterburnDuration with 0.25s for
+    // immune victims, so the pre-hit value is gone by the time we run here)
+    // and the game's post-call value. E.g. a Dragon's Fury pyro whose
+    // TF_COND_BURNING_PYRO just expired keeps its remaining multi-second
+    // burn, but precisely timed now.
+    else if (TF2_IsPlayerInCondition(client, TFCond_OnFire))
+    {
+        float flNewDuration = TF_BURNING_FLAME_LIFE_PYRO;
+
+        float flPrevBurn = PlayerData[client].m_flBurnDurationBefore;
+        if (flPrevBurn > flNewDuration)
+            flNewDuration = flPrevBurn;
+
+        float flCurBurn = TF2Util_GetPlayerBurnDuration(client);
+        if (flCurBurn > flNewDuration)
+            flNewDuration = flCurBurn;
+
+        TF2Util_SetPlayerConditionDuration(client, TFCond_OnFire, flNewDuration);
+    }
 
     return MRES_Ignored;
 }
