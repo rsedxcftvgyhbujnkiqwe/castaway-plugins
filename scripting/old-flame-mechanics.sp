@@ -2,15 +2,14 @@
 // MADE BY NOTNHEAVY. USES GPL-3, AS PER REQUEST OF SOURCEMOD               //
 //////////////////////////////////////////////////////////////////////////////
 
-// Old afterburn code is due for a re-write.
-
-// For dynamic memory allocation, this uses Scags' SM-Memory extension.
-// https://forums.alliedmods.net/showthread.php?t=327729#
+// The flamethrower ammo management in DHookCallback_PrimaryAttack_Post is
+// hacky and due for a re-write.
 
 // For TF2 attributes, this uses nosoop's tf2attributes plugin, which is a fork of FlaminSarge's.
 
-// This plugin also uses SMTC.
-// https://github.com/NotnHeavy/SourceMod-Type-Collection
+// The address read/write helpers at the bottom of this file are vendored
+// leftovers from SM-Memory and SMTC; neither extension is used anymore
+// (memory patches go through SourceScramble).
 
 #pragma semicolon true 
 #pragma newdecls required
@@ -42,6 +41,7 @@
 #define WL_Waist 2
 #define WL_Eyes 3
 
+// The duplicated bit is verbatim from TF_WEAPON_FLAMETHROWER in tf_shareddefs.cpp -- Valve's own, not a typo here.
 #define DMGTYPE DMG_IGNITE | DMG_PREVENT_PHYSICS_FORCE | DMG_PREVENT_PHYSICS_FORCE
 
 #define TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK		14.00
@@ -470,7 +470,7 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
     else
     {
         PrintToServer("\"%s\" disabled. Flames have been reverted to their default state.", PLUGIN_NAME);
-        OnPluginEnd();
+        DisableAllPatches();
     }
 }
 
@@ -478,13 +478,18 @@ public void OnEnableChanged(ConVar convar, const char[] oldValue, const char[] n
 // MEMORY PATCHES                                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-public void OnPluginEnd()
+static void DisableAllPatches()
 {
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Disable();
     MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Disable();
     if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
     if (MemoryPatch_CalcDamageResisted_HealDebuffShield) MemoryPatch_CalcDamageResisted_HealDebuffShield.Disable();
     if (MemoryPatch_CalcDamageResisted_HealDebuffCrit) MemoryPatch_CalcDamageResisted_HealDebuffCrit.Disable();
+}
+
+public void OnPluginEnd()
+{
+    DisableAllPatches();
 }
 
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
@@ -538,15 +543,6 @@ public void OnHealingDebuffChanged(ConVar convar, const char[] oldValue, const c
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// MATHLIB                                                                  //
-//////////////////////////////////////////////////////////////////////////////
-
-stock float min(float x, float y)
-{
-    return (x < y) ? x : y;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 // UTIL                                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -557,6 +553,18 @@ static bool CTraceFilterIgnoreObjects(int pServerEntity, int contentsMask, int p
     if (StrContains(class, "obj_") != -1 || pServerEntity == pOwner)
         return false;
     return true;
+}
+
+// Weapons that count as flames for healing-debuff purposes.
+static bool IsFlameWeapon(int weapon)
+{
+    if (!IsValidEntity(weapon))
+        return false;
+
+    char class[64];
+    GetEntityClassname(weapon, class, sizeof(class));
+    return StrEqual(class, "tf_weapon_flamethrower")
+        || StrEqual(class, "tf_weapon_rocketlauncher_fireball");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -839,25 +847,19 @@ static void SetupPlayerHooks(int entity)
 }
 
 // pre-call CTFPlayer::OnTakeDamage(), using SDKHooks.
-// Re-write afterburn damage, if the convar notnheavy_flamethrower_oldafterburn_damage is true.
+// Handle the healing debuff on flame ignite, and re-write afterburn damage
+// if sm_oldflames_flamethrower_oldafterburn_damage is on.
 Action SDKHookCB_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
     if (!sm_oldflames_enable.BoolValue)
         return Plugin_Continue;
 
-    if (IsValidEntity(weapon) && damagetype & DMG_IGNITE)
+    if ((damagetype & DMG_IGNITE) && IsFlameWeapon(weapon))
     {
-        char class[64];
-        GetEntityClassname(weapon, class, sizeof(class));
-        if (
-            StrEqual(class, "tf_weapon_flamethrower") ||
-            StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-        ) {
-            switch (sm_oldflames_healing_debuff.IntValue)
-            {
-                case 0: TF2_RemoveCondition(victim, TFCond_HealingDebuff);
-                case 1: TF2_AddCondition(victim, TFCond_HealingDebuff, 2.0);
-            }
+        switch (sm_oldflames_healing_debuff.IntValue)
+        {
+            case 0: TF2_RemoveCondition(victim, TFCond_HealingDebuff);
+            case 1: TF2_AddCondition(victim, TFCond_HealingDebuff, 2.0);
         }
     }
 
@@ -892,7 +894,7 @@ MRESReturn DHookCallback_PrimaryAttack_Pre(int entity)
 }
 
 // post-call CTFFlameThrower::PrimaryAttack();
-// The route I'm taking is hacky; I'm srnot sure what would be the best way to get around with flame visuals otherwise. 
+// The route I'm taking is hacky; I'm not sure what would be the best way to get around with flame visuals otherwise.
 // Essentially, the original function will still be called. However, there'll be another layer to this function that 
 // spawns the stream of tf_flame entities.
 //
@@ -906,8 +908,6 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
     {
         // Get the pointer for this CTFFlameThrower entity.
         any pEntity = GetEntityAddress(entity);
-        static int frame = 0;
-        ++frame;
         
         // Get the owner of this weapon.
         int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
@@ -1027,6 +1027,9 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 // Fix the next primary attack timer in this detour.
 MRESReturn DHookCallback_FireAirBlast(int entity, DHookParam parameters)
 {
+    if (!sm_oldflames_enable.BoolValue)
+        return MRES_Ignored;
+
     // Get the owner of this weapon.
     int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
     if (pOwner == -1)
@@ -1097,17 +1100,8 @@ MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
     {
         TF2_RemoveCondition(client, TFCond_HealingDebuff);
 
-        if (healDebuffMode == 1 && IsValidEntity(pWeapon))
-        {
-            char class[64];
-            GetEntityClassname(pWeapon, class, sizeof(class));
-            if (
-                StrEqual(class, "tf_weapon_flamethrower") ||
-                StrEqual(class, "tf_weapon_rocketlauncher_fireball")
-            ) {
-                TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
-            }
-        }
+        if (healDebuffMode == 1 && IsFlameWeapon(pWeapon))
+            TF2_AddCondition(client, TFCond_HealingDebuff, 2.0);
     }
 
     if (!sm_oldflames_flamethrower_oldafterburn_duration.BoolValue)
