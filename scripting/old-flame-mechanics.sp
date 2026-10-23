@@ -288,7 +288,6 @@ static DynamicDetour DHooks_CTFFlameThrower_FireAirBlast;
 static DynamicDetour DHooks_CTFFlameManager_OnCollide;
 static DynamicDetour DHooks_CTFPlayerShared_Burn;
 
-static Handle SDKCall_CBaseEntity_Create;
 static Handle SDKCall_CBaseCombatCharacter_Weapon_ShootPosition;
 static Handle SDKCall_CTFWeaponBase_CanAttack;
 static Handle SDKCall_CTFWeaponBase_CalcIsAttackCritical;
@@ -355,15 +354,6 @@ public void OnPluginStart()
     DHooks_CTFFlameManager_OnCollide = DynamicDetour.FromConf(config, "Signature::CTFFlameManager::OnCollide()");
     DHooks_CTFPlayerShared_Burn = DynamicDetour.FromConf(config, "CTFPlayerShared::Burn()");
 
-    StartPrepSDKCall(SDKCall_Static);
-    PrepSDKCall_SetFromConf(config, SDKConf_Signature, "CBaseEntity::Create()");
-    PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);       // const char* szName; 
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);         // Vector& vecOrigin; 
-    PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);         // QAngle& vecAngles; 
-    PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);  // CBaseEntity* pOwner;
-    PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer); // CBaseEntity*
-    SDKCall_CBaseEntity_Create = EndPrepSDKCall();
-
     StartPrepSDKCall(SDKCall_Entity);
     PrepSDKCall_SetFromConf(config, SDKConf_Virtual, "CBaseCombatCharacter::Weapon_ShootPosition()");
     PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByValue); // Vector
@@ -400,7 +390,6 @@ public void OnPluginStart()
     if (DHooks_CTFFlameThrower_FireAirBlast == null) SetFailState("Failed to create DHooks_CTFFlameThrower_FireAirBlast");
     if (DHooks_CTFFlameManager_OnCollide == null) SetFailState("Failed to create DHooks_CTFFlameManager_OnCollide");
     if (DHooks_CTFPlayerShared_Burn == null) SetFailState("Failed to create DHooks_CTFPlayerShared_Burn");
-    if (SDKCall_CBaseEntity_Create == null) SetFailState("Failed to create SDKCall_CBaseEntity_Create");
     if (SDKCall_CBaseCombatCharacter_Weapon_ShootPosition == null) SetFailState("Failed to create SDKCall_CBaseCombatCharacter_Weapon_ShootPosition");
     if (SDKCall_CTFWeaponBase_CanAttack == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CanAttack");
     if (SDKCall_CTFWeaponBase_CalcIsAttackCritical == null) SetFailState("Failed to create SDKCall_CTFWeaponBase_CalcIsAttackCritical");
@@ -662,9 +651,13 @@ static void SetCritFromBehind(any pThis, bool bState)
 
 static int CreateFlameEntity(float vecOrigin[3], float vecAngles[3], int pOwner, float flSpeed, int iDmgType, float m_flDmgAmount, bool bAlwaysCritFromBehind, bool bRandomize = true)
 {
-    int pFlame = SDKCall(SDKCall_CBaseEntity_Create, "tf_flame", vecOrigin, vecAngles, pOwner);
+    int pFlame = CreateEntityByName("tf_flame");
     if (pFlame == -1)
         return -1;
+
+    TeleportEntity(pFlame, vecOrigin, vecAngles, NULL_VECTOR);
+    SetEntPropEnt(pFlame, Prop_Data, "m_hOwnerEntity", pOwner);
+    DispatchSpawn(pFlame);
 
     any flamePointer = GetEntityAddress(pFlame);
     if (HasEntProp(pOwner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(pOwner, Prop_Send, "m_hOwnerEntity") != -1)
