@@ -647,7 +647,7 @@ static int CreateFlameEntity(
 	SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
 	DispatchSpawn(entity);
 
-	Address pEntity = GetEntityAddress(entity);
+	any pEntity = GetEntityAddress(entity);
 	if (HasEntProp(owner, Prop_Send, "m_hOwnerEntity") && GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1)
 		StoreEntityHandleToAddress(pEntity + CTFFlameEntity_m_vecInitialPos + CTFFLAMEENTITY_OFFSET_M_HATTACKER, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity")); // pFlame->m_hAttacker = pOwner->GetOwnerEntity();
 	else
@@ -732,24 +732,24 @@ public Action OnPlayerRunCmd(
 		sm_oldflames_enable.BoolValue &&
 		sm_oldflames_flames.BoolValue
 	) {
-		int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+		int flamethrower = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
 		if (
-			IsValidEntity(weapon) &&
-			weapon == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
+			IsValidEntity(flamethrower) &&
+			flamethrower == GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon")
 		) {
 			char class[MAX_NAME_LENGTH];
-			GetEntityClassname(weapon, class, sizeof(class));
+			GetEntityClassname(flamethrower, class, sizeof(class));
 			if (StrEqual(class, "tf_weapon_flamethrower")) {
 				float vecEye[3];
 				float vecMuzzlePos[3];
 				GetClientEyePosition(client, vecEye);
-				GetVisualMuzzlePos(weapon, vecMuzzlePos);
+				GetVisualMuzzlePos(flamethrower, vecMuzzlePos);
 				TR_TraceRayFilter(vecEye, vecMuzzlePos, MASK_SOLID, RayType_EndPoint, CTraceFilterIgnoreObjects, client);
 
 				if (TR_GetFraction() < 1.00 && (TR_GetEntityIndex() == -1 || GetEntProp(TR_GetEntityIndex(), Prop_Data, "m_takedamage") == DAMAGE_NO))
 				{
-					if (GetEntProp(weapon, Prop_Send, "m_iWeaponState") > view_as<int>(FT_STATE_IDLE))
-						SetWeaponState(weapon, FT_STATE_IDLE);
+					if (GetEntProp(flamethrower, Prop_Send, "m_iWeaponState") > view_as<int>(FT_STATE_IDLE))
+						SetWeaponState(flamethrower, FT_STATE_IDLE);
 					buttons &= ~IN_ATTACK;
 					return Plugin_Changed;
 				}
