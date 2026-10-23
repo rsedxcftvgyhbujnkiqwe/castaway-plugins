@@ -67,8 +67,8 @@
 // CTFFlameEntity offsets. Should be used with CTFFlameEntity_Base.
 enum
 {
-	CTFFlameEntity_m_vecInitialPos_Base = 0,												// Vector m_vecInitialPos;
-	CTFFlameEntity_m_vecPrevPos = CTFFlameEntity_m_vecInitialPos_Base + VECTOR_SIZE,		// Vector m_vecPrevPos;
+	CTFFlameEntity_m_vecInitialPos = 0,												// Vector m_vecInitialPos;
+	CTFFlameEntity_m_vecPrevPos = CTFFlameEntity_m_vecInitialPos + VECTOR_SIZE,		// Vector m_vecPrevPos;
 	CTFFlameEntity_m_vecBaseVelocity = CTFFlameEntity_m_vecPrevPos + VECTOR_SIZE,			// Vector m_vecBaseVelocity;
 	CTFFlameEntity_m_vecAttackerVelocity = CTFFlameEntity_m_vecBaseVelocity + VECTOR_SIZE,	// Vector m_vecAttackerVelocity;
 	CTFFlameEntity_m_flTimeRemove = CTFFlameEntity_m_vecAttackerVelocity + VECTOR_SIZE,		// float m_flTimeRemove;
@@ -228,8 +228,8 @@ static Handle SDKCall_CTFWeaponBase_CalcIsAttackCritical;
 static Handle SDKCall_CTFWeaponBase_SendWeaponAnim;
 static Handle SDKCall_CTFPlayer_DoAnimationEvent;
 
-static any CTFFlameEntity_m_vecInitialPos;
-static any CTFWeaponBase_m_iWeaponMode;
+static any offset_CTFFlameEntity_m_vecInitialPos;
+static any offset_CTFWeaponBase_m_iWeaponMode;
 
 static ConVar tf_fireball_burn_duration;
 static ConVar tf_flamethrower_velocity;
@@ -345,8 +345,8 @@ public void OnPluginStart()
 	DHooks_CTFPlayerShared_Burn.Enable(Hook_Pre, DHookCallback_Burn_Pre);
 	DHooks_CTFPlayerShared_Burn.Enable(Hook_Post, DHookCallback_Burn);
 
-	CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
-	CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_flEffectBarRegenTime") - 8;
+	offset_CTFFlameEntity_m_vecInitialPos = config.GetOffset("CTFFlameEntity::m_vecInitialPos");
+	offset_CTFWeaponBase_m_iWeaponMode = FindSendPropInfo("CTFWeaponBase", "m_iReloadMode") - 4;
 
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier = float(config.GetOffset("CTFFlameEntity::OnCollide_Falloff2_Multiplier"));
 
@@ -590,7 +590,7 @@ static int CreateFlameEntity(
 	SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
 	DispatchSpawn(entity);
 
-	any pEntity_offset = GetEntityAddress(entity) + CTFFlameEntity_m_vecInitialPos;
+	any pEntity_offset = GetEntityAddress(entity) + offset_CTFFlameEntity_m_vecInitialPos;
 	if (
 		HasEntProp(owner, Prop_Send, "m_hOwnerEntity") &&
 		GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1
@@ -791,9 +791,6 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 
 	if (sm_oldflames_flames.BoolValue)
 	{
-		// Get the pointer for this CTFFlameThrower entity.
-		Address pEntity = GetEntityAddress(entity);
-
 		// Get the owner of this weapon.
 		int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
 		if (pOwner == -1)
@@ -811,7 +808,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 			SetWeaponState(entity, FT_STATE_IDLE);
 			return MRES_Ignored;
 		}
-		WriteToValue(pEntity + CTFWeaponBase_m_iWeaponMode, TF_WEAPON_PRIMARY_MODE);
+		SetEntData(entity, offset_CTFWeaponBase_m_iWeaponMode, TF_WEAPON_PRIMARY_MODE);
 
 		SDKCall(SDKCall_CTFWeaponBase_CalcIsAttackCritical, entity);
 
