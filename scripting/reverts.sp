@@ -785,15 +785,15 @@ public void OnPluginStart() {
 	ItemDefine("persuader", "Persuader_PreTB", CLASSFLAG_DEMOMAN, Wep_Persian);
 	ItemVariant(Wep_Persian, "Persuader_PreMnvy");
 	ItemDefine("phlog", "Phlog_Pyro", CLASSFLAG_PYRO, Wep_Phlogistinator);
-	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
-	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
 	ItemVariant(Wep_Phlogistinator, "Phlog_Pre2016");
+	ItemVariant(Wep_Phlogistinator, "Phlog_March2012");
+	ItemVariant(Wep_Phlogistinator, "Phlog_Release");
 	ItemDefine("pomson", "Pomson_PreGM", CLASSFLAG_ENGINEER, Wep_Pomson);
 	ItemVariant(Wep_Pomson, "Pomson_Release");
 	ItemVariant(Wep_Pomson, "Pomson_PreMYM");
 	ItemDefine("powerjack", "Powerjack_PreGM", CLASSFLAG_PYRO, Wep_Powerjack);
-	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemVariant(Wep_Powerjack, "Powerjack_Pre2013");
+	ItemVariant(Wep_Powerjack, "Powerjack_Release");
 	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 	ItemVariant(Wep_PocketPistol, "Pocket_PreJI");
@@ -805,9 +805,9 @@ public void OnPluginStart() {
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("redtape", "RedTape_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTape);
-	ItemDefine("rescueranger", "RescueRanger_PreGM", CLASSFLAG_ENGINEER, Wep_RescueRanger);
-	ItemVariant(Wep_RescueRanger, "RescueRanger_PreJI");
+	ItemDefine("rescueranger", "RescueRanger_PreJI", CLASSFLAG_ENGINEER, Wep_RescueRanger);
 	ItemVariant(Wep_RescueRanger, "RescueRanger_PreTB");
+	ItemVariant(Wep_RescueRanger, "RescueRanger_PreGM");
 	ItemDefine("reserve", "Reserve_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_PYRO, Wep_ReserveShooter);
 	ItemVariant(Wep_ReserveShooter, "Reserve_PreJI");
 	ItemVariant(Wep_ReserveShooter, "Reserve_Release");
@@ -818,8 +818,8 @@ public void OnPluginStart() {
 	ItemVariant(Wep_Sandman, "Sandman_PreApr2010");
 	ItemVariant(Wep_Sandman, "Sandman_PreWAR");
 	ItemVariant(Wep_Sandman, "Sandman_PreClassless");
-	ItemDefine("sandvich", "Sandvich_PreEngineer", CLASSFLAG_HEAVY, Wep_Sandvich);
-	ItemVariant(Wep_Sandvich, "Sandvich_Pre2012");
+	ItemDefine("sandvich", "Sandvich_Pre2012", CLASSFLAG_HEAVY, Wep_Sandvich);
+	ItemVariant(Wep_Sandvich, "Sandvich_PreEngineer");
 	ItemDefine("scottish", "Scottish_Release", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Scottish);
 	ItemDefine("circuit", "Circuit_PreMYM", CLASSFLAG_ENGINEER, Wep_ShortCircuit);
 	ItemVariant(Wep_ShortCircuit, "Circuit_PreGM");
@@ -2368,7 +2368,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 			}
 
 			if (
-				GetItemVariant(Wep_Phlogistinator) < 3 &&
+				GetItemVariant(Wep_Phlogistinator) != 1 &&
 				TF2_IsPlayerInCondition(client, TFCond_CritMmmph) &&
 				players[client].mmmph_use_tick == GetGameTickCount() &&
 				FloatAbs(2.6 - time) < 0.01
@@ -2825,7 +2825,7 @@ public void ApplyRevertsToItem(int entity) {
 			case 0, 2: {
 				TF2Attrib_SetByDefIndex(entity, 1, 0.90); // -10% damage penalty
 			}
-			case 1: {
+			case 3: {
 				TF2Attrib_SetByDefIndex(entity, 357, 1.30); // +30% buff duration (hidden)
 			}
 			// full health on taunt, MMMPH meter reduction, and defense buff handled elsewhere
@@ -2867,18 +2867,20 @@ public void ApplyRevertsToItem(int entity) {
 			if (ItemIsEnabled(Wep_Powerjack)) {
 				TF2Attrib_SetByDefIndex(entity, 180, 75.0); // +75 health restored on kill
 			}
+			// common for pre-2013
+			if (GetItemVariant(Wep_Powerjack) >= 1) {
+				TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
+				TF2Attrib_SetByDefIndex(entity, 128, 0.0); // When weapon is active:
+				TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
+			}
 			// specific
 			switch (GetItemVariant(Wep_Powerjack)) {
-				case 1: { // Release Powerjack (2010)
+				case 1: {
+					TF2Attrib_SetByDefIndex(entity, 206, 1.2); // +20% damage from melee sources while active
+				}
+				case 2: {
 					TF2Attrib_SetByDefIndex(entity, 2, 1.25); // +25% damage bonus
 					TF2Attrib_SetByDefIndex(entity, 15, 0.0); // No random critical hits
-					TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
-					TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
-				}
-				case 2: { // Pre-Summer 2013 Powerjack
-					TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
-					TF2Attrib_SetByDefIndex(entity, 206, 1.2); // +20% damage from melee sources while active
-					TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
 				}
 			}
 			// Overheal on kill handled elsewhere
@@ -2915,11 +2917,11 @@ public void ApplyRevertsToItem(int entity) {
 			}
 			// specific
 			switch (GetItemVariant(Wep_RescueRanger)) {
-				case 0: {
-					TF2Attrib_SetByDefIndex(entity, 469, 130.0); // ranged pickup metal cost
+				case 1: {
 					TF2Attrib_SetByDefIndex(entity, 474, 75.0); // repair bolt healing amount
 				}
 				case 2: {
+					TF2Attrib_SetByDefIndex(entity, 469, 130.0); // ranged pickup metal cost
 					TF2Attrib_SetByDefIndex(entity, 474, 75.0); // repair bolt healing amount
 				}
 			}
@@ -2968,7 +2970,7 @@ public void ApplyRevertsToItem(int entity) {
 				TF2Attrib_SetByDefIndex(entity, 125, 0.0); // -0 max health on wearer
 			}
 		}}
-		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 0) {
+		case 42, 863, 1002: { if (GetItemVariant(Wep_Sandvich) == 1) {
 			TF2Attrib_SetByDefIndex(entity, 801, 0.0); // item_meter_charge_rate: 0
 			TF2Attrib_SetByDefIndex(entity, 856, 0.0); // item_meter_charge_type: ATTRIBUTE_METER_TYPE_NONE
 		}}
@@ -4701,7 +4703,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 
 			// 90% damage resistance for pre-Pyromania Phlog
 			if (
-				GetItemVariant(Wep_Phlogistinator) >= 1 &&
+				GetItemVariant(Wep_Phlogistinator) >= 2 &&
 				TF2_IsPlayerInCondition(victim, TFCond_DefenseBuffMmmph) &&
 				damage_custom != TF_CUSTOM_BACKSTAB
 			) {
@@ -5925,7 +5927,7 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
 	if (
-		GetItemVariant(Wep_Sandvich) == 0 &&
+		GetItemVariant(Wep_Sandvich) == 1 &&
 		player_weapons[owner][Wep_Sandvich]
 	) {
 		return MRES_Supercede;
