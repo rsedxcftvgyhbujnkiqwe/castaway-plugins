@@ -64,11 +64,11 @@
 // GLOBALS                                                                  //
 //////////////////////////////////////////////////////////////////////////////
 
-// CTFFlameEntity offsets. Should be used with CTFFlameEntity_Base.
+// CTFFlameEntity offsets. Should be used with offset_CTFFlameEntity_m_vecInitialPos.
 enum
 {
-	CTFFlameEntity_m_vecInitialPos = 0,												// Vector m_vecInitialPos;
-	CTFFlameEntity_m_vecPrevPos = CTFFlameEntity_m_vecInitialPos + VECTOR_SIZE,		// Vector m_vecPrevPos;
+	CTFFlameEntity_m_vecInitialPos = 0,														// Vector m_vecInitialPos;
+	CTFFlameEntity_m_vecPrevPos = CTFFlameEntity_m_vecInitialPos + VECTOR_SIZE,				// Vector m_vecPrevPos;
 	CTFFlameEntity_m_vecBaseVelocity = CTFFlameEntity_m_vecPrevPos + VECTOR_SIZE,			// Vector m_vecBaseVelocity;
 	CTFFlameEntity_m_vecAttackerVelocity = CTFFlameEntity_m_vecBaseVelocity + VECTOR_SIZE,	// Vector m_vecAttackerVelocity;
 	CTFFlameEntity_m_flTimeRemove = CTFFlameEntity_m_vecAttackerVelocity + VECTOR_SIZE,		// float m_flTimeRemove;
@@ -590,17 +590,17 @@ static int CreateFlameEntity(
 	SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", owner);
 	DispatchSpawn(entity);
 
-	any pEntity_offset = GetEntityAddress(entity) + offset_CTFFlameEntity_m_vecInitialPos;
+	any offset_m_hAttacker = offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_hAttacker;
 	if (
 		HasEntProp(owner, Prop_Send, "m_hOwnerEntity") &&
 		GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity") != -1
 	) {
 		// pFlame->m_hAttacker = pOwner->GetOwnerEntity();
-		StoreEntityHandleToAddress(pEntity_offset + CTFFlameEntity_m_hAttacker, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"));
+		SetEntDataEnt2(entity, offset_m_hAttacker, GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"));
 	}
 	else {
 		// pFlame->m_hAttacker = pOwner;
-		StoreEntityHandleToAddress(pEntity_offset + CTFFlameEntity_m_hAttacker, owner);
+		SetEntDataEnt2(entity, offset_m_hAttacker, owner);
 	}
 
 	// this is not apparent anymore?
@@ -614,9 +614,9 @@ static int CreateFlameEntity(
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum"));
 
 	// pFlame->m_iDmgType = iDmgType;
-	WriteToValue(pEntity_offset + CTFFlameEntity_m_iDmgType, damage_type);
+	SetEntData(entity, offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_iDmgType, damage_type);
 	// pFlame->m_flDmgAmount = flDmgAmount;
-	WriteToValue(pEntity_offset + CTFFlameEntity_m_flDmgAmount, damage);
+	SetEntDataFloat(entity, offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_flDmgAmount, damage);
 
 	// Setup the initial velocity.
 	float m_vecBaseVelocity[3];
@@ -624,15 +624,23 @@ static int CreateFlameEntity(
 	float vecUp[3];
 	GetAngleVectors(angles, m_vecBaseVelocity, vecRight, vecUp);
 
+	int attacker = GetEntDataEnt2(entity, offset_m_hAttacker);
+
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, flFlameLifeMult, mult_flame_life );
-	float flFlameLifeMult = TF2Attrib_HookValueFloat(1.0, "mult_flame_life", LoadEntityHandleFromAddress(pEntity_offset + CTFFlameEntity_m_hAttacker));
+	float flFlameLifeMult = 1.0;
+	if (IsValidEntity(attacker)) {
+		flFlameLifeMult = TF2Attrib_HookValueFloat(flFlameLifeMult, "mult_flame_life", attacker);
+	}
 
 	float velocity = flFlameLifeMult * speed;
 	// pFlame->m_vecBaseVelocity = vecForward * velocity;
 	ScaleVector(m_vecBaseVelocity, velocity);
 
 	// CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pFlame->m_hAttacker, iFlameSizeMult, mult_flame_size );
-	float flFlameSizeMult = TF2Attrib_HookValueFloat(1.0, "mult_flame_size", LoadEntityHandleFromAddress(pEntity_offset + CTFFlameEntity_m_hAttacker));
+	float flFlameSizeMult = 1.0;
+	if (IsValidEntity(attacker)) {
+		flFlameSizeMult = TF2Attrib_HookValueFloat(flFlameSizeMult, "mult_flame_size", attacker);
+	}
 
 	// pFlame->m_vecBaseVelocity += RandomVector( -velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat(), velocity * iFlameSizeMult * tf_flamethrower_vecrand.GetFloat() );
 	if (randomize)
@@ -653,7 +661,7 @@ static int CreateFlameEntity(
 	) {
 		float vel[3];
 		GetEntPropVector(GetEntPropEnt(owner, Prop_Send, "m_hOwnerEntity"), Prop_Data, "m_vecAbsVelocity", vel);
-		WriteVector(pEntity_offset + CTFFlameEntity_m_vecAttackerVelocity, vel, false);
+		SetEntDataVector(entity, offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_vecAttackerVelocity, vel);
 	}
 
 	// pFlame->SetAbsVelocity( pFlame->m_vecBaseVelocity );
@@ -661,9 +669,9 @@ static int CreateFlameEntity(
 	TeleportEntity(entity, NULL_VECTOR, angles, m_vecBaseVelocity);
 
 	// pFlame->SetCritFromBehind( bAlwaysCritFromBehind );
-	WriteToValue(pEntity_offset + CTFFlameEntity_m_bCritFromBehind, crit_from_behind, false, NumberType_Int8);
+	SetEntData(entity, offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_bCritFromBehind, crit_from_behind, 1);
 
-	WriteVector(pEntity_offset + CTFFlameEntity_m_vecBaseVelocity, m_vecBaseVelocity, false);
+	SetEntDataVector(entity, offset_CTFFlameEntity_m_vecInitialPos + CTFFlameEntity_m_vecBaseVelocity, m_vecBaseVelocity);
 	return entity;
 }
 
@@ -792,15 +800,15 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 	if (sm_oldflames_flames.BoolValue)
 	{
 		// Get the owner of this weapon.
-		int pOwner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
-		if (pOwner == -1)
+		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
+		if (owner == -1)
 			return MRES_Ignored;
 
 		// Revert ammo to pre-call.
-		PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
+		PlayerData[owner].SetAmmoCount(PlayerData[owner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
 
 		// Check for if we're capable of firing.
-		if (PlayerData[pOwner].m_flNextPrimaryAttack > GetGameTime())
+		if (PlayerData[owner].m_flNextPrimaryAttack > GetGameTime())
 			return MRES_Ignored;
 
 		if (!SDKCall(SDKCall_CTFWeaponBase_CanAttack, entity))
@@ -837,32 +845,32 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 		{
 			case FT_STATE_IDLE:
 			{
-				SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRE, 0);
+				SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, owner, PLAYERANIMEVENT_ATTACK_PRE, 0);
 				SDKCall(SDKCall_CTFWeaponBase_SendWeaponAnim, entity, ACT_VM_PRIMARYATTACK);
-				PlayerData[pOwner].m_flStartFiringTime = GetGameTime() + 0.16;
+				PlayerData[owner].m_flStartFiringTime = GetGameTime() + 0.16;
 				SetWeaponState(entity, FT_STATE_STARTFIRING);
 			}
 			case FT_STATE_STARTFIRING:
 			{
-				if (GetGameTime() > PlayerData[pOwner].m_flStartFiringTime)
+				if (GetGameTime() > PlayerData[owner].m_flStartFiringTime)
 				{
 					SetWeaponState(entity, FT_STATE_FIRING);
-					PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime();
+					PlayerData[owner].m_flNextPrimaryAttackAnim = GetGameTime();
 				}
 			}
 			case FT_STATE_FIRING:
 			{
-				if (GetGameTime() >= PlayerData[pOwner].m_flNextPrimaryAttackAnim)
+				if (GetGameTime() >= PlayerData[owner].m_flNextPrimaryAttackAnim)
 				{
-					SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, pOwner, PLAYERANIMEVENT_ATTACK_PRIMARY, 0);
-					PlayerData[pOwner].m_flNextPrimaryAttackAnim = GetGameTime() + 1.40;
+					SDKCall(SDKCall_CTFPlayer_DoAnimationEvent, owner, PLAYERANIMEVENT_ATTACK_PRIMARY, 0);
+					PlayerData[owner].m_flNextPrimaryAttackAnim = GetGameTime() + 1.40;
 				}
 			}
 		}
 
 		// Check if we're not underwater, in that case, fire!
 		float flFiringInterval = 0.044;
-		if (GetEntProp(pOwner, Prop_Send, "m_nWaterLevel") != WL_Eyes)
+		if (GetEntProp(owner, Prop_Send, "m_nWaterLevel") != WL_Eyes)
 		{
 			int iDmgType = DMGTYPE;
 			if (GetEntProp(entity, Prop_Send, "m_bCritFire"))
@@ -878,7 +886,7 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 			float eyeangles[3];
 			float origin[3];
 			GetFlameOriginPos(entity, origin);
-			GetClientEyeAngles(pOwner, eyeangles);
+			GetClientEyeAngles(owner, eyeangles);
 
 			CreateFlameEntity(origin, eyeangles, entity, tf_flamethrower_velocity.FloatValue, iDmgType, flDamage, iCritFromBehind == 1);
 		}
@@ -886,21 +894,21 @@ MRESReturn DHookCallback_PrimaryAttack_Post(int entity)
 		// Figure how much ammo we're using.
 		float flAmmoPerSecond = TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK;
 		flAmmoPerSecond = TF2Attrib_HookValueFloat(flAmmoPerSecond, "mult_flame_ammopersec", entity);
-		PlayerData[pOwner].m_flAmmoUseRemainder += flAmmoPerSecond * flFiringInterval;
+		PlayerData[owner].m_flAmmoUseRemainder += flAmmoPerSecond * flFiringInterval;
 
-		int iAmmoToSubtract = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder); // basically (int)m_flAmmoUseRemainder.
+		int iAmmoToSubtract = RoundToFloor(PlayerData[owner].m_flAmmoUseRemainder); // basically (int)m_flAmmoUseRemainder.
 		if (iAmmoToSubtract > 0)
 		{
-			PlayerData[pOwner].m_iFlamethrowerAmmo -= iAmmoToSubtract;
-			PlayerData[pOwner].m_flAmmoUseRemainder -= iAmmoToSubtract;
+			PlayerData[owner].m_iFlamethrowerAmmo -= iAmmoToSubtract;
+			PlayerData[owner].m_flAmmoUseRemainder -= iAmmoToSubtract;
 
 			// round to 2 digits of precision
-			PlayerData[pOwner].m_flAmmoUseRemainder = RoundToFloor(PlayerData[pOwner].m_flAmmoUseRemainder * 100) / 100.00;
+			PlayerData[owner].m_flAmmoUseRemainder = RoundToFloor(PlayerData[owner].m_flAmmoUseRemainder * 100) / 100.00;
 		}
 
 		// Finish this detour.
-		PlayerData[pOwner].m_flNextPrimaryAttack = GetGameTime() + flFiringInterval;
-		PlayerData[pOwner].SetAmmoCount(PlayerData[pOwner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
+		PlayerData[owner].m_flNextPrimaryAttack = GetGameTime() + flFiringInterval;
+		PlayerData[owner].SetAmmoCount(PlayerData[owner].m_iFlamethrowerAmmo, view_as<int>(TF_AMMO_PRIMARY));
 	}
 	return MRES_Ignored;
 }
