@@ -603,12 +603,6 @@ static int CreateFlameEntity(
 		SetEntDataEnt2(entity, offset_m_hAttacker, owner);
 	}
 
-	// this is not apparent anymore?
-	// 2024.04.28: pre-smtc removal code, this is old however so i'm leaving it as a relic :)
-	// pFlame->m_iAttackerTeam = pAttacker->GetTeamNumber();
-	//if (flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER) != -1)
-	//    flamePointer.Write(GetEntProp(flamePointer.DereferenceEHandle(CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_HATTACKER), Prop_Send, "m_iTeamNum"), CTFFlameEntity_Base + CTFFLAMEENTITY_OFFSET_M_IATTACKERTEAM);
-
 	// Set team.
 	// pFlame->ChangeTeam( pOwner->GetTeamNumber() );
 	SetEntProp(entity, Prop_Send, "m_iTeamNum", GetEntProp(owner, Prop_Send, "m_iTeamNum"));
@@ -739,7 +733,7 @@ static void SetupPlayerHooks(int client)
 
 // pre-call CTFPlayer::OnTakeDamage(), using SDKHooks.
 // Handle the healing debuff on flame ignite, and re-write afterburn damage
-// if sm_oldflames_flamethrower_oldafterburn_damage is on.
+// if sm_oldflames_oldafterburn_damage is on.
 Action SDKHookCB_OnTakeDamage(
 	int victim, int& attacker, int& inflictor, float& damage, int& damage_type,
 	int& weapon, float damage_force[3], float damage_position[3], int damage_custom
@@ -968,7 +962,7 @@ MRESReturn DHookCallback_Burn_Pre(Address pThis)
 }
 
 // post-call CTFPlayerShared::Burn();
-// Adjust afterburn duration, if sm_oldflames_flamethrower_oldafterburn_duration is on.
+// Adjust afterburn duration, if sm_oldflames_oldafterburn_duration is on.
 MRESReturn DHookCallback_Burn(Address pThis, DHookParam parameters)
 {
 	if (!sm_oldflames_enable.BoolValue)
