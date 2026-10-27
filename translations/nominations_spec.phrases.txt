@@ -4,4 +4,8 @@
     {
         "en"    "Spectators are not allowed to nominate maps."
     }
+    "Use Legacy Menu"
+    {
+        "en"    "Use legacy nominations menu"
+    }
 }

@@ -36,6 +36,7 @@
 #include <sourcemod>
 #include <mapchooser_ext>
 #include <topmenus>
+#include <clientprefs>
 
 #undef REQUIRE_PLUGIN
 #include <nativevotes>
@@ -60,6 +61,7 @@ ConVar g_Cvar_ExcludeCurrent;
 ConVar g_Cvar_MaxMatches;
 ConVar g_Cvar_IgnoreSpec;
 
+Menu g_LegacyMapMenu = null;
 TopMenu g_MapMenu = null;
 ArrayList g_MapList = null;
 
@@ -70,6 +72,8 @@ ArrayList g_MapList = null;
 #define MAPSTATUS_EXCLUDE_NOMINATED (1<<4)
 
 StringMap g_mapTrie = null;
+
+Cookie g_UseLegacyMapMenu;
 
 // NativeVotes
 bool g_NativeVotes;
@@ -100,6 +104,9 @@ public void OnPluginStart()
 
 	RegAdminCmd("sm_nominate_addmap", Command_Addmap, ADMFLAG_CHANGEMAP, "sm_nominate_addmap <mapname> - Forces a map to be on the next mapvote.");
 	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_RCON, "Reload the nomination map cycle in-place");
+
+	g_UseLegacyMapMenu = new Cookie("Legacy nominations menu", "Use legacy nominations menu", CookieAccess_Protected);
+	g_UseLegacyMapMenu.SetPrefabMenu(CookieMenu_YesNo_Int, "Use legacy nominations menu", CookieMenuHandler_LegacyMenu);
 
 	g_mapTrie = new StringMap();
 
@@ -469,17 +476,28 @@ void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
 
 void OpenNominationMenu(int client)
 {
-	g_MapMenu.Display(client, TopMenuPosition_Start);
+	if (!g_UseLegacyMapMenu.GetInt(client, 0))
+	{
+		g_MapMenu.Display(client, TopMenuPosition_Start);
+	}
+	else
+	{
+		g_LegacyMapMenu.Display(client, MENU_TIME_FOREVER);
+	}
 }
 
 void BuildMapMenu()
 {
 	delete g_MapMenu;
+	delete g_LegacyMapMenu;
 
 	g_MapList.Clear();
 	g_mapTrie.Clear();
 
 	g_MapMenu = new TopMenu(MenuHandler_MainMenu);
+	g_LegacyMapMenu = new Menu(MenuHandler_MapSelect, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem|MenuAction_Display);
+
+	g_LegacyMapMenu.SetTitle("Nominate Title");
 
 	char map[PLATFORM_MAX_PATH];
 
@@ -527,6 +545,9 @@ void BuildMapMenu()
 
 		FindMap(map, map, sizeof(map));
 
+		char displayName[PLATFORM_MAX_PATH];
+		GetMapDisplayName(map, displayName, sizeof(displayName));
+
 		if (g_Cvar_ExcludeCurrent.BoolValue)
 		{
 			if (StrEqual(map, currentMap, false))
@@ -544,8 +565,11 @@ void BuildMapMenu()
 			}
 		}
 
+		g_LegacyMapMenu.AddItem(map, displayName);
 		g_mapTrie.SetValue(map, status);
 	}
+
+	g_LegacyMapMenu.ExitButton = true;
 
 	delete excludeMaps;
 }
@@ -579,6 +603,17 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 			}
 
 			return ITEMDRAW_DEFAULT;
+		}
+		case MenuAction_Display:
+		{
+			if (menu == g_LegacyMapMenu)
+			{
+				char buffer[256];
+				Format(buffer, sizeof(buffer), "%T", "Nominate Title", param1);
+
+				Panel panel = view_as<Panel>(param2);
+				panel.SetTitle(buffer);
+			}
 		}
 		case MenuAction_DisplayItem:
 		{
@@ -619,7 +654,12 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 		}
 		case MenuAction_End:
 		{
-			delete menu;
+			// This check allows the plugin to use the same callback
+			// for the main menu and the match menu.
+			if (menu != g_LegacyMapMenu)
+			{
+				delete menu;
+			}
 		}
 	}
 	return 0;
@@ -663,7 +703,6 @@ public void MenuHandler_MapSelectMainMenu(TopMenu topmenu, TopMenuAction action,
 
 			if ((status & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
 			{
-				LogMessage("%s disabled", map);
 				buffer[0] = ITEMDRAW_DISABLED;
 			}
 		}
@@ -783,7 +822,7 @@ public Action Menu_Nominate(int client, NativeVotesOverride overrideType, const 
 
 public Action NativeVotes_OverrideMaps(StringMap mapList)
 {
-	if (g_MapMenu == null)
+	if (g_MapMenu == null || g_LegacyMapMenu == null)
 	{
 		BuildMapMenu();
 	}
@@ -828,4 +867,12 @@ public Action NativeVotes_OverrideMaps(StringMap mapList)
 	}
 
 	return Plugin_Continue;
+}
+
+public void CookieMenuHandler_LegacyMenu(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
+{
+    if (action == CookieMenuAction_DisplayOption)
+	{
+        Format(buffer, maxlen, "%T", "Use Legacy Menu", client);
+    }
 }

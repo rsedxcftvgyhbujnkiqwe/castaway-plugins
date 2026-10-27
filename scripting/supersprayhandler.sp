@@ -293,7 +293,7 @@ void ClearHud(int client, int hudType, float gameTime)
 
 public void OnTraceCookieMenu(int client, CookieMenuAction action, any info, char[] buffer, int maxlen) {
     if (action == CookieMenuAction_DisplayOption) {
-        Format(buffer, maxlen, "%t", "Spray Trace Toggle", client);
+        Format(buffer, maxlen, "%T", "Spray Trace Toggle", client);
     }
 }
 
