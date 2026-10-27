@@ -530,7 +530,10 @@ void BuildMapMenu()
 			char currMap[PLATFORM_MAX_PATH];
 			maps.GetString(k, currMap, sizeof(currMap));
 			g_MapMenu.AddItem(currMap, MenuHandler_MapSelectMainMenu, currCategory, _, _, currMap);
-			g_MapList.PushString(currMap);
+			if (g_MapList.FindString(currMap) == -1)
+			{
+				g_MapList.PushString(currMap);
+			}
 		}
 		delete maps;
 	}
