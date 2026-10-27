@@ -527,9 +527,11 @@ void BuildMapMenu()
 		GetMapsInCategory(category, maps);
 		for (int k = 0; k < maps.Length; k++)
 		{
-			char currMap[PLATFORM_MAX_PATH];
+			char currMap[PLATFORM_MAX_PATH], random[7], uniqueMap[PLATFORM_MAX_PATH];
 			maps.GetString(k, currMap, sizeof(currMap));
-			g_MapMenu.AddItem(currMap, MenuHandler_MapSelectMainMenu, currCategory, _, _, currMap);
+			GetRandomID(random, sizeof(random));
+			FormatEx(uniqueMap, sizeof(uniqueMap), "%s_%s", currMap, random);
+			g_MapMenu.AddItem(uniqueMap, MenuHandler_MapSelectMainMenu, currCategory, _, _, currMap);
 			if (g_MapList.FindString(currMap) == -1)
 			{
 				g_MapList.PushString(currMap);
@@ -878,4 +880,14 @@ public void CookieMenuHandler_LegacyMenu(int client, CookieMenuAction action, an
 	{
         Format(buffer, maxlen, "%T", "Use Legacy Menu", client);
     }
+}
+
+void GetRandomID(char[] buffer, int maxlength)
+{
+	for (int i = 0; i < 6; i++)
+	{
+		char num[2];
+		IntToString(GetRandomInt(0, 9), num, sizeof(num));
+		StrCat(buffer, maxlength, num);
+	}
 }
