@@ -35,6 +35,7 @@
 
 #include <sourcemod>
 #include <mapchooser>
+#include <topmenus>
 
 #undef REQUIRE_PLUGIN
 #include <nativevotes>
@@ -59,9 +60,8 @@ ConVar g_Cvar_ExcludeCurrent;
 ConVar g_Cvar_MaxMatches;
 ConVar g_Cvar_IgnoreSpec;
 
-Menu g_MapMenu = null;
+TopMenu g_MapMenu = null;
 ArrayList g_MapList = null;
-int g_mapFileSerial = -1;
 
 #define MAPSTATUS_ENABLED (1<<0)
 #define MAPSTATUS_DISABLED (1<<1)
@@ -157,22 +157,8 @@ public void OnLibraryRemoved(const char[] name)
 	}
 }
 
-public void OnConfigsExecuted()
+public void OnMapVoteConfigExecuted()
 {
-	// force reset every time to force a map list reload always
-	g_mapFileSerial = -1;
-	if (ReadMapList(g_MapList,
-					g_mapFileSerial,
-					"nominations",
-					MAPLIST_FLAG_CLEARARRAY|MAPLIST_FLAG_MAPSFOLDER)
-		== null)
-	{
-		if (g_mapFileSerial == -1)
-		{
-			SetFailState("Unable to create a valid map list.");
-		}
-	}
-
 	BuildMapMenu();	
 }
 
@@ -249,7 +235,7 @@ public Action Command_Addmap(int client, int args)
 
 Action Cmd_ReloadNominations(int client, int args)
 {
-    OnConfigsExecuted();
+    BuildMapMenu();
     return Plugin_Handled;
 }
 
@@ -483,17 +469,17 @@ void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
 
 void OpenNominationMenu(int client)
 {
-	g_MapMenu.SetTitle("%T", "Nominate Title", client);
-	g_MapMenu.Display(client, MENU_TIME_FOREVER);
+	g_MapMenu.Display(client, TopMenuPosition_Start);
 }
 
 void BuildMapMenu()
 {
 	delete g_MapMenu;
 
+	g_MapList.Clear();
 	g_mapTrie.Clear();
 	
-	g_MapMenu = new Menu(MenuHandler_MapSelect, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem);
+	g_MapMenu = new TopMenu(MenuHandler_MainMenu);
 
 	char map[PLATFORM_MAX_PATH];
 	
@@ -510,6 +496,28 @@ void BuildMapMenu()
 	{
 		GetCurrentMap(currentMap, sizeof(currentMap));
 	}
+
+	ArrayList categories = new ArrayList(ByteCountToCells(256));
+	GetMapCategories(categories);
+
+	for (int i = 0; i < categories.Length; i++)
+	{
+		char category[256];
+		categories.GetString(i, category, sizeof(category));
+		TopMenuObject currCategory = g_MapMenu.AddCategory(category, MenuHandler_Category, _, _, category);
+		ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+		GetMapsInCategory(category, maps);
+		for (int k = 0; k < maps.Length; k++)
+		{
+			char currMap[PLATFORM_MAX_PATH];
+			maps.GetString(k, currMap, sizeof(currMap));
+			g_MapMenu.AddItem(currMap, MenuHandler_MapSelectMainMenu, currCategory, _, _, currMap);
+			g_MapList.PushString(currMap);
+		}
+		delete maps;
+	}
+
+	delete categories;
 	
 	for (int i = 0; i < g_MapList.Length; i++)
 	{
@@ -519,12 +527,9 @@ void BuildMapMenu()
 		
 		FindMap(map, map, sizeof(map));
 		
-		char displayName[PLATFORM_MAX_PATH];
-		GetMapDisplayName(map, displayName, sizeof(displayName));
-
 		if (g_Cvar_ExcludeCurrent.BoolValue)
 		{
-			if (StrEqual(map, currentMap))
+			if (StrEqual(map, currentMap, false))
 			{
 				status = MAPSTATUS_DISABLED|MAPSTATUS_EXCLUDE_CURRENT;
 			}
@@ -539,11 +544,8 @@ void BuildMapMenu()
 			}
 		}
 		
-		g_MapMenu.AddItem(map, displayName);
 		g_mapTrie.SetValue(map, status);
 	}
-
-	g_MapMenu.ExitButton = true;
 
 	delete excludeMaps;
 }
@@ -617,16 +619,103 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 		}
 		case MenuAction_End:
 		{
-			// This check allows the plugin to use the same callback
-			// for the main menu and the match menu.
-			if (menu != g_MapMenu)
-			{
-				delete menu;
-			}
-			
+			delete menu;
 		}
 	}
 	return 0;
+}
+
+public void MenuHandler_MainMenu(TopMenu topmenu, TopMenuAction action, TopMenuObject topobj_id, int param, char[] buffer, int maxlength)
+{
+	// switch (action)
+	// {
+	// 	case TopMenuAction_DisplayTitle:
+	// 	{
+	// 		Format(buffer, maxlength, "%T", "Nominate Title", param);
+	// 	}
+	// }
+	if (action == TopMenuAction_DisplayTitle)
+	{
+		Format(buffer, maxlength, "%T", "Nominate Title", param);
+	}
+}
+
+public void MenuHandler_Category(TopMenu topmenu, TopMenuAction action, TopMenuObject topobj_id, int param, char[] buffer, int maxlength)
+{
+	if (action == TopMenuAction_DisplayTitle || action == TopMenuAction_DisplayOption)
+	{
+		char category[PLATFORM_MAX_PATH];
+		topmenu.GetInfoString(topobj_id, category, sizeof(category));
+		strcopy(buffer, maxlength, category);
+	}
+}
+
+public void MenuHandler_MapSelectMainMenu(TopMenu topmenu, TopMenuAction action, TopMenuObject topobj_id, int param, char[] buffer, int maxlength)
+{
+	switch (action)
+	{
+		case TopMenuAction_DrawOption:
+		{
+			char map[PLATFORM_MAX_PATH];
+			topmenu.GetInfoString(topobj_id, map, sizeof(map));
+
+			int status;
+			if (!g_mapTrie.GetValue(map, status))
+			{
+				LogError("Menu selection of item not in trie. Major logic problem somewhere.");
+				buffer[0] = ITEMDRAW_DEFAULT;
+			}
+			
+			buffer[0] = ITEMDRAW_DEFAULT;
+
+			if ((status & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
+			{
+				LogMessage("%s disabled", map);
+				buffer[0] = ITEMDRAW_DISABLED;	
+			}
+		}
+		case TopMenuAction_DisplayOption:
+		{
+			char map[PLATFORM_MAX_PATH];
+			topmenu.GetInfoString(topobj_id, map, sizeof(map));
+
+			int status;
+			
+			if (!g_mapTrie.GetValue(map, status))
+			{
+				LogError("Menu selection of item not in trie. Major logic problem somewhere.");
+				return;
+			}
+
+			char displayName[PLATFORM_MAX_PATH];
+			GetMapDisplayName(map, displayName, sizeof(displayName));
+			strcopy(buffer, maxlength, displayName);
+			
+			if ((status & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
+			{
+				if ((status & MAPSTATUS_EXCLUDE_CURRENT) == MAPSTATUS_EXCLUDE_CURRENT)
+				{
+					Format(buffer, maxlength, "%s (%T)", displayName, "Current Map", param);
+				}
+
+				if ((status & MAPSTATUS_EXCLUDE_PREVIOUS) == MAPSTATUS_EXCLUDE_PREVIOUS)
+				{
+					Format(buffer, maxlength, "%s (%T)", displayName, "Recently Played", param);
+				}
+
+				if ((status & MAPSTATUS_EXCLUDE_NOMINATED) == MAPSTATUS_EXCLUDE_NOMINATED)
+				{
+					Format(buffer, maxlength, "%s (%T)", displayName, "Nominated", param);
+				}
+			}
+		}
+		case TopMenuAction_SelectOption:
+		{
+			char map[PLATFORM_MAX_PATH];
+			topmenu.GetInfoString(topobj_id, map, sizeof(map));
+			AttemptNominate(param, map, sizeof(map), false);
+		}
+	}
 }
 
 void RegisterVoteHandler()
