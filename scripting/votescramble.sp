@@ -105,9 +105,12 @@ public void OnPluginStart()
 	}
 	StartPrepSDKCall(SDKCall_GameRules);
 	if (!PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CTeamplayRoundBasedRules::ResetTeamsRoundWinTracking")) {
-		SetFailState("Cannot loaad CTeamplayRoundBasedRules::ResetTeamsRoundWinTracking signature");
+		SetFailState("Cannot find CTeamplayRoundBasedRules::ResetTeamsRoundWinTracking signature");
 	}
 	resetTeamsRoundWinCall = EndPrepSDKCall();
+	if (resetTeamsRoundWinCall == INVALID_HANDLE) {
+		LogError("Failed to create CTeamplayRoundBasedRules::ResetTeamsRoundWinTracking SDKCall.");
+	}
 
 	AutoExecConfig(true);
 }
@@ -542,7 +545,9 @@ void ScheduleScramble(bool roundStart=false)
 void ImmediateScramble() {
 	g_bScrambleTeamsInProgress = true;
 	ScrambleTeams();
-	SDKCall(resetTeamsRoundWinCall);
+	if (resetTeamsRoundWinCall != INVALID_HANDLE) {
+		SDKCall(resetTeamsRoundWinCall);
+	}
 	g_bScrambleTeamsInProgress = false;
 }
 
