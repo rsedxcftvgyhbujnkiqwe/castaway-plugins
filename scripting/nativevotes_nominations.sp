@@ -34,7 +34,7 @@
  */
 
 #include <sourcemod>
-#include <mapchooser>
+#include <mapchooser_ext>
 #include <topmenus>
 
 #undef REQUIRE_PLUGIN

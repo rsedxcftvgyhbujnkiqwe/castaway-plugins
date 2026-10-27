@@ -44,7 +44,7 @@ scripting/include/*
 !scripting/include/scramble.inc
 !scripting/include/afkmanager.inc
 !scripting/include/nativevotes_utils.inc
-!scripting/include/mapchooser.inc
+!scripting/include/mapchooser_ext.inc
 !scripting/include/json.inc
 
 !gamedata/
