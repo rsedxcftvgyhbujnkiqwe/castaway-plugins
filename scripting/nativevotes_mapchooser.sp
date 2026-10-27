@@ -1678,7 +1678,7 @@ void ReadMapcycle()
 	g_Cvar_MapcyclePath.GetString(mapCycleCvar, sizeof(mapCycleCvar));
 	BuildPath(Path_SM, mapCyclePath, sizeof(mapCyclePath), mapCycleCvar);
 
-	char jsonError[256];
+	char jsonError[4096];
 	JSONObject fileContent = JSONObject.FromFile(mapCyclePath, JSON_READ_ALLOW_COMMENTS | JSON_READ_ALLOW_BOM,
 		jsonError, sizeof(jsonError));
 	if (fileContent == null)
