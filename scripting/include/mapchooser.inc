@@ -151,6 +151,11 @@ native void GetMapCategories(ArrayList categories);
  */
 native bool GetMapsInCategory(const char[] category, ArrayList maps);
 
+/**
+ * Called when mapchooser config has executed.
+ */
+forward void OnMapVoteConfigExecuted();
+
 /* DO NOT EDIT BELOW THIS LINE */
 
 public SharedPlugin __pl_mapchooser =

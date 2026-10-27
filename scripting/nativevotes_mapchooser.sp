@@ -112,8 +112,9 @@ bool g_HasFileBeenRead;
 
 MapChange g_ChangeTime;
 
-Handle g_NominationsResetForward = null;
-Handle g_MapVoteStartedForward = null;
+GlobalForward g_NominationsResetForward = null;
+GlobalForward g_MapVoteStartedForward = null;
+GlobalForward g_MapConfigExecutedForward = null;
 
 /* Upper bound of how many team there could be */
 #define MAXTEAMS 10
@@ -205,8 +206,9 @@ public void OnPluginStart()
 		g_Cvar_Bonusroundtime.SetBounds(ConVarBound_Upper, true, 30.0);		
 	}
 	
-	g_NominationsResetForward = CreateGlobalForward("OnNominationRemoved", ET_Ignore, Param_String, Param_Cell);
-	g_MapVoteStartedForward = CreateGlobalForward("OnMapVoteStarted", ET_Ignore);
+	g_NominationsResetForward = new GlobalForward("OnNominationRemoved", ET_Ignore, Param_String, Param_Cell);
+	g_MapVoteStartedForward = new GlobalForward("OnMapVoteStarted", ET_Ignore);
+	g_MapConfigExecutedForward = new GlobalForward("OnMapVoteConfigExecuted", ET_Ignore);
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -307,6 +309,9 @@ public void OnConfigsExecuted()
 			LogMessage("Warning - Bonus Round Time shorter than Vote Time. Votes during bonus round may not have time to complete");
 		}
 	}
+
+	Call_StartForward(g_MapConfigExecutedForward);
+	Call_Finish();
 }
 
 public void OnMapEnd()
