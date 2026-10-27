@@ -1672,22 +1672,6 @@ public int Native_GetMapsInCategory(Handle plugin, int numParams)
 	return view_as<int>(true);
 }
 
-// Mapcycle format:
-// {
-//     "Category 1": {
-//         "enabled": true,
-//         "maps": [
-//             "map1",
-//             "map2"
-//         ]
-//     },
-//     "Category 2": {
-//         "enabled": false,
-//         "maps": [
-//             "map3"
-//         ]
-//     }
-// }
 void ReadMapcycle()
 {
 	char mapCycleCvar[PLATFORM_MAX_PATH], mapCyclePath[PLATFORM_MAX_PATH];
