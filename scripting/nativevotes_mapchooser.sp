@@ -38,6 +38,8 @@
 #include <mapchooser>
 #include <nextmap>
 
+#include <json>
+
 #undef REQUIRE_PLUGIN
 #include <nativevotes>
 #include <nativevotes_utils>
@@ -64,6 +66,7 @@ ConVar g_Cvar_Fraglimit;
 ConVar g_Cvar_Bonusroundtime;
 
 /* Plugin ConVars */
+ConVar g_Cvar_MapcyclePath;
 ConVar g_Cvar_StartTime;
 ConVar g_Cvar_StartRounds;
 ConVar g_Cvar_StartFrags;
@@ -88,6 +91,7 @@ Handle g_RetryTimer = null;
 // g_MapList stores unresolved names so we can resolve them after every map change in the workshop updates.
 // g_OldMapList and g_NextMapList are resolved. g_NominateList depends on the nominations implementation.
 /* Data Handles */
+JSONObject g_ActiveMapCategories;
 ArrayList g_MapList;
 ArrayList g_NominateList;
 ArrayList g_NominateOwners;
@@ -104,7 +108,7 @@ bool g_MapVoteCompleted;
 bool g_ChangeMapAtRoundEnd;
 bool g_ChangeMapInProgress;
 bool g_HasFileBeenRead;
-int g_mapFileSerial = -1;
+// int g_mapFileSerial = -1;
 
 MapChange g_ChangeTime;
 
@@ -130,6 +134,7 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	
 	int arraySize = ByteCountToCells(PLATFORM_MAX_PATH);
+	g_ActiveMapCategories = new JSONObject();
 	g_MapList = new ArrayList(arraySize);
 	g_NominateList = new ArrayList(arraySize);
 	g_NominateOwners = new ArrayList();
@@ -139,6 +144,7 @@ public void OnPluginStart()
 	
 	g_Cvar_EndOfMapVote = CreateConVar("sm_mapvote_endvote", "1", "Specifies if MapChooser should run an end of map vote", _, true, 0.0, true, 1.0);
 
+	g_Cvar_MapcyclePath = CreateConVar("sm_mapvote_mapcycle", "configs/mapcycle.json", "Path to the JSON file relative to SourceMod root to cycle through maps.");
 	g_Cvar_StartTime = CreateConVar("sm_mapvote_start", "3.0", "Specifies when to start the vote based on time remaining.", _, true, 1.0);
 	g_Cvar_StartRounds = CreateConVar("sm_mapvote_startround", "2.0", "Specifies when to start the vote based on rounds remaining. Use 0 on TF2 to start vote during bonus round time", _, true, 0.0);
 	g_Cvar_StartFrags = CreateConVar("sm_mapvote_startfrags", "5.0", "Specifies when to start the vote base on frags remaining.", _, true, 1.0);
@@ -216,6 +222,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("GetExcludeMapList", Native_GetExcludeMapList);
 	CreateNative("GetNominatedMapList", Native_GetNominatedMapList);
 	CreateNative("EndOfMapVoteEnabled", Native_EndOfMapVoteEnabled);
+	CreateNative("GetMapCategories", Native_GetMapCategories);
+	CreateNative("GetMapsInCategory", Native_GetMapsInCategory);
 
 	return APLRes_Success;
 }
@@ -259,18 +267,7 @@ public void OnLibraryRemoved(const char[] name)
 
 public void OnConfigsExecuted()
 {
-	if (ReadMapList(g_MapList,
-					 g_mapFileSerial, 
-					 "mapchooser",
-					 MAPLIST_FLAG_CLEARARRAY|MAPLIST_FLAG_MAPSFOLDER)
-		!= null)
-		
-	{
-		if (g_mapFileSerial == -1)
-		{
-			LogError("Unable to create a valid map list.");
-		}
-	}
+	ReadMapcycle();
 
 	/* First-load previous maps from a text file when persistency is enabled. */
 	static bool g_FirstConfigExec = true;
@@ -1619,6 +1616,137 @@ public int Native_GetNominatedMapList(Handle plugin, int numParams)
 	}
 
 	return 0;
+}
+
+// native void GetMapCategories(ArrayList categories);
+public int Native_GetMapCategories(Handle plugin, int numParams)
+{
+	ArrayList categories = view_as<ArrayList>(GetNativeCell(1));
+	if (categories == null)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "categories is null");
+	}
+
+	JSONObjIter iter = new JSONObjIter(g_ActiveMapCategories);
+	char key[256];
+	while (iter.Next(key, sizeof(key)))
+	{
+		categories.PushString(key);
+	}
+
+	delete iter;
+
+	return 0;
+}
+
+// native bool GetMapsInCategory(const char[] category, ArrayList maps);
+public int Native_GetMapsInCategory(Handle plugin, int numParams)
+{
+	ArrayList paramMaps = view_as<ArrayList>(GetNativeCell(2));
+	if (paramMaps == null)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "maps is null");
+	}
+
+	char category[256];
+	GetNativeString(1, category, sizeof(category));
+	JSONArray maps = view_as<JSONArray>(g_ActiveMapCategories.Get(category));
+	if (maps == null)
+	{
+		return view_as<int>(false);
+	}
+
+	for (int i = 0; i < maps.Length; i++)
+	{
+		char map[256];
+		maps.GetString(i, map, sizeof(map));
+		paramMaps.PushString(map);
+	}
+
+	delete maps;
+
+	return view_as<int>(true);
+}
+
+// Mapcycle format:
+// {
+//     "Category 1": {
+//         "enabled": true,
+//         "maps": [
+//             "map1",
+//             "map2"
+//         ]
+//     },
+//     "Category 2": {
+//         "enabled": false,
+//         "maps": [
+//             "map3"
+//         ]
+//     }
+// }
+void ReadMapcycle()
+{
+	char mapCycleCvar[PLATFORM_MAX_PATH], mapCyclePath[PLATFORM_MAX_PATH];
+	g_Cvar_MapcyclePath.GetString(mapCycleCvar, sizeof(mapCycleCvar));
+	BuildPath(Path_SM, mapCyclePath, sizeof(mapCyclePath), mapCycleCvar);
+
+	char jsonError[256];
+	JSONObject fileContent = JSONObject.FromFile(mapCyclePath, JSON_READ_ALLOW_COMMENTS | JSON_READ_ALLOW_BOM,
+		jsonError, sizeof(jsonError));
+	if (fileContent == null)
+	{
+		LogError("Error encountered when reading mapcycle: %s", jsonError);
+		return;
+	}
+
+	g_ActiveMapCategories.Clear();
+	g_MapList.Clear();
+
+	JSONObjIter iter = new JSONObjIter(fileContent);
+	char key[256];
+	while (iter.Next(key, sizeof(key)))
+	{
+		JSONObject val = view_as<JSONObject>(iter.Value);
+		if (val.Type != JSON_TYPE_OBJ)
+		{
+			LogError("Key \"%s\" in mapcycle is not a JSON object", key);
+			delete val;
+			continue;
+		}
+
+		if (!val.GetBool("enabled"))
+		{
+			delete val;
+			continue;
+		}
+
+		JSONArray maps = view_as<JSONArray>(val.Get("maps"));
+		if (maps == null || maps.Type != JSON_TYPE_ARR)
+		{
+			LogError("Key \"%s\" has an invalid map list in mapcycle", key);
+			if (maps != null)
+			{
+				delete maps;
+			}
+			delete val;
+			continue;
+		}
+
+		g_ActiveMapCategories.Set(key, maps);
+
+		for (int i = 0; i < maps.Length; i++)
+		{
+			char map[PLATFORM_MAX_PATH];
+			maps.GetString(i, map, sizeof(map));
+			g_MapList.PushString(map);
+		}
+
+		delete maps;
+		delete val;
+	}
+
+	delete iter;
+	delete fileContent;
 }
 
 /* Add functions for persistent previous map storage */
