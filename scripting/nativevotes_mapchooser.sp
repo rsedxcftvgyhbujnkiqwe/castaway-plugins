@@ -1726,7 +1726,10 @@ void ReadMapcycle()
 		{
 			char map[PLATFORM_MAX_PATH];
 			maps.GetString(i, map, sizeof(map));
-			g_MapList.PushString(map);
+			if (g_MapList.FindString(map) == -1)
+			{
+				g_MapList.PushString(map);
+			}
 		}
 
 		delete maps;
