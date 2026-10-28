@@ -399,7 +399,7 @@ void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
 
 	if (GetClientCount(true) > 8 && strncmp(mapname, MGE_PREFIX, sizeof(MGE_PREFIX)-1, false) == 0)
 	{
-		ReplyToCommand(client, "[SM] Can't nominate MGE maps at this player count.");
+		ReplyToCommand(client, "[SM] %t", "MGE Not Allowed");
 		return;
 	}
 

@@ -8,4 +8,8 @@
     {
         "en"    "Use legacy nominations menu"
     }
+    "MGE Not Allowed"
+    {
+        "en"    "Can't nominate MGE maps at this player count."
+    }
 }
