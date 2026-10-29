@@ -12,4 +12,8 @@
     {
         "en"    "Can't nominate MGE maps at this player count."
     }
+    "Check Nominations Title"
+    {
+        "en"    "Current nominations"
+    }
 }

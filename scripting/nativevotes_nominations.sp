@@ -60,6 +60,7 @@ ConVar g_Cvar_ExcludeOld;
 ConVar g_Cvar_ExcludeCurrent;
 ConVar g_Cvar_MaxMatches;
 ConVar g_Cvar_IgnoreSpec;
+ConVar g_Cvar_EnableCheckNoms;
 
 Menu g_LegacyMapMenu = null;
 TopMenu g_MapMenu = null;
@@ -99,8 +100,11 @@ public void OnPluginStart()
 	g_Cvar_ExcludeCurrent = CreateConVar("sm_nominate_excludecurrent", "1", "Specifies if the MapChooser excluded maps should also be excluded from Nominations", 0, true, 0.00, true, 1.0);
 	g_Cvar_MaxMatches = CreateConVar("sm_nominate_maxfound", "0", "Maximum number of nomination matches to add to the menu. 0 = infinite.", _, true, 0.0);
 	g_Cvar_IgnoreSpec = CreateConVar("sm_nominate_ignore_spec", "0", "Ignore spectator nomination requests", _, true, 0.0, true, 1.0);
+	g_Cvar_EnableCheckNoms = CreateConVar("sm_nominate_enable_check", "1", "Enable the !checknominations command", _, true, 0.0, true, 1.0);
 
 	RegConsoleCmd("sm_nominate", Command_Nominate);
+	RegConsoleCmd("sm_checknominations", Command_CheckNominations);
+	RegConsoleCmd("sm_checknoms", Command_CheckNominations);
 
 	RegAdminCmd("sm_nominate_addmap", Command_Addmap, ADMFLAG_CHANGEMAP, "sm_nominate_addmap <mapname> - Forces a map to be on the next mapvote.");
 	RegAdminCmd("sm_reload_nominations", Cmd_ReloadNominations, ADMFLAG_RCON, "Reload the nomination map cycle in-place");
@@ -331,6 +335,34 @@ public Action Command_Nominate(int client, int args)
 	}
 
 	delete results;
+
+	return Plugin_Handled;
+}
+
+public Action Command_CheckNominations(int client, int args)
+{
+	if (!g_Cvar_EnableCheckNoms.BoolValue)
+	{
+		return Plugin_Handled;
+	}
+
+	ArrayList nominations = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+
+	GetNominatedMapList(nominations);
+
+	Menu menu = new Menu(MenuHandler_CheckNominations);
+
+	menu.SetTitle("%T", "Check Nominations Title", client);
+	for (int i = 0; i < nominations.Length; i++)
+	{
+		char map[PLATFORM_MAX_PATH];
+		nominations.GetString(i, map, sizeof(map));
+		menu.AddItem(map, map, ITEMDRAW_DISABLED);
+	}
+
+	menu.Display(client, MENU_TIME_FOREVER);
+
+	delete nominations;
 
 	return Plugin_Handled;
 }
@@ -753,6 +785,14 @@ public void MenuHandler_MapSelectMainMenu(TopMenu topmenu, TopMenuAction action,
 			topmenu.GetInfoString(topobj_id, map, sizeof(map));
 			AttemptNominate(param, map, sizeof(map), false);
 		}
+	}
+}
+
+public void MenuHandler_CheckNominations(Menu menu, MenuAction action, int param1, int param2)
+{
+	if (action == MenuAction_End)
+	{
+		delete menu;
 	}
 }
 
