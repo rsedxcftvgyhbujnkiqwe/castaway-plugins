@@ -1,0 +1,23 @@
+{
+    "Capture the Flag": {
+        "enabled": true,
+        "maps": [
+            "ctf_2fort",
+            "ctf_turbine",
+            "ctf_doublecross"
+        ]
+    },
+    "Capture Points": {
+        "enabled": true,
+        "maps": [
+            "cp_granary",
+            "cp_well"
+        ]
+    },
+    "Test Map": {
+        "enabled": false,
+        "maps": [
+            "itemtest"
+        ]
+    }
+}

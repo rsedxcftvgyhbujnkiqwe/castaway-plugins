@@ -4,4 +4,16 @@
     {
         "en"    "Spectators are not allowed to nominate maps."
     }
+    "Use Legacy Menu"
+    {
+        "en"    "Use legacy nominations menu"
+    }
+    "MGE Not Allowed"
+    {
+        "en"    "Can't nominate MGE maps at this player count."
+    }
+    "Check Nominations Title"
+    {
+        "en"    "Current nominations"
+    }
 }

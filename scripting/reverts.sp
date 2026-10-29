@@ -30,6 +30,7 @@
 #include <tf2attributes>
 #include <dhooks>
 #include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
+#include <math>
 #if defined MEMORY_PATCHES
 #include <sourcescramble>
 #endif
@@ -7667,68 +7668,6 @@ stock int GetEntityFromAddress(Address pEntity)
 	return LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32) & 0xFFF;
 }
 
-// math stocks
-
-/**
- * Get an absolute value of an integer.
- *
- * @param x		Integer.
- * @return		Absolute value of x.
- */
-stock int abs(int x)
-{
-	int mask = x >> 31;
-	return (x + mask) ^ mask;
-}
-
-/**
- * Get the lesser integer between two integers.
- *
- * @param x		Integer x.
- * @param y		Integer y.
- * @return		The lesser integer between x and y.
- */
-stock int intMin(int x, int y)
-{
-	return x > y ? y : x;
-}
-
-/**
- * Get the greater integer between two integers.
- *
- * @param x		Integer x.
- * @param y		Integer y.
- * @return		The greater integer between x and y.
- */
-stock int intMax(int x, int y)
-{
-	return x > y ? x : y;
-}
-
-/**
- * Get the lesser float between two floats.
- *
- * @param x		Float x.
- * @param y		Float y.
- * @return		The lesser float between x and y.
- */
-stock float floatMin(float x, float y)
-{
-	return x > y ? y : x;
-}
-
-/**
- * Get the greater float between two floats.
- *
- * @param x		Float x.
- * @param y		Float y.
- * @return		The greater float between x and y.
- */
-stock float floatMax(float x, float y)
-{
-	return x > y ? x : y;
-}
-
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
 	float v1;
 	float v2;
@@ -7760,10 +7699,6 @@ stock float ValveRemapVal(float val, float a, float b, float c, float d) {
 	if (tmp > 1.0) tmp = 1.0;
 
 	return (c + ((d - c) * tmp));
-}
-
-stock float clamp(float val, float a, float b) {
-	return (val > b ? b : (val < a ? a : val));
 }
 
 stock void RotateVectorAroundZAxis(float vector[3], float angle, float output[3]) {
