@@ -42,6 +42,8 @@
 #include <nativevotes>
 #define REQUIRE_PLUGIN
 
+#include <math>
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -925,7 +927,7 @@ public void CookieMenuHandler_LegacyMenu(int client, CookieMenuAction action, an
 
 void GetRandomID(char[] buffer, int maxlength)
 {
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < intMin(maxlength - 1, 6); i++)
 	{
 		char num[2];
 		IntToString(GetRandomInt(0, 9), num, sizeof(num));
