@@ -529,6 +529,7 @@ void BuildMapMenu()
 		{
 			char currMap[PLATFORM_MAX_PATH], random[7], uniqueMap[PLATFORM_MAX_PATH];
 			maps.GetString(k, currMap, sizeof(currMap));
+			// Append a random number at the end of the map name so one map can appear in multiple categories
 			GetRandomID(random, sizeof(random));
 			FormatEx(uniqueMap, sizeof(uniqueMap), "%s_%s", currMap, random);
 			g_MapMenu.AddItem(uniqueMap, MenuHandler_MapSelectMainMenu, currCategory, _, _, currMap);
