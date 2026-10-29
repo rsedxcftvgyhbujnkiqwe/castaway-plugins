@@ -248,8 +248,8 @@ public Action Command_Addmap(int client, int args)
 
 Action Cmd_ReloadNominations(int client, int args)
 {
-    BuildMapMenu();
-    return Plugin_Handled;
+	BuildMapMenu();
+	return Plugin_Handled;
 }
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
@@ -919,10 +919,10 @@ public Action NativeVotes_OverrideMaps(StringMap mapList)
 
 public void CookieMenuHandler_LegacyMenu(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
 {
-    if (action == CookieMenuAction_DisplayOption)
+	if (action == CookieMenuAction_DisplayOption)
 	{
-        Format(buffer, maxlen, "%T", "Use Legacy Menu", client);
-    }
+		Format(buffer, maxlen, "%T", "Use Legacy Menu", client);
+	}
 }
 
 void GetRandomID(char[] buffer, int maxlength)
