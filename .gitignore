@@ -46,6 +46,7 @@ scripting/include/*
 !scripting/include/nativevotes_utils.inc
 !scripting/include/mapchooser_ext.inc
 !scripting/include/json.inc
+!scripting/include/math.inc
 
 !gamedata/
 gamedata/*
