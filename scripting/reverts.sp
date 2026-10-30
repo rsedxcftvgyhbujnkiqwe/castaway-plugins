@@ -280,6 +280,7 @@ enum struct Player {
 	int old_metal;
 	int zatoichi_frame;
 	int powerjack_frame;
+	int feign_frame;
 }
 
 enum struct Entity {
@@ -2121,10 +2122,14 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].bolt_heal = false;
 
 	if (
-		strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
-		strncmp(class, "saxxy", sizeof("saxxy") - 1) == 0 ||
-		strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
-		!StrEqual(class, "tf_wearable_vm")
+		(
+			strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
+			StrEqual(class, "saxxy") ||
+			(
+				strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
+				!StrEqual(class, "tf_wearable_vm")
+			)
+		) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")
 	) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 	}
@@ -2338,18 +2343,29 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 
 public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
 	{
+		// Old Dead Ringer feign
 		if (
-			TF2_GetPlayerClass(client) == TFClass_Spy &&
-			condition == TFCond_DeadRingered &&
+			player_weapons[client][Wep_DeadRinger] &&
 			(
 				GetItemVariant(Wep_DeadRinger) == 0 ||
 				GetItemVariant(Wep_DeadRinger) == 2
 			)
 		) {
-			// undo 50% drain on activated
-			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
-			RequestFrame(SetFeignDeathEnd, client);
-			return Plugin_Continue;
+			if (condition == TFCond_DeadRingered) {
+				players[client].feign_frame = GetGameTickCount();
+
+				// undo 50% drain on activated
+				SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
+			}
+			else if (
+				players[client].feign_frame == GetGameTickCount() &&
+				(
+					condition == TFCond_SpeedBuffAlly ||
+					condition == TFCond_AfterburnImmune
+				)
+			) {
+				return Plugin_Handled;
+			}
 		}
 	}
 	{
@@ -4116,7 +4132,7 @@ Action SDKHookCB_OnTakeDamage(
 						case 0, 2: {
 							// "Old-Style" Dead Ringer
 							cvar_ref_tf_feign_death_duration.FloatValue = -1.0;
-							cvar_ref_tf_feign_death_speed_duration.FloatValue = 0.0;
+							cvar_ref_tf_feign_death_speed_duration.FloatValue = 6.0;
 							cvar_ref_tf_feign_death_activate_damage_scale.FloatValue = 0.10;
 							cvar_ref_tf_feign_death_damage_scale.FloatValue = 0.10;
 
@@ -5651,13 +5667,6 @@ void SetShovelDamageBoost(int entity) {
 void SetShovelSpeedBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
 	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
-}
-
-void SetFeignDeathEnd(int client) {
-	if (!IsClientInGame(client))
-		return;
-
-	SetEntDataFloat(client, CTFPlayerShared_m_flFeignDeathEnd, GetGameTime() + 6.0);
 }
 
 void SetMeleeCrit(int client) {
