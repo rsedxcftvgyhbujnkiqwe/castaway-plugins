@@ -53,6 +53,7 @@ gamedata/*
 !gamedata/legacy
 !gamedata/legacy/*
 !gamedata/old-flame-mechanics.txt
+!gamedata/votescramble.games.txt
 
 !translations/
 translations/*
