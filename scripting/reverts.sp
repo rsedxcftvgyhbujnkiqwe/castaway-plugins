@@ -2909,18 +2909,20 @@ public void ApplyRevertsToItem(int entity) {
 			if (ItemIsEnabled(Wep_Powerjack)) {
 				TF2Attrib_SetByDefIndex(entity, 180, 75.0); // +75 health restored on kill
 			}
+			// common for pre-2013
+			if (GetItemVariant(Wep_Powerjack) >= 1) {
+				TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
+				TF2Attrib_SetByDefIndex(entity, 128, 0.0); // When weapon is active:
+				TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
+			}
 			// specific
 			switch (GetItemVariant(Wep_Powerjack)) {
 				case 1: { // Release Powerjack (2010)
 					TF2Attrib_SetByDefIndex(entity, 2, 1.25); // +25% damage bonus
 					TF2Attrib_SetByDefIndex(entity, 15, 0.0); // No random critical hits
-					TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
-					TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
 				}
 				case 2: { // Pre-Summer 2013 Powerjack
-					TF2Attrib_SetByDefIndex(entity, 107, 1.0); // +0% faster move speed on wearer
 					TF2Attrib_SetByDefIndex(entity, 206, 1.2); // +20% damage from melee sources while active
-					TF2Attrib_SetByDefIndex(entity, 412, 1.0); // 0% damage vulnerability on wearer
 				}
 			}
 			// Overheal on kill handled elsewhere
