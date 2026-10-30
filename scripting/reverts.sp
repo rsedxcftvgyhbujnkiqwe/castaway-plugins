@@ -116,8 +116,8 @@ int resistance_mapping[] =
 #define SENTRYGUN_ADD_SHELLS 40
 #define SENTRYGUN_MAX_SHELLS_1 150
 #define OBJ_ATTACHMENT_SAPPER 3
-#define MAX_HEAD_BONUS 6
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC 50.0
+#define TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX 150.0
 #define FLIGHT_TIME_TO_MAX_STUN_OLD	1.0
 #define FLIGHT_TIME_TO_MAX_STUN_NEW	0.8
 #define TF_CANNONBALL_FORCE_SCALE 80.0
@@ -288,6 +288,9 @@ enum struct Entity {
 	float minisentry_health;
 	int patient;
 	bool has_run_post;
+	float prev_charge;
+	bool construction_hit;
+	bool bolt_heal;
 }
 
 ConVar cvar_enable;
@@ -308,6 +311,7 @@ ConVar cvar_ref_sv_proj_stunball_damage;
 ConVar cvar_ref_tf_airblast_cray;
 ConVar cvar_ref_tf_damage_range;
 ConVar cvar_ref_tf_damageforcescale_other;
+ConVar cvar_ref_tf_double_donk_window;
 ConVar cvar_ref_tf_dropped_weapon_lifetime;
 ConVar cvar_ref_tf_feign_death_activate_damage_scale;
 ConVar cvar_ref_tf_feign_death_damage_scale;
@@ -363,6 +367,7 @@ Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 Handle sdkcall_CWeaponMedigun_CanAttack;
 Handle sdkcall_CBaseGrenade_GetDamage;
+Handle sdkcall_CTFSniperRifle_SniperRifleChargeRateMod;
 #if defined MEMORY_PATCHES
 Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
 #endif
@@ -373,7 +378,7 @@ DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
 DynamicHook dhook_CHealthKit_MyTouch;
-DynamicHook dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod;
+DynamicHook dhook_CTFSniperRifle_SniperRifleChargeRateMod;
 DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CBaseObject_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
@@ -452,10 +457,6 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
-bool construction_hit;
-int crossbow_medigun;
-float old_charge_level;
-bool bolt_heal;
 
 OperatingSystem operatingSystem;
 
@@ -709,6 +710,7 @@ public void OnPluginStart() {
 	ItemVariant(Wep_BabyFace, "BabyFace_Release");
 	ItemDefine("battalions", "Battalions_PreHat", CLASSFLAG_SOLDIER | ITEMFLAG_DISABLED, Wep_Battalions);
 	ItemDefine("bazaar", "Bazaar_PreGM", CLASSFLAG_SNIPER | ITEMFLAG_DISABLED, Wep_BazaarBargain);
+	ItemVariant(Wep_BazaarBargain, "Bazaar_Pre2013");
 	ItemDefine("beggars", "Beggars_Pre2013", CLASSFLAG_SOLDIER, Wep_Beggars);
 	ItemVariant(Wep_Beggars, "Beggars_PreTB");
 	ItemDefine("blackbox", "BlackBox_PreGM", CLASSFLAG_SOLDIER, Wep_BlackBox);
@@ -774,6 +776,7 @@ public void OnPluginStart() {
 	ItemDefine("lochload", "LochLoad_PreGM", CLASSFLAG_DEMOMAN, Wep_LochLoad);
 	ItemVariant(Wep_LochLoad, "LochLoad_2013");
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
+	ItemVariant(Wep_LooseCannon, "Cannon_Pre2013");
 #if defined MEMORY_PATCHES
 	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT | ITEMFLAG_MEMPATCH, Wep_MadMilk);
 #endif
@@ -872,6 +875,7 @@ public void OnPluginStart() {
 	cvar_ref_tf_airblast_cray = FindConVar("tf_airblast_cray");
 	cvar_ref_tf_damage_range = FindConVar("tf_damage_range");
 	cvar_ref_tf_damageforcescale_other = FindConVar("tf_damageforcescale_other");
+	cvar_ref_tf_double_donk_window = FindConVar("tf_double_donk_window");
 	cvar_ref_tf_dropped_weapon_lifetime = FindConVar("tf_dropped_weapon_lifetime");
 	cvar_ref_tf_feign_death_activate_damage_scale = FindConVar("tf_feign_death_activate_damage_scale");
 	cvar_ref_tf_feign_death_damage_scale = FindConVar("tf_feign_death_damage_scale");
@@ -952,13 +956,18 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CBaseGrenade_GetDamage = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CTFSniperRifle::SniperRifleChargeRateMod");
+		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
+		sdkcall_CTFSniperRifle_SniperRifleChargeRateMod = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
 		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
-		dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifleDecap::SniperRifleChargeRateMod");
+		dhook_CTFSniperRifle_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifle::SniperRifleChargeRateMod");
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
@@ -1102,6 +1111,8 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
 	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
+	VALIDATE_HANDLE(sdkcall_CBaseGrenade_GetDamage);
+	VALIDATE_HANDLE(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod);
 
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
@@ -1109,7 +1120,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CAmmoPack_MyTouch);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_OnWrenchHit);
 	VALIDATE_HANDLE(dhook_CHealthKit_MyTouch);
-	VALIDATE_HANDLE(dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod);
+	VALIDATE_HANDLE(dhook_CTFSniperRifle_SniperRifleChargeRateMod);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
 	VALIDATE_HANDLE(dhook_CBaseObject_Construct);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
@@ -1216,10 +1227,6 @@ public void OnPluginStart() {
 #endif
 
 	team_round_timer_entity = -1;
-	construction_hit = false;
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
-	bolt_heal = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -2054,6 +2061,7 @@ public void OnGameFrame() {
 		cvar_ref_tf_airblast_cray.RestoreDefault();
 		cvar_ref_tf_damage_range.RestoreDefault();
 		cvar_ref_tf_damageforcescale_other.RestoreDefault();
+		cvar_ref_tf_double_donk_window.RestoreDefault();
 		cvar_ref_tf_feign_death_duration.RestoreDefault();
 		cvar_ref_tf_feign_death_speed_duration.RestoreDefault();
 		cvar_ref_tf_feign_death_activate_damage_scale.RestoreDefault();
@@ -2108,6 +2116,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].minisentry_health = 0.0;
 	entities[entity].patient = -1;
 	entities[entity].has_run_post = false;
+	entities[entity].prev_charge = 0.0;
+	entities[entity].construction_hit = false;
+	entities[entity].bolt_heal = false;
 
 	if (
 		strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
@@ -2125,6 +2136,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFBaseRocket_GetRadius.HookEntity(Hook_Post, entity, DHookCallback_CTFBaseRocket_GetRadius_Post);
 	}
 	else if (StrEqual(class, "tf_projectile_pipe")) {
+		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBaseGrenadeProj_GetEnemy_Pre);
 	}
 	else if (StrEqual(class, "tf_projectile_healing_bolt")) {
@@ -2199,12 +2211,12 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
-	else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+	else if (strncmp(class, "tf_weapon_sniperrifle", sizeof("tf_weapon_sniperrifle") - 1) == 0) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
-			dhook_CTFSniperRifleDecap_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre);
 			dhook_CTFWeaponBase_PrimaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_PrimaryAttack_Pre);
+			dhook_CTFSniperRifle_SniperRifleChargeRateMod.HookEntity(Hook_Pre, entity, DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre);
 		}
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
@@ -2561,8 +2573,13 @@ public void ApplyRevertsToItem(int entity) {
 		case 226: { if (ItemIsEnabled(Wep_Battalions)) {
 			TF2Attrib_SetByDefIndex(entity, 26, 0.0); // +0 max health on wearer
 		}}
-		case 402: { if (ItemIsEnabled(Wep_BazaarBargain)) {
-			TF2Attrib_SetByDefIndex(entity, 268, 1.20); // Base charge rate decreased by 20%
+		case 402: { switch (GetItemVariant(Wep_BazaarBargain)) {
+			case 0: {
+				TF2Attrib_SetByDefIndex(entity, 268, 1.20); // Base charge rate decreased by 20%
+			}
+			case 1: {
+				TF2Attrib_SetByDefIndex(entity, 268, 1.40); // Base charge rate decreased by 40%
+			}
 		}}
 		case 237: { if (GetItemVariant(Wep_RocketJumper) == 1) {
 			TF2Attrib_SetByDefIndex(entity, 15, 1.0); // crit mod disabled
@@ -2606,9 +2623,18 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 773, 1.00); // single wep deploy time increased
 			TF2Attrib_SetByDefIndex(entity, 476, 100.0 / 75.0); // +33% damage bonus (for explosion, is canceled out for melee)
 		}}
-		case 996: { if (ItemIsEnabled(Wep_LooseCannon)) {
-			TF2Attrib_SetByDefIndex(entity, 103, 1.50); // projectile speed increased
-		}}
+		case 996: {
+			// common
+			if (ItemIsEnabled(Wep_LooseCannon)) {
+				TF2Attrib_SetByDefIndex(entity, 103, 1.50); // +50% projectile speed
+			}
+			// specific
+			if (GetItemVariant(Wep_LooseCannon) == 1) {
+				TF2Attrib_SetByDefIndex(entity, 466, 2.0); // Cannonballs have a fuse time of 2 seconds
+				TF2Attrib_SetByDefIndex(entity, 470, 0.50); // -50% damage on contact with surfaces
+				TF2Attrib_SetByDefIndex(entity, 476, 1.50); // +50% damage bonus (hidden)
+			}
+		}
 		case 751: {
 			// common
 			if (ItemIsEnabled(Wep_CleanerCarbine)) {
@@ -3128,7 +3154,14 @@ public void ApplyRevertsToItem(int entity) {
 		)
 	) {
 		TF2Attrib_SetByDefIndex(entity, 99, 159.0 / 146.0); // +8.9% explosion radius
-		TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
+
+		Address attrib = TF2Attrib_GetByDefIndex(entity, 476);
+		if (attrib != Address_Null) {
+			TF2Attrib_SetByDefIndex(entity, 476, 1.12 * TF2Attrib_GetValue(attrib)); // +12% damage bonus
+		}
+		else {
+			TF2Attrib_SetByDefIndex(entity, 476, 1.12); // +12% damage bonus
+		}
 	}
 	else if (
 		ItemIsEnabled(Feat_Stickybomb) &&
@@ -4118,6 +4151,7 @@ Action SDKHookCB_OnTakeDamage(
 
 		// tf_damage_range handles both distance ramp-up/fall-off and random spread
 		cvar_ref_tf_damage_range.RestoreDefault();
+		cvar_ref_tf_double_donk_window.RestoreDefault();
 
 		{
 			// save attacker's rage meter for modifications
@@ -4140,7 +4174,7 @@ Action SDKHookCB_OnTakeDamage(
 						cvar_ref_tf_damage_range.FloatValue *= 5.0;
 					}
 
-					// self-damage (counter 25% reduction to self in radiusdamage)
+					// undo self-damage reduction
 					if (
 						victim == attacker &&
 						damage_custom == TF_CUSTOM_STICKBOMB_EXPLOSION
@@ -4169,7 +4203,7 @@ Action SDKHookCB_OnTakeDamage(
 			}
 
 			{
-				// cannon impact damage
+				// cannon damage
 
 				if (
 					ItemIsEnabled(Wep_LooseCannon) &&
@@ -4182,8 +4216,24 @@ Action SDKHookCB_OnTakeDamage(
 
 					if (inflictor > MaxClients) {
 						damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+
+						if (GetItemVariant(Wep_LooseCannon) == 1) {
+							cvar_ref_tf_double_donk_window.FloatValue = 0.0;
+
+							// damage ramps 50% -> 100% between 0.1s and 0.8s after launch
+							damage *= ValveRemapVal(GetGameTime() - entities[inflictor].spawn_time, 0.1, 0.8, 0.5, 1.0);
+						}
 						return Plugin_Changed;
 					}
+				}
+				else if (
+					GetItemVariant(Wep_LooseCannon) == 1 &&
+					victim == attacker &&
+					StrEqual(class, "tf_weapon_cannon")
+				) {
+					// undo self-damage reduction
+					damage /= 0.75;
+					return Plugin_Changed;
 				}
 			}
 
@@ -4519,6 +4569,10 @@ Action SDKHookCB_OnTakeDamage_Building(
 				damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 			) {
 				damage = SDKCall(sdkcall_CBaseGrenade_GetDamage, inflictor);
+
+				if (GetItemVariant(Wep_LooseCannon) == 1) {
+					damage *= ValveRemapVal(GetGameTime() - entities[inflictor].spawn_time, 0.1, 0.8, 0.5, 1.0);
+				}
 				return Plugin_Changed;
 			}
 		}
@@ -6153,41 +6207,40 @@ MRESReturn DHookCallback_CAmmoPack_MyTouch_Pre(int entity, DHookReturn returnVal
 }
 
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity, DHookParam parameters) {
-	bolt_heal = false;
-
 	int building = parameters.Get(1);
-	if (
-		IsValidEntity(building) &&
-		HasEntProp(building, Prop_Send, "m_nShieldLevel")
-	) {
-		if (ItemIsEnabled(Wep_Wrangler)) {
-			// Fake the sentry being unshielded to allow for maximum healing potential.
-			entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
-			SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+	if (IsValidEntity(building)) {
+		entities[building].bolt_heal = false;
+
+		if (HasEntProp(building, Prop_Send, "m_nShieldLevel")) {
+			if (ItemIsEnabled(Wep_Wrangler)) {
+				// Fake the sentry being unshielded to allow for maximum healing potential.
+				entities[building].old_shield = GetEntProp(building, Prop_Send, "m_nShieldLevel");
+				SetEntProp(building, Prop_Send, "m_nShieldLevel", SHIELD_NONE);
+			}
+
+			if (
+				ItemIsEnabled(Wep_Gunslinger) &&
+				GetEntProp(building, Prop_Send, "m_bMiniBuilding")
+			) {
+				// Do not allow healing on mini sentries.
+				return MRES_Supercede;
+			}
 		}
 
+		int attacker = GetEntityOwner(entity);
 		if (
-			ItemIsEnabled(Wep_Gunslinger) &&
-			GetEntProp(building, Prop_Send, "m_bMiniBuilding")
+			ItemIsEnabled(Wep_RescueRanger) &&
+			attacker >= 1 && attacker <= MaxClients
 		) {
-			// Do not allow healing on mini sentries.
-			return MRES_Supercede;
-		}
-	}
+			players[attacker].old_metal = -1;
 
-	int attacker = GetEntityOwner(entity);
-	if (
-		ItemIsEnabled(Wep_RescueRanger) &&
-		attacker >= 1 && attacker <= MaxClients
-	) {
-		players[attacker].old_metal = -1;
+			if (TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker) > 0.0) {
+				entities[building].bolt_heal = true;
 
-		if (TF2Attrib_HookValueFloat(0.0, "arrow_heals_buildings", attacker) > 0.0) {
-			bolt_heal = true;
-
-			// Fake the metal count to allow for free healing.
-			players[attacker].old_metal = GetEntProp(attacker, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
-			SetEntProp(attacker, Prop_Data, "m_iAmmo", 200, 4, TF_AMMO_METAL);
+				// Fake the metal count to allow for free healing.
+				players[attacker].old_metal = GetEntProp(attacker, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+				SetEntProp(attacker, Prop_Data, "m_iAmmo", 200, 4, TF_AMMO_METAL);
+			}
 		}
 	}
 
@@ -6195,8 +6248,8 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre(int entity
 }
 
 MRESReturn DHookCallback_CBaseObject_Command_Repair_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_RescueRanger) && bolt_heal) {
-		bolt_heal = false;
+	if (ItemIsEnabled(Wep_RescueRanger) && entities[entity].bolt_heal) {
+		entities[entity].bolt_heal = false;
 
 		// Set health-to-metal ratio to 1 such that the heal amount is not a multiple of 4 and can be any integer.
 		// Note that teleporters override this value to 5, which cannot be changed with this virtual hook alone.
@@ -6207,16 +6260,17 @@ MRESReturn DHookCallback_CBaseObject_Command_Repair_Pre(int entity, DHookReturn 
 }
 
 MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entity, DHookParam parameters) {
-	bolt_heal = false;
-
 	int building = parameters.Get(1);
-	if (
-		ItemIsEnabled(Wep_Wrangler) &&
-		IsValidEntity(building) &&
-		HasEntProp(building, Prop_Send, "m_nShieldLevel")
-	) {
-		// Revert the sentry's shield.
-		SetEntProp(building, Prop_Send, "m_nShieldLevel", entities[building].old_shield);
+	if (IsValidEntity(building)) {
+		entities[building].bolt_heal = false;
+
+		if (
+			ItemIsEnabled(Wep_Wrangler) &&
+			HasEntProp(building, Prop_Send, "m_nShieldLevel")
+		) {
+			// Revert the sentry's shield.
+			SetEntProp(building, Prop_Send, "m_nShieldLevel", entities[building].old_shield);
+		}
 	}
 
 	int attacker = GetEntityOwner(entity);
@@ -6234,57 +6288,54 @@ MRESReturn DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post(int entit
 }
 
 MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Pre(int entity, DHookParam parameters) {
-	// Reset in case we return early.
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
-
 	int owner = GetEntityOwner(entity);
-	int weapon;
 	if (owner >= 1 && owner <= MaxClients) {
-		weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
+		int weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
 		if (
 			weapon > 0 &&
 			HasEntProp(weapon, Prop_Send, "m_flChargeLevel")
 		) {
-			crossbow_medigun = weapon;
-			old_charge_level = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
+			entities[weapon].prev_charge = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 		}
 	}
 	return MRES_Ignored;
 }
 
 MRESReturn DHookCallback_CTFProjectile_HealingBolt_ImpactTeamPlayer_Post(int entity, DHookParam parameters) {
-	int patient = parameters.Get(1);
-	float charge, added, time_since_damage;
-	if (
-		crossbow_medigun > 0 &&
-		patient >= 1 && patient <= MaxClients
-	) {
-		if (ItemIsEnabled(Wep_Crossbow)) {
-			charge = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
-			added = charge - old_charge_level;
-			if (added > 0.0) {
-				// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
-				// The game added (iActualHealed / (24 * flScale)) * frametime.
-				// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
+	int owner, weapon, patient;
+	float added, time_since_damage, charge;
 
-				time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
-				charge = old_charge_level + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
-				SetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
+	owner = GetEntityOwner(entity);
+	if (owner >= 1 && owner <= MaxClients) {
+		weapon = GetPlayerWeaponSlot(owner, TFWeaponSlot_Secondary);
+		if (
+			weapon > 0 &&
+			HasEntProp(weapon, Prop_Send, "m_flChargeLevel")
+		) {
+			if (ItemIsEnabled(Wep_Crossbow)) {
+				patient = parameters.Get(1);
+				added = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel") - entities[weapon].prev_charge;
+				if (
+					patient >= 1 && patient <= MaxClients &&
+					added > 0.0
+				) {
+					// flScale = RemapValClamped( curtime - lastDamageReceivedTime, 10.f, 15.f, 3.f, 1.f )
+					// The game added (iActualHealed / (24 * flScale)) * frametime.
+					// Scale it back up to the pre-JI (iActualHealed / 24) * frametime.
+
+					time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(patient);
+					charge = entities[weapon].prev_charge + added * ValveRemapVal(time_since_damage, 10.0, 15.0, 3.0, 1.0);
+					SetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel", floatMin(charge, 1.0));
+				}
 			}
-		}
-		if (GetItemVariant(Wep_Amputator) == 1) {
-			int owner = GetEntityOwner(entity);
 			if (
-				owner >= 1 && owner <= MaxClients &&
+				GetItemVariant(Wep_Amputator) == 1 &&
 				players[owner].medic_amputator_current_uber >= 0.0
 			) {
-				players[owner].medic_amputator_current_uber = GetEntPropFloat(crossbow_medigun, Prop_Send, "m_flChargeLevel");
+				players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 			}
 		}
 	}
-	crossbow_medigun = -1;
-	old_charge_level = 0.0;
 	return MRES_Ignored;
 }
 
@@ -6495,7 +6546,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookParam parameters) {
 	char class[64];
-	construction_hit = false;
+	entities[entity].construction_hit = false;
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
@@ -6503,7 +6554,7 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookPara
 		GetEntityClassname(entity, class, sizeof(class));
 		if (StrEqual(class, "obj_sentrygun")) {
 			// Do not allow mini sentries to be construction boosted.
-			construction_hit = true;
+			entities[entity].construction_hit = true;
 			return MRES_Supercede;
 		}
 	}
@@ -6511,8 +6562,8 @@ MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookPara
 }
 
 MRESReturn DHookCallback_CBaseObject_InputWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (construction_hit) {
-		construction_hit = false;
+	if (entities[entity].construction_hit) {
+		entities[entity].construction_hit = false;
 
 		// Return false such that the 'ding' plays instead of the regular wrench hit sound
 		returnValue.Value = false;
@@ -6641,16 +6692,19 @@ MRESReturn DHookCallback_CTFRevolver_CanFireCriticalShot_Pre(int entity, DHookRe
 }
 
 MRESReturn DHookCallback_CTFSniperRifleDecap_SniperRifleChargeRateMod_Pre(int entity, DHookReturn returnValue) {
-	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	if (
-		ItemIsEnabled(Wep_BazaarBargain) &&
-		owner > 0
-	) {
-		// Change the recharge rate for the Bazaar Bargain.
-		returnValue.Value = 0.2 * float(intMin(GetEntProp(owner, Prop_Send, "m_iDecapitations"), MAX_HEAD_BONUS) - 1) * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
+	if (ItemIsEnabled(Wep_BazaarBargain)) {
+		int owner = GetEntityOwner(entity);
+		int heads = (owner >= 1 && owner <= MaxClients) ? GetEntProp(owner, Prop_Send, "m_iDecapitations") : 0;
+
+		float multiplier = 0.2 * float(intMin(heads, 6) - 1);
+		if (GetItemVariant(Wep_BazaarBargain) == 1) {
+			multiplier = 0.4 * float(intMin(heads, 7) - 1);
+		}
+
+		// Change the charge rate for the Bazaar Bargain.
+		returnValue.Value = multiplier * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC;
 		return MRES_Supercede;
 	}
-
 	return MRES_Ignored;
 }
 
@@ -6722,12 +6776,11 @@ MRESReturn DHookCallback_CTFPlayerShared_AddToSpyCloakMeter_Pre(Address pThis, D
 }
 
 MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre(int entity) {
-	int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+	int owner = GetEntityOwner(entity);
 	if (
 		GetItemVariant(Wep_Vaccinator) == 1 &&
 		GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex") == 998 &&
-		owner >= 1 &&
-		owner <= MaxClients &&
+		owner >= 1 && owner <= MaxClients &&
 		players[owner].using_vaccinator_uber
 	) {
 		// Prevent resistance cycling while Ubering with the Vaccinator.
@@ -6745,6 +6798,47 @@ MRESReturn DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post(int entity) {
 	) {
 		TF2Attrib_SetByDefIndex(entity, 819, 0.0);
 	}
+
+	// Uncapped charge rate for Pre-2013 Bazaar Bargain
+	int owner = GetEntityOwner(entity);
+	if (
+		GetItemVariant(Wep_BazaarBargain) == 1 &&
+		owner >= 1 && owner <= MaxClients &&
+		TF2_IsPlayerInCondition(owner, TFCond_Slowed)
+	) {
+		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargedDamage");
+		float prev_charge = entities[entity].prev_charge;
+		entities[entity].prev_charge = charge;
+
+		if (
+			charge > prev_charge &&
+			charge < TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX
+		) {
+			float rate = TF2Attrib_HookValueFloat(TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC, "mult_sniper_charge_per_sec", entity);
+
+			if (
+				TF2_IsPlayerInCondition(owner, TFCond_RuneHaste) ||
+				TF2_IsPlayerInCondition(owner, TFCond_RunePrecision)
+			) {
+				rate *= TF2_IsPlayerInCondition(owner, TFCond_PowerupModeDominant) ? 2.0 : 3.0;
+			}
+			else if (
+				TF2_IsPlayerInCondition(owner, TFCond_KingRune) ||
+				TF2_IsPlayerInCondition(owner, TFCond_KingAura)
+			) {
+				rate *= 1.5;
+			}
+
+			rate += view_as<float>(SDKCall(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod, entity));
+
+			// the game clamps the charge rate to 200%, so top up whatever the clamp ate.
+			if (rate > 2.0 * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC) {
+				charge = floatMin(charge + (rate - 2.0 * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC) * GetGameFrameTime(), TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX);
+				SetEntPropFloat(entity, Prop_Send, "m_flChargedDamage", charge);
+			}
+		}
+	}
+
 	return MRES_Ignored;
 }
 
@@ -7274,12 +7368,12 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 }
 
 MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Pre(int entity) {
-	old_charge_level = 0.0;
+	entities[entity].prev_charge = 0.0;
 	if (
 		ItemIsEnabled(Wep_VitaSaw) &&
 		GameRules_GetRoundState() == RoundState_RoundRunning
 	) {
-		old_charge_level = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
+		entities[entity].prev_charge = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
 	}
 	return MRES_Ignored;
 }
@@ -7295,7 +7389,7 @@ MRESReturn DHookCallback_CWeaponMedigun_WeaponReset_Post(int entity) {
 		// todo: make this additive with the vanilla attribute
 		float charge = GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel");
 		float preserved = TF2Attrib_HookValueFloat(0.0, "preserve_ubercharge", owner) * 0.01;
-		charge = floatMax(charge, floatMin(old_charge_level, preserved));
+		charge = floatMax(charge, floatMin(entities[entity].prev_charge, preserved));
 
 		if (charge > 0.0) {
 			// fix charge showing as 19%
