@@ -918,7 +918,7 @@
 	}
 	"Cannon_Pre2013"
 	{
-		"fi"	"Ennen 2013 kesää: 2s sytytysaika, +50%% ammuksen nopeus, osumavahinko kasvaa etäisyyden mukaan, ei tupladonkia, suurempi työntövoima, ei tainnutusta, -50%% vahinkoa maailmaan osuessa"
+		"fi"	"Ennen 2013 kesää: 2s sytytysaika, +50%% ammuksen nopeus, osumavahinko kasvaa etäisyyden mukaan, ei tupladonkia, suurempi työntövoima, ei tainnutusta, -50%% vahinkoa osuessa pintoihin"
 	}
 	"MadMilk_Release"
 	{
@@ -938,11 +938,11 @@
 	}
 	"Natascha_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: täysi hidastus etäisyydestä riippumatta, 300 ammusta, ei vahingonsietoa pyörittäessä"
+		"fi"	"Ennen Gun Mettleä: hidastaa myös kaukana olevat kohteet, 300 ammusta, ei vahingonsietoa pyörittäessä"
 	}
 	"Natascha_PreDec2010"
 	{
-		"fi"	"Ennen 17. joulukuuta 2010: täysi 75%% hidastus millä tahansa etäisyydellä, ei pidempää pyörimisaikaa, ei vahingonsietoa pyörittäessä"
+		"fi"	"Ennen 17. joulukuuta 2010: täysi 75%% hidastus etäisyydestä riippumatta, ei hitaampaa pyörimisaikaa, ei vahingonsietoa pyörittäessä"
 	}
 	"Panic_PreJI"
 	{
@@ -1026,7 +1026,7 @@
 	}
 	"RedTape_Release"
 	{
-		"fi"	"Julkaisuversio: nopeampi alentamisnopeus päivitettyihin vihollisrakennuksiin (1,6s)"
+		"fi"	"Julkaisuversio: kelaa takaperin rakennusten päivitykset nopeammin (1,6s)"
 	}
 	"RescueRanger_PreGM"
 	{
