@@ -6,7 +6,7 @@
 	}
 	"VOTESCRAMBLE_VOTE_IN_PROGRESS"
 	{
-		"fi"	"Ei voi aloittaa sekoitusäänestystä, koska eräs äänestys on kesken. Yritetään uudelleen 10 sekunnin kuluttua..."
+		"fi"	"Ei voi aloittaa sekoitusäänestystä, koska äänestys on kesken. Yritetään uudelleen 10 sekunnin kuluttua..."
 	}
 	"VOTESCRAMBLE_SCRAMBLING_TEAMS"
 	{
@@ -18,7 +18,7 @@
 	}
 	"VOTESCRAMBLE_SCRAMBLE_IN_PROGRESS"
 	{
-		"fi"	"Sekoitetaan tiimit äänien perusteella."
+		"fi"	"Sekoitetaan tiimit äänestyksen johdosta."
 	}
 	"VOTESCRAMBLE_ATTEMPT_SCRAMBLE_NEXT_ROUND"
 	{
@@ -30,7 +30,11 @@
 	}
 	"VOTESCRAMBLE_WAITING_FOR_PLAYERS"
 	{
-		"fi"	"Palvelin vielä odottaa pelaajia."
+		"fi"	"Palvelin odottaa vielä pelaajia."
+	}
+	"VOTESCRAMBLE_MAP_DISABLED"
+	{
+		"fi"	"Sekoitusäänestys ei ole sallittu tällä kartalla."
 	}
 	"VOTESCRAMBLE_VOTED"
 	{
@@ -39,5 +43,9 @@
 	"VOTESCRAMBLE_VOTE_ANNOUNCE"
 	{
 		"fi"	"{1} haluaa sekoittaa tiimit. [{2}/{3} ääntä vaaditaan]"
+	}
+	"VOTESCRAMBLE_SPECTATOR"
+	{
+		"fi"	"Katsojat eivät voi pyytää tiimien sekoitusta."
 	}
 }

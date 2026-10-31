@@ -136,31 +136,39 @@
 	}
 	"flamethrower"
 	{
-		"fi"	"Kaikki liekinheittimet"
+		"fi"	"Liekinheittimet"
 	}
 	"grenade"
 	{
-		"fi"	"Kaikki kranaatinheittimet"
+		"fi"	"Kranaatinheittimet"
+	}
+	"lunchbox"
+	{
+		"fi"	"Eväsrasiat"
+	}
+	"medigun"
+	{
+		"fi"	"Lääkintäaseet"
 	}
 	"miniramp"
 	{
-		"fi"	"Kaikki konekiväärit"
+		"fi"	"Konekiväärit"
 	}
 	"sentry"
 	{
-		"fi"	"Kaikki vartiotykit"
+		"fi"	"Vartiotykit"
 	}
 	"sniperrifles"
 	{
-		"fi"	"Kaikki tarkkuuskiväärit"
+		"fi"	"Tarkkuuskiväärit"
 	}
 	"stickybomb"
 	{
-		"fi"	"Kaikki tahmapomminheittimet"
+		"fi"	"Tahmapomminheittimet"
 	}
 	"swords"
 	{
-		"fi"	"Kaikki miekat"
+		"fi"	"Miekat"
 	}
 	"ambassador"
 	{
@@ -190,6 +198,14 @@
 	{
 		"fi"	"Pikkupojan paukkurauta"
 	}
+	"battalions"
+	{
+		"fi"	"Pataljoonan taustatuki"
+	}
+	"bazaar"
+	{
+		"fi"	"Toritarjous"
+	}
 	"beggars"
 	{
 		"fi"	"Kerjäläisen kanuuna"
@@ -197,6 +213,10 @@
 	"blackbox"
 	{
 		"fi"	"Musta laatikko"
+	}
+	"blutsauger"
+	{
+		"fi"	"Blutsauger"
 	}
 	"bonk"
 	{
@@ -338,6 +358,10 @@
 	{
 		"fi"	"Nukkuva karhu"
 	}
+	"huntsman"
+	{
+		"fi"	"Metsämies"
+	}
 	"ironbomber"
 	{
 		"fi"	"Rautapommittaja"
@@ -361,6 +385,10 @@
 	"madmilk"
 	{
 		"fi"	"Hullu maito"
+	}
+	"medieval"
+	{
+		"fi"	"Keskiaikainen Medic"
 	}
 	"gardener"
 	{
@@ -405,6 +433,10 @@
 	"razorback"
 	{
 		"fi"	"Selkäsuoja"
+	}
+	"redtape"
+	{
+		"fi"	"Punaisen nauhan nauhuri"
 	}
 	"rescueranger"
 	{
@@ -474,6 +506,10 @@
 	{
 		"fi"	"Nukutuskivääri"
 	}
+	"tankbuster"
+	{
+		"fi"	"Tankintorjuja"
+	}
 	"turner"
 	{
 		"fi"	"Aallonmurtaja"
@@ -489,6 +525,10 @@
 	"caber"
 	{
 		"fi"	"Ullapoolin tukki"
+	}
+	"vaccinator"
+	{
+		"fi"	"Rokottaja"
 	}
 	"vitasaw"
 	{
@@ -518,11 +558,19 @@
 	}
 	"Flamethrower_PreBM"
 	{
-		"fi"	"Ennen Blue Moonia: täysi vahinko liekkien tiheydestä riippumatta"
+		"fi"	"Ennen Blue Moonia: täysi vahinko liekkien tiheydestä riippumatta (noin +30%% enemmän vahinkoa)"
 	}
 	"Grenade_Pre2014"
 	{
-		"fi"	"Ennen 2014 joulua: +9%% räjähdysalue, vahinko vaihtelee paikasta riippuen (enemmän vahinkoa lähellä kohteen jalkoja)"
+		"fi"	"Ennen 2014 joulua: +9%% räjähdysalue, 112 perusvahinkoa osumakohdan mukaan vaihdellen (enemmän vahinkoa lähellä kohteen jalkoja)"
+	}
+	"Lunchbox_Pre2012"
+	{
+		"fi"	"Ennen 14. helmikuuta 2012: voi parantaa itseään poimimalla itse heittämiä eväsrasioita"
+	}
+	"Medigun_PreMYM"
+	{
+		"fi"	"Ennen Meet your Matchiä: varastoitunut lataus ei häviä ajan myötä"
 	}
 	"Minigun_ramp_PreLW"
 	{
@@ -534,11 +582,15 @@
 	}
 	"SniperRifle_PreLW"
 	{
-		"fi"	"Ennen 27. maaliskuuta 2014: voi hypätä heti kiikaroidun laukauksen jälkeen"
+		"fi"	"Ennen 27. elokuuta 2014: voi hypätä heti kiikaroidun laukauksen jälkeen"
 	}
 	"Stickybomb_PreLW"
 	{
-		"fi"	"Ennen Love&Waria: +9%% perusräjähdysalue, ilmassa räjäytetyillä pommeilla on täysi räjähdysalue"
+		"fi"	"Ennen Love&Waria: +9%% perusräjähdysalue, ilmassa räjäytetyillä tahmapommeilla on täysi räjähdysalue"
+	}
+	"Stickybomb_PreLW_Taunt_Detonate"
+	{
+		"fi"	"Ennen Love&Waria: +9%% perusräjähdysalue, ilmassa räjäytetyillä tahmapommeilla on täysi räjähdysalue, räjäytys onnistuu myös pilkatessa (käytä sm_detonatestickies)"
 	}
 	"Swords_PreTB"
 	{
@@ -552,6 +604,10 @@
 	{
 		"fi"	"Ennen Tough Breakiä: palauttaa tasan +3 HP/s käytössä riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa"
 	}
+	"Amputator_PreTB_Historical"
+	{
+		"fi"	"Ennen Tough Breakiä: palauttaa tasan +3 HP/s käytössä riippumatta siitä, ottiko käyttäjä viime aikana vahinkoa, ei ylilatauksen saantia parantaessa"
+	}
 	"Atomizer_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: kolmoishyppy on passiivinen, kolmoishyppy aiheuttaa 10 vahinkoa"
@@ -562,7 +618,7 @@
 	}
 	"Axtinguisher_PreLW"
 	{
-		"fi"	"Ennen Love&Waria: aina tekee kriittisiä osumia (195) palaviin pelaajiin, ei nopeuslisää taposta"
+		"fi"	"Ennen Love&Waria: aina tekee kriittisiä osumia (195) palaviin pelaajiin, ei kriittisiä osumia palamattomiin kohteisiin, ei nopeuslisää taposta"
 	}
 	"Axtinguisher_PreTB"
 	{
@@ -570,11 +626,11 @@
 	}
 	"Backburner_PreHat"
 	{
-		"fi"	"Hatless-päivitys versio: 10%% vahinkobonus"
+		"fi"	"Hatless-päivityksen versio: +10%% vahinkobonus"
 	}
 	"Backburner_119"
 	{
-		"fi"	"119. päivitys versio: 20%% vahinkobonus, ei ilmapuhallusta"
+		"fi"	"119. päivityksen versio: +20%% vahinkobonus, ei ilmapuhallusta"
 	}
 	"Backburner_Release"
 	{
@@ -586,11 +642,23 @@
 	}
 	"BabyFace_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: ei nopeusvähennystä vahingosta, vain -25%% ilmahypystä"
+		"fi"	"Ennen Gun Mettleä: ei boostin menetystä osumasta, vain -25%% ilmahypystä"
 	}
 	"BabyFace_Release"
 	{
-		"fi"	"Julkaisuversio: 40%% tarkempi, suurempi lipas, ei nopeusvähennystä vahingosta, -35%% liikenopeus, -30%% vahinkoa, -100%% kaikista hypyistä"
+		"fi"	"Julkaisuversio: +40%% tarkempi, ei pienennettyä lipasta tai boostin menetystä osumasta, -35%% liikenopeus, -30%% vahinkoa, boosti nollautuu jokaisesta hypystä"
+	}
+	"Battalions_PreHat"
+	{
+		"fi"	"Ennen Hatless-päivitystä: raivo kertyy otetusta vahingosta (yhteensä 175 vahinkoa), ei terveysbonusta, 35%% vartiotykkisieto (50%%:sta)"
+	}
+	"Bazaar_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: päät kertyvät pelkistä pääosumista (ei vaadi tappoja), -20%% peruslatausnopeus, +20%% latausnopeus päätä kohti enintään +100%%:iin, päät katoavat kiikaroiduista vartalo-osumista ja ohilaukauksista"
+	}
+	"Bazaar_Pre2013"
+	{
+		"fi"	"Ennen 2013 kesää: päät kertyvät pelkistä pääosumista (ei vaadi tappoja), -40%% peruslatausnopeus, +40%% latausnopeus päätä kohti enintään +240%%:iin (rajaton), päät katoavat kiikaroiduista vartalo-osumista ja ohilaukauksista"
 	}
 	"Beggars_Pre2013"
 	{
@@ -604,6 +672,10 @@
 	{
 		"fi"	"Ennen Gun Mettleä: rajoittamaton +15 terveyslisä etäisyydestä riippumatta"
 	}
+	"Blutsauger_Release"
+	{
+		"fi"	"Julkaisuversio: ei passiivisen terveydenpalautuksen heikkoutta, ei satunnaisia kriittisiä osumia, voi parantaa itseään naamioituihin Spyihin osuessa"
+	}
 	"Bonk_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: ei hidasta vaikutuksen päätyttyä"
@@ -614,7 +686,7 @@
 	}
 	"BrassBeast_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta (6.7%% kriittisiä osumia vastaan)"
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
 	}
 	"Bushwacka_PreLW"
 	{
@@ -622,19 +694,15 @@
 	}
 	"Bushwacka_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: 20%% passiivinen tulialttius aktiivisen vahinkoalittuden sijaan"
+		"fi"	"Ennen Gun Mettleä: 20%% passiivinen tulialttius aktiivisen yleisen vahinkoalttiuden sijaan"
 	}
 	"BuffaloSteak_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: vaikutus antaa +35%% nopeuslisän ja +10%% vahinkoalttiuden"
+		"fi"	"Ennen Meet your Matchiä: +35%% nopeuslisä ja +10%% vahinkoalttius"
 	}
 	"BuffaloSteak_Release"
 	{
-		"fi"	"Julkaisuversio: +35%% nopeusbonus, vahinko otettu on minikriittisenä, ei nopeusrajoitusta"
-	}
-	"BuffaloSteak_Pre2013"
-	{
-		"fi"	"Ennen 2013 kesää: +35%% nopeusbonus, vahinko otettu on minikriittisenä"
+		"fi"	"Julkaisuversio: +35%% nopeuslisä, vahinko otettu on minikriittistä, ei nopeusrajoitusta, ei jäähyä täydellä terveydellä, voi parantaa itsensä heittämällä pihvin"
 	}
 	"BuffBanner_Release"
 	{
@@ -678,11 +746,11 @@
 	}
 	"CritCola_PreJuly2013"
 	{
-		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittisenä"
+		"fi"	"Ennen 2013 kesää: +25%% nopeuslisä, vahinko otettu on minikriittistä"
 	}
 	"CrocoStyle_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, ei kuolemaa pääosumista kun terveys yli 1. Varusta Nukutuskivääri, Darwinin vaarakilpi ja Puskanpätkijä saadaksesi edun, hattua ei tarvita"
 	}
 	"CrusadersCrossbow_PreJI"
 	{
@@ -702,11 +770,15 @@
 	}
 	"Ringer_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia, 90%% vahingonsieto jopa 6 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä"
+		"fi"	"Ennen Gun Mettleä: voi kerätä ammuksia verhomittariin (35%% enimmäismäärä), 90%% vahingonsieto jopa 6 sekunniksi (vahinko vähentää aikaa), ei nopeuslisää tai jälkipolttoimmuniteettiä, ei heikennysten vähennystä verhoutuneena"
 	}
 	"Ringer_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: samat perusominaisuudet, mutta voi täyttää verhoutumismittaria ammuksilla näkyvänä (35%% vähemmän)"
+		"fi"	"Ennen Jungle Infernoa: voi kerätä ammuksia verhomittariin näkyvänä"
+	}
+	"Ringer_Pre2013"
+	{
+		"fi"	"Ennen 2013 kesää: voi kerätä ammuksia verhomittariin (35%% enimmäismäärä), 90%% vahingonsieto 6 sekunniksi, ei nopeuslisää tai jälkipolttoimmuniteettiä, ei heikennysten vähennystä verhoutuneena"
 	}
 	"Degreaser_PreTB"
 	{
@@ -722,11 +794,11 @@
 	}
 	"DragonFury_Release"
 	{
-		"fi"	"Julkaisuversio: suurempi ammuksen koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
+		"fi"	"Ennen Blue Moonia: suurempi ammuksen koko ja ei tarvi osua keskustaan saadakseen bonusvahingon"
 	}
 	"DragonFury_Release_Patchless"
 	{
-		"fi"	"Palautettu julkaisuversion suurempi projektiilin koko"
+		"fi"	"Osittain palautettu ennen Blue Moonia: suurempi ammuksen koko"
 	}
 	"Enforcer_PreGM"
 	{
@@ -742,11 +814,11 @@
 	}
 	"Equalizer_PreHat"
 	{
-		"fi"	"Ennen Hatless-päivitystä: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 113 vahinkoa, kun terveys on 1"
+		"fi"	"Ennen Hatless-päivitystä: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 113 vahinkoa, kun terveys on 1, 256 pilkka-itsevahinkoa"
 	}
 	"Equalizer_Release"
 	{
-		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1"
+		"fi"	"Julkaisuversio: sulautettu takaisin yhteen, aseen ollessa aktiivisena: estää parannuksen, ei voi kutsua Mediciä, ei merkkaa kuolemaan; tekee 162 vahinkoa, kun terveys on 1, 256 pilkka-itsevahinkoa"
 	}
 	"Eureka_SpawnRefill"
 	{
@@ -758,11 +830,11 @@
 	}
 	"Eviction_PreMYM"
 	{
-		"fi"	"Ennen Tough Breakiä: +50%% tulitusnopeus, ei laske terveyttä, ei aktiivista nopeusbonusta"
+		"fi"	"Ennen Tough Breakiä: +50%% tulitusnopeus, ei terveyden laskua, ei aktiivista nopeuslisää"
 	}
 	"Expert_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, +10%% tulisieto. Varusta Lataus ja Laattaus sekä Ullapoolin tukki saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, +10%% tulisieto. Varusta Lataus ja Laattaus sekä Ullapoolin tukki saadaksesi edun, hattua ei tarvita"
 	}
 	"FistSteel_PreJI"
 	{
@@ -782,19 +854,19 @@
 	}
 	"GasJockey_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, +10%% nopeuslisä ja luotialttius. Varusta Rasvanpolttaja ja Tunkki saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, +10%% nopeuslisä ja luotialttius. Varusta Rasvanpolttaja ja Tunkki saadaksesi edun, hattua ei tarvita"
 	}
 	"GlovesRU_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: ei laske terveyttä, ei poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
+		"fi"	"Ennen Tough Breakiä: ei terveyden laskua tai poislaittoheikkoutta, merkkaa kuolemaan, -25%% vahinkoa"
 	}
 	"GlovesRU_PrePyro"
 	{
-		"fi"	"Ennen Pyromaniaa: ei laske enimmäisterveyttä, ei poislaittoheikkoutta, aktiivisena poistaa 6 HP/s, -50%% vahinkoa"
+		"fi"	"Julkaisuversio: ei enimmäisterveyden laskua tai poislaittoheikkoutta, aktiivisena poistaa 6 HP/s, -50%% vahinkoa"
 	}
 	"Gunboats_Release"
 	{
-		"fi"	"Julkaisuversio: -75%% räjähdysvahinkoa rakettihypyistä"
+		"fi"	"Julkaisuversio: -75%% räjähdysvahinkoa rakettihypyistä, vahingonvähennys koskee myös itsemurhapilkan itsevahinkoa"
 	}
 	"Gunslinger_PreGM"
 	{
@@ -810,7 +882,11 @@
 	}
 	"Hibernate_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, +5%% kriittisen osuman sieto. Varusta Messinkipeto, Puhvelinpihvipurilainen ja Soturin sielu saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, +5%% kriittisen osuman sieto. Varusta Messinkipeto, Puhvelinpihvipurilainen ja Soturin sielu saadaksesi edun, hattua ei tarvita"
+	}
+	"Huntsman_Pre2013"
+	{
+		"fi"	"Palautettu pilkkabugi ennen 20. joulukuuta 2013; toista pilkkahyökkäystä nopeasti vihollisen Metsämies-Sniperin kanssa tainnuttaaksenne toisenne ikuisesti mahdollisimman inhimillisesti"
 	}
 	"IronBomber_Pre2022"
 	{
@@ -823,7 +899,7 @@
 	"Jag_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: ei vahinkovähennystä rakennuksiin (poista tyhjentäjät kahdella osumalla), ei hitaampaa korjausaikaa tai nopeampaa tulitusnopeutta"
-	}	
+	}
 	"Liberty_Release"
 	{
 		"fi"	"Julkaisuversio: +40%% ammuksen nopeus, -25%% lippaan koko"
@@ -838,7 +914,11 @@
 	}
 	"Cannon_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: +50%% ammuksen nopeus, vakiot 60 vahingon osumat"
+		"fi"	"Ennen Tough Breakiä: +50%% ammuksen nopeus, vakiot 60 perusvahingon osumat, suurempi työntövoima, ei tainnutusta"
+	}
+	"Cannon_Pre2013"
+	{
+		"fi"	"Ennen 2013 kesää: 2s sytytysaika, +50%% ammuksen nopeus, osumavahinko kasvaa etäisyyden mukaan, ei tupladonkia, suurempi työntövoima, ei tainnutusta, -50%% vahinkoa osuessa pintoihin"
 	}
 	"MadMilk_Release"
 	{
@@ -848,13 +928,21 @@
 	{
 		"fi"	"Ennen Tough Breakiä: ei tulitusnopeusheikkoutta"
 	}
+	"Medieval_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +1 terveyden palautus sekunnissa. Varusta Vapahtajan varsijousi ja Amputoija saadaksesi edun, hattua ei tarvita"
+	}
 	"Natascha_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta (6.7%% kriittisiä osumia vastaan)"
+		"fi"	"Ennen Meet your Matchiä: 20%% vahingonsieto pyörittäessä terveydestä riippumatta"
 	}
 	"Natascha_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: täysi hidastus etäisyydestä riippumatta, 300 ammusta, ei vahingonsietoa pyörittäessä"
+		"fi"	"Ennen Gun Mettleä: hidastaa myös kaukana olevat kohteet, 300 ammusta, ei vahingonsietoa pyörittäessä"
+	}
+	"Natascha_PreDec2010"
+	{
+		"fi"	"Ennen 17. joulukuuta 2010: täysi 75%% hidastus etäisyydestä riippumatta, ei hitaampaa pyörimisaikaa, ei vahingonsietoa pyörittäessä"
 	}
 	"Panic_PreJI"
 	{
@@ -866,67 +954,79 @@
 	}
 	"Persuader_PreMnvy"
 	{
-		"fi"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
+		"fi"	"Ennen Manniversary-päivitystä: kerää ammuksia terveytenä (mukaan lukien metallia pudotetuista ammuspakkauksista, 120 HP per pakkaus), +100%% ryntäyksen latausnopeus, ei vähennettyä maksimiammusmäärää"
 	}
 	"Phlog_Pyro"
 	{
-		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää elinmittarin 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
+		"fi"	"Ennen Tough Breakiä: MMMPHin aktivointi täyttää terveyden 75%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
 	}
 	"Phlog_Release"
 	{
-		"fi"	"Julkaisuversio: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, vaikutus kestää 13 sekuntia"
+		"fi"	"Julkaisuversio: MMMPHin aktivointi täyttää terveyden 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, vaikutus kestää 13 sekuntia"
 	}
 	"Phlog_March2012"
 	{
-		"fi"	"15. maaliskuta 2012: MMMPHin aktivointi täyttää elinmittarin 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
+		"fi"	"Ennen Pyromaniaa: MMMPHin aktivointi täyttää terveyden 90%% vahinkosiedolla pilkatessa, MMMPH vaatii 225 tulivahinkoa, -10%% vahinkovähennys"
+	}
+	"Phlog_Pre2016"
+	{
+		"fi"	"Ennen 20. tammikuuta 2016: MMMPHin aktivointi täyttää terveyden, MMMPH vaatii 225 tulivahinkoa"
 	}
 	"Pomson_PreGM"
 	{
-		"fi"	"Suurempi ammuksen koko, läpäisee tiimikaverit, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko, läpäisee tiimikaverit, täydet latauslaskut, läpäisee luotivahingonsiedot, sytyttää tiimin Metsämiehen nuolet"
 	}
 	"Pomson_Release"
 	{
-		"fi"	"Julkaisuversio: suurempi ammuksen koko, läpäisee kohteet, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
+		"fi"	"Suurempi ammuksen koko, läpäisee kohteet, täydet latauslaskut, läpäisee luotivahingonsiedot, sytyttää tiimin Metsämiehen nuolet; poistaa verhomittaria joka osumalla naamioituneilta tai verhoutuneilta"
 	}
-	"Pomson_PreGM_Historical"
+	"Pomson_PreMYM"
 	{
-		"fi"	"Ennen Gun Mettleä: suurempi ammuksen koko, läpäisee tiimin rakennukset, täydet latauslaskut, sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
-	}	
+		"fi"	"Suurempi ammuksen koko, läpäisee tiimikaverit, läpäisee luotivahingonsiedot, sytyttää tiimin Metsämiehen nuolet"
+	}
 	"Powerjack_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: samat perusominaisuudet, mutta tapot palauttavat 75 terveyttä (pystyy yliparantamaan)"
 	}
 	"Powerjack_Release"
 	{
-		"fi"	"Julkaisuversio: ei nopeusbonusta tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), +25%% vahinkobonus, ei sat. kriittisiä osumia"
+		"fi"	"Julkaisuversio: ei nopeuslisää tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), +25%% vahinkobonus, ei satunnaisia kriittisiä osumia"
 	}
 	"Powerjack_Pre2013"
 	{
-		"fi"	"Julkaisuversio: ei nopeusbonusta tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), 20%% aktiivinen lähitaisteluaseen vahinkoalttius"
+		"fi"	"Ennen 2013 kesää: ei nopeuslisää tai vahinkoalttiutta, tapot palauttavat 75 terveyttä (pystyy yliparantamaan), 20%% aktiivinen lähitaisteluaseen vahinkoalttius"
 	}
 	"Pocket_Release"
 	{
-		"fi"	"Julkaisuversio: +15 maksimiterveys, putoamisvahinkoimmuniteetti, 25%% hitaampi tulitusnopeus, 50%% tulialttius"
+		"fi"	"Julkaisuversio: +15 maksimiterveys, ei lippaan vähennystä, putoamisvahinkoimmuniteetti, 25%% hitaampi tulitusnopeus, 50%% tulialttius"
 	}
 	"Pocket_PreBM"
 	{
 		"fi"	"Ennen Blue Moonia: osumasta saa jopa +7 terveyttä"
 	}
+	"Pocket_PreJI"
+	{
+		"fi"	"Ennen Jungle Infernoa: +5 terveyttä osumasta, ei lippaan vähennystä, 25%% hitaampi tulitusnopeus, käytössä: putoamisvahinkoimmuniteetti ja 20%% vahinkoalttius"
+	}
 	"Quickfix_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: +25%% ylilatauksen kerääntymisnopeus, ylilatauksen alla voi vallata pisteitä"
+		"fi"	"Ennen Tough Breakiä: +25%% ylilatauksen kertymisnopeus, ylilatauksen alla voi vallata pisteitä"
 	}
 	"Quickfix_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: +25%% ylilatauksen kerääntymisnopeus"
+		"fi"	"Ennen Meet your Matchiä: +25%% ylilatauksen kertymisnopeus"
 	}
 	"Quickiebomb_PreMYM"
 	{
-		"fi"	"Ennen Meet your Matchiä: maksimilatausaika vähenentty 50%%, jopa +25%% vahinkoa latauksen perusteella, -25%% lipas, pommit hajoavat 4s jälkeen"
+		"fi"	"Ennen Meet your Matchiä: -25%% lippaan koko, maksimilatausaika vähennetty 50%%, jopa +25%% vahinkoa latauksen perusteella, pommit hajoavat 4s jälkeen"
 	}
 	"Razorback_PreJI"
 	{
 		"fi"	"Ennen Jungle Infernoa: voi saada yliparannusta, suoja ei uudistu"
+	}
+	"RedTape_Release"
+	{
+		"fi"	"Julkaisuversio: kelaa takaperin rakennusten päivitykset nopeammin (1,6s)"
 	}
 	"RescueRanger_PreGM"
 	{
@@ -954,11 +1054,7 @@
 	}
 	"Bison_PreMYM"
 	{
-		"fi"	"Suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa"
-	}
-	"Bison_PreTB"
-	{
-		"fi"	"Ennen Tough Breakiä: suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), sytyttää tiimin nuolet, tekee tyypitöntä vahinkoa, vanha vahinkokaava"
+		"fi"	"Suurempi ammuksen koko (voi osua samaa kohdetta monta kertaa), läpäisee luotivahingonsiedot, sytyttää tiimin Metsämiehen nuolet"
 	}
 	"RocketJmp_Pre2013"
 	{
@@ -966,19 +1062,23 @@
 	}
 	"RocketJmp_Release"
 	{
-		"fi"	"Julkaisuversio: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; voi kantaa tiedustelusalkkua, sat. kritit"
+		"fi"	"Julkaisuversio: suojaa kaikesta räjähdysitsevahingosta, mukaan lukien Tasoittajan/Pakosuunnitelman pilkasta; voi kantaa tiedustelusalkkua"
 	}
 	"Saharan_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger (poistaa +40%% verh. keston) ja Ikuinen palkkiosi saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger (poistaa verhoutumisbonuksen) ja Ikuinen palkkiosi saadaksesi edun, hattua ei tarvita"
 	}
 	"Saharan_ExtraCloak"
 	{
-		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger ja Ikuinen palkkiosi (tai Mustan magian piikki) saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, hiljainen verhoistapoistuminen, 0,5s pidempi verhoutumisen välkkymisaika. Varusta L'Etranger ja Ikuinen palkkiosi (tai Mustan magian piikki) saadaksesi edun, hattua ei tarvita"
 	}
 	"Sandman_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajat, 15 sekunnin latausaika"
+		"fi"	"Ennen Jungle Infernoa: pallo-osumat tainnuttavat pelaajat, tainnutusuhrit liikkuvat 50%% hitaammin, 15 sekunnin latausaika"
+	}
+	"Sandman_PreApr2010"
+	{
+		"fi"	"Ennen 28. huhtikuuta 2010: pallo-osumat tainnuttavat pelaajat, tainnutusuhrien nopeus on rajoitettu 225 Hu/s, 15 sekunnin latausaika"
 	}
 	"Sandman_PreWAR"
 	{
@@ -990,15 +1090,15 @@
 	}
 	"Sandvich_PreEngineer"
 	{
-		"fi"	"Ennen Engineer-päivitystä: paranna itseäsi syömällä tai heittämällä voileivän, voi syödä leipää lopullisesti ellei sitä heitetä, uuden leivän saa varustelokerikosta tai terveyspakkauksesta"
+		"fi"	"Ennen Engineer-päivitystä: paranna itsesi syömällä tai heittämällä voileipä, voi syödä loputtomasti, mutta heitetty voileipä pitää ladata uudelleen varustelokerikosta tai terveyspakkauksista"
 	}
 	"Sandvich_Pre2012"
 	{
-		"fi"	"Ennen helmikuuta 2012: voi parantaa itseään heittämällä voileivän"
+		"fi"	"Ennen 14. helmikuuta 2012: voi parantaa itseään poimimalla itse heittämiä voileipiä"
 	}
 	"Scottish_Release"
 	{
-		"fi"	"Julkaisuversio: 0,4s hitaampi viritysaika (0,8:sta), ei tulitusnopeusbonusta"
+		"fi"	"Julkaisuversio: 0,4s hitaampi viritysaika (0,8:sta), ei tulitusnopeuslisää"
 	}
 	"Circuit_PreMYM"
 	{
@@ -1006,7 +1106,11 @@
 	}
 	"Circuit_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä (kuluttaa 5 metallia + 15 per tuhottu projektiili), ei metallia apulaitteista kun käytössä"
+		"fi"	"Ennen Gun Mettleä: ensisijatulitus tuhoaa projektiilejä (kuluttaa 5 metallia + 15 tuhottua projektiilia kohti), ei metallia apulaitteista kun käytössä"
+	}
+	"Circuit_PreFeb2014"
+	{
+		"fi"	"Ennen 7. helmikuuta 2014: ensisijatulitus tuhoaa projektiilejä (kuluttaa 5 metallia + 15 tuhottua projektiilia kohti)"
 	}
 	"Circuit_Dec2013"
 	{
@@ -1020,17 +1124,13 @@
 	{
 		"fi"	"Ennen Manniversary-päivitystä: nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
 	}
-	"Shortstop_PreGM_Shove"
-	{
-		"fi"	"Ennen Gun Mettleä: +20%% bonusparannusta terveyspakkauksista käytössä, +40%% passiivinen työntövoima, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
-	}
 	"Shortstop_Release_Shove"
 	{
-		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
+		"fi"	"Julkaisuversio: osuma hidastaa kohteen 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa; tönäisy on säilytetty"
 	}
 	"Shortstop_Release"
 	{
-		"fi"	"Julkaisuversio: hidasta kohde 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
+		"fi"	"Julkaisuversio: osuma hidastaa kohteen 40%%:lla 0,5 sekunniksi, nopea lataus, ei lisättyä työntövoimaa, jakaa ammukset pistoolin kanssa, ei tönäisyä"
 	}
 	"Sodapop_Pre2013"
 	{
@@ -1046,27 +1146,39 @@
 	}
 	"SpDelivery_Release"
 	{
-		"fi"	"Palautettu esinejoukkoetu, +25 maksimiterveys. Varusta Pysäyttäjä, Hullu maito ja Pyhä makrilli saadaksesi edun."
+		"fi"	"Palautettu esinejoukkoetu, +25 maksimiterveys. Varusta Pysäyttäjä, Hullu maito ja Pyhä makrilli saadaksesi edun, hattua ei tarvita"
+	}
+	"SpDelivery_StockMelee"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +25 maksimiterveys. Varusta Pysäyttäjä, Hullu maito ja mikä tahansa peruslähitaisteluase tai sen ulkoasuvariantti saadaksesi edun, hattua ei tarvita"
 	}
 	"Splendid_PreTB"
 	{
-		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi ryntäysvahinko kaikilta etäisyyksiltä"
+		"fi"	"Ennen Tough Breakiä: 15%% räjähdyssieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi 85 perusryntäysvahinko kaikilta etäisyyksiltä"
+	}
+	"Splendid_Release"
+	{
+		"fi"	"Julkaisuversio: 25%% tulisieto, ei nopeampaa latausaikaa, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, täysi 85 perusryntäysvahinko kaikilta etäisyyksiltä"
 	}
 	"SpyCicle_PreGM"
 	{
 		"fi"	"Ennen Gun Mettleä: 2s tuli-immuniteetti, hiljainen tappaja, ammukset eivät lataa puukkoa"
 	}
+	"SpyCicle_Pre2011"
+	{
+		"fi"	"Julkaisuversio: 2s tuli-immuniteetti, hiljainen tappaja, ammukset eivät lataa puukkoa, käyttää miekkailupilkkaa"
+	}
 	"StkJumper_Pre2013"
 	{
-		"fi"	"Pyromania-päivitys versio: voi olla taas enintään 8 tahmapommia"
+		"fi"	"Pyromania-päivityksen versio: voi olla enintään 8 tahmapommia kerrallaan"
 	}
 	"StkJumper_Pre2013_Intel"
 	{
-		"fi"	"Manniversary-päivitys versio: voi olla taas enintään 8 tahmapommia, voi kantaa tiedustelusalkkua"
+		"fi"	"Manniversary-päivityksen versio: voi olla enintään 8 tahmapommia kerrallaan, voi kantaa tiedustelusalkkua"
 	}
 	"StkJumper_Pre2011"
 	{
-		"fi"	"22. joulukuuta 2010: enintään 8 tahmapommia, voi kantaa tiedustelusalkkua, +100%% luoti-, räjähdys-, ja tulivahinkoalttius, ei räjähdysitsevahinkoa, sat. kritit"
+		"fi"	"22. joulukuuta 2010: enintään 8 tahmapommia kerrallaan, voi kantaa tiedustelusalkkua, +100%% luoti-, räjähdys-, ja tulialttius, ei räjähdysitsevahinkoa"
 	}
 	"Sleeper_PreBM"
 	{
@@ -1076,9 +1188,21 @@
 	{
 		"fi"	"Ennen Gun Mettleä: peitä kohde Jaratella 8 sekunniksi latauksen yli 50%%, ei pääosumabonuksia"
 	}
+	"TankBuster_Release"
+	{
+		"fi"	"Palautettu esinejoukkoetu, +20%% vartiotykkivahingonsieto. Varusta Musta laatikko ja Pataljoonan taustatuki saadaksesi edun, hattua ei tarvita"
+	}
 	"Turner_PreTB"
 	{
 		"fi"	"Ennen Tough Breakiä: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
+	}
+	"Turner_PreDec2014"
+	{
+		"fi"	"Ennen 2014 joulua: voi tehdä kriittisiä osumia, 25%% räjähdys- ja tulisieto, 100%% lataus taposta, ei latauksen menetystä osumasta, kriittinen osuma ryntäysosuman jälkeen, ei heikennyspoistoa, ryntäysvahinko vain ryntäyksen lopussa"
+	}
+	"Tomislav_PreLWSoundOnly"
+	{
+		"fi"	"Palautettu ampumisäänet ennen Love&Waria: korkeammat aseen äänet"
 	}
 	"Tomislav_PrePyro"
 	{
@@ -1094,7 +1218,15 @@
 	}
 	"Caber_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: räjähdys tekee aina 175+ vahinkoa"
+		"fi"	"Ennen Gun Mettleä: räjähdys tekee aina 175+ vahinkoa, ei esiinveto- tai heilautusnopeuden heikkoutta, 35 lähitaisteluvahinkoa"
+	}
+	"Vaccinator_PreTB"
+	{
+		"fi"	"Ennen Tough Breakiä: 10%% terveyden palautus oikeasta sietotyypistä, +50%% ylilatauksen kertymisnopeus, -66%% kertymisnopeus yliparannetuilla potilailla"
+	}
+	"Vaccinator_PreGM"
+	{
+		"fi"	"Ennen Gun Mettleä: täysi kriittisten osumien perussieto, 25%% terveyden palautus oikeasta sietotyypistä, ei ylilatauksen kertymisnopeusheikkouksia, +50%% kertymisnopeus, kuplat katoavat katkaistaessa, vain 1 sietotyyppi potilaalle"
 	}
 	"VitaSaw_PreJI"
 	{
@@ -1106,14 +1238,18 @@
 	}
 	"Wrangler_PreGM"
 	{
-		"fi"	"Ennen Gun Mettleä: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen"
+		"fi"	"Ennen Gun Mettleä: täysin korjaa ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen"
 	}
 	"Wrangler_PreLW"
 	{
-		"fi"	"Ennen Love&Waria: täysin paranna ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, vahinko ei putoa kantaman ulkopuolella ja riippuu käyttäjän paikasta"
+		"fi"	"Ennen Love&Waria: täysin korjaa ja täytä ammuksia suojan alla, kuollessa suoja häviää 1 sekunnin jälkeen, luotivahinko ei riipu etäisyydestä"
+	}
+	"Wrangler_Release"
+	{
+		"fi"	"Julkaisuversio: täysin korjaa ja täytä ammuksia suojan alla, parempi tarkkuus kaukaa, luotivahinko ei riipu etäisyydestä"
 	}
 	"Eternal_PreJI"
 	{
-		"fi"	"Ennen Jungle Infernoa: ei voi naamioitua, ei nopeuta verhoutumisen katoamista"
+		"fi"	"Ennen Jungle Infernoa: ei nopeuta verhoutumisen katoamista, ei voi naamioitua valikon kautta"
 	}
 }
