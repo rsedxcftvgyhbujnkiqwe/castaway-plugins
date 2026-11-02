@@ -1703,6 +1703,12 @@ void ReadMapcycle()
 	char key[256];
 	while (iter.Next(key, sizeof(key)))
 	{
+		if (StrEqual(key, "All Maps", false))
+		{
+			LogError("Map category cannot be named \"All Maps\"!");
+			continue;
+		}
+
 		JSONObject val = view_as<JSONObject>(iter.Value);
 		if (val.Type != JSON_TYPE_OBJ)
 		{

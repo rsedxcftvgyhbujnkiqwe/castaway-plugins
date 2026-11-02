@@ -16,6 +16,10 @@
     {
         "en"    "Current nominations"
     }
+    "All Maps"
+    {
+        "en"    "All Maps"
+    }
     // Uncomment this when using newer versions of SourceMod
     // "Select Title"
     // {

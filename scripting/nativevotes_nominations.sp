@@ -521,59 +521,59 @@ void OpenNominationMenu(int client)
 
 void ShowMapMenu(int client, const char[] category)
 {
-    Menu menu = new Menu(MenuHandler_CategoryMapSelect);
+	Menu menu = new Menu(MenuHandler_CategoryMapSelect);
 
-    menu.SetTitle(category);
+	menu.SetTitle(category);
 
-    ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
-    if (!GetMapsInCategory(category, maps))
-    {
-        LogError("Invalid map category passed to ShowMapMenu");
-        delete maps;
-        delete menu;
-        return;
-    }
+	ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	if (!GetMapsInCategory(category, maps))
+	{
+		LogError("Invalid map category passed to ShowMapMenu");
+		delete maps;
+		delete menu;
+		return;
+	}
 
-    for (int i = 0; i < maps.Length; i++)
-    {
-        char map[PLATFORM_MAX_PATH], display[PLATFORM_MAX_PATH];
-        maps.GetString(i, map, sizeof(map));
-        strcopy(display, sizeof(display), map);
+	for (int i = 0; i < maps.Length; i++)
+	{
+		char map[PLATFORM_MAX_PATH], display[PLATFORM_MAX_PATH];
+		maps.GetString(i, map, sizeof(map));
+		strcopy(display, sizeof(display), map);
 
-        int displayStatus = ITEMDRAW_DEFAULT, mapStatus;
-        if (!g_mapTrie.GetValue(map, mapStatus))
-        {
-            LogError("Menu selection of item not in trie. Major logic problem somewhere.");
-        }
-        else
-        {
-            if ((mapStatus & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
-            {
-                displayStatus = ITEMDRAW_DISABLED;
-            }
+		int displayStatus = ITEMDRAW_DEFAULT, mapStatus;
+		if (!g_mapTrie.GetValue(map, mapStatus))
+		{
+			LogError("Menu selection of item not in trie. Major logic problem somewhere.");
+		}
+		else
+		{
+			if ((mapStatus & MAPSTATUS_DISABLED) == MAPSTATUS_DISABLED)
+			{
+				displayStatus = ITEMDRAW_DISABLED;
+			}
 
-		    if ((mapStatus & MAPSTATUS_EXCLUDE_CURRENT) == MAPSTATUS_EXCLUDE_CURRENT)
-		    {
-		    	Format(display, sizeof(display), "%s (%T)", map, "Current Map", client);
-		    }
+			if ((mapStatus & MAPSTATUS_EXCLUDE_CURRENT) == MAPSTATUS_EXCLUDE_CURRENT)
+			{
+				Format(display, sizeof(display), "%s (%T)", map, "Current Map", client);
+			}
 
-		    if ((mapStatus & MAPSTATUS_EXCLUDE_PREVIOUS) == MAPSTATUS_EXCLUDE_PREVIOUS)
-		    {
-		    	Format(display, sizeof(display), "%s (%T)", map, "Recently Played", client);
-		    }
+			if ((mapStatus & MAPSTATUS_EXCLUDE_PREVIOUS) == MAPSTATUS_EXCLUDE_PREVIOUS)
+			{
+				Format(display, sizeof(display), "%s (%T)", map, "Recently Played", client);
+			}
 
-		    if ((mapStatus & MAPSTATUS_EXCLUDE_NOMINATED) == MAPSTATUS_EXCLUDE_NOMINATED)
-		    {
-		    	Format(display, sizeof(display), "%s (%T)", map, "Nominated", client);
-		    }
-        }
+			if ((mapStatus & MAPSTATUS_EXCLUDE_NOMINATED) == MAPSTATUS_EXCLUDE_NOMINATED)
+			{
+				Format(display, sizeof(display), "%s (%T)", map, "Nominated", client);
+			}
+		}
 
-        menu.AddItem(map, display, displayStatus);
-    }
+		menu.AddItem(map, display, displayStatus);
+	}
 
-    delete maps;
+	delete maps;
 
-    menu.Display(client, MENU_TIME_FOREVER);
+	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 void BuildMapMenu()
@@ -584,7 +584,7 @@ void BuildMapMenu()
 	g_MapList.Clear();
 	g_mapTrie.Clear();
 
-	g_MapCategoryMenu = new Menu(MenuHandler_CategorySelect);
+	g_MapCategoryMenu = new Menu(MenuHandler_CategorySelect, MENU_ACTIONS_DEFAULT|MenuAction_DisplayItem|MenuAction_Display);
 	g_LegacyMapMenu = new Menu(MenuHandler_MapSelect, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem|MenuAction_Display);
 
 	g_LegacyMapMenu.SetTitle("Nominate Title");
@@ -607,6 +607,8 @@ void BuildMapMenu()
 
 	ArrayList categories = new ArrayList(ByteCountToCells(256));
 	GetMapCategories(categories);
+
+	g_MapCategoryMenu.AddItem("All Maps", "All Maps");
 
 	for (int i = 0; i < categories.Length; i++)
 	{
@@ -745,31 +747,56 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 	return 0;
 }
 
-public void MenuHandler_CategorySelect(Menu menu, MenuAction action, int param1, int param2)
+public int MenuHandler_CategorySelect(Menu menu, MenuAction action, int param1, int param2)
 {
-	if (action == MenuAction_Select)
+	switch (action)
 	{
-        char category[256];
-		menu.GetItem(param2, category, sizeof(category));
-        ShowMapMenu(param1, category);
+		case MenuAction_Select:
+		{
+			char category[256];
+			menu.GetItem(param2, category, sizeof(category));
+			ShowMapMenu(param1, category);
+		}
+		case MenuAction_Display:
+		{
+			char buffer[256];
+			Format(buffer, sizeof(buffer), "%T", "Nominate Title", param1);
+
+			Panel panel = view_as<Panel>(param2);
+			panel.SetTitle(buffer);
+		}
+		case MenuAction_DisplayItem:
+		{
+			char info[256];
+			menu.GetItem(param2, info, sizeof(info));
+
+			if (StrEqual(info, "All Maps"))
+			{
+				char display[256];
+				Format(display, sizeof(display), "%T", "All Maps", param1);
+				return RedrawMenuItem(display);
+			}
+		}
 	}
+
+	return 0;
 }
 
 public void MenuHandler_CategoryMapSelect(Menu menu, MenuAction action, int param1, int param2)
 {
-    switch (action)
-    {
-        case MenuAction_Select:
-        {
-            char map[PLATFORM_MAX_PATH];
-            menu.GetItem(param2, map, sizeof(map));
-            AttemptNominate(param1, map, sizeof(map), false);
-        }
-        case MenuAction_End:
-        {
-            delete menu;
-        }
-    }
+	switch (action)
+	{
+		case MenuAction_Select:
+		{
+			char map[PLATFORM_MAX_PATH];
+			menu.GetItem(param2, map, sizeof(map));
+			AttemptNominate(param1, map, sizeof(map), false);
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
 }
 
 public void MenuHandler_CheckNominations(Menu menu, MenuAction action, int param1, int param2)
