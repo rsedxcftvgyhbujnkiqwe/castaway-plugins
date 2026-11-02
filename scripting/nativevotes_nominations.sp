@@ -577,6 +577,25 @@ void ShowMapMenu(int client, const char[] category)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
+void ShowAllMapsMenu(int client)
+{
+	// this is different than the legacy menu as it has an ExitBack button
+	// but we reuse the same callback for convenience
+	Menu menu = new Menu(MenuHandler_MapSelect, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem|MenuAction_Display|MenuAction_Cancel);
+
+	menu.SetTitle("%T", "All Maps", client);	
+	for (int i = 0; i < g_MapList.Length; i++)
+	{
+		char map[PLATFORM_MAX_PATH], display[PLATFORM_MAX_PATH];
+		g_MapList.GetString(i, map, sizeof(map));
+		GetMapDisplayName(map, display, sizeof(display));
+		menu.AddItem(map, display);
+	}
+
+	menu.ExitBackButton = true;
+	menu.Display(client, MENU_TIME_FOREVER);
+}
+
 void BuildMapMenu()
 {
 	delete g_MapCategoryMenu;
@@ -756,6 +775,14 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 				delete menu;
 			}
 		}
+		case MenuAction_Cancel:
+		{
+			// for the all maps menu
+			if (param2 == MenuCancel_ExitBack)
+			{
+				g_MapCategoryMenu.Display(param1, MENU_TIME_FOREVER);
+			}
+		}
 	}
 	return 0;
 }
@@ -770,7 +797,7 @@ public int MenuHandler_CategorySelect(Menu menu, MenuAction action, int param1, 
 			menu.GetItem(param2, category, sizeof(category));
 			if (StrEqual(category, "All Maps"))
 			{
-				g_LegacyMapMenu.Display(param1, MENU_TIME_FOREVER);
+				ShowAllMapsMenu(param1);
 			}
 			else
 			{
