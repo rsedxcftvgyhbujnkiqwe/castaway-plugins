@@ -1738,24 +1738,56 @@ void ReadMapcycle()
 			continue;
 		}
 
-		g_ActiveMapCategories.Set(key, maps);
-
-		for (int i = 0; i < maps.Length; i++)
+		JSONArray cleanMaps = new JSONArray();
+		JSONArrIter mapsIter = new JSONArrIter(maps);
+		if (mapsIter == null)
 		{
-			char map[PLATFORM_MAX_PATH];
-			maps.GetString(i, map, sizeof(map));
-			TrimString(map);
-			if (!strlen(map))
+			LogError("mapsIter is null somehow");
+			delete maps;
+			delete val;
+			continue;
+		}
+		while (mapsIter.HasNext)
+		{
+			JSON mapValue = mapsIter.Next;
+			if (mapValue == null)
 			{
+				LogError("mapValue is null somehow");
 				continue;
 			}
+			if (mapValue.Type != JSON_TYPE_STR)
+			{
+				LogError("Encountered map that's not a string");
+				delete mapValue;
+				continue;
+			}
+
+			char mapStr[PLATFORM_MAX_PATH];
+			mapValue.GetString(mapStr, sizeof(mapStr));
+			TrimString(mapStr);
+			if (strlen(mapStr))
+			{
+				cleanMaps.PushString(mapStr);
+			}
+
+			delete mapValue;
+		}
+		delete mapsIter;
+		delete maps;
+
+		g_ActiveMapCategories.Set(key, cleanMaps);
+
+		for (int i = 0; i < cleanMaps.Length; i++)
+		{
+			char map[PLATFORM_MAX_PATH];
+			cleanMaps.GetString(i, map, sizeof(map));
 			if (g_MapList.FindString(map) == -1)
 			{
 				g_MapList.PushString(map);
 			}
 		}
 
-		delete maps;
+		delete cleanMaps;
 		delete val;
 	}
 
