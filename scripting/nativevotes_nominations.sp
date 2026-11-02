@@ -538,7 +538,7 @@ void ShowMapMenu(int client, const char[] category)
 	{
 		char map[PLATFORM_MAX_PATH], display[PLATFORM_MAX_PATH];
 		maps.GetString(i, map, sizeof(map));
-		strcopy(display, sizeof(display), map);
+		GetMapDisplayName(map, display, sizeof(display));
 
 		int displayStatus = ITEMDRAW_DEFAULT, mapStatus;
 		if (!g_mapTrie.GetValue(map, mapStatus))
