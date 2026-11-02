@@ -617,6 +617,9 @@ public Action Command_ReloadMapcycle(int client, int args)
 {
 	ReadMapcycle();
 
+	Call_StartForward(g_MapConfigExecutedForward);
+	Call_Finish();
+
 	return Plugin_Handled;
 }
 
