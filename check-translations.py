@@ -14,6 +14,7 @@ repo = Repo(os.getcwd())
 argument_parser = argparse.ArgumentParser(description="Helper script for checking translation status.")
 
 argument_parser.add_argument("phrases", type=str, help="Phrases to check the translation status on.")
+argument_parser.add_argument("lang", type=str, nargs="*", help="Check translations for these languages.")
 argument_parser.add_argument("-o", "--out", type=str, help="Output file (omit to print to stdout).")
 argument_parser.add_argument("--format-markdown", help="Print in Markdown format.",
                              action="store_true")
@@ -85,6 +86,8 @@ if args.format_tasklist and format_markdown:
     tasklist_symbol = "[ ] "
 
 for i in languages:
+    if args.lang and i not in args.lang:
+        continue
     if (language := ALL_LANGUAGES.get(i)) is None:
         print(f"Warning: Unknown language {i}", file=sys.stderr)
         language = i
