@@ -644,7 +644,7 @@
 	}
 	"Bazaar_PreGM"
 	{
-		"pl"	"Głowy są zbierane poprzez trafienie w głowę, nie zabójstwo. -20%% tempa ładowania, +7.5%% do tempa ładowania za każdą głowę, maks. +45%%, -1 głowa po nie trafieniu w głowę"
+		"pl"	"Głowy są zbierane poprzez trafienie w głowę, nie zabójstwo. -20%% tempa ładowania, +20%% do tempa ładowania za każdą głowę, maks. +100%%, -1 głowa po nie trafieniu w głowę"
 	}
 	"Beggars_Pre2013"
 	{
@@ -1224,7 +1224,7 @@
 	}
 	"Wrangler_Release"
 	{
-		"pl"	"Przywrócono do momentu wydania (2010), brak redukcji naprawy, lepsza celność na dużych dystansach, brak spadku obrażeń poza zasięgiem, pociski naliczają obr. na podstawie położenia działka
+		"pl"	"Przywrócono do momentu wydania (2010), brak redukcji naprawy, lepsza celność na dużych dystansach, brak spadku obrażeń poza zasięgiem, pociski naliczają obr. na podstawie położenia działka"
 	}
 	"Eternal_PreJI"
 	{

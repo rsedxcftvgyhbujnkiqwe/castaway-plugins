@@ -1,0 +1,15 @@
+"Games"
+{
+    "tf"
+    {
+        "Signatures"
+        {
+            "CTeamplayRoundBasedRules::ResetTeamsRoundWinTracking"
+            {
+                "library"   "server"
+                "linux"     "@_ZN24CTeamplayRoundBasedRules26ResetTeamsRoundWinTrackingEv"
+                "windows"   "\x66\x83\xB9\xC2\x03\x00\x00\x02"
+            }
+        }
+    }
+}

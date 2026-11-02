@@ -4,13 +4,6 @@
     {
         "Signatures"
         {
-            "CBaseEntity::Create()"
-            {
-                "library" "server"
-                "windows" "\x55\x8B\xEC\x56\x6A\xFF\xFF\x75\x2A\xE8\x2A\x2A\x2A\x2A\x8B\xF0\x83\xC4\x08\x85\xF6\x75\x2A\x6A\x01" // offset aPlayerManager ; "player_manager", go to call below it
-                "linux"   "@_ZN11CBaseEntity6CreateEPKcRK6VectorRK6QAnglePS_"
-            }
-
             "CTFFlameEntity::OnCollide()" // offset aFlameTouchDmg1 ; "Flame touch dmg: %.1f\n"
             {
                 "library" "server"
