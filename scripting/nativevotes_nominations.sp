@@ -521,7 +521,7 @@ void OpenNominationMenu(int client)
 
 void ShowMapMenu(int client, const char[] category)
 {
-	Menu menu = new Menu(MenuHandler_CategoryMapSelect);
+	Menu menu = new Menu(MenuHandler_CategoryMapSelect, MENU_ACTIONS_DEFAULT|MenuAction_Cancel);
 
 	menu.SetTitle(category);
 
@@ -573,6 +573,7 @@ void ShowMapMenu(int client, const char[] category)
 
 	delete maps;
 
+	menu.ExitBackButton = true;
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
@@ -798,6 +799,13 @@ public void MenuHandler_CategoryMapSelect(Menu menu, MenuAction action, int para
 			char map[PLATFORM_MAX_PATH];
 			menu.GetItem(param2, map, sizeof(map));
 			AttemptNominate(param1, map, sizeof(map), false);
+		}
+		case MenuAction_Cancel:
+		{
+			if (param2 == MenuCancel_ExitBack)
+			{
+				g_MapCategoryMenu.Display(param1, MENU_TIME_FOREVER);
+			}
 		}
 		case MenuAction_End:
 		{
