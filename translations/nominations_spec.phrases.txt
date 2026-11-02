@@ -16,4 +16,9 @@
     {
         "en"    "Current nominations"
     }
+    // Uncomment this when using newer versions of SourceMod
+    // "Select Title"
+    // {
+    //     "en"    "Select map"
+    // }
 }
