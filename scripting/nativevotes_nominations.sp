@@ -616,6 +616,18 @@ void BuildMapMenu()
 		char category[256];
 		categories.GetString(i, category, sizeof(category));
 		g_MapCategoryMenu.AddItem(category, category);
+		ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+		GetMapsInCategory(category, maps);
+		for (int k = 0; k < maps.Length; k++)
+		{
+			char currMap[PLATFORM_MAX_PATH];
+			maps.GetString(k, currMap, sizeof(currMap));
+			if (g_MapList.FindString(currMap) == -1)
+			{
+				g_MapList.PushString(currMap);
+			}
+		}
+		delete maps;
 	}
 
 	delete categories;
