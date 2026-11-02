@@ -578,7 +578,7 @@ void ShowMapMenu(int client, const char[] category)
 
 void BuildMapMenu()
 {
-	delete g_MapMenu;
+	delete g_MapCategoryMenu;
 	delete g_LegacyMapMenu;
 
 	g_MapList.Clear();
@@ -755,7 +755,14 @@ public int MenuHandler_CategorySelect(Menu menu, MenuAction action, int param1, 
 		{
 			char category[256];
 			menu.GetItem(param2, category, sizeof(category));
-			ShowMapMenu(param1, category);
+			if (StrEqual(category, "All Maps"))
+			{
+				g_LegacyMapMenu.Display(param1, MENU_TIME_FOREVER);
+			}
+			else
+			{
+				ShowMapMenu(param1, category);
+			}
 		}
 		case MenuAction_Display:
 		{
@@ -879,7 +886,7 @@ public Action Menu_Nominate(int client, NativeVotesOverride overrideType, const 
 
 public Action NativeVotes_OverrideMaps(StringMap mapList)
 {
-	if (g_MapMenu == null || g_LegacyMapMenu == null)
+	if (g_MapCategoryMenu == null || g_LegacyMapMenu == null)
 	{
 		BuildMapMenu();
 	}
