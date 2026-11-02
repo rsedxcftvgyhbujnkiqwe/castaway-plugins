@@ -164,6 +164,7 @@ public void OnPluginStart()
 
 	RegAdminCmd("sm_mapvote", Command_Mapvote, ADMFLAG_CHANGEMAP, "sm_mapvote - Forces MapChooser to attempt to run a map vote now.");
 	RegAdminCmd("sm_setnextmap", Command_SetNextmap, ADMFLAG_CHANGEMAP, "sm_setnextmap <map>");
+	RegAdminCmd("sm_reloadmapcycle", Command_ReloadMapcycle, ADMFLAG_CONFIG, "sm_reloadmapcycle - Reloads mapcycle");
 
 	g_Cvar_Winlimit = FindConVar("mp_winlimit");
 	g_Cvar_Maxrounds = FindConVar("mp_maxrounds");
@@ -607,6 +608,14 @@ public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast
 public Action Command_Mapvote(int client, int args)
 {
 	InitiateVote(MapChange_MapEnd, null);
+
+	return Plugin_Handled;
+}
+
+
+public Action Command_ReloadMapcycle(int client, int args)
+{
+	ReadMapcycle();
 
 	return Plugin_Handled;
 }
