@@ -306,14 +306,14 @@ public Action Command_Nominate(int client, int args)
 	{
 		// Get the result and nominate it
 		g_MapList.GetString(results.Get(0), mapResult, sizeof(mapResult));
-		AttemptNominate(client, mapResult, sizeof(mapResult), false);
+		AttemptNominate(client, mapResult, false);
 	}
 	else if (matches > 1)
 	{
 		if (source == SM_REPLY_TO_CONSOLE)
 		{
 			// if source is console, attempt instead of displaying menu.
-			AttemptNominate(client, mapname, sizeof(mapname), false);
+			AttemptNominate(client, mapname, false);
 			delete results;
 			return Plugin_Handled;
 		}
@@ -400,11 +400,11 @@ int FindMatchingMaps(ArrayList mapList, ArrayList results, const char[] input)
 	return matches;
 }
 
-void AttemptNominate(int client, const char[] map, int size, bool isVoteMenu)
+void AttemptNominate(int client, const char[] map, bool isVoteMenu)
 {
 	char mapname[PLATFORM_MAX_PATH];
 
-	if (FindMap(map, mapname, size) == FindMap_NotFound)
+	if (FindMap(map, mapname, sizeof(mapname)) == FindMap_NotFound)
 	{
 		// We couldn't resolve the map entry to a filename, so...
 		ReplyToCommand(client, "%t", "Map was not found", mapname);
@@ -697,7 +697,7 @@ public int MenuHandler_MapSelect(Menu menu, MenuAction action, int param1, int p
 			char mapname[PLATFORM_MAX_PATH];
 			// Get the map name and attempt to nominate it
 			menu.GetItem(param2, mapname, sizeof(mapname));
-			AttemptNominate(param1, mapname, sizeof(mapname), false);
+			AttemptNominate(param1, mapname, false);
 		}
 		case MenuAction_DrawItem:
 		{
@@ -837,7 +837,7 @@ public void MenuHandler_CategoryMapSelect(Menu menu, MenuAction action, int para
 		{
 			char map[PLATFORM_MAX_PATH];
 			menu.GetItem(param2, map, sizeof(map));
-			AttemptNominate(param1, map, sizeof(map), false);
+			AttemptNominate(param1, map, false);
 		}
 		case MenuAction_Cancel:
 		{
@@ -924,7 +924,7 @@ public Action Menu_Nominate(int client, NativeVotesOverride overrideType, const 
 	char mapname[PLATFORM_MAX_PATH];
 	strcopy(mapname, sizeof(mapname), voteArgument);
 
-	AttemptNominate(client, mapname, sizeof(mapname), true);
+	AttemptNominate(client, mapname, true);
 
 	SetCmdReplySource(old);
 
