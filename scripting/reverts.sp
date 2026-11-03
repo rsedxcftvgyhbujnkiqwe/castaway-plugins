@@ -5998,35 +5998,16 @@ MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam 
 }
 
 MRESReturn DHookCallback_CTFBaseRocket_GetRadius_Post(int entity, DHookReturn returnValue) {
-	int owner;
-	int weapon;
-	char class[64];
-
-	GetEntityClassname(entity, class, sizeof(class));
-
-	owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
-
+	int owner = GetEntityOwner(entity);
 	if (
-		owner > 0 &&
-		owner <= MaxClients && // rockets can be fired by non-player entities
-		weapon > 0
+		owner >= 1 && owner <= MaxClients &&
+		ItemIsEnabled(Wep_Airstrike) &&
+		TF2_IsPlayerInCondition(owner, TFCond_BlastJumping) &&
+		TF2Attrib_HookValueFloat(1.0, "rocketjump_attackrate_bonus", owner) != 1.0
 	) {
-		if (StrEqual(class, "tf_projectile_rocket")) {
-			GetEntityClassname(weapon, class, sizeof(class));
-
-			if (
-				ItemIsEnabled(Wep_Airstrike) &&
-				StrEqual(class, "tf_weapon_rocketlauncher_airstrike") &&
-				IsPlayerAlive(owner) &&
-				TF2_IsPlayerInCondition(owner, TFCond_BlastJumping)
-			) {
-				returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
-				return MRES_Override;
-			}
-		}
+		returnValue.Value = view_as<float>(returnValue.Value) * 1.25;
+		return MRES_Override;
 	}
-
 	return MRES_Ignored;
 }
 
