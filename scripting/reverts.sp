@@ -3179,12 +3179,13 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 264, 1.50); // melee range multiplier
 	}
 
-	RequestFrame(ApplyRevertsToItem_PostFrame, entity);
+	RequestFrame(ApplyRevertsToItem_PostFrame, EntIndexToEntRef(entity));
 }
 
-void ApplyRevertsToItem_PostFrame(int entity) {
-	if (!IsValidEntity(entity))
-		return;
+void ApplyRevertsToItem_PostFrame(int ref) {
+	int entity = EntRefToEntIndex(ref);
+
+	if (!IsValidEntity(entity)) return;
 
 	// int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 	char class[64];
@@ -4416,7 +4417,7 @@ Action SDKHookCB_OnTakeDamage(
 					)
 				) {
 					// shield bash always guarantees crits
-					RequestFrame(SetMeleeCrit, attacker);
+					RequestFrame(SetMeleeCrit, GetClientUserId(attacker));
 
 					// if using splendid screen, bash damage at any range
 					// other shields can only bash at the end of a charge
@@ -5641,7 +5642,8 @@ void SetShovelSpeedBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
 }
 
-void SetMeleeCrit(int client) {
+void SetMeleeCrit(int userid) {
+	int client = GetClientOfUserId(userid);
 	if (!IsClientInGame(client))
 		return;
 
@@ -5651,7 +5653,7 @@ void SetMeleeCrit(int client) {
 void SetDemoChargeMeter(DataPack pack) {
 	pack.Reset();
 
-	int client = pack.ReadCell();
+	int client = GetClientOfUserId(pack.ReadCell());
 	float charge = pack.ReadFloat();
 
 	delete pack;
@@ -7434,7 +7436,7 @@ MRESReturn DHookCallback_CTFPlayer_Event_KilledOther_Post(int client, DHookParam
 	) {
 		// set charge on next frame
 		DataPack pack = new DataPack();
-		pack.WriteCell(client);
+		pack.WriteCell(GetClientUserId(client));
 		pack.WriteFloat(GetEntPropFloat(client, Prop_Send, "m_flChargeMeter"));
 		RequestFrame(SetDemoChargeMeter, pack);
 	}
