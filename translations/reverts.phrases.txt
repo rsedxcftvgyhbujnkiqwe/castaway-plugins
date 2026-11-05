@@ -578,7 +578,7 @@
 	}
 	"SniperRifle_PreLW"
 	{
-		"en"	"Reverted to pre-August 27, 2014, can jump immediately after firing a scoped shot (scope jumping)"
+		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
 	}
 	"Stickybomb_PreLW"
 	{
@@ -587,6 +587,14 @@
 	"Stickybomb_PreLW_Taunt_Detonate"
 	{
 		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius, can detonate while taunting (bind \"sm_detonatestickies\" to a key)"
+	}
+	"Stickybomb_Pre2009"
+	{
+		"en"	"Reverted to pre-February 16, 2009; 150%% close-range ramp-up (from 120%%), +9%% base blast radius, air-detonated stickies have full blast radius"
+	}
+	"Stickybomb_Pre2009_Taunt_Detonate"
+	{
+		"en"	"Reverted to pre-February 16, 2009; 150%% close-range ramp-up (from 120%%), +9%% base blast radius, air-detonated stickies have full blast radius, can detonate while taunting (bind \"sm_detonatestickies\" to a key)"
 	}
 	"Swords_PreTB"
 	{
