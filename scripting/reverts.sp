@@ -2156,7 +2156,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 	) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
-		SDKHook(entity, SDKHook_Touch, SDKHookCB_Touch);
+		SDKHook(entity, SDKHook_Touch, SDKHookCB_ProjectileTouch);
 	}
 	else if (StrEqual(class, "tf_projectile_stun_ball")) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
@@ -3181,8 +3181,8 @@ public void ApplyRevertsToItem(int entity) {
 
 void ApplyRevertsToItem_PostFrame(int ref) {
 	int entity = EntRefToEntIndex(ref);
-
-	if (!IsValidEntity(entity)) return;
+	if (!IsValidEntity(entity))
+		return;
 
 	// int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
 	char class[64];
@@ -3954,7 +3954,7 @@ void SDKHookCB_SpawnPost(int entity) {
 	}
 }
 
-Action SDKHookCB_Touch(int entity, int other) {
+Action SDKHookCB_ProjectileTouch(int entity, int other) {
 	char class[64];
 	int owner;
 	int weapon;
@@ -3962,58 +3962,54 @@ Action SDKHookCB_Touch(int entity, int other) {
 	GetEntityClassname(entity, class, sizeof(class));
 
 	// projectile touch tracking
-	if (
-		strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0 &&
-		other >= 1 && other <= MaxClients
-	) {
+	if (other >= 1 && other <= MaxClients) {
 		players[other].projectile_touch_frame = GetGameTickCount();
 		players[other].projectile_touch_entity = entity;
 	}
 
-	{
-		// energy ring stuff
+	// energy ring stuff
+	if (StrEqual(class, "tf_projectile_energy_ring")) {
+		owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 
-		if (StrEqual(class, "tf_projectile_energy_ring")) {
-			owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-			weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
+		if (owner > 0 && weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
 
-			if (owner > 0 && weapon > 0) {
-				GetEntityClassname(weapon, class, sizeof(class));
-
+			if (
+				ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
+				ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
+			) {
 				if (
-					ItemIsEnabled(Wep_Bison) && StrEqual(class, "tf_weapon_raygun") ||
-					ItemIsEnabled(Wep_Pomson) && StrEqual(class, "tf_weapon_drg_pomson")
+					other >= 1 && other <= MaxClients &&
+					AreEntitiesOnSameTeam(entity, other)
 				) {
-					if (other >= 1 && other <= MaxClients) {
-						if (AreEntitiesOnSameTeam(entity, other)) {
-							// Ignite friendly Huntsman arrows
-							weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
-							if (weapon > 0) {
-								if (HasEntProp(weapon, Prop_Send, "m_bArrowAlight")) {
-									SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
-								}
-							}
-
-							// Pass through teammates
-							return Plugin_Handled;
-						}
+					// Ignite friendly Huntsman arrows
+					weapon = GetEntPropEnt(other, Prop_Send, "m_hActiveWeapon");
+					if (
+						weapon > 0 &&
+						HasEntProp(weapon, Prop_Send, "m_bArrowAlight")
+					) {
+						SetEntProp(weapon, Prop_Send, "m_bArrowAlight", true);
 					}
-					else if (other > MaxClients) {
 
-						GetEntityClassname(other, class, sizeof(class));
+					// Pass through teammates
+					return Plugin_Handled;
+				}
+				else if (other > MaxClients) {
 
-						// Pass through friendly buildings
-						if (
-							strncmp(class, "obj_", sizeof("obj_") - 1) == 0 &&
-							AreEntitiesOnSameTeam(entity, other)
-						) {
-							return Plugin_Handled;
-						}
+					GetEntityClassname(other, class, sizeof(class));
 
-						// Don't collide with projectiles
-						if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
-							return Plugin_Handled;
-						}
+					// Pass through friendly buildings
+					if (
+						strncmp(class, "obj_", sizeof("obj_") - 1) == 0 &&
+						AreEntitiesOnSameTeam(entity, other)
+					) {
+						return Plugin_Handled;
+					}
+
+					// Don't collide with projectiles
+					if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
+						return Plugin_Handled;
 					}
 				}
 			}
