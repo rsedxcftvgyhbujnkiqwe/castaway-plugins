@@ -688,6 +688,7 @@ public void OnPluginStart() {
 	ItemDefine("sentry", "Sentry_PreTB", CLASSFLAG_ENGINEER, Feat_Sentry);
 	ItemDefine("sniperrifles", "SniperRifle_PreLW", CLASSFLAG_SNIPER, Feat_SniperRifle);
 	ItemDefine("stickybomb", "Stickybomb_PreLW", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Stickybomb);
+	ItemVariant(Feat_Stickybomb, "Stickybomb_Pre2009");
 	ItemDefine("swords", "Swords_PreTB", CLASSFLAG_DEMOMAN, Feat_Sword);
 
 	// Item sets
@@ -4176,6 +4177,20 @@ Action SDKHookCB_OnTakeDamage(
 					// bump this to 5x to counter the 0.2x multiplier for demo explosives
 					// this gives +/- 15% random variance for grenades
 					cvar_ref_tf_damage_range.FloatValue *= 5.0;
+				}
+			}
+
+			{
+				// stickybomb close-range damage bonus revert
+				if (
+					GetItemVariant(Feat_Stickybomb) == 1 &&
+					StrEqual(class, "tf_weapon_pipebomblauncher")
+				) {
+					// bump this to 5x to counter the 0.2x multiplier for demo explosives
+					cvar_ref_tf_damage_range.FloatValue *= 5.0;
+
+					damage_type &= ~DMG_NOCLOSEDISTANCEMOD;
+					return Plugin_Changed;
 				}
 			}
 
