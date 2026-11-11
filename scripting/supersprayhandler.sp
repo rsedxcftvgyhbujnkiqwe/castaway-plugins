@@ -113,7 +113,7 @@ public void OnPluginStart()
     cvar.location.AddChangeHook(LocationChanged);
     g_iHudLoc = cvar.location.IntValue;
 
-    g_cShowTrace = new Cookie("Show spray trace", "Toggle the \"Sprayed by...\" HUD message.", CookieAccess_Public);
+    g_cShowTrace = new Cookie("Show spray trace", "Toggle the \"Sprayed by...\" HUD message.", CookieAccess_Protected);
     g_cShowTrace.SetPrefabMenu(CookieMenu_OnOff_Int, "Show spray trace", OnTraceCookieMenu);
 
     AutoExecConfig(true, "plugin.ssh");
@@ -293,7 +293,7 @@ void ClearHud(int client, int hudType, float gameTime)
 
 public void OnTraceCookieMenu(int client, CookieMenuAction action, any info, char[] buffer, int maxlen) {
     if (action == CookieMenuAction_DisplayOption) {
-        Format(buffer, maxlen, "%t", "Spray Trace Toggle", client);
+        Format(buffer, maxlen, "%T", "Spray Trace Toggle", client);
     }
 }
 
