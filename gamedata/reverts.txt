@@ -360,6 +360,11 @@
 				"windows"	"438"
 				"linux"		"445"
 			}
+			"CTFGameRules::PlayerMayCapturePoint"
+			{
+				"windows"	"160"
+				"linux"		"161"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -756,6 +761,32 @@
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"float"
+			}
+			"CTFGameRules::PlayerMayCapturePoint"
+			{
+				"offset"	"CTFGameRules::PlayerMayCapturePoint"
+				"hooktype"	"gamerules"
+				"this"		"address"
+				"return"	"bool"
+				"arguments"
+				{
+					"pPlayer"
+					{
+						"type"	"cbaseentity"
+					}
+					"iPointIndex"
+					{
+						"type"	"int"
+					}
+					"pszReason"
+					{
+						"type"	"charptr"
+					}
+					"iMaxReasonLength"
+					{
+						"type"	"int"
+					}
+				}
 			}
 
 			// Signature

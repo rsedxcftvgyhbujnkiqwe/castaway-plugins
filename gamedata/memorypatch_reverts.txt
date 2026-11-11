@@ -16,12 +16,6 @@
 				"windows" "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x48\x02\x00\x00\x56\x57\x8B\xF9\x8B\x8F"
 				"linux"   "@_ZN24CTFProjectile_BallOfFire4BurnEP11CBaseEntity"
 			}
-			"CTFGameRules::PlayerMayCapturePoint"
-			{
-				"library" "server"
-				"windows" "\x55\x8B\xEC\x53\x56\x57\x8B\x7D\x2A\x8B\xD9\x85\xFF\x74\x2A\x8B\x07\x8B\xCF\x8B\x80"
-				"linux"	"@_ZN12CTFGameRules21PlayerMayCapturePointEP11CBasePlayeriPci"
-			}
 			// dropped weapon
 			"CTFPlayer::DropAmmoPack"
 			{
@@ -335,27 +329,7 @@
 			// ║                    Medic                     ║
 			// ╚══════════════════════════════════════════════╝
 
-			// ================================================
-			//  Quick-Fix ubercharge does not allow
-			//  point capture, removal.
-			
-
-			"CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint"
-			{
-				"signature" "CTFGameRules::PlayerMayCapturePoint"
-				"linux"
-				{
-					"offset"    "264"
-					"verify"    "\x83\xEC\x08\x6A\x1C\x57\xE8\x2A\x2A\x2A\x2A\x83\xC4\x10\x84\xC0\x0F\x85\x2A\x2A\x2A\x2A" // Read readme-memorypatches.md for details
-					"patch"     "\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90" // NOP the entire thing.
-				}
-				"windows"
-				{
-					"offset"    "92"
-					"verify"    "\x6A\x1C\x8B\xCE\xE8\x2A\x2A\x2A\x2A" // PUSH 0x1C; MOV ECX, ESI; CALL [offset]
-					"patch"     "\xB0\x00\x90\x90\x90\x90\x90\x90\x90" // MOV AL, 0; NOP x8 — force return false
-				}
-			}
+			// No patches for Medic at the moment.
 
 			// ╔══════════════════════════════════════════════╗
 			// ║                   Sniper                     ║

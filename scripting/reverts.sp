@@ -335,7 +335,6 @@ ConVar cvar_ref_weapon_medigun_charge_rate;
 MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
 MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
 MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
-MemoryPatch patch_RevertQuickFix_Uber_CannotCapturePoint;
 MemoryPatch patch_RevertIronBomber_PipeHitbox;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
@@ -399,6 +398,7 @@ DynamicHook dhook_CTFPlayer_TakeHealth;
 DynamicHook dhook_CBaseCombatWeapon_Deploy;
 DynamicHook dhook_CBaseCombatWeapon_Holster;
 DynamicHook dhook_CTFWeaponBase_GetSpeedMod;
+DynamicHook dhook_CTFGameRules_PlayerMayCapturePoint;
 
 DynamicDetour dhook_CTFPlayer_CanDisguise;
 DynamicDetour dhook_CTFPlayer_CalculateMaxSpeed;
@@ -459,6 +459,7 @@ Handle hudsync;
 int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
+bool playing_mvm;
 
 OperatingSystem operatingSystem;
 
@@ -802,11 +803,8 @@ public void OnPluginStart() {
 	ItemDefine("pocket", "Pocket_Release", CLASSFLAG_SCOUT, Wep_PocketPistol);
 	ItemVariant(Wep_PocketPistol, "Pocket_PreBM");
 	ItemVariant(Wep_PocketPistol, "Pocket_PreJI");
-#if defined MEMORY_PATCHES
-	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC | ITEMFLAG_MEMPATCH, Wep_QuickFix);
-#else
-	ItemDefine("quickfix", "Quickfix_PreMYM", CLASSFLAG_MEDIC, Wep_QuickFix);
-#endif
+	ItemDefine("quickfix", "Quickfix_PreTB", CLASSFLAG_MEDIC, Wep_QuickFix);
+	ItemVariant(Wep_QuickFix, "Quickfix_PreMYM");
 	ItemDefine("quickiebomb", "Quickiebomb_PreMYM", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Wep_Quickiebomb);
 	ItemDefine("razorback", "Razorback_PreJI", CLASSFLAG_SNIPER, Wep_Razorback);
 	ItemDefine("redtape", "RedTape_Release", CLASSFLAG_SPY | ITEMFLAG_DISABLED, Wep_RedTape);
@@ -988,6 +986,7 @@ public void OnPluginStart() {
 		dhook_CBaseCombatWeapon_Deploy = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Deploy");
 		dhook_CBaseCombatWeapon_Holster = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Holster");
 		dhook_CTFWeaponBase_GetSpeedMod = DynamicHook.FromConf(conf, "CTFWeaponBase::GetSpeedMod");
+		dhook_CTFGameRules_PlayerMayCapturePoint = DynamicHook.FromConf(conf, "CTFGameRules::PlayerMayCapturePoint");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1042,7 +1041,6 @@ public void OnPluginStart() {
 		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
 		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
 		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertQuickFix_Uber_CannotCapturePoint = MemoryPatch.CreateFromConf(conf, "CTFGameRules::PlayerMayCapturePoint_QuickFixUberCanCapturePoint");
 		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
 		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
@@ -1141,6 +1139,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Deploy);
 	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Holster);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_GetSpeedMod);
+	VALIDATE_HANDLE(dhook_CTFGameRules_PlayerMayCapturePoint);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -1171,7 +1170,6 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
-	VALIDATE_PATCH(patch_RevertQuickFix_Uber_CannotCapturePoint);
 	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
 	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
@@ -1202,6 +1200,7 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Pre, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Pre);
 	dhook_CTFProjectile_Arrow_BuildingHealingArrow.Enable(Hook_Post, DHookCallback_CTFProjectile_Arrow_BuildingHealingArrow_Post);
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Pre, DHookCallback_CTFPlayer_RegenThink_Pre);
+	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo_Pre);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo_Pre);
 	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
@@ -1229,6 +1228,7 @@ public void OnPluginStart() {
 #endif
 
 	team_round_timer_entity = -1;
+	playing_mvm = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1303,7 +1303,6 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_QuickFix),Wep_QuickFix);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
@@ -1385,13 +1384,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 				patch_RevertCannotDetonateStickiesWhileTaunting.Disable();
 			}
 		}
-		case Wep_QuickFix: {
-			if (enable) {
-				patch_RevertQuickFix_Uber_CannotCapturePoint.Enable();
-			} else {
-				patch_RevertQuickFix_Uber_CannotCapturePoint.Disable();
-			}
-		}
 		case Wep_MadMilk: {
 			if (enable) {
 				patch_RevertMadMilk_ChgFloatAddr.Enable();
@@ -1459,6 +1451,11 @@ public void OnMapStart() {
 	PrecacheParticleSystem("doublejump_puff_alt");
 	PrecacheParticleSystem("dxhr_arm_muzzleflash");
 	PrecacheParticleSystem("peejar_impact_small");
+
+	playing_mvm = GameRules_GetProp("m_bPlayingMannVsMachine", 1) ? true : false;
+
+	dhook_CTFGameRules_PlayerMayCapturePoint.HookGamerules(Hook_Pre, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre);
+	dhook_CTFGameRules_PlayerMayCapturePoint.HookGamerules(Hook_Post, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post);
 }
 
 public void OnGameFrame() {
@@ -1620,8 +1617,8 @@ public void OnGameFrame() {
 									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
 									if (
-										timer > 0.1 &&
-										players[idx].cleaver_regen_time > 0.1 &&
+										timer > 0.0 &&
+										players[idx].cleaver_regen_time > 0.0 &&
 										(players[idx].cleaver_regen_time - timer) > 1.49 &&
 										(players[idx].cleaver_regen_time - timer) < 1.51
 									) {
@@ -1647,7 +1644,7 @@ public void OnGameFrame() {
 								if (StrEqual(class, "tf_weapon_bat_wood")) {
 									timer = GetEntPropFloat(weapon, Prop_Send, "m_flEffectBarRegenTime");
 
-									if (timer > 0.1) {
+									if (timer > 0.0) {
 										// m_flEffectBarRegenTime is the timestamp whenever the recharge is complete
 										// nudge the timestamp to get our desired recharge time using the following formula:
 										// new time = old time / ( 1 - nudge constant )
@@ -6377,65 +6374,32 @@ MRESReturn DHookCallback_CTFPlayer_AddToSpyKnife_Pre(int entity, DHookReturn ret
 }
 
 MRESReturn DHookCallback_CTFPlayer_RegenThink_Pre(int client) {
-	int weapon;
-	bool full_regen = false;
-	float regen_amount;
-	float time_since_damage;
-	float regen_scale;
-
-	// Don't proceed if in MvM
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
-		return MRES_Ignored;
-
 	if (
-		client > 0 &&
-		client <= MaxClients
+		!playing_mvm && // Don't proceed if in MvM
+		client >= 1 && client <= MaxClients
 	) {
 		if (
-			ItemIsEnabled(Wep_Concheror) &&
-			player_weapons[client][Wep_Concheror]
+			(
+				ItemIsEnabled(Wep_Concheror) &&
+				player_weapons[client][Wep_Concheror] ||
+				ItemIsEnabled(Wep_Amputator) &&
+				player_weapons[client][Wep_Amputator] ||
+				ItemIsEnabled(Set_Medieval) &&
+				player_weapons[client][Set_Medieval]
+			) && TF2Attrib_HookValueFloat(0.0, "add_health_regen", client) > 0.0
 		) {
-			full_regen = true;
-		}
-
-		weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-		if (
-			ItemIsEnabled(Wep_Amputator) &&
-			player_weapons[client][Wep_Amputator] &&
-			weapon > MaxClients &&
-			weapon == GetPlayerWeaponSlot(client, TFWeaponSlot_Melee)
-		) {
-			full_regen = true;
-		}
-
-		if (
-			ItemIsEnabled(Set_Medieval) &&
-			player_weapons[client][Set_Medieval]
-		) {
-			full_regen = true;
-		}
-
-		if (full_regen) {
-			regen_amount = TF2Attrib_HookValueFloat(0.0, "add_health_regen", client);
-			time_since_damage = GetGameTime() - TF2Util_GetPlayerLastDamageReceivedTime(client);
-			regen_scale = 1.0;
-
-			if (time_since_damage < 5.0) {
-				regen_scale = 4.0; // 1 / 0.25
-			} else {
-				// inverse of flScale = RemapValClamped( flTimeSinceDamage, 5.0f, 10.0f, 0.5f, 1.0f );
-				// third parameter is 9.0 to minimize chance of regen overshooting
-				regen_scale = ValveRemapVal(time_since_damage, 5.0, 9.0, 2.0, 1.0);
-			}
-
-			// apply regen
-			regen_amount *= regen_scale - 1.0; // compensate for original regen source
-			if (regen_amount != 0.0) {
-				TF2Attrib_AddCustomPlayerAttribute(client, "health drain medic", regen_amount, 0.001);
-			}
+			// Fake MvM gamerule for full regen
+			GameRules_SetProp("m_bPlayingMannVsMachine", true, 1);
 		}
 	}
 
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPlayer_RegenThink_Post(int client) {
+	if (!playing_mvm) {
+		GameRules_SetProp("m_bPlayingMannVsMachine", false, 1);
+	}
 	return MRES_Ignored;
 }
 
@@ -7122,7 +7086,7 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 
 				// MvM bosses
 				if (
-					GameRules_GetProp("m_bPlayingMannVsMachine") &&
+					GameRules_GetProp("m_bPlayingMannVsMachine", 1) &&
 					(
 						GetEntProp(victim, Prop_Send, "m_bIsMiniBoss") ||
 						GetEntPropFloat(victim, Prop_Send, "m_flModelScale") > 1.0
@@ -7554,6 +7518,27 @@ MRESReturn DHookCallback_CTFShovel_GetSpeedMod_Post(int entity, DHookReturn retu
 	return MRES_Ignored;
 }
 
+MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre(Address _this, DHookReturn returnValue, DHookParam parameters) {
+	int client = parameters.Get(1);
+	if (
+		!playing_mvm &&
+		GetItemVariant(Wep_QuickFix) == 0 &&
+		client >= 1 && client <= MaxClients &&
+		!PlayerIsUbered(client) &&
+		TF2_IsPlayerInCondition(client, TFCond_MegaHeal)
+	) {
+		GameRules_SetProp("m_bPlayingMannVsMachine", true, 1);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post(Address _this, DHookReturn returnValue, DHookParam parameters) {
+	if (!playing_mvm) {
+		GameRules_SetProp("m_bPlayingMannVsMachine", false, 1);
+	}
+	return MRES_Ignored;
+}
+
 // stocks
 
 stock bool PlayerIsUbered(int client) {
@@ -7726,7 +7711,7 @@ stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
 // WARNING: Do not use in MVM!
 stock int FindSentryGunOwnedByClient(int client)
 {
-	if (GameRules_GetProp("m_bPlayingMannVsMachine"))
+	if (playing_mvm)
 		return -1;
 
 	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
