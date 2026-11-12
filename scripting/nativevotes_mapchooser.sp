@@ -1778,13 +1778,15 @@ void ReadMapcycle()
 				continue;
 			}
 
-			if (FindMap(mapStr, "", 0) == FindMap_NotFound)
+			char foundMap[PLATFORM_MAX_PATH];
+			FindMapResult mapResult = FindMap(mapStr, foundMap, sizeof(foundMap));
+			if (mapResult == FindMap_NotFound)
 			{
 				delete mapValue;
 				continue;
 			}
 
-			cleanMaps.PushString(mapStr);
+			cleanMaps.PushString(foundMap);
 			delete mapValue;
 		}
 		delete mapsIter;
