@@ -1765,15 +1765,30 @@ void ReadMapcycle()
 			char mapStr[PLATFORM_MAX_PATH];
 			mapValue.GetString(mapStr, sizeof(mapStr));
 			TrimString(mapStr);
-			if (strlen(mapStr))
+			if (!strlen(mapStr))
 			{
-				cleanMaps.PushString(mapStr);
+				delete mapValue;
+				continue;
 			}
 
+			if (FindMap(mapStr, NULL_STRING, 0) == FindMap_NotFound)
+			{
+				delete mapValue;
+				continue;
+			}
+
+			cleanMaps.PushString(mapStr);
 			delete mapValue;
 		}
 		delete mapsIter;
 		delete maps;
+
+		if (cleanMaps.Length == 0)
+		{
+			delete cleanMaps;
+			delete val;
+			continue;
+		}
 
 		g_ActiveMapCategories.Set(key, cleanMaps);
 
