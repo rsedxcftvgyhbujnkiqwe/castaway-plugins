@@ -1771,7 +1771,14 @@ void ReadMapcycle()
 				continue;
 			}
 
-			if (FindMap(mapStr, NULL_STRING, 0) == FindMap_NotFound)
+			if (StrEqual(mapStr, "_position"))
+			{
+				LogError("Map cann't be named \"_position\"");
+				delete mapValue;
+				continue;
+			}
+
+			if (FindMap(mapStr, "", 0) == FindMap_NotFound)
 			{
 				delete mapValue;
 				continue;
