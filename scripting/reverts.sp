@@ -123,6 +123,7 @@ int resistance_mapping[] =
 #define FLIGHT_TIME_TO_MAX_STUN_NEW	0.8
 #define TF_CANNONBALL_FORCE_SCALE 80.0
 #define TF_CANNONBALL_FORCE_UPWARD 300.0
+#define GR_STATE_TEAM_WIN 5
 
 enum
 {
@@ -309,8 +310,8 @@ ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
 #if defined MEMORY_PATCHES
 ConVar cvar_dropped_weapon_enable;
-ConVar cvar_allow_detonate_stickies_while_taunting;
 #endif
+ConVar cvar_allow_detonate_stickies_while_taunting;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_weapon_cache_delay;
@@ -348,8 +349,6 @@ MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
 Address AddressOf_g_flMadMilkHealTarget;
 
-MemoryPatch patch_RevertCannotDetonateStickiesWhileTaunting;
-
 float g_flWranglerSpreadTarget = 0.01745;
 // windows
 MemoryPatch patch_RevertWranglerSpreadCone_X;
@@ -375,12 +374,11 @@ Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
 Handle sdkcall_CWeaponMedigun_CanAttack;
 Handle sdkcall_CTFSniperRifle_SniperRifleChargeRateMod;
-#if defined MEMORY_PATCHES
-Handle sdkcall_CTFPipebombLauncher_SecondaryAttack;
-#endif
+Handle sdkcall_CTFWeaponBase_SecondaryAttack;
 
 DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
+DynamicHook dhook_CTFWeaponBase_CanAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CAmmoPack_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
@@ -467,6 +465,7 @@ int rocket_create_entity;
 int rocket_create_frame;
 int team_round_timer_entity;
 bool playing_mvm;
+bool forcing_sticky_detonate;
 
 OperatingSystem operatingSystem;
 
@@ -662,8 +661,8 @@ public void OnPluginStart() {
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "0", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
-	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Revert so demoman can detonate stickies while taunting. Requires "), _, true, 0.0, true, 1.0);
 #endif
+	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Allow detonation of stickies while taunting via sm_detonatestickies"), _, true, 0.0, true, 1.0);
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
@@ -673,8 +672,8 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
-	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
 #endif
+	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
 
 	// Generic class features
@@ -906,9 +905,7 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_classrevert", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 	RegConsoleCmd("sm_classreverts", Command_ClassInfo, (PLUGIN_NAME ... " - Show reverts for the current class"), 0);
 	RegConsoleCmd("sm_toggleinfo", Command_ToggleInfo, (PLUGIN_NAME ... " - Toggle the revert info dump in chat when changing loadouts"), 0);
-#if defined MEMORY_PATCHES
-	RegConsoleCmd("sm_detonatestickies", Command_DetonateStickies, (PLUGIN_NAME ... " - Detonate your stickies as demoman (bind this command to your mouse2 with bind mouse2 \"+attack2; sm_detonatestickies\""), 0);
-#endif
+	RegConsoleCmd("sm_detonatestickies", Command_DetonateStickies, (PLUGIN_NAME ... " - Detonate stickybombs (can be used while taunting)"), 0);
 
 	HookEvent("player_spawn", Event_OnPlayerSpawn, EventHookMode_Post);
 	HookEvent("player_death", Event_OnPlayerDeath, EventHookMode_Pre);
@@ -962,6 +959,10 @@ public void OnPluginStart() {
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CTFSniperRifle_SniperRifleChargeRateMod = EndPrepSDKCall();
 
+		StartPrepSDKCall(SDKCall_Entity);
+		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CTFWeaponBase::SecondaryAttack");
+		sdkcall_CTFWeaponBase_SecondaryAttack = EndPrepSDKCall();
+
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
@@ -989,6 +990,7 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_GetSpeedMod = DynamicHook.FromConf(conf, "CTFWeaponBase::GetSpeedMod");
 		dhook_CTFGameRules_PlayerMayCapturePoint = DynamicHook.FromConf(conf, "CTFGameRules::PlayerMayCapturePoint");
 		dhook_CTFWeaponBaseGrenadeProj_InitGrenade = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::InitGrenade");
+		dhook_CTFWeaponBase_CanAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::CanAttack");
 
 		dhook_CTFPlayer_CanDisguise = DynamicDetour.FromConf(conf, "CTFPlayer::CanDisguise");
 		dhook_CTFPlayer_CalculateMaxSpeed = DynamicDetour.FromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed");
@@ -1045,7 +1047,6 @@ public void OnPluginStart() {
 		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
 		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
 		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		patch_RevertCannotDetonateStickiesWhileTaunting = MemoryPatch.CreateFromConf(conf, "CTFPipebombLauncher::SecondaryAttack_RemoveCanAttackCheck");
 		if (operatingSystem == WINDOWS) {
 			patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
 			patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
@@ -1066,10 +1067,6 @@ public void OnPluginStart() {
 		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
 		dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
 		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
-
-		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Signature, "CTFPipebombLauncher::SecondaryAttack");
-		sdkcall_CTFPipebombLauncher_SecondaryAttack = EndPrepSDKCall();
 
 		delete conf;
 	}
@@ -1114,6 +1111,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
 	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
 	VALIDATE_HANDLE(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod);
+	VALIDATE_HANDLE(sdkcall_CTFWeaponBase_SecondaryAttack);
 
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
@@ -1142,6 +1140,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_GetSpeedMod);
 	VALIDATE_HANDLE(dhook_CTFGameRules_PlayerMayCapturePoint);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_InitGrenade);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_CanAttack);
 
 	VALIDATE_HANDLE(dhook_CTFPlayer_CanDisguise);
 	VALIDATE_HANDLE(dhook_CTFPlayer_CalculateMaxSpeed);
@@ -1174,7 +1173,6 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
 	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
 	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
-	VALIDATE_PATCH(patch_RevertCannotDetonateStickiesWhileTaunting);
 	if (operatingSystem == WINDOWS) {
 		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
 		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
@@ -1188,8 +1186,6 @@ public void OnPluginStart() {
 	VALIDATE_PATCH(patch_DroppedWeapon);
 	VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
 	VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
-
-	VALIDATE_HANDLE(sdkcall_CTFPipebombLauncher_SecondaryAttack);
 #endif
 
 	if (hook_fail) {
@@ -1231,6 +1227,7 @@ public void OnPluginStart() {
 
 	team_round_timer_entity = -1;
 	playing_mvm = false;
+	forcing_sticky_detonate = false;
 
 	for (idx = 1; idx <= MaxClients; idx++) {
 		if (IsClientConnected(idx)) OnClientConnected(idx);
@@ -1279,7 +1276,6 @@ void UpdateShortstopDescription() {
 	}
 }
 
-#if defined MEMORY_PATCHES
 public void OnAllowDetonateStickiesCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	UpdateStickyLauncherDescription();
 }
@@ -1298,7 +1294,6 @@ void UpdateStickyLauncherDescription() {
 		}
 	}
 }
-#endif
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
@@ -1310,8 +1305,8 @@ public void OnConfigsExecuted() {
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
 	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_BuffaloSteak),Wep_BuffaloSteak);
 	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
-	UpdateStickyLauncherDescription();
 #endif
+	UpdateStickyLauncherDescription();
 	UpdateShortstopDescription();
 }
 
@@ -1377,13 +1372,6 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 			} else {
 				patch_RevertFlamethrowers_Density_DmgScale.Disable();
 				patch_RevertFlamethrowers_Density_OnCollide.Disable();
-			}
-		}
-		case Feat_Stickybomb: {
-			if (enable) {
-				patch_RevertCannotDetonateStickiesWhileTaunting.Enable();
-			} else {
-				patch_RevertCannotDetonateStickiesWhileTaunting.Disable();
 			}
 		}
 		case Wep_MadMilk: {
@@ -2181,10 +2169,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
 	}
+	else if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
+		dhook_CTFWeaponBase_CanAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFPipebombLauncher_CanAttack_Pre);
+	}
 	else if (
-#if defined MEMORY_PATCHES
-		StrEqual(class, "tf_weapon_pipebomblauncher") ||
-#endif
 		StrEqual(class, "tf_weapon_handgun_scout_primary") ||
 		StrEqual(class, "tf_weapon_flamethrower") ||
 		StrEqual(class, "tf_weapon_rocketlauncher_fireball")
@@ -5234,79 +5222,14 @@ Action Command_ToggleInfo(int client, int args) {
 	return Plugin_Handled;
 }
 
-#if defined MEMORY_PATCHES
-// Command used for the Demoman "detonate stickies during taunting" revert.
-public Action Command_DetonateStickies(int client, int args)
-{
-	bool CanAttack = CanAttack_Secondary_Demoman(client, cvar_allow_detonate_stickies_while_taunting.BoolValue);
-
-	if (CanAttack) {
+public Action Command_DetonateStickies(int client, int args) {
+	if (CanDetonateStickiesNow(client)) {
+		forcing_sticky_detonate = TF2_IsPlayerInCondition(client, TFCond_Taunting);
 		DetonateDemomanStickies(client);
+		forcing_sticky_detonate = false;
 	}
 	return Plugin_Handled;
 }
-
-void DetonateDemomanStickies(int client) {
-	int demoman_secondaryweapon;
-	char weaponclass[64];
-	// Code here to get demomans secondary weapon.
-	demoman_secondaryweapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-
-	if (demoman_secondaryweapon > 0) {
-	GetEntityClassname(demoman_secondaryweapon, weaponclass, sizeof(weaponclass));
-
-		if (StrEqual(weaponclass, "tf_weapon_pipebomblauncher")) {
-			SDKCall(sdkcall_CTFPipebombLauncher_SecondaryAttack, demoman_secondaryweapon);
-		}
-	}
-}
-
-// To be used exclusively for the demoman.
-// This is a modified copy of CTFPlayer::CanAttack
-// from tf_player_shared.cpp, stripping out what we do NOT need to check as a demoman intending
-// to blow up stickies.
-bool CanAttack_Secondary_Demoman(int client, bool skipIsTauntingCheck)
-{
-	// Player validity
-	if (client < 1 || client > MaxClients)
-		return false;
-
-	if (TF2_GetPlayerClass(client) != TFClass_DemoMan)
-		return false;
-
-	if (!IsClientInGame(client))
-		return false;
-
-	if (!IsPlayerAlive(client))
-		return false;
-
-	if (!skipIsTauntingCheck && TF2_IsPlayerInCondition(client, TFCond_Taunting)) {
-		return false;
-	}
-
-	// Viewing ConTracker / CYOA PDA
-	if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
-		return false;
-
-	// Halloween kart
-	if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
-		return false;
-
-	// If demoman is not part of winning team, do not allow him to detonate stickies.
-	int roundState = GameRules_GetProp("m_iRoundState");
-
-	// GR_STATE_TEAM_WIN == 5
-	if (roundState == 5)
-	{
-		int winningTeam = GameRules_GetProp("m_iWinningTeam");
-
-		if (GetClientTeam(client) != winningTeam)
-			return false;
-	}
-
-	return true;
-}
-#endif
 
 void SetConVarMaybe(ConVar cvar, const char[] value, bool maybe) {
 	maybe ? cvar.SetString(value) : cvar.RestoreDefault();
@@ -5625,6 +5548,64 @@ int GetResistType(int entity)
 	return GetChargeType(entity);
 }
 
+void DetonateDemomanStickies(int client) {
+	char class[64];
+	int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+	if (weapon > 0) {
+		GetEntityClassname(weapon, class, sizeof(class));
+		if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
+			SDKCall(sdkcall_CTFWeaponBase_SecondaryAttack, weapon);
+		}
+	}
+}
+
+bool CanDetonateStickiesNow(int client) {
+	if (client < 1 || client > MaxClients)
+		return false;
+
+	if (!IsClientInGame(client))
+		return false;
+
+	if (!IsPlayerAlive(client))
+		return false;
+
+	if (TF2_GetPlayerClass(client) != TFClass_DemoMan)
+		return false;
+
+	// Taunting is the only refusal this revert lifts, and only when enabled
+	if (
+		TF2_IsPlayerInCondition(client, TFCond_Taunting) &&
+		!cvar_allow_detonate_stickies_while_taunting.BoolValue
+	) {
+		return false;
+	}
+
+	if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
+		return false;
+
+	// Pass Time: the ball carrier may always attack (vanilla returns true here)
+	if (GetEntProp(client, Prop_Send, "m_bHasPasstimeBall") != 0)
+		return true;
+
+	if (TF2_IsPlayerInCondition(client, TFCond_Bonked))
+		return false;
+
+	if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
+		return false;
+
+	if (
+		GameRules_GetProp("m_iRoundState") == GR_STATE_TEAM_WIN &&
+		GetClientTeam(client) != GameRules_GetProp("m_iWinningTeam")
+	) {
+		return false;
+	}
+
+	if (TF2Attrib_HookValueInt(0, "no_attack", client) != 0)
+		return false;
+
+	return true;
+}
+
 void SetShovelDamageBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 115, 1.0); // mod shovel damage boost
 	TF2Attrib_SetByDefIndex(entity, 235, 0.0); // mod shovel speed boost
@@ -5780,18 +5761,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 				players[owner].vaccinator_charge_end = players[owner].vaccinator_charge - 0.25;
 			}
 		}
-#if defined MEMORY_PATCHES
-		else if (
-			ItemIsEnabled(Feat_Stickybomb) &&
-			StrEqual(class, "tf_weapon_pipebomblauncher")
-		) {
-			bool CanAttack = CanAttack_Secondary_Demoman(owner, cvar_allow_detonate_stickies_while_taunting.BoolValue);
-
-			if (!CanAttack) {
-				return MRES_Supercede;
-			}
-		}
-#endif
 	}
 	return MRES_Ignored;
 }
@@ -7503,6 +7472,14 @@ MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre(Address _this, D
 MRESReturn DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post(Address _this, DHookReturn returnValue, DHookParam parameters) {
 	if (!playing_mvm) {
 		GameRules_SetProp("m_bPlayingMannVsMachine", false, 1);
+	}
+	return MRES_Ignored;
+}
+
+MRESReturn DHookCallback_CTFPipebombLauncher_CanAttack_Pre(int entity, DHookReturn returnValue) {
+	if (forcing_sticky_detonate) {
+		returnValue.Value = true;
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
