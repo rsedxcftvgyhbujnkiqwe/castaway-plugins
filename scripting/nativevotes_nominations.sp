@@ -519,11 +519,14 @@ void OpenNominationMenu(int client)
 	}
 }
 
-void ShowMapMenu(int client, const char[] category)
+void ShowMapMenu(int client, const char[] category, int parentPosition = -1)
 {
 	Menu menu = new Menu(MenuHandler_CategoryMapSelect, MENU_ACTIONS_DEFAULT|MenuAction_Cancel);
 
 	menu.SetTitle(category);
+	char posStr[12];
+	IntToString(parentPosition, posStr, sizeof(posStr));
+	menu.AddItem("_position", posStr, ITEMDRAW_IGNORE);
 
 	ArrayList maps = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 	if (!GetMapsInCategory(category, maps))
@@ -583,7 +586,7 @@ void ShowAllMapsMenu(int client)
 	// but we reuse the same callback for convenience
 	Menu menu = new Menu(MenuHandler_MapSelect, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem|MenuAction_Display|MenuAction_Cancel);
 
-	menu.SetTitle("%T", "All Maps", client);	
+	menu.SetTitle("%T", "All Maps", client);
 	for (int i = 0; i < g_MapList.Length; i++)
 	{
 		char map[PLATFORM_MAX_PATH], display[PLATFORM_MAX_PATH];
@@ -801,7 +804,7 @@ public int MenuHandler_CategorySelect(Menu menu, MenuAction action, int param1, 
 			}
 			else
 			{
-				ShowMapMenu(param1, category);
+				ShowMapMenu(param1, category, GetMenuSelectionPosition());
 			}
 		}
 		case MenuAction_Display:
@@ -843,7 +846,17 @@ public void MenuHandler_CategoryMapSelect(Menu menu, MenuAction action, int para
 		{
 			if (param2 == MenuCancel_ExitBack)
 			{
-				g_MapCategoryMenu.Display(param1, MENU_TIME_FOREVER);
+				char parentPosStr[12];
+				menu.GetItem(0, "", 0, _, parentPosStr, sizeof(parentPosStr));
+				int parentPos = StringToInt(parentPosStr);
+				if (parentPos == -1 || parentPos == 0)
+				{
+					g_MapCategoryMenu.Display(param1, MENU_TIME_FOREVER);
+				}
+				else
+				{
+					g_MapCategoryMenu.DisplayAt(param1, parentPos, MENU_TIME_FOREVER);
+				}
 			}
 		}
 		case MenuAction_End:
