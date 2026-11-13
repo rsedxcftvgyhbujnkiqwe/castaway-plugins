@@ -1765,15 +1765,39 @@ void ReadMapcycle()
 			char mapStr[PLATFORM_MAX_PATH];
 			mapValue.GetString(mapStr, sizeof(mapStr));
 			TrimString(mapStr);
-			if (strlen(mapStr))
+			if (!strlen(mapStr))
 			{
-				cleanMaps.PushString(mapStr);
+				delete mapValue;
+				continue;
 			}
 
+			if (StrEqual(mapStr, "_position"))
+			{
+				LogError("Map cann't be named \"_position\"");
+				delete mapValue;
+				continue;
+			}
+
+			char foundMap[PLATFORM_MAX_PATH];
+			FindMapResult mapResult = FindMap(mapStr, foundMap, sizeof(foundMap));
+			if (mapResult == FindMap_NotFound)
+			{
+				delete mapValue;
+				continue;
+			}
+
+			cleanMaps.PushString(foundMap);
 			delete mapValue;
 		}
 		delete mapsIter;
 		delete maps;
+
+		if (cleanMaps.Length == 0)
+		{
+			delete cleanMaps;
+			delete val;
+			continue;
+		}
 
 		g_ActiveMapCategories.Set(key, cleanMaps);
 
