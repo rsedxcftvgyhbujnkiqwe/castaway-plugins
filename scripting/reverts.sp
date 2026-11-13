@@ -1325,7 +1325,6 @@ public void OnConfigsExecuted() {
 	if (g_bPatchesAvailable) {
 		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury), Wep_DragonFury);
 		ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower), Feat_Flamethrower);
-		ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb), Feat_Stickybomb);
 		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk), Wep_MadMilk);
 		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber), Wep_IronBomber);
 		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler), Wep_Wrangler);
@@ -5272,7 +5271,16 @@ Action Command_ToggleInfo(int client, int args) {
 public Action Command_DetonateStickies(int client, int args) {
 	if (CanDetonateStickiesNow(client)) {
 		forcing_sticky_detonate = TF2_IsPlayerInCondition(client, TFCond_Taunting);
-		DetonateDemomanStickies(client);
+
+		char class[64];
+		int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+		if (weapon > 0) {
+			GetEntityClassname(weapon, class, sizeof(class));
+			if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
+				SDKCall(sdkcall_CTFWeaponBase_SecondaryAttack, weapon);
+			}
+		}
+
 		forcing_sticky_detonate = false;
 	}
 	return Plugin_Handled;
@@ -5604,17 +5612,6 @@ int GetResistType(int entity)
 	return GetChargeType(entity);
 }
 
-void DetonateDemomanStickies(int client) {
-	char class[64];
-	int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-	if (weapon > 0) {
-		GetEntityClassname(weapon, class, sizeof(class));
-		if (StrEqual(class, "tf_weapon_pipebomblauncher")) {
-			SDKCall(sdkcall_CTFWeaponBase_SecondaryAttack, weapon);
-		}
-	}
-}
-
 bool CanDetonateStickiesNow(int client) {
 	if (client < 1 || client > MaxClients)
 		return false;
@@ -5639,7 +5636,7 @@ bool CanDetonateStickiesNow(int client) {
 	if (GetEntProp(client, Prop_Send, "m_bViewingCYOAPDA") != 0)
 		return false;
 
-	// Pass Time: the ball carrier may always attack (vanilla returns true here)
+	// PASS Time: the ball carrier may always attack (vanilla returns true here)
 	if (GetEntProp(client, Prop_Send, "m_bHasPasstimeBall") != 0)
 		return true;
 
@@ -5671,6 +5668,8 @@ void SetShovelSpeedBoost(int entity) {
 	TF2Attrib_SetByDefIndex(entity, 115, 0.0); // mod shovel damage boost
 	TF2Attrib_SetByDefIndex(entity, 235, 2.0); // mod shovel speed boost
 }
+
+// next frame events
 
 void SetMeleeCrit(int userid) {
 	int client = GetClientOfUserId(userid);
