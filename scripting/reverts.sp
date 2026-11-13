@@ -4128,7 +4128,6 @@ Action SDKHookCB_OnTakeDamage(
 
 		// tf_damage_range handles both distance ramp-up/fall-off and random spread
 		cvar_ref_tf_damage_range.RestoreDefault();
-		cvar_ref_tf_double_donk_window.RestoreDefault();
 
 		{
 			// save attacker's rage meter for modifications
@@ -4200,6 +4199,8 @@ Action SDKHookCB_OnTakeDamage(
 					ItemIsEnabled(Wep_LooseCannon) &&
 					damage_custom == TF_CUSTOM_CANNONBALL_PUSH
 				) {
+					cvar_ref_tf_double_donk_window.RestoreDefault();
+
 					if (TF2_IsPlayerInCondition(victim, TFCond_KnockedIntoAir) == false) {
 						players[victim].stun_frame = GetGameTickCount();
 						players[victim].stun_inflictor = weapon;
