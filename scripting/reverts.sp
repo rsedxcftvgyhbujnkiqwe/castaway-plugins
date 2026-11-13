@@ -1962,17 +1962,24 @@ public void OnGameFrame() {
 										if (dur > 0.0) {
 											TF2Util_SetPlayerBurnDuration(idx, dur + addition);
 										}
-									} else if (cond == TFCond_Bleeding) {
-										for (int j = 0; j < TF2Util_GetPlayerActiveBleedCount(idx); ++j) {
+									}
+									else if (cond == TFCond_Bleeding) {
+										int bleeds = TF2Util_GetPlayerActiveBleedCount(idx);
+										for (int j = 0; j < bleeds; ++j) {
 
+											int attacker = TF2Util_GetPlayerBleedAttacker(idx, j);
+											weapon = TF2Util_GetPlayerBleedWeapon(idx, j);
 											dur = TF2Util_GetPlayerBleedDuration(idx, j);
-											if (dur > 0.0) {
-
+											if (
+												dur > 0.0 &&
+												attacker > 0 && IsClientInGame(attacker) &&
+												weapon > 0
+											) {
 												TF2Util_MakePlayerBleed(
 													idx,
-													TF2Util_GetPlayerBleedAttacker(idx, j),
+													attacker,
 													dur + addition,
-													TF2Util_GetPlayerBleedWeapon(idx, j),
+													weapon,
 													TF2Util_GetPlayerBleedDamage(idx, j),
 													TF2Util_GetPlayerBleedCustomDamageType(idx, j)
 												);
