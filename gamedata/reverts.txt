@@ -365,6 +365,11 @@
 				"windows"	"245"
 				"linux"		"245"
 			}
+			"CTFWeaponBase::CanAttack"
+			{
+				"windows"	"428"
+				"linux"		"435"
+			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║       Private/Protected Member Offsets       ║
@@ -434,6 +439,13 @@
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
+			}
+			"CTFWeaponBase::CanAttack"
+			{
+				"offset"	"CTFWeaponBase::CanAttack"
+				"hooktype"	"entity"
+				"this"		"entity"
+				"return"	"bool"
 			}
 			"CTFBaseRocket::GetRadius"
 			{
