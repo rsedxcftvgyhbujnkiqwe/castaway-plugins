@@ -558,7 +558,7 @@
 	}
 	"Grenade_Pre2014"
 	{
-		"en"	"Reverted to pre-Smissmas 2014, +9%% blast radius, 112 base damage with hit location variance (more damage near player's feet)"
+		"en"	"Reverted to pre-Smissmas 2014, 159Hu blast radius (from 146), 112 base damage with hit location variance (more damage near player's feet)"
 	}
 	"Lunchbox_Pre2012"
 	{
@@ -578,15 +578,23 @@
 	}
 	"SniperRifle_PreLW"
 	{
-		"en"	"Reverted to pre-August 27, 2014, can jump immediately after firing a scoped shot (scope jumping)"
+		"en"	"Reverted to pre-August 27, 2014; can jump immediately after firing a scoped shot (scope jumping)"
 	}
 	"Stickybomb_PreLW"
 	{
-		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius"
+		"en"	"Reverted to pre-love&war, 159Hu blast radius (from 146), air-detonated stickies have full radius"
 	}
 	"Stickybomb_PreLW_Taunt_Detonate"
 	{
-		"en"	"Reverted to pre-love&war, +9%% base blast radius, air-detonated stickies have full blast radius, can detonate while taunting (bind \"sm_detonatestickies\" to a key)"
+		"en"	"Reverted to pre-love&war, 159Hu blast radius (from 146), air-detonated stickies have full radius, can detonate while taunting (bind \"sm_detonatestickies\" to a key)"
+	}
+	"Stickybomb_Pre2009"
+	{
+		"en"	"Reverted to pre-February 16, 2009; 150%% close-range damage (from 120%%), 159Hu blast radius (from 146), air-detonated stickies have full radius"
+	}
+	"Stickybomb_Pre2009_Taunt_Detonate"
+	{
+		"en"	"Reverted to pre-February 16, 2009; 150%% close-range damage (from 120%%), 159Hu blast radius (from 146), air-detonated stickies have full radius, can detonate while taunting (bind \"sm_detonatestickies\" to a key)"
 	}
 	"Swords_PreTB"
 	{
