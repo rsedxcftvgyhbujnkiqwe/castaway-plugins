@@ -291,6 +291,7 @@ enum struct Player {
 	int zatoichi_frame;
 	int powerjack_frame;
 	int feign_frame;
+	int no_effect_stun_frame;
 }
 
 enum struct Entity {
@@ -3815,6 +3816,21 @@ Action OnSoundNormal(
 ) {
 	int idx;
 
+	if (
+		ItemIsEnabled(Wep_Huntsman) &&
+		strncmp(sample, "player/pl_impact_stun", sizeof("player/pl_impact_stun") - 1) == 0
+	) {
+		for (idx = 1; idx <= MaxClients; idx++) {
+			if (
+				IsClientInGame(idx) &&
+				players[idx].no_effect_stun_frame == GetGameTickCount()
+			) {
+				// cancel stun sound from no-effect stun, usually from taunt kills
+				return Plugin_Stop;
+			}
+		}
+	}
+
 	if (cvar_old_falldmg_sfx.BoolValue) {
 		if (StrContains(sample, "pl_fallpain") != -1) {
 			for (idx = 1; idx <= MaxClients; idx++) {
@@ -6908,10 +6924,18 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	float pos1[3], pos2[3];
 	float lifetime_ratio;
 
-	if (
-		victim >= 1 && victim <= MaxClients &&
-		attacker >= 1 && attacker <= MaxClients
-	) {
+	if (victim >= 1 && victim <= MaxClients) {
+		if (
+			stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT &&
+			ItemIsEnabled(Wep_Huntsman)
+		) {
+			players[victim].no_effect_stun_frame = GetGameTickCount();
+		}
+	} else {
+		return MRES_Ignored;
+	}
+
+	if (attacker >= 1 && attacker <= MaxClients) {
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
 
