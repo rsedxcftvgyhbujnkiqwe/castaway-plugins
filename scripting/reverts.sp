@@ -2143,10 +2143,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	if (
 		(
-			strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
+			StrStartsWith(class, "tf_weapon") ||
 			StrEqual(class, "saxxy") ||
 			(
-				strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
+				StrStartsWith(class, "tf_wearable") &&
 				!StrEqual(class, "tf_wearable_vm")
 			)
 		) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")
@@ -2239,7 +2239,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
-	else if (strncmp(class, "tf_weapon_sniperrifle", sizeof("tf_weapon_sniperrifle") - 1) == 0) {
+	else if (StrStartsWith(class, "tf_weapon_sniperrifle")) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
@@ -3843,7 +3843,7 @@ Action OnSoundNormal(
 
 	if (
 		ItemIsEnabled(Wep_Huntsman) &&
-		strncmp(sample, "player/pl_impact_stun", sizeof("player/pl_impact_stun") - 1) == 0
+		StrStartsWith(sample, "player/pl_impact_stun")
 	) {
 		for (idx = 1; idx <= MaxClients; idx++) {
 			if (
@@ -4037,14 +4037,14 @@ Action SDKHookCB_ProjectileTouch(int entity, int other) {
 
 					// Pass through friendly buildings
 					if (
-						strncmp(class, "obj_", sizeof("obj_") - 1) == 0 &&
+						StrStartsWith(class, "obj_") &&
 						AreEntitiesOnSameTeam(entity, other)
 					) {
 						return Plugin_Handled;
 					}
 
 					// Don't collide with projectiles
-					if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
+					if (StrStartsWith(class, "tf_projectile_")) {
 						return Plugin_Handled;
 					}
 				}
@@ -7771,6 +7771,10 @@ stock int GetEntityFromAddress(Address pEntity)
 		return -1;
 
 	return LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32) & 0xFFF;
+}
+
+stock bool StrStartsWith(const char[] str, const char[] prefix) {
+	return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
