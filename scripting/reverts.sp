@@ -291,6 +291,7 @@ enum struct Player {
 	int zatoichi_frame;
 	int powerjack_frame;
 	int feign_frame;
+	int no_effect_stun_frame;
 }
 
 enum struct Entity {
@@ -2117,10 +2118,10 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	if (
 		(
-			strncmp(class, "tf_weapon", sizeof("tf_weapon") - 1) == 0 ||
+			StrStartsWith(class, "tf_weapon") ||
 			StrEqual(class, "saxxy") ||
 			(
-				strncmp(class, "tf_wearable", sizeof("tf_wearable") - 1) == 0 &&
+				StrStartsWith(class, "tf_wearable") &&
 				!StrEqual(class, "tf_wearable_vm")
 			)
 		) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")
@@ -2157,7 +2158,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
 	}
-	else if (StrContains(class, "obj_") == 0) {
+	else if (StrStartsWith(class, "obj_")) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
 		dhook_CBaseObject_Command_Repair.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Command_Repair_Pre);
 
@@ -2169,9 +2170,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
 			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
 		}
-	}
-	else if (StrContains(class, "item_ammopack") == 0) {
-		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
@@ -2213,7 +2211,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
 		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
-	else if (strncmp(class, "tf_weapon_sniperrifle", sizeof("tf_weapon_sniperrifle") - 1) == 0) {
+	else if (StrStartsWith(class, "tf_weapon_sniperrifle")) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
 
 		if (StrEqual(class, "tf_weapon_sniperrifle_decap")) {
@@ -2223,6 +2221,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
 		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot_Pre);
+	}
+	else if (StrStartsWith(class, "item_ammopack")) {
+		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	}
 }
 
@@ -3297,7 +3298,7 @@ void CacheWeapons(int client, bool spawn_event = false) {
 					}
 #endif
 				}
-				else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+				else if (StrStartsWith(class, "tf_weapon_sniperrifle")) {
 					player_weapons[client][Feat_SniperRifle] = true;
 				}
 
@@ -3815,6 +3816,21 @@ Action OnSoundNormal(
 ) {
 	int idx;
 
+	if (
+		ItemIsEnabled(Wep_Huntsman) &&
+		StrStartsWith(sample, "player/pl_impact_stun")
+	) {
+		for (idx = 1; idx <= MaxClients; idx++) {
+			if (
+				IsClientInGame(idx) &&
+				players[idx].no_effect_stun_frame == GetGameTickCount()
+			) {
+				// cancel stun sound from no-effect stun, usually from taunt kills
+				return Plugin_Stop;
+			}
+		}
+	}
+
 	if (cvar_old_falldmg_sfx.BoolValue) {
 		if (StrContains(sample, "pl_fallpain") != -1) {
 			for (idx = 1; idx <= MaxClients; idx++) {
@@ -3996,14 +4012,14 @@ Action SDKHookCB_ProjectileTouch(int entity, int other) {
 
 					// Pass through friendly buildings
 					if (
-						strncmp(class, "obj_", sizeof("obj_") - 1) == 0 &&
+						StrStartsWith(class, "obj_") &&
 						AreEntitiesOnSameTeam(entity, other)
 					) {
 						return Plugin_Handled;
 					}
 
 					// Don't collide with projectiles
-					if (strncmp(class, "tf_projectile_", sizeof("tf_projectile_") - 1) == 0) {
+					if (StrStartsWith(class, "tf_projectile_")) {
 						return Plugin_Handled;
 					}
 				}
@@ -4219,7 +4235,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_ReserveShooter) &&
-					StrContains(class, "tf_weapon_shotgun") == 0 &&
+					StrStartsWith(class, "tf_weapon_shotgun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 415 &&
 					GetEntityFlags(victim) & FL_ONGROUND == 0 &&
 					GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0
@@ -5525,8 +5541,8 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 	// ignore buildings and other projectiles
 	if (
-		StrContains(class, "obj_") == 0 ||
-		StrContains(class, "tf_projectile_") == 0
+		StrStartsWith(class, "obj_") ||
+		StrStartsWith(class, "tf_projectile_")
 	) {
 		return false;
 	}
@@ -5813,11 +5829,11 @@ bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			// only hit players and some projectiles
 			if (
 				(idx <= MaxClients) ||
-				(StrContains(class, "tf_projectile_") == 0 &&
+				StrStartsWith(class, "tf_projectile_") &&
 				StrContains(class, "tf_projectile_spell") == -1 &&
 				!StrEqual(class, "tf_projectile_energy_ring") &&
 				!StrEqual(class, "tf_projectile_grapplinghook") &&
-				!StrEqual(class, "tf_projectile_syringe"))
+				!StrEqual(class, "tf_projectile_syringe")
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
@@ -6908,10 +6924,18 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	float pos1[3], pos2[3];
 	float lifetime_ratio;
 
-	if (
-		victim >= 1 && victim <= MaxClients &&
-		attacker >= 1 && attacker <= MaxClients
-	) {
+	if (victim >= 1 && victim <= MaxClients) {
+		if (
+			stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT &&
+			ItemIsEnabled(Wep_Huntsman)
+		) {
+			players[victim].no_effect_stun_frame = GetGameTickCount();
+		}
+	} else {
+		return MRES_Ignored;
+	}
+
+	if (attacker >= 1 && attacker <= MaxClients) {
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
 
@@ -7708,6 +7732,10 @@ stock int GetEntityFromAddress(Address pEntity)
 		return -1;
 
 	return LoadFromAddress(pEntity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32) & 0xFFF;
+}
+
+stock bool StrStartsWith(const char[] str, const char[] prefix) {
+	return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
 stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
