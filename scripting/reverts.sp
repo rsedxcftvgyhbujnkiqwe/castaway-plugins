@@ -2158,7 +2158,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		SDKHook(entity, SDKHook_Spawn, SDKHookCB_Spawn);
 		dhook_CTFStunBall_ApplyBallImpactEffectOnVictim.HookEntity(Hook_Pre, entity, DHookCallback_CTFStunBall_ApplyBallImpactEffectOnVictim_Pre);
 	}
-	else if (StrContains(class, "obj_") == 0) {
+	else if (StrStartsWith(class, "obj_")) {
 		SDKHook(entity, SDKHook_OnTakeDamage, SDKHookCB_OnTakeDamage_Building);
 		dhook_CBaseObject_Command_Repair.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Command_Repair_Pre);
 
@@ -2170,9 +2170,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
 			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
 		}
-	}
-	else if (StrContains(class, "item_ammopack") == 0) {
-		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPost);
@@ -2224,6 +2221,9 @@ public void OnEntityCreated(int entity, const char[] class) {
 	}
 	else if (StrEqual(class, "tf_weapon_revolver")) {
 		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot_Pre);
+	}
+	else if (StrStartsWith(class, "item_ammopack")) {
+		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	}
 }
 
@@ -3298,7 +3298,7 @@ void CacheWeapons(int client, bool spawn_event = false) {
 					}
 #endif
 				}
-				else if (StrContains(class, "tf_weapon_sniperrifle") == 0) {
+				else if (StrStartsWith(class, "tf_weapon_sniperrifle")) {
 					player_weapons[client][Feat_SniperRifle] = true;
 				}
 
@@ -4235,7 +4235,7 @@ Action SDKHookCB_OnTakeDamage(
 
 				if (
 					ItemIsEnabled(Wep_ReserveShooter) &&
-					StrContains(class, "tf_weapon_shotgun") == 0 &&
+					StrStartsWith(class, "tf_weapon_shotgun") &&
 					GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 415 &&
 					GetEntityFlags(victim) & FL_ONGROUND == 0 &&
 					GetEntProp(victim, Prop_Data, "m_nWaterLevel") == 0
@@ -5541,8 +5541,8 @@ bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
 
 	// ignore buildings and other projectiles
 	if (
-		StrContains(class, "obj_") == 0 ||
-		StrContains(class, "tf_projectile_") == 0
+		StrStartsWith(class, "obj_") ||
+		StrStartsWith(class, "tf_projectile_")
 	) {
 		return false;
 	}
@@ -5829,11 +5829,11 @@ bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int
 			// only hit players and some projectiles
 			if (
 				(idx <= MaxClients) ||
-				(StrContains(class, "tf_projectile_") == 0 &&
+				StrStartsWith(class, "tf_projectile_") &&
 				StrContains(class, "tf_projectile_spell") == -1 &&
 				!StrEqual(class, "tf_projectile_energy_ring") &&
 				!StrEqual(class, "tf_projectile_grapplinghook") &&
-				!StrEqual(class, "tf_projectile_syringe"))
+				!StrEqual(class, "tf_projectile_syringe")
 			) {
 				// don't hit stuff on the same team
 				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
