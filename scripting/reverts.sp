@@ -396,19 +396,15 @@ MemoryPatch patch_RevertIronBomber_PipeHitbox;
 
 MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
 float g_flMadMilkHealTarget = 0.75;
-Address AddressOf_g_flMadMilkHealTarget;
 
 float g_flWranglerSpreadTarget = 0.01745;
 MemoryPatch patch_RevertWranglerSpreadCone_X; // windows
 MemoryPatch patch_RevertWranglerSpreadCone_Y;
 MemoryPatch patch_RevertWranglerSpreadCone_Z;
 MemoryPatch patch_RevertWranglerSpreadCone_SSE; // linux
-Address AddressOf_g_flWranglerSpreadTarget;
 
 float g_flSteakCapTarget = 10.0; // arbitrary
 float g_flSteakBoostTarget = 1.35;
-Address AddressOf_g_flSteakCapTarget;
-Address AddressOf_g_flSteakBoostTarget;
 MemoryPatch patch_RevertSteakCapValue;
 MemoryPatch patch_RevertSteakBoostValue;
 
@@ -1035,33 +1031,31 @@ public void OnPluginStart() {
 	if (g_bPatchesAvailable) {
 		conf = new GameData("memorypatch_reverts");
 
-		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
-
-		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
-		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
-		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
-		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		if (operatingSystem == WINDOWS) {
-			patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
-			patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
-			patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
-		} else {
-			patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+		if (conf == null) {
+			g_bPatchesAvailable = false;
+			LogError("Failed to load memorypatch_reverts.txt conf!");
 		}
-		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
-		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
 
-		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-		if (operatingSystem != WINDOWS) {
-			AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+		if (g_bPatchesAvailable) {
+			patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
+			patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
+			patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
+			patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
+			patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+			if (operatingSystem == WINDOWS) {
+				patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
+				patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
+				patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
+			} else {
+				patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+			}
+			patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
+			patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
+
+			patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+			dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
+			dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		}
-		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
-		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
-
-		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
-		dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
-		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
 		delete conf;
 	}
@@ -1163,24 +1157,26 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
-	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
-	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
-	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
-	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
-	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
-	if (operatingSystem == WINDOWS) {
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
-	} else {
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
-	}
-	VALIDATE_PATCH(patch_RevertSteakCapValue);
-	VALIDATE_PATCH(patch_RevertSteakBoostValue);
+	if (g_bPatchesAvailable) {
+		VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
+		VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
+		VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
+		VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
+		VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
+		if (operatingSystem == WINDOWS) {
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
+		} else {
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
+		}
+		VALIDATE_PATCH(patch_RevertSteakCapValue);
+		VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
-	VALIDATE_PATCH(patch_DroppedWeapon);
-	VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
-	VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
+		VALIDATE_PATCH(patch_DroppedWeapon);
+		VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
+		VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
+	}
 #endif
 
 	if (hook_fail) {
@@ -1305,8 +1301,7 @@ public void OnConfigsExecuted() {
 	UpdateShortstopDescription();
 }
 
-bool ValidateOffset(const char[] name, any offset)
-{
+bool ValidateOffset(const char[] name, any offset) {
 	if (offset == -1) {
 		LogError("Failed to load %s offset", name);
 		return true;
@@ -1314,8 +1309,7 @@ bool ValidateOffset(const char[] name, any offset)
 	return false;
 }
 
-bool ValidateHandle(const char[] name, Handle handle)
-{
+bool ValidateHandle(const char[] name, Handle handle) {
 	if (handle == null) {
 		LogError("Failed to create %s", name);
 		return true;
@@ -1362,7 +1356,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Wep_MadMilk: {
 			if (enable) {
 				patch_RevertMadMilk_ChgFloatAddr.Enable();
-				StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flMadMilkHealTarget), NumberType_Int32);
+				StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(0x04), GetAddressOfCell(g_flMadMilkHealTarget), NumberType_Int32);
 			} else {
 				patch_RevertMadMilk_ChgFloatAddr.Disable();
 			}
@@ -1385,7 +1379,7 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 					StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
 				} else {
 					patch_RevertWranglerSpreadCone_SSE.Enable();
-					StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
+					StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), GetAddressOfCell(g_flWranglerSpreadTarget), NumberType_Int32);
 				}
 			} else {
 				if (operatingSystem == WINDOWS) {
@@ -1400,10 +1394,10 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Wep_BuffaloSteak: {
 			if (enable) {
 				patch_RevertSteakBoostValue.Enable();
-				StoreToAddress(patch_RevertSteakBoostValue.Address + view_as<Address>(4), AddressOf_g_flSteakBoostTarget, NumberType_Int32);
+				StoreToAddress(patch_RevertSteakBoostValue.Address + view_as<Address>(4), GetAddressOfCell(g_flSteakBoostTarget), NumberType_Int32);
 				if (GetItemVariant(Wep_BuffaloSteak) == 1) {
 					patch_RevertSteakCapValue.Enable();
-					StoreToAddress(patch_RevertSteakCapValue.Address + view_as<Address>(4), AddressOf_g_flSteakCapTarget, NumberType_Int32);
+					StoreToAddress(patch_RevertSteakCapValue.Address + view_as<Address>(4), GetAddressOfCell(g_flSteakCapTarget), NumberType_Int32);
 				} else {
 					patch_RevertSteakCapValue.Disable();
 				}
