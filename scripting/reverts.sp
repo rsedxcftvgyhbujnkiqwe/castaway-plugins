@@ -255,7 +255,7 @@ enum struct Player {
 	int old_health;
 	bool is_under_hype;
 	int charge_tick;
-	int fall_dmg_tick;
+	int fall_damage_frame;
 	bool holding_jump;
 	bool holding_attack2;
 	int drain_victim;
@@ -3839,68 +3839,53 @@ Action OnSoundNormal(
 	int clients[MAXPLAYERS], int& clients_num, char sample[PLATFORM_MAX_PATH], int& entity, int& channel,
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
 ) {
-	int idx;
-
 	if (
-		ItemIsEnabled(Wep_Huntsman) &&
-		StrStartsWith(sample, "player/pl_impact_stun")
+		entity >= 1 && entity <= MaxClients &&
+		IsClientInGame(entity)
 	) {
-		for (idx = 1; idx <= MaxClients; idx++) {
-			if (
-				IsClientInGame(idx) &&
-				players[idx].no_effect_stun_frame == GetGameTickCount()
-			) {
-				// cancel stun sound from no-effect stun, usually from taunt kills
+		if (
+			ItemIsEnabled(Wep_Huntsman) &&
+			StrStartsWith(sample, "player/pl_impact_stun") &&
+			players[entity].no_effect_stun_frame == GetGameTickCount()
+		) {	
+			players[entity].no_effect_stun_frame = 0;
+
+			// cancel stun sound from no-effect stun, usually from taunt kills
+			return Plugin_Stop;
+		}
+
+		if (
+			cvar_old_falldmg_sfx.BoolValue &&
+			players[entity].fall_damage_frame == GetGameTickCount()
+		) {
+			if (StrContains(sample, "PainSevere") != -1) {
+				// cancel hurt sound by fall dmg
 				return Plugin_Stop;
 			}
-		}
-	}
+			else if (StrEqual(sample, "player/pl_fallpain.wav")) {
+				players[entity].fall_damage_frame = 0;
 
-	if (cvar_old_falldmg_sfx.BoolValue) {
-		if (StrContains(sample, "pl_fallpain") != -1) {
-			for (idx = 1; idx <= MaxClients; idx++) {
-				if (
-					IsClientInGame(idx) &&
-					players[idx].fall_dmg_tick == GetGameTickCount()
-				) {
-					// play old bone crunch
-					strcopy(sample, PLATFORM_MAX_PATH, "player/pl_fleshbreak.wav");
-					pitch = 92;
-					return Plugin_Changed;
-				}
+				// play old bone crunch
+				strcopy(sample, PLATFORM_MAX_PATH, "player/pl_fleshbreak.wav");
+				pitch = 92;
+				return Plugin_Changed;
 			}
 		}
-		else if (StrContains(sample, "PainSevere") != -1) {
-			for (idx = 1; idx <= MaxClients; idx++) {
-				if (
-					IsClientInGame(idx) &&
-					players[idx].fall_dmg_tick == GetGameTickCount()
-				) {
-					// cancel hurt sound by fall dmg
-					return Plugin_Stop;
-				}
-			}
-		}
-	}
 
-	// override shield bash sound for targe and turner at short range
-	if (StrContains(sample, "demo_charge_hit_flesh_range") != -1) {
-		for (idx = 1; idx <= MaxClients; idx++) {
-			if (
-				IsClientInGame(idx) &&
-				TF2_IsPlayerInCondition(idx, TFCond_Charging) &&
-				(
-					ItemIsEnabled(Wep_CharginTarge) && player_weapons[idx][Wep_CharginTarge] ||
-					ItemIsEnabled(Wep_TideTurner) && player_weapons[idx][Wep_TideTurner]
-				)
-			) {
-				char path[64];
-				if (GetEntPropFloat(idx, Prop_Send, "m_flChargeMeter") > 40.0) {
-					Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
-					strcopy(sample, PLATFORM_MAX_PATH, path);
-					return Plugin_Changed;
-				}
-			}
+		// override shield bash sound for short charges
+		if (
+			StrStartsWith(sample, "weapons/demo_charge_hit_flesh_range") &&
+			(
+				ItemIsEnabled(Wep_CharginTarge) && player_weapons[entity][Wep_CharginTarge] ||
+				ItemIsEnabled(Wep_TideTurner) && player_weapons[entity][Wep_TideTurner]
+			) &&
+			TF2_IsPlayerInCondition(entity, TFCond_Charging) &&
+			GetEntPropFloat(entity, Prop_Send, "m_flChargeMeter") > 40.0
+		) {
+			char path[64];
+			Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
+			strcopy(sample, PLATFORM_MAX_PATH, path);
+			return Plugin_Changed;
 		}
 	}
 	return Plugin_Continue;
@@ -4108,7 +4093,7 @@ Action SDKHookCB_OnTakeDamage(
 
 		{
 			// save fall dmg tick for overriding with old fall dmg sound
-			if (damage_type & DMG_FALL) players[victim].fall_dmg_tick = GetGameTickCount();
+			if (damage_type & DMG_FALL) players[victim].fall_damage_frame = GetGameTickCount();
 
 			// save victim's rage meter for modifications
 			players[victim].rage_meter = GetEntPropFloat(victim, Prop_Send, "m_flRageMeter");
@@ -6958,18 +6943,18 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 	float pos1[3], pos2[3];
 	float lifetime_ratio;
 
-	if (victim >= 1 && victim <= MaxClients) {
+	if (
+		victim >= 1 && victim <= MaxClients &&
+		attacker >= 1 && attacker <= MaxClients
+	) {
 		if (
 			stun_fls & TF_STUNFLAG_NOSOUNDOREFFECT &&
 			ItemIsEnabled(Wep_Huntsman)
 		) {
 			players[victim].no_effect_stun_frame = GetGameTickCount();
+			players[attacker].no_effect_stun_frame = GetGameTickCount();
 		}
-	} else {
-		return MRES_Ignored;
-	}
 
-	if (attacker >= 1 && attacker <= MaxClients) {
 		if (players[victim].stun_frame == GetGameTickCount()) {
 			players[victim].stun_frame = 0;
 
