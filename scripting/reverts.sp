@@ -368,7 +368,6 @@ DynamicDetour dhook_CTFProjectile_Arrow_BuildingHealingArrow;
 DynamicDetour dhook_CTFPlayer_RegenThink;
 DynamicDetour dhook_CTFPlayer_GiveAmmo;
 DynamicDetour dhook_CTFLunchBox_DrainAmmo;
-DynamicDetour dhook_CTFPlayer_OnTauntSucceeded;
 DynamicDetour dhook_AI_CriteriaSet_AppendCriteria;
 DynamicDetour dhook_CBaseObject_OnConstructionHit;
 DynamicDetour dhook_CBaseObject_CreateAmmoPack;
@@ -1017,7 +1016,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayer_RegenThink = DynamicDetour.FromConf(conf, "CTFPlayer::RegenThink");
 		dhook_CTFPlayer_GiveAmmo = DynamicDetour.FromConf(conf, "CTFPlayer::GiveAmmo");
 		dhook_CTFLunchBox_DrainAmmo = DynamicDetour.FromConf(conf, "CTFLunchBox::DrainAmmo");
-		dhook_CTFPlayer_OnTauntSucceeded = DynamicDetour.FromConf(conf, "CTFPlayer::OnTauntSucceeded");
 		dhook_AI_CriteriaSet_AppendCriteria = DynamicDetour.FromConf(conf, "AI_CriteriaSet::AppendCriteria");
 		dhook_CBaseObject_OnConstructionHit = DynamicDetour.FromConf(conf, "CBaseObject::OnConstructionHit");
 		dhook_CBaseObject_CreateAmmoPack = DynamicDetour.FromConf(conf, "CBaseObject::CreateAmmoPack");
@@ -1164,7 +1162,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayer_RegenThink);
 	VALIDATE_HANDLE(dhook_CTFPlayer_GiveAmmo);
 	VALIDATE_HANDLE(dhook_CTFLunchBox_DrainAmmo);
-	VALIDATE_HANDLE(dhook_CTFPlayer_OnTauntSucceeded);
 	VALIDATE_HANDLE(dhook_AI_CriteriaSet_AppendCriteria);
 	VALIDATE_HANDLE(dhook_CBaseObject_OnConstructionHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_CreateAmmoPack);
@@ -1218,7 +1215,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayer_RegenThink.Enable(Hook_Post, DHookCallback_CTFPlayer_RegenThink_Post);
 	dhook_CTFPlayer_GiveAmmo.Enable(Hook_Pre, DHookCallback_CTFPlayer_GiveAmmo_Pre);
 	dhook_CTFLunchBox_DrainAmmo.Enable(Hook_Pre, DHookCallback_CTFLunchBox_DrainAmmo_Pre);
-	dhook_CTFPlayer_OnTauntSucceeded.Enable(Hook_Post, DHookCallback_CTFPlayer_OnTauntSucceeded_Post);
 	dhook_AI_CriteriaSet_AppendCriteria.Enable(Hook_Pre, DHookCallback_AI_CriteriaSet_AppendCriteria_Pre);
 	dhook_CBaseObject_OnConstructionHit.Enable(Hook_Pre, DHookCallback_CBaseObject_OnConstructionHit_Pre);
 	dhook_CBaseObject_CreateAmmoPack.Enable(Hook_Pre, DHookCallback_CBaseObject_CreateAmmoPack_Pre);
@@ -3939,13 +3935,11 @@ void SDKHookCB_SpawnPost(int entity) {
 		}
 	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
-		GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
 		owner = GetEntPropEnt(entity, Prop_Data, "m_hOwner");
 
-		if (
-			owner >= 1 &&
-			owner <= MaxClients
-		) {
+		if (owner >= 1 && owner <= MaxClients) {
+			GetEntPropString(entity, Prop_Data, "m_iszSceneFile", scene, sizeof(scene));
+
 			if (
 				GetItemVariant(Wep_Amputator) == 1 &&
 				StrEqual(scene, "scenes/player/medic/low/taunt03.vcd")
@@ -3959,6 +3953,15 @@ void SDKHookCB_SpawnPost(int entity) {
 						players[owner].medic_amputator_current_uber = GetEntPropFloat(weapon, Prop_Send, "m_flChargeLevel");
 					}
 				}
+			}
+			else if (
+				ItemIsEnabled(Wep_Huntsman) &&
+				StrEqual(scene, "scenes/player/sniper/low/taunt04.vcd")
+			) {
+				DataPack pack = new DataPack();
+				pack.WriteCell(GetClientUserId(owner));
+				pack.WriteFloat(GetGameTime());
+				RequestFrame(SetNextTauntStartTime, pack);
 			}
 		}
 	}
@@ -5684,6 +5687,20 @@ void SetDemoChargeMeter(DataPack pack) {
 	SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", clamp(charge, 0.0, 100.0));
 }
 
+void SetNextTauntStartTime(DataPack pack) {
+	pack.Reset();
+
+	int client = GetClientOfUserId(pack.ReadCell());
+	float time = pack.ReadFloat();
+
+	delete pack;
+
+	if (!IsClientInGame(client))
+		return;
+
+	SetEntDataFloat(client, CTFPlayer_m_flTauntNextStartTime, time, true);
+}
+
 // dynamic hooks and detours
 
 MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack_Pre(int entity) {
@@ -5985,23 +6002,6 @@ MRESReturn DHookCallback_CTFLunchBox_DrainAmmo_Pre(int entity) {
 		return MRES_Supercede;
 	}
 
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CTFPlayer_OnTauntSucceeded_Post(int entity, DHookParam parameters) {
-	char pszSceneName[PLATFORM_MAX_PATH];
-	parameters.GetString(1, pszSceneName, sizeof(pszSceneName));
-	int iTauntIndex = parameters.Get(2);
-
-	if (
-		ItemIsEnabled(Wep_Huntsman) &&
-		TF2_GetPlayerClass(entity) == TFClass_Sniper &&
-		StrEqual(pszSceneName, "scenes/player/sniper/low/taunt04.vcd") &&
-		iTauntIndex == 0 // See tf_shareddefs.h for enum. 0 is TAUNT_BASE_WEAPON.
-	) {
-		// Set the players m_flTauntNextStartTime to CurrentTime.
-		SetEntDataFloat(entity, CTFPlayer_m_flTauntNextStartTime, GetGameTime(), true);
-	}
 	return MRES_Ignored;
 }
 
