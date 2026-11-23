@@ -615,8 +615,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 			return APLRes_SilentFailure;
 		}
 	}
-
 	delete gamedata;
+#if defined MEMORY_PATCHES
+	MarkNativeAsOptional("GetAddressOfCell");
+	MarkNativeAsOptional("GetAddressOfString");
+	MarkNativeAsOptional("MemoryPatch.CreateFromConf");
+	MarkNativeAsOptional("MemoryPatch.Validate");
+	MarkNativeAsOptional("MemoryPatch.Enable");
+	MarkNativeAsOptional("MemoryPatch.Disable");
+	MarkNativeAsOptional("MemoryPatch.Address.get");
+	MarkNativeAsOptional("MemoryBlock.MemoryBlock");
+	MarkNativeAsOptional("MemoryBlock.LoadFromOffset");
+	MarkNativeAsOptional("MemoryBlock.StoreToOffset");
+	MarkNativeAsOptional("MemoryBlock.Address.get");
+	MarkNativeAsOptional("MemoryBlock.Size.get");
+	MarkNativeAsOptional("MemoryBlock.Disown");
+#endif
 	return APLRes_Success;
 }
 
@@ -631,7 +645,10 @@ public void OnPluginStart() {
 	LoadTranslations("reverts.phrases.txt");
 
 #if defined MEMORY_PATCHES
-	g_bPatchesAvailable = LibraryExists("sourcescramble");
+	g_bPatchesAvailable = (
+		LibraryExists("sourcescramble") &&
+		GetFeatureStatus(FeatureType_Native, "MemoryPatch.CreateFromConf") == FeatureStatus_Available
+	);
 	if (g_bPatchesAvailable) {
 		conf = new GameData("memorypatch_reverts");
 		if (conf == null) {
@@ -639,8 +656,7 @@ public void OnPluginStart() {
 			LogError("memorypatch_reverts.txt unavailable, using patchless fallbacks");
 		}
 		delete conf;
-	}
-	else {
+	} else {
 		LogMessage("SourceScramble unavailable, using patchless fallbacks");
 	}
 #endif
@@ -5291,6 +5307,10 @@ void ItemFinalize() {
 		if (items[idx].cvar != null) {
 			SetFailState("Tried to initialize items more than once");
 		}
+
+		// Skip undefined items, otherwise an exception is thrown
+		if (strlen(items[idx].key) == 0)
+			continue;
 
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T\n\n"), items[idx].key, LANG_SERVER);
