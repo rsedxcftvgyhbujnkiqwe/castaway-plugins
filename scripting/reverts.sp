@@ -630,7 +630,15 @@ public void OnPluginStart() {
 
 #if defined MEMORY_PATCHES
 	g_bPatchesAvailable = LibraryExists("sourcescramble");
-	if (!g_bPatchesAvailable) {
+	if (g_bPatchesAvailable) {
+		conf = new GameData("memorypatch_reverts");
+		if (conf == null) {
+			g_bPatchesAvailable = false;
+			LogError("memorypatch_reverts.txt unavailable, using patchless fallbacks");
+		}
+		delete conf;
+	}
+	else {
 		LogMessage("SourceScramble unavailable, using patchless fallbacks");
 	}
 #endif
