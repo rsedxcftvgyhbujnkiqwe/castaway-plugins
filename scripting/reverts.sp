@@ -617,6 +617,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	}
 	delete gamedata;
 #if defined MEMORY_PATCHES
+	// mark these manually as the included __ext_sourcescramble_SetNTVOptional is empty
+	// if it happens to be populated in the future, feel free to remove these
+	// and call the included function instead
 	MarkNativeAsOptional("GetAddressOfCell");
 	MarkNativeAsOptional("GetAddressOfString");
 	MarkNativeAsOptional("MemoryPatch.CreateFromConf");
