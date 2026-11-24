@@ -84,9 +84,9 @@
 				"signature"     "CTFWeaponBase::ApplyOnHitAttributes"
 				"linux"
 				{
-					"offset"    "4361"
-					"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
-					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
+					"offset"    "5398"
+					"verify"    "\xF3\x0F\x10\x86\x2A\x2A\x2A\x2A" // movss xmm0, [esi-XXXXXXXX] (0.6f, PIC-relative)
+					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 				"windows"
 				{
@@ -109,9 +109,9 @@
 				"signature" "CTFProjectile_BallOfFire::Burn"
 				"linux"
 				{
-					"offset"    "2473"
-					"verify"    "\x83\xEC\x08\x6A\x16" // Oct12: existing default branch InCond(22) setup
-					"patch"     "\xE9\xBD\x09\x00\x00" // Route validated default path to existing conditional bonus block
+					"offset"    "2566"
+					"verify"    "\x83\xEC\x08\x6A\x16" // existing default branch InCond(22) setup
+					"patch"     "\xE9\x20\x0A\x00\x00" // Route validated default path to existing conditional bonus block
 
 				}
 				"windows"
@@ -130,10 +130,10 @@
 				"signature" "CTFFlameManager::GetFlameDamageScale"
 				"linux"
 				{
-					"offset"    "239"
-					"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-					"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
-
+					"offset"    "251"
+					"verify" "\x0F\x84\x8F\x00\x00\x00"
+					"patch"  "\xE9\x90\x00\x00\x00\x90" // JMP 144 bytes forward, NOP
+ 
 				}
 				"windows"
 				{
@@ -148,8 +148,8 @@
 				"signature" "CTFFlameManager::OnCollide"
 				"linux"
 				{
-					"offset"    "254"
-					"verify"    "\x74\x2A"
+					"offset"    "295"
+					"verify"    "\x74\x5A"
 					"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
 
 				}
@@ -180,8 +180,8 @@
 				"signature"	"CTFWeaponBaseGun::FirePipeBomb"
 				"linux"
 				{
-					"offset"	"2092"
-					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x
+					"offset"	"2152"
+					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL UTIL_SetSize
 					"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
 				}
 				"windows"
@@ -202,8 +202,8 @@
 				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 				"linux"
 				{
-					"offset"	"1957"
-					"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+					"offset"	"1985"
+					"verify"	"\xf3\x0f\x59\x86\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [esi-XXXXXXXX] ; original should point to 1.35
 					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -218,8 +218,8 @@
 				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 				"linux"
 				{
-					"offset"	"1949"
-					"verify"	"\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+					"offset"	"1993"
+					"verify"	"\xf3\x0f\x59\x8e\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [esi-XXXXXXXX] ; original should point to 1.3
 					"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -244,8 +244,8 @@
 				"signature" "CObjectSentrygun::Fire"
 				"linux"
 				{
-					"offset"	"1450"
-					"verify"	"\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, [dat_xxxxxxxx]
+					"offset"	"1526"
+					"verify"	"\xf3\x0f\x10\x87\x2a\x2a\x2a\x2a" // movss xmm0, [esi-XXXXXXXX] (0.02618f, PIC-relative)
 					"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 			}
