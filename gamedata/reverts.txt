@@ -357,8 +357,8 @@
 			}
 			"CTFGameRules::PlayerMayCapturePoint"
 			{
-				"windows"	"160"
-				"linux"		"161"
+				"windows"	"161"
+				"linux"		"162"
 			}
 			"CTFWeaponBaseGrenadeProj::InitGrenade" // 4-argument version, one with CTFWeaponInfo ref
 			{
