@@ -9,7 +9,7 @@
 				"library"   "server"
 				"linux"     "@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
 				"windows"   "\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
-			}		
+			}
 			"CTFProjectile_BallOfFire::Burn"
 			{
 				"library" "server"
@@ -48,12 +48,6 @@
 				"linux"		"@_ZN16CTFWeaponBaseGun12FirePipeBombEP9CTFPlayeri"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xF1"
 			}
-			"CTFPlayer::DoClassSpecialSkill" // Search for the string cannot_pick_up_buildings, in it's FUN, it's the XREF FUN_ that has around 60-80 lines of code in decompiler (Ghidra).
-			{
-				"library" "server"
-				"windows" "\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x2A\x2A\xFF\xD0\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\xF7\x86\x2A\x2A\x2A\x2A\x00\x00\x04\x00"
-				"linux"   "@_ZN9CTFPlayer19DoClassSpecialSkillEv"
-			}
 			"CTFPlayer::OnTakeDamage" // search for the string lose_hype_on_take_damage. Function will likely be Undefined, it should also contain fish_damage_override and no_self_blast_dmg
 			{
 				"library" "server"
@@ -90,9 +84,9 @@
 				"signature"     "CTFWeaponBase::ApplyOnHitAttributes"
 				"linux"
 				{
-					"offset"    "4361"
-					"verify"    "\xF3\x0F\x10\x05\x2A\x2A\x2A\x2A" // movss xmm0, ds:dword_11A3888 (0.6 in dword_11A3888)
-					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, 0 (retrieve from plugin)
+					"offset"    "5398"
+					"verify"    "\xF3\x0F\x10\x86\x2A\x2A\x2A\x2A" // movss xmm0, [esi-XXXXXXXX] (0.6f, PIC-relative)
+					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 				"windows"
 				{
@@ -101,12 +95,6 @@
 					"patch"     "\xF3\x0F\x59\x05\x00\x00\x00\x00" // mulss xmm0, 0 (retrieve from plugin)
 				}
 			}
-
-			// ╔══════════════════════════════════════════════╗
-			// ║                   Soldier                    ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Soldier at the moment.
 
 			// ╔══════════════════════════════════════════════╗
 			// ║                    Pyro                      ║
@@ -121,9 +109,9 @@
 				"signature" "CTFProjectile_BallOfFire::Burn"
 				"linux"
 				{
-					"offset"    "2473"
-					"verify"    "\x83\xEC\x08\x6A\x16" // Oct12: existing default branch InCond(22) setup
-					"patch"     "\xE9\xBD\x09\x00\x00" // Route validated default path to existing conditional bonus block
+					"offset"    "2566"
+					"verify"    "\x83\xEC\x08\x6A\x16" // existing default branch InCond(22) setup
+					"patch"     "\xE9\x20\x0A\x00\x00" // Route validated default path to existing conditional bonus block
 
 				}
 				"windows"
@@ -136,16 +124,15 @@
 
 			// ================================================
 			//  Revert flamethrower damage and mechanics to Pre-Bluemoon/Jungle Inferno.
- 
+
 			"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
 			{
 				"signature" "CTFFlameManager::GetFlameDamageScale"
 				"linux"
 				{
-					"offset"    "239"
-					"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
-					"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
- 
+					"offset"    "251"
+					"verify" "\x0F\x84\x8F\x00\x00\x00"
+					"patch"  "\xE9\x90\x00\x00\x00\x90" // JMP 144 bytes forward, NOP
 				}
 				"windows"
 				{
@@ -154,16 +141,16 @@
 					"patch"  "\xE9\x88\x00\x00\x00\x90" // JMP 136 bytes forward, NOP
 				}
 			}
- 
+
 			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage"
 			{
 				"signature" "CTFFlameManager::OnCollide"
 				"linux"
 				{
-					"offset"    "254"
-					"verify"    "\x74\x2A"
+					"offset"    "295"
+					"verify"    "\x74\x5A"
 					"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
- 
+
 				}
 				"windows"
 				{
@@ -182,7 +169,7 @@
 			// ================================================
 			//  Iron Bomber - Pre-July 7, 2022 patch
 			//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
-			//	Normal pipe grenade hitbox size is 4x4x4. 
+			//	Normal pipe grenade hitbox size is 4x4x4.
 			//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
 			//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
 			//	Function can be found via the DevMsg "Fire bomb at %f %f %f\n" string in a decompiler.
@@ -192,8 +179,8 @@
 				"signature"	"CTFWeaponBaseGun::FirePipeBomb"
 				"linux"
 				{
-					"offset"	"2092"
-					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL, x2A wildcard 4x
+					"offset"	"2152"
+					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL UTIL_SetSize
 					"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
 				}
 				"windows"
@@ -214,8 +201,8 @@
 				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 				"linux"
 				{
-					"offset"	"1957"
-					"verify"	"\xf3\x0f\x59\x05\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [float_xxxxxxxx] ; original should point to 1.35
+					"offset"	"1985"
+					"verify"	"\xf3\x0f\x59\x86\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [esi-XXXXXXXX] ; original should point to 1.35
 					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -230,8 +217,8 @@
 				"signature"	"CTFPlayer::TeamFortress_CalculateMaxSpeed"
 				"linux"
 				{
-					"offset"	"1949"
-					"verify"	"\xf3\x0f\x59\x0d\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [float_xxxxxxxx] ; original should point to 1.3
+					"offset"	"1993"
+					"verify"	"\xf3\x0f\x59\x8e\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [esi-XXXXXXXX] ; original should point to 1.3
 					"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -256,8 +243,8 @@
 				"signature" "CObjectSentrygun::Fire"
 				"linux"
 				{
-					"offset"	"1450"
-					"verify"	"\xf3\x0f\x10\x05\x2a\x2a\x2a\x2a" // movss xmm0, [dat_xxxxxxxx]
+					"offset"	"1526"
+					"verify"	"\xf3\x0f\x10\x87\x2a\x2a\x2a\x2a" // movss xmm0, [esi-XXXXXXXX] (0.02618f, PIC-relative)
 					"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 			}
@@ -292,66 +279,11 @@
 					"patch"		"\xc7\x45\x84\x00\x00\x00\x00" // retrieve from plugin
 				}
 			}
-			
-			// ╔══════════════════════════════════════════════╗
-			// ║                    Medic                     ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Medic at the moment.
-
-			// ╔══════════════════════════════════════════════╗
-			// ║                   Sniper                     ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Sniper at the moment.
-
-			// ╔══════════════════════════════════════════════╗
-			// ║                     Spy                      ║
-			// ╚══════════════════════════════════════════════╝
-
-			//  Spy related MemoryPatches go here.
-			// ================================================
-			//  Spy cannot taunt and cloak check, removal.
-			//  Basically restores so the Spy can do this:
-			//  https://www.youtube.com/watch?v=L_aFprOzvUA
-
-			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck"
-			{
-				"signature" "CTFPlayer::DoClassSpecialSkill"
-				"linux"
-				{
-					"offset"    "288"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x106
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}
-				"windows"
-				{
-					"offset"    "173"
-					"verify"    "\x75\x50" // JNZ 0x50
-					"patch"     "\x90\x90" // NOP x2
-				}
-			}
-			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer"
-			{
-				"signature" "CTFPlayer::OnTakeDamage"
-				"linux"
-				{
-					"offset"    "15807"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x2653
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}
-				"windows"
-				{
-					"offset"    "9621"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}	
-			}
 
 			// ╔══════════════════════════════════════════════╗
 			// ║                    Misc                      ║
 			// ╚══════════════════════════════════════════════╝
-		
+
 			// Dropped weapon revert
 			// Push pszWorldModel instead of "models/items/ammopack_medium.mdl" on the
 			// parameter stack when calling CTFAmmoPack::Create
@@ -367,9 +299,9 @@
 				"linux"
 				{
 					// edi will have the pointer to our string
-					"offset"	"506"
-					"verify"	"\x68\x2A\x2A\x2A\x2A"
-					"patch"		"\x90\x90\x90\x90\x57"
+					"offset"	"532"
+					"verify"	"\x8D\x83\x2A\x2A\x2A\x2A\x50"
+					"patch"		"\x90\x90\x90\x90\x90\x90\x57"
 				}
 				"windows"
 				{
@@ -385,13 +317,6 @@
 			"CTFAmmoPack::MakeHolidayPack"
 			{
 				"signature" "CTFAmmoPack::MakeHolidayPack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-			}
-			"CTFPlayer::DoClassSpecialSkill"
-			{
-				"signature" "CTFPlayer::DoClassSpecialSkill"
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
