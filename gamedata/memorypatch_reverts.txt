@@ -9,7 +9,7 @@
 				"library"   "server"
 				"linux"     "@_ZN13CTFWeaponBase20ApplyOnHitAttributesEP11CBaseEntityP9CTFPlayerRK15CTakeDamageInfo"
 				"windows"   "\x55\x8B\xEC\x81\xEC\x10\x01\x00\x00\x53\x56\x57\x8B\x7D\x2A\x8B\xF1"
-			}		
+			}
 			"CTFProjectile_BallOfFire::Burn"
 			{
 				"library" "server"
@@ -97,12 +97,6 @@
 			}
 
 			// ╔══════════════════════════════════════════════╗
-			// ║                   Soldier                    ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Soldier at the moment.
-
-			// ╔══════════════════════════════════════════════╗
 			// ║                    Pyro                      ║
 			// ╚══════════════════════════════════════════════╝
 
@@ -130,7 +124,7 @@
 
 			// ================================================
 			//  Revert flamethrower damage and mechanics to Pre-Bluemoon/Jungle Inferno.
- 
+
 			"CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage"
 			{
 				"signature" "CTFFlameManager::GetFlameDamageScale"
@@ -139,7 +133,7 @@
 					"offset"    "239"
 					"verify" "\x0F\x84\x2A\x2A\x2A\x2A"
 					"patch"  "\xE9\x93\x00\x00\x00\x90" // JMP 147 bytes forward, NOP
- 
+
 				}
 				"windows"
 				{
@@ -148,7 +142,7 @@
 					"patch"  "\xE9\x88\x00\x00\x00\x90" // JMP 136 bytes forward, NOP
 				}
 			}
- 
+
 			"CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage"
 			{
 				"signature" "CTFFlameManager::OnCollide"
@@ -157,7 +151,7 @@
 					"offset"    "254"
 					"verify"    "\x74\x2A"
 					"patch"     "\xEB\x5A" // JMP SHORT +0x5A, jump 90 bytes forward from the instruction following it
- 
+
 				}
 				"windows"
 				{
@@ -176,7 +170,7 @@
 			// ================================================
 			//  Iron Bomber - Pre-July 7, 2022 patch
 			//  Reverts Iron Bomber hitbox back when it used to have a bigger hitbox
-			//	Normal pipe grenade hitbox size is 4x4x4. 
+			//	Normal pipe grenade hitbox size is 4x4x4.
 			//	Pre-patch Iron Bomber pipe size was 8.75 x 8.75 x 7.71424 according to https://github.com/ldesgoui/tf2-comp-fixes
 			//	This prevents the UTIL_SetSize function from being called. UTIL_SetSize is what adjusts the hitbox back to 4x4x4.
 			//	Function can be found via the DevMsg "Fire bomb at %f %f %f\n" string in a decompiler.
@@ -286,11 +280,11 @@
 					"patch"		"\xc7\x45\x84\x00\x00\x00\x00" // retrieve from plugin
 				}
 			}
-			
+
 			// ╔══════════════════════════════════════════════╗
 			// ║                    Misc                      ║
 			// ╚══════════════════════════════════════════════╝
-		
+
 			// Dropped weapon revert
 			// Push pszWorldModel instead of "models/items/ammopack_medium.mdl" on the
 			// parameter stack when calling CTFAmmoPack::Create
