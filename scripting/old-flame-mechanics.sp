@@ -415,6 +415,17 @@ public void OnPluginEnd()
 	DisableAllPatches();
 }
 
+// Enable() fails both when the offset went stale after a TF2 update and when the
+// patch is already applied, so only the latter is safe to write to.
+static bool EnablePatchOrAlreadyApplied(MemoryPatch patch, Address cell)
+{
+	if (patch == null)
+		return false;
+	if (patch.Enable())
+		return true;
+	return LoadFromAddress(patch.Address + view_as<Address>(4), NumberType_Int32) == view_as<int>(cell);
+}
+
 static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 {
 	if (!sm_oldflames_enable.BoolValue)
@@ -422,10 +433,19 @@ static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New = sm_oldflames_falloff.FloatValue;
 	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New = (1.00 - sm_oldflames_falloff.FloatValue) * MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_Multiplier;
-	MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Enable();
-	MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Enable();
-	WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New));
-	WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New));
+
+	Address flFalloff = GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff_New);
+	Address flFalloff2 = GetAddressOfCell(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2_New);
+
+	if (EnablePatchOrAlreadyApplied(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, flFalloff))
+		WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), flFalloff);
+	else
+		LogError("CTFFlameEntity_OnCollide_Falloff patch failed — using modern value");
+
+	if (EnablePatchOrAlreadyApplied(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, flFalloff2))
+		WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), flFalloff2);
+	else
+		LogError("CTFFlameEntity_OnCollide_Falloff2 patch failed — using modern value");
 }
 
 static void MemoryPatch_HealingDebuff_Patch()
@@ -437,18 +457,21 @@ static void MemoryPatch_HealingDebuff_Patch()
 		MemoryPatch_HealDebuff_Float75 = 0.75;
 		MemoryPatch_HealDebuff_Float25 = 0.25;
 
-		if (MemoryPatch_ConditionGameRulesThink_HealDebuff && MemoryPatch_ConditionGameRulesThink_HealDebuff.Enable())
-			WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+		Address fl75 = GetAddressOfCell(MemoryPatch_HealDebuff_Float75);
+		Address fl25 = GetAddressOfCell(MemoryPatch_HealDebuff_Float25);
+
+		if (EnablePatchOrAlreadyApplied(MemoryPatch_ConditionGameRulesThink_HealDebuff, fl75))
+			WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), fl75);
 		else
 			LogError("ConditionGameRulesThink_HealDebuff patch failed — using modern value");
 
-		if (MemoryPatch_CalcDamageResisted_HealDebuffShield && MemoryPatch_CalcDamageResisted_HealDebuffShield.Enable())
-			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float75));
+		if (EnablePatchOrAlreadyApplied(MemoryPatch_CalcDamageResisted_HealDebuffShield, fl75))
+			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), fl75);
 		else
 			LogError("CalcDamageResisted_HealDebuffShield patch failed — using modern value");
 
-		if (MemoryPatch_CalcDamageResisted_HealDebuffCrit && MemoryPatch_CalcDamageResisted_HealDebuffCrit.Enable())
-			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), GetAddressOfCell(MemoryPatch_HealDebuff_Float25));
+		if (EnablePatchOrAlreadyApplied(MemoryPatch_CalcDamageResisted_HealDebuffCrit, fl25))
+			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), fl25);
 		else
 			LogError("CalcDamageResisted_HealDebuffCrit patch failed — using modern value");
 	}

@@ -22,9 +22,9 @@
                 "signature" "CTeamplayRoundBasedRules::State_Think_RND_RUNNING"
                 "linux"
                 {
-                    "offset" "381"
-                    "verify" "\x84\xDB\x74\x44" // TEST BL, BL  |  JZ +0x44 (skip stalemate logic if false)
-                    "patch"  "\x90\x90\x90\x90" // NOP NOP NOP NOP (force branch to always execute stalemate logic)
+                    "offset" "197"
+                    "verify" "\x80\xBF\x2C\x03\x00\x00\x00\x75\x24" // CMP BYTE PTR [EDI+0x32C], 0  |  JNZ +0x24 (skip stalemate logic if false)
+                    "patch"  "\x80\xBF\x2C\x03\x00\x00\x00\xEB\x24" // CMP BYTE PTR [EDI+0x32C], 0  |  JMP +0x24 (force branch to always execute stalemate logic)
                 }
                 "windows"
                 {
