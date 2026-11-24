@@ -1,25 +1,3 @@
-/*
-	╔════════════════════════════════════════════════════╗
-	║                    !!README!!!                     ║
-	╚════════════════════════════════════════════════════╝
-
-	This section controls the compiling of memory patch reverts.
-	These are reverts which require SourceScramble to be installed.
-	Memory patch reverts may break when game updates happen.
-	If there is a major code update to the game resulting in
-	patches breaking, you can disable them here.
-
-	To disable all memory patches, comment out/remove the following line:
- v v v v v v v v v v v
-*/
-#define MEMORY_PATCHES
-/*
-	Alternatively, you can pass NO_MEMPATCHES= as a parameter to spcomp.
-*/
-#if defined NO_MEMPATCHES && defined MEMORY_PATCHES
-#undef MEMORY_PATCHES
-#endif
-
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
@@ -29,11 +7,20 @@
 #include <tf2utils>
 #include <tf2attributes>
 #include <dhooks>
-#include <morecolors> // Should be compiled on version 1.9.1 of morecolors.inc
+#include <morecolors>
 #include <math>
-#if defined MEMORY_PATCHES
-#include <sourcescramble>
+
+#undef REQUIRE_EXTENSIONS
+#tryinclude <sourcescramble>
+#define REQUIRE_EXTENSIONS
+
+#if defined __sourcescramble_ext_included
+#define MEMORY_PATCHES
+#if defined NO_MEMPATCHES && defined MEMORY_PATCHES
+#undef MEMORY_PATCHES
 #endif
+#endif
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -308,10 +295,7 @@ ConVar cvar_enable;
 ConVar cvar_show_moonshot;
 ConVar cvar_old_falldmg_sfx;
 ConVar cvar_no_reverts_info_by_default;
-#if defined MEMORY_PATCHES
-ConVar cvar_dropped_weapon_enable;
-#endif
-ConVar cvar_allow_detonate_stickies_while_taunting;
+ConVar cvar_sticky_taunt_detonate;
 ConVar cvar_pre_toughbreak_switch;
 ConVar cvar_enable_shortstop_shove;
 ConVar cvar_weapon_cache_delay;
@@ -338,34 +322,6 @@ ConVar cvar_ref_tf_scout_stunball_base_duration;
 ConVar cvar_ref_tf_stealth_damage_reduction;
 ConVar cvar_ref_tf_sticky_airdet_radius;
 ConVar cvar_ref_weapon_medigun_charge_rate;
-
-#if defined MEMORY_PATCHES
-MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
-MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
-MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
-MemoryPatch patch_RevertIronBomber_PipeHitbox;
-
-MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
-float g_flMadMilkHealTarget = 0.75;
-Address AddressOf_g_flMadMilkHealTarget;
-
-float g_flWranglerSpreadTarget = 0.01745;
-// windows
-MemoryPatch patch_RevertWranglerSpreadCone_X;
-MemoryPatch patch_RevertWranglerSpreadCone_Y;
-MemoryPatch patch_RevertWranglerSpreadCone_Z;
-// linux
-MemoryPatch patch_RevertWranglerSpreadCone_SSE;
-Address AddressOf_g_flWranglerSpreadTarget;
-
-float g_flSteakCapTarget = 10.0; // arbitrary
-float g_flSteakBoostTarget = 1.35;
-Address AddressOf_g_flSteakCapTarget;
-Address AddressOf_g_flSteakBoostTarget;
-MemoryPatch patch_RevertSteakCapValue;
-MemoryPatch patch_RevertSteakBoostValue;
-
-#endif
 
 Handle sdkcall_JarExplode;
 Handle sdkcall_GetMaxHealth;
@@ -431,6 +387,30 @@ DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
 DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
 
 #if defined MEMORY_PATCHES
+bool g_bPatchesAvailable;
+
+MemoryPatch patch_RevertDragonsFury_CenterHitForBonusDmg;
+
+MemoryPatch patch_RevertFlamethrowers_Density_DmgScale;
+MemoryPatch patch_RevertFlamethrowers_Density_OnCollide;
+
+MemoryPatch patch_RevertIronBomber_PipeHitbox;
+
+float g_flMadMilkHealTarget = 0.75;
+MemoryPatch patch_RevertMadMilk_ChgFloatAddr;
+
+float g_flWranglerSpreadTarget = 0.01745;
+MemoryPatch patch_RevertWranglerSpreadCone_X; // windows
+MemoryPatch patch_RevertWranglerSpreadCone_Y;
+MemoryPatch patch_RevertWranglerSpreadCone_Z;
+MemoryPatch patch_RevertWranglerSpreadCone_SSE; // linux
+
+float g_flSteakCapTarget = 10.0; // arbitrary
+float g_flSteakBoostTarget = 1.35;
+MemoryPatch patch_RevertSteakCapValue;
+MemoryPatch patch_RevertSteakBoostValue;
+
+ConVar cvar_dropped_weapon_enable;
 MemoryPatch patch_DroppedWeapon;
 DynamicDetour dhook_CTFDroppedWeapon_Create;
 DynamicDetour dhook_CTFAmmoPack_MakeHolidayPack;
@@ -635,8 +615,25 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 			return APLRes_SilentFailure;
 		}
 	}
-
 	delete gamedata;
+#if defined MEMORY_PATCHES
+	// mark these manually as the included __ext_sourcescramble_SetNTVOptional is empty
+	// if it happens to be populated in the future, feel free to remove these
+	// and call the included function instead
+	MarkNativeAsOptional("GetAddressOfCell");
+	MarkNativeAsOptional("GetAddressOfString");
+	MarkNativeAsOptional("MemoryPatch.CreateFromConf");
+	MarkNativeAsOptional("MemoryPatch.Validate");
+	MarkNativeAsOptional("MemoryPatch.Enable");
+	MarkNativeAsOptional("MemoryPatch.Disable");
+	MarkNativeAsOptional("MemoryPatch.Address.get");
+	MarkNativeAsOptional("MemoryBlock.MemoryBlock");
+	MarkNativeAsOptional("MemoryBlock.LoadFromOffset");
+	MarkNativeAsOptional("MemoryBlock.StoreToOffset");
+	MarkNativeAsOptional("MemoryBlock.Address.get");
+	MarkNativeAsOptional("MemoryBlock.Size.get");
+	MarkNativeAsOptional("MemoryBlock.Disown");
+#endif
 	return APLRes_Success;
 }
 
@@ -650,36 +647,58 @@ public void OnPluginStart() {
 
 	LoadTranslations("reverts.phrases.txt");
 
-#if defined GIT_COMMIT
-	CreateConVar("sm_reverts__version", PLUGIN_VERSION_GIT, (PLUGIN_NAME ... " - Version"), (FCVAR_NOTIFY|FCVAR_DONTRECORD));
-#else
-	CreateConVar("sm_reverts__version", PLUGIN_VERSION, (PLUGIN_NAME ... " - Version"), (FCVAR_NOTIFY|FCVAR_DONTRECORD));
+#if defined MEMORY_PATCHES
+	g_bPatchesAvailable = (
+		LibraryExists("sourcescramble") &&
+		GetFeatureStatus(FeatureType_Native, "MemoryPatch.CreateFromConf") == FeatureStatus_Available
+	);
+	if (g_bPatchesAvailable) {
+		conf = new GameData("memorypatch_reverts");
+		if (conf == null) {
+			g_bPatchesAvailable = false;
+			LogError("memorypatch_reverts.txt unavailable, using patchless fallbacks");
+		}
+		delete conf;
+	} else {
+		LogMessage("SourceScramble unavailable, using patchless fallbacks");
+	}
 #endif
+
+	CreateConVar(
+		"sm_reverts__version",
+#if defined GIT_COMMIT
+		PLUGIN_VERSION_GIT,
+#else
+		PLUGIN_VERSION,
+#endif
+		PLUGIN_NAME ... " - Version",
+		FCVAR_NOTIFY | FCVAR_DONTRECORD
+	);
 
 	cvar_enable = CreateConVar("sm_reverts__enable", "1", (PLUGIN_NAME ... " - Enable plugin"), _, true, 0.0, true, 1.0);
 	cvar_show_moonshot = CreateConVar("sm_reverts__show_moonshot", "0", (PLUGIN_NAME ... " - Show a HUD message when someone lands a moonshot"), _, true, 0.0, true, 1.0);
 	cvar_old_falldmg_sfx = CreateConVar("sm_reverts__old_falldmg_sfx", "0", (PLUGIN_NAME ... " - Enable old (pre-inferno) fall damage sound (old bone crunch, no hurt voicelines)"), _, true, 0.0, true, 1.0);
-#if defined MEMORY_PATCHES
-	cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapon behaviour"), _, true, 0.0, true, 1.0);
-#endif
-	cvar_allow_detonate_stickies_while_taunting = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Allow detonation of stickies while taunting via sm_detonatestickies"), _, true, 0.0, true, 1.0);
 	cvar_no_reverts_info_by_default = CreateConVar("sm_reverts__no_reverts_info_on_spawn", "0", (PLUGIN_NAME ... " - Disable loadout change reverts info by default"), _, true, 0.0, true, 1.0);
 	cvar_pre_toughbreak_switch = CreateConVar("sm_reverts__pre_toughbreak_switch", "0", (PLUGIN_NAME ... " - Use pre-toughbreak weapon switch time (0.67 sec instead of 0.5 sec)"), _, true, 0.0, true, 1.0);
-	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
 	cvar_weapon_cache_delay = CreateConVar("sm_reverts__weapon_cache_delay", "0", (PLUGIN_NAME ... " - Time delay for weapon caching on inventory application. Set to 0 for no delay"), _, true, 0.0);
 	cvar_bison_damage_formula = CreateConVar("sm_reverts__bison_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Bison\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
 	cvar_pomson_damage_formula = CreateConVar("sm_reverts__pomson_damage_formula", "0", (PLUGIN_NAME ... " - Damage formula for reverted Pomson\n 0: Vanilla (120% near, ~50% far, no crit falloff)\n 1: Pre-MYM (100% near, 70% far, crit falloff)\n 2: Pre-TB (100% near, 60% far, crit falloff)"), _, true, 0.0, true, 2.0);
 
-#if defined MEMORY_PATCHES
-	cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
-#endif
-	cvar_allow_detonate_stickies_while_taunting.AddChangeHook(OnAllowDetonateStickiesCvarChange);
+	cvar_sticky_taunt_detonate = CreateConVar("sm_reverts__allow_detonate_stickies_while_taunting", "0", (PLUGIN_NAME ... " - Allow detonation of stickies while taunting via sm_detonatestickies"), _, true, 0.0, true, 1.0);
+	cvar_sticky_taunt_detonate.AddChangeHook(OnStickyTauntDetonateCvarChange);
+	cvar_enable_shortstop_shove = CreateConVar("sm_reverts__enable_shortstop_shove", "0", (PLUGIN_NAME ... " - Enable alt-fire shove for reverted Shortstop"), _, true, 0.0, true, 1.0);
 	cvar_enable_shortstop_shove.AddChangeHook(OnShortstopShoveCvarChange);
+#if defined MEMORY_PATCHES
+	if (g_bPatchesAvailable) {
+		cvar_dropped_weapon_enable = CreateConVar("sm_reverts__enable_dropped_weapon", "0", (PLUGIN_NAME ... " - Revert dropped weapons to be ammo pickups"), _, true, 0.0, true, 1.0);
+		cvar_dropped_weapon_enable.AddChangeHook(OnDroppedWeaponCvarChange);
+	}
+#endif
 
 	// Generic class features
 	ItemDefine("airblast", "Airblast_PreJI", CLASSFLAG_PYRO, Feat_Airblast);
 #if defined MEMORY_PATCHES
-	ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Feat_Flamethrower);
+	if (g_bPatchesAvailable) ItemDefine("flamethrower", "Flamethrower_PreBM", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Feat_Flamethrower);
 #endif
 	ItemDefine("grenade", "Grenade_Pre2014", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED, Feat_Grenade);
 	ItemDefine("lunchbox", "Lunchbox_Pre2012", CLASSFLAG_HEAVY | ITEMFLAG_DISABLED, Feat_Lunchbox);
@@ -753,10 +772,13 @@ public void OnPluginStart() {
 	ItemDefine("directhit", "DirectHit_PreJI", CLASSFLAG_SOLDIER, Wep_DirectHit);
 	ItemDefine("disciplinary", "Disciplinary_PreMYM", CLASSFLAG_SOLDIER, Wep_Disciplinary);
 #if defined MEMORY_PATCHES
-	ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Wep_DragonFury);
-#else
-	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
+	if (g_bPatchesAvailable) {
+		ItemDefine("dragonfury", "DragonFury_Release", CLASSFLAG_PYRO | ITEMFLAG_MEMPATCH, Wep_DragonFury);
+		ItemVariant(Wep_DragonFury, "DragonFury_Release_Patchless");
+	}
+	else
 #endif
+	ItemDefine("dragonfury", "DragonFury_Release_Patchless", CLASSFLAG_PYRO, Wep_DragonFury);
 	ItemDefine("enforcer", "Enforcer_PreGM", CLASSFLAG_SPY, Wep_Enforcer);
 	ItemVariant(Wep_Enforcer, "Enforcer_Release");
 	ItemDefine("equalizer", "Equalizer_PrePyro", CLASSFLAG_SOLDIER, Wep_Pickaxe);
@@ -777,7 +799,7 @@ public void OnPluginStart() {
 	ItemDefine("zatoichi", "Zatoichi_PreTB", CLASSFLAG_SOLDIER | CLASSFLAG_DEMOMAN, Wep_Zatoichi);
 	ItemDefine("huntsman", "Huntsman_Pre2013", CLASSFLAG_SNIPER, Wep_Huntsman);
 #if defined MEMORY_PATCHES
-	ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED | ITEMFLAG_MEMPATCH, Wep_IronBomber);
+	if (g_bPatchesAvailable) ItemDefine("ironbomber", "IronBomber_Pre2022", CLASSFLAG_DEMOMAN | ITEMFLAG_DISABLED | ITEMFLAG_MEMPATCH, Wep_IronBomber);
 #endif
 	ItemDefine("jag", "Jag_PreTB", CLASSFLAG_ENGINEER, Wep_Jag);
 	ItemVariant(Wep_Jag, "Jag_PreGM");
@@ -787,7 +809,7 @@ public void OnPluginStart() {
 	ItemDefine("cannon", "Cannon_PreTB", CLASSFLAG_DEMOMAN, Wep_LooseCannon);
 	ItemVariant(Wep_LooseCannon, "Cannon_Pre2013");
 #if defined MEMORY_PATCHES
-	ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT | ITEMFLAG_MEMPATCH, Wep_MadMilk);
+	if (g_bPatchesAvailable) ItemDefine("madmilk", "MadMilk_Release", CLASSFLAG_SCOUT | ITEMFLAG_MEMPATCH, Wep_MadMilk);
 #endif
 	ItemDefine("gardener", "Gardener_PreTB", CLASSFLAG_SOLDIER, Wep_MarketGardener);
 	ItemDefine("natascha", "Natascha_PreMYM", CLASSFLAG_HEAVY, Wep_Natascha);
@@ -862,7 +884,7 @@ public void OnPluginStart() {
 	ItemDefine("wrangler", "Wrangler_PreGM", CLASSFLAG_ENGINEER | ITEMFLAG_MEMPATCH, Wep_Wrangler);
 	ItemVariant(Wep_Wrangler, "Wrangler_PreLW");
 #if defined MEMORY_PATCHES
-	ItemVariant(Wep_Wrangler, "Wrangler_Release");
+	if (g_bPatchesAvailable) ItemVariant(Wep_Wrangler, "Wrangler_Release");
 #endif
 	ItemDefine("eternal", "Eternal_PreJI", CLASSFLAG_SPY, Wep_EternalReward);
 
@@ -1037,36 +1059,34 @@ public void OnPluginStart() {
 	}
 
 #if defined MEMORY_PATCHES
-	{
+	if (g_bPatchesAvailable) {
 		conf = new GameData("memorypatch_reverts");
 
-		if (conf == null) SetFailState("Failed to load memorypatch_reverts.txt conf!");
-
-		patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
-		patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
-		patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
-		patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
-		patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
-		if (operatingSystem == WINDOWS) {
-			patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
-			patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
-			patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
-		} else {
-			patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+		if (conf == null) {
+			g_bPatchesAvailable = false;
+			LogError("Failed to load memorypatch_reverts.txt conf!");
 		}
-		patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
-		patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
 
-		AddressOf_g_flMadMilkHealTarget = GetAddressOfCell(g_flMadMilkHealTarget);
-		if (operatingSystem != WINDOWS) {
-			AddressOf_g_flWranglerSpreadTarget = GetAddressOfCell(g_flWranglerSpreadTarget);
+		if (g_bPatchesAvailable) {
+			patch_RevertDragonsFury_CenterHitForBonusDmg = MemoryPatch.CreateFromConf(conf, "CTFProjectile_BallOfFire::Burn_SkipCenterHitRequirement");
+			patch_RevertFlamethrowers_Density_DmgScale = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::GetFlameDamageScale_SkipDensityClampingFlameDamage");
+			patch_RevertFlamethrowers_Density_OnCollide = MemoryPatch.CreateFromConf(conf, "CTFFlameManager::OnCollide_SkipDensityClampingFlameDamage");
+			patch_RevertMadMilk_ChgFloatAddr = MemoryPatch.CreateFromConf(conf, "CTFWeaponBase::ApplyOnHitAttributes_Milk_HealAmount");
+			patch_RevertIronBomber_PipeHitbox = MemoryPatch.CreateFromConf(conf, "CTFWeaponBaseGun::FirePipeBomb_IronBomberHitboxRevert");
+			if (operatingSystem == WINDOWS) {
+				patch_RevertWranglerSpreadCone_X = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeX");
+				patch_RevertWranglerSpreadCone_Y = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeY");
+				patch_RevertWranglerSpreadCone_Z = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeZ");
+			} else {
+				patch_RevertWranglerSpreadCone_SSE = MemoryPatch.CreateFromConf(conf, "CObjectSentrygun::Fire_2DegreeConeSSE");
+			}
+			patch_RevertSteakCapValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakCapValue");
+			patch_RevertSteakBoostValue = MemoryPatch.CreateFromConf(conf, "CTFPlayer::TeamFortress_CalculateMaxSpeed_SteakBoostValue");
+
+			patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
+			dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
+			dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 		}
-		AddressOf_g_flSteakCapTarget = GetAddressOfCell(g_flSteakCapTarget);
-		AddressOf_g_flSteakBoostTarget = GetAddressOfCell(g_flSteakBoostTarget);
-
-		patch_DroppedWeapon = MemoryPatch.CreateFromConf(conf, "CTFPlayer::DropAmmoPack");
-		dhook_CTFDroppedWeapon_Create = DynamicDetour.FromConf(conf, "CTFDroppedWeapon::Create");
-		dhook_CTFAmmoPack_MakeHolidayPack = DynamicDetour.FromConf(conf, "CTFAmmoPack::MakeHolidayPack");
 
 		delete conf;
 	}
@@ -1168,24 +1188,26 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
 
 #if defined MEMORY_PATCHES
-	VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
-	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
-	VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
-	VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
-	VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
-	if (operatingSystem == WINDOWS) {
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
-	} else {
-		VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
-	}
-	VALIDATE_PATCH(patch_RevertSteakCapValue);
-	VALIDATE_PATCH(patch_RevertSteakBoostValue);
+	if (g_bPatchesAvailable) {
+		VALIDATE_PATCH(patch_RevertDragonsFury_CenterHitForBonusDmg);
+		VALIDATE_PATCH(patch_RevertFlamethrowers_Density_DmgScale);
+		VALIDATE_PATCH(patch_RevertFlamethrowers_Density_OnCollide);
+		VALIDATE_PATCH(patch_RevertMadMilk_ChgFloatAddr);
+		VALIDATE_PATCH(patch_RevertIronBomber_PipeHitbox);
+		if (operatingSystem == WINDOWS) {
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_X);
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Y);
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_Z);
+		} else {
+			VALIDATE_PATCH(patch_RevertWranglerSpreadCone_SSE);
+		}
+		VALIDATE_PATCH(patch_RevertSteakCapValue);
+		VALIDATE_PATCH(patch_RevertSteakBoostValue);
 
-	VALIDATE_PATCH(patch_DroppedWeapon);
-	VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
-	VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
+		VALIDATE_PATCH(patch_DroppedWeapon);
+		VALIDATE_HANDLE(dhook_CTFDroppedWeapon_Create);
+		VALIDATE_HANDLE(dhook_CTFAmmoPack_MakeHolidayPack);
+	}
 #endif
 
 	if (hook_fail) {
@@ -1221,8 +1243,10 @@ public void OnPluginStart() {
 	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre);
 
 #if defined MEMORY_PATCHES
-	dhook_CTFDroppedWeapon_Create.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_Create);
-	dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+	if (g_bPatchesAvailable) {
+		dhook_CTFDroppedWeapon_Create.Enable(Hook_Pre, DHookCallback_CTFDroppedWeapon_Create);
+		dhook_CTFAmmoPack_MakeHolidayPack.Enable(Hook_Pre, DHookCallback_CTFAmmoPack_MakeHolidayPack);
+	}
 #endif
 
 	team_round_timer_entity = -1;
@@ -1276,7 +1300,7 @@ void UpdateShortstopDescription() {
 	}
 }
 
-public void OnAllowDetonateStickiesCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+public void OnStickyTauntDetonateCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
 	UpdateStickyLauncherDescription();
 }
 
@@ -1285,7 +1309,7 @@ void UpdateStickyLauncherDescription() {
 	char taunt_detonate_str[] = "_Taunt_Detonate";
 
 	for (int j = 0; j <= items[i].num_variants; j++) {
-		if (cvar_allow_detonate_stickies_while_taunting.BoolValue) {
+		if (cvar_sticky_taunt_detonate.BoolValue) {
 			if (StrContains(items_desc[i][j], taunt_detonate_str) == -1) {
 				Format(items_desc[i][j], sizeof(items_desc[][]), "%s%s", items_desc[i][j], taunt_detonate_str);
 			}
@@ -1297,21 +1321,22 @@ void UpdateStickyLauncherDescription() {
 
 public void OnConfigsExecuted() {
 #if defined MEMORY_PATCHES
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury),Wep_DragonFury);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower),Feat_Flamethrower);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb),Feat_Stickybomb);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk),Wep_MadMilk);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber),Wep_IronBomber);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler),Wep_Wrangler);
-	ToggleMemoryPatchReverts(ItemIsEnabled(Wep_BuffaloSteak),Wep_BuffaloSteak);
-	OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+	if (g_bPatchesAvailable) {
+		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_DragonFury), Wep_DragonFury);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Flamethrower), Feat_Flamethrower);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Feat_Stickybomb), Feat_Stickybomb);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_MadMilk), Wep_MadMilk);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_IronBomber), Wep_IronBomber);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_Wrangler), Wep_Wrangler);
+		ToggleMemoryPatchReverts(ItemIsEnabled(Wep_BuffaloSteak), Wep_BuffaloSteak);
+		OnDroppedWeaponCvarChange(cvar_dropped_weapon_enable, "0", "0");
+	}
 #endif
 	UpdateStickyLauncherDescription();
 	UpdateShortstopDescription();
 }
 
-bool ValidateOffset(const char[] name, any offset)
-{
+bool ValidateOffset(const char[] name, any offset) {
 	if (offset == -1) {
 		LogError("Failed to load %s offset", name);
 		return true;
@@ -1319,8 +1344,7 @@ bool ValidateOffset(const char[] name, any offset)
 	return false;
 }
 
-bool ValidateHandle(const char[] name, Handle handle)
-{
+bool ValidateHandle(const char[] name, Handle handle) {
 	if (handle == null) {
 		LogError("Failed to create %s", name);
 		return true;
@@ -1329,37 +1353,31 @@ bool ValidateHandle(const char[] name, Handle handle)
 }
 
 #if defined MEMORY_PATCHES
-// Helper to validate a memory patch/dhook and log failures.
-bool ValidatePatch(const char[] name, MemoryPatch patch)
-{
-	if (patch == null || !patch.Validate()) {
+bool ValidatePatch(const char[] name, MemoryPatch patch) {
+	if (ValidateAndNullCheck(patch) == false) {
 		LogError("Failed to create %s", name);
 		return true;
 	}
 	return false;
 }
 
-void OnServerCvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
-{
-	char cvarName[128];
-	convar.GetName(cvarName, sizeof(cvarName));
-	if (StrContains(cvarName, "sm_reverts__item_") != -1)
-	{
-		char item[64];
-		strcopy(item,sizeof(item),cvarName[strlen("sm_reverts__item_")]);
-		for (int i; i < NUM_ITEMS; i++) {
-			if (StrEqual(items[i].key,item)) {
-				ToggleMemoryPatchReverts(ItemIsEnabled(i),i);
-				return;
-			}
+bool ValidateAndNullCheck(MemoryPatch patch) {
+	return patch != null && patch.Validate();
+}
+
+void OnMemPatchCvarChanged(ConVar cvar, const char[] oldValue, const char[] newValue) {
+	for (int item = 0; item < NUM_ITEMS; item++) {
+		if (cvar == items[item].cvar) {
+			ToggleMemoryPatchReverts(ItemIsEnabled(item), item);
+			return;
 		}
 	}
 }
 
 void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
-	switch(wep_enum) {
+	switch (wep_enum) {
 		case Wep_DragonFury: {
-			if (enable) {
+			if (enable && GetItemVariant(Wep_DragonFury) == 0) {
 				patch_RevertDragonsFury_CenterHitForBonusDmg.Enable();
 			} else {
 				patch_RevertDragonsFury_CenterHitForBonusDmg.Disable();
@@ -1376,8 +1394,9 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_MadMilk: {
 			if (enable) {
-				patch_RevertMadMilk_ChgFloatAddr.Enable();
-				StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(0x04), view_as<int>(AddressOf_g_flMadMilkHealTarget), NumberType_Int32);
+				if (patch_RevertMadMilk_ChgFloatAddr.Enable()) {
+					StoreToAddress(patch_RevertMadMilk_ChgFloatAddr.Address + view_as<Address>(4), GetAddressOfCell(g_flMadMilkHealTarget), NumberType_Int32);
+				}
 			} else {
 				patch_RevertMadMilk_ChgFloatAddr.Disable();
 			}
@@ -1392,15 +1411,19 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		case Wep_Wrangler: {
 			if (enable && GetItemVariant(Wep_Wrangler) == 2) {
 				if (operatingSystem == WINDOWS) {
-					patch_RevertWranglerSpreadCone_X.Enable();
-					StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
-					patch_RevertWranglerSpreadCone_Y.Enable();
-					StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
-					patch_RevertWranglerSpreadCone_Z.Enable();
-					StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+					if (patch_RevertWranglerSpreadCone_X.Enable()) {
+						StoreToAddress(patch_RevertWranglerSpreadCone_X.Address + view_as<Address>(6), g_flWranglerSpreadTarget, NumberType_Int32);
+					}
+					if (patch_RevertWranglerSpreadCone_Y.Enable()) {
+						StoreToAddress(patch_RevertWranglerSpreadCone_Y.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+					}
+					if (patch_RevertWranglerSpreadCone_Z.Enable()) {
+						StoreToAddress(patch_RevertWranglerSpreadCone_Z.Address + view_as<Address>(3), g_flWranglerSpreadTarget, NumberType_Int32);
+					}
 				} else {
-					patch_RevertWranglerSpreadCone_SSE.Enable();
-					StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), AddressOf_g_flWranglerSpreadTarget, NumberType_Int32);
+					if (patch_RevertWranglerSpreadCone_SSE.Enable()) {
+						StoreToAddress(patch_RevertWranglerSpreadCone_SSE.Address + view_as<Address>(4), GetAddressOfCell(g_flWranglerSpreadTarget), NumberType_Int32);
+					}
 				}
 			} else {
 				if (operatingSystem == WINDOWS) {
@@ -1414,11 +1437,13 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 		}
 		case Wep_BuffaloSteak: {
 			if (enable) {
-				patch_RevertSteakBoostValue.Enable();
-				StoreToAddress(patch_RevertSteakBoostValue.Address + view_as<Address>(4), AddressOf_g_flSteakBoostTarget, NumberType_Int32);
+				if (patch_RevertSteakBoostValue.Enable()) {
+					StoreToAddress(patch_RevertSteakBoostValue.Address + view_as<Address>(4), GetAddressOfCell(g_flSteakBoostTarget), NumberType_Int32);
+				}
 				if (GetItemVariant(Wep_BuffaloSteak) == 1) {
-					patch_RevertSteakCapValue.Enable();
-					StoreToAddress(patch_RevertSteakCapValue.Address + view_as<Address>(4), AddressOf_g_flSteakCapTarget, NumberType_Int32);
+					if (patch_RevertSteakCapValue.Enable()) {
+						StoreToAddress(patch_RevertSteakCapValue.Address + view_as<Address>(4), GetAddressOfCell(g_flSteakCapTarget), NumberType_Int32);
+					}
 				} else {
 					patch_RevertSteakCapValue.Disable();
 				}
@@ -1442,7 +1467,7 @@ public void OnMapStart() {
 	PrecacheParticleSystem("dxhr_arm_muzzleflash");
 	PrecacheParticleSystem("peejar_impact_small");
 
-	playing_mvm = GameRules_GetProp("m_bPlayingMannVsMachine", 1) ? true : false;
+	playing_mvm = GameRules_GetProp("m_bPlayingMannVsMachine", 1) != 0;
 
 	dhook_CTFGameRules_PlayerMayCapturePoint.HookGamerules(Hook_Pre, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Pre);
 	dhook_CTFGameRules_PlayerMayCapturePoint.HookGamerules(Hook_Post, DHookCallback_CTFGameRules_PlayerMayCapturePoint_Post);
@@ -5268,7 +5293,9 @@ void ItemVariant(int wep_enum, const char[] desc) {
 	int variant_idx = ++items[wep_enum].num_variants;
 
 	if (items[wep_enum].num_variants > MAX_VARIANTS) {
-		SetFailState("Tried to define more than %d variants. Try increasing MAX_VARIANTS define in the source code", MAX_VARIANTS);
+		items[wep_enum].num_variants = MAX_VARIANTS;
+		LogError("Tried to define more than %d variants for %s. Try increasing MAX_VARIANTS define in the source code", MAX_VARIANTS, items[wep_enum].key);
+		return;
 	}
 
 	strcopy(items_desc[wep_enum][variant_idx], sizeof(items_desc[][]), desc);
@@ -5284,6 +5311,10 @@ void ItemFinalize() {
 			SetFailState("Tried to initialize items more than once");
 		}
 
+		// Skip undefined items, otherwise an exception is thrown
+		if (strlen(items[idx].key) == 0)
+			continue;
+
 		Format(cvar_name, sizeof(cvar_name), "sm_reverts__item_%s", items[idx].key);
 		Format(cvar_desc, sizeof(cvar_desc), (PLUGIN_NAME ... " - Revert nerfs to %T\n\n"), items[idx].key, LANG_SERVER);
 		StrCat(cvar_desc, sizeof(cvar_desc), "0: Disable\n");
@@ -5297,8 +5328,11 @@ void ItemFinalize() {
 
 		items[idx].cvar = CreateConVar(cvar_name, items[idx].flags & ITEMFLAG_DISABLED == 0 ? "1" : "0", cvar_desc, FCVAR_NOTIFY, true, 0.0, true, float(items[idx].num_variants + 1));
 #if defined MEMORY_PATCHES
-		if (items[idx].flags & ITEMFLAG_MEMPATCH) {
-			items[idx].cvar.AddChangeHook(OnServerCvarChanged);
+		if (
+			g_bPatchesAvailable &&
+			items[idx].flags & ITEMFLAG_MEMPATCH
+		) {
+			items[idx].cvar.AddChangeHook(OnMemPatchCvarChanged);
 		}
 #endif
 	}
@@ -5582,7 +5616,7 @@ bool CanDetonateStickiesNow(int client) {
 	// Taunting is the only refusal this revert lifts, and only when enabled
 	if (
 		TF2_IsPlayerInCondition(client, TFCond_Taunting) &&
-		!cvar_allow_detonate_stickies_while_taunting.BoolValue
+		!cvar_sticky_taunt_detonate.BoolValue
 	) {
 		return false;
 	}
@@ -5992,15 +6026,15 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookRetur
 		// Pre-April 2010 Sandman has no base movement penalty
 		if (
 			GetItemVariant(Wep_Sandman) == 1 &&
-			TF2_IsPlayerInCondition(client, TFCond_Dazed)
+			TF2_IsPlayerInCondition(client, TFCond_Dazed) &&
+			!TF2_IsPlayerInCondition(client, TFCond_HalloweenBombHead)
 		) {
 			int stun_fls = GetEntProp(client, Prop_Send, "m_iStunFlags");
-
 			if (
 				stun_fls & TF_STUNFLAG_THIRDPERSON != 0 &&
 				stun_fls & TF_STUNFLAG_GHOSTEFFECT == 0
 			) {
-				multiplier *= 2.0; // undo 50% speed penalty
+				multiplier /= 0.5; // undo 50% speed penalty
 			}
 		}
 
@@ -6024,11 +6058,13 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookRetur
 			}
 		}
 
-#if !defined MEMORY_PATCHES
 		if (
+#if defined MEMORY_PATCHES
+			!g_bPatchesAvailable &&
+#endif
 			ItemIsEnabled(Wep_BuffaloSteak) &&
-			TF2_IsPlayerInCondition(client, TFCond_CritCola) &&
-			TF2_GetPlayerClass(client) == TFClass_Heavy
+			TF2_GetPlayerClass(client) == TFClass_Heavy &&
+			TF2_IsPlayerInCondition(client, TFCond_CritCola)
 		) {
 			// Buffalo Steak Sandvich Pre-JI speed boost revert.
 
@@ -6046,18 +6082,16 @@ MRESReturn DHookCallback_CTFPlayer_CalculateMaxSpeed_Post(int client, DHookRetur
 					multiplier *= 1.4;
 				}
 
-				multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed", client);
+				multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed", client);
 
 				int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 				if (weapon > 0) {
-					multiplier *= TF2Attrib_HookValueFloat(1.0, "mult_player_movespeed_active", weapon);
+					multiplier = TF2Attrib_HookValueFloat(multiplier, "mult_player_movespeed_active", weapon);
 				}
 			}
 		}
-#endif
 
-		if (multiplier != 1.0)
-		{
+		if (multiplier != 1.0) {
 			returnValue.Value = view_as<float>(returnValue.Value) * multiplier;
 			return MRES_Override;
 		}
@@ -7277,7 +7311,12 @@ MRESReturn DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre(int entity
 		weapon = GetEntPropEnt(entity, Prop_Send, "m_hLauncher");
 		if (weapon > 0) {
 			GetEntityClassname(weapon, class, sizeof(class));
-			if (StrEqual(class, "tf_weapon_drg_pomson")) {
+			Address attrib = TF2Attrib_GetByDefIndex(weapon, 283);
+			if (
+				StrEqual(class, "tf_weapon_drg_pomson") &&
+				attrib != Address_Null &&
+				TF2Attrib_GetValue(attrib) == 0.0
+			) {
 				// serverside penetration, client doesn't know so it uses the pomson particle instead of bison
 				returnValue.Value = true;
 				return MRES_Override;
