@@ -133,7 +133,6 @@
 					"offset"    "251"
 					"verify" "\x0F\x84\x8F\x00\x00\x00"
 					"patch"  "\xE9\x90\x00\x00\x00\x90" // JMP 144 bytes forward, NOP
- 
 				}
 				"windows"
 				{
