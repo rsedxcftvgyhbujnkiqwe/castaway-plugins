@@ -367,9 +367,9 @@
 				"linux"
 				{
 					// edi will have the pointer to our string
-					"offset"	"506"
-					"verify"	"\x68\x2A\x2A\x2A\x2A"
-					"patch"		"\x90\x90\x90\x90\x57"
+					"offset"	"532"
+					"verify"	"\x8D\x83\x2A\x2A\x2A\x2A\x50"
+					"patch"		"\x90\x90\x90\x90\x90\x90\x57"
 				}
 				"windows"
 				{
