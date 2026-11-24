@@ -440,12 +440,12 @@ static void MemoryPatch_CTFFlameEntity_OnCollide_Falloff_Patch()
 	if (EnablePatchOrAlreadyApplied(MemoryPatch_CTFFlameEntity_OnCollide_Falloff, flFalloff))
 		WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff.Address + view_as<Address>(4), flFalloff);
 	else
-		LogError("CTFFlameEntity_OnCollide_Falloff patch failed — using modern value");
+		LogError("CTFFlameEntity_OnCollide_Falloff patch failed - using modern value");
 
 	if (EnablePatchOrAlreadyApplied(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2, flFalloff2))
 		WriteToValue(MemoryPatch_CTFFlameEntity_OnCollide_Falloff2.Address + view_as<Address>(4), flFalloff2);
 	else
-		LogError("CTFFlameEntity_OnCollide_Falloff2 patch failed — using modern value");
+		LogError("CTFFlameEntity_OnCollide_Falloff2 patch failed - using modern value");
 }
 
 static void MemoryPatch_HealingDebuff_Patch()
@@ -463,17 +463,17 @@ static void MemoryPatch_HealingDebuff_Patch()
 		if (EnablePatchOrAlreadyApplied(MemoryPatch_ConditionGameRulesThink_HealDebuff, fl75))
 			WriteToValue(MemoryPatch_ConditionGameRulesThink_HealDebuff.Address + view_as<Address>(4), fl75);
 		else
-			LogError("ConditionGameRulesThink_HealDebuff patch failed — using modern value");
+			LogError("ConditionGameRulesThink_HealDebuff patch failed - using modern value");
 
 		if (EnablePatchOrAlreadyApplied(MemoryPatch_CalcDamageResisted_HealDebuffShield, fl75))
 			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffShield.Address + view_as<Address>(4), fl75);
 		else
-			LogError("CalcDamageResisted_HealDebuffShield patch failed — using modern value");
+			LogError("CalcDamageResisted_HealDebuffShield patch failed - using modern value");
 
 		if (EnablePatchOrAlreadyApplied(MemoryPatch_CalcDamageResisted_HealDebuffCrit, fl25))
 			WriteToValue(MemoryPatch_CalcDamageResisted_HealDebuffCrit.Address + view_as<Address>(4), fl25);
 		else
-			LogError("CalcDamageResisted_HealDebuffCrit patch failed — using modern value");
+			LogError("CalcDamageResisted_HealDebuffCrit patch failed - using modern value");
 	}
 	else {
 		if (MemoryPatch_ConditionGameRulesThink_HealDebuff) MemoryPatch_ConditionGameRulesThink_HealDebuff.Disable();
