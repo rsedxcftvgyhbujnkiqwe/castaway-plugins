@@ -367,9 +367,9 @@
 				"linux"
 				{
 					// edi will have the pointer to our string
-					"offset"	"532"
-					"verify"	"\x8D\x83\x64\x93\xAA\xFF\x50" // LEA EAX, [EBX-0x556C9C] ; PUSH EAX
-					"patch"		"\x57\x90\x90\x90\x90\x90\x90" // PUSH EDI ; 6x NOP
+					"offset"	"506"
+					"verify"	"\x68\x2A\x2A\x2A\x2A"
+					"patch"		"\x90\x90\x90\x90\x57"
 				}
 				"windows"
 				{
