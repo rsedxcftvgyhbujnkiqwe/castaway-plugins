@@ -91,7 +91,7 @@
 				"linux"
 				{
 					"offset"    "5398"
-					"verify"    "\xF3\x0F\x10\x86\xDC\xAE\xA2\xFF" // movss xmm0, [esi-0x5D5124] (0.6f, PIC-relative)
+					"verify"    "\xF3\x0F\x10\x86\x2A\x2A\x2A\x2A" // movss xmm0, [esi-XXXXXXXX] (0.6f, PIC-relative)
 					"patch"     "\xF3\x0F\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 				"windows"
@@ -193,7 +193,7 @@
 				"linux"
 				{
 					"offset"	"2152"
-					"verify"	"\xE8\xD3\xC5\x9C\xFF" // CALL UTIL_SetSize
+					"verify"	"\xE8\x2A\x2A\x2A\x2A" // CALL UTIL_SetSize
 					"patch"		"\x90\x90\x90\x90\x90" // NOP 5x
 				}
 				"windows"
@@ -215,7 +215,7 @@
 				"linux"
 				{
 					"offset"	"1985"
-					"verify"	"\xf3\x0f\x59\x86\xe0\xe4\xab\xff" // mulss xmm0, dword ptr [esi-0x541B20] ; original should point to 1.35
+					"verify"	"\xf3\x0f\x59\x86\x2a\x2a\x2a\x2a" // mulss xmm0, dword ptr [esi-XXXXXXXX] ; original should point to 1.35
 					"patch"		"\xf3\x0f\x59\x05\x00\x00\x00\x00" // mulss xmm0, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -231,7 +231,7 @@
 				"linux"
 				{
 					"offset"	"1993"
-					"verify"	"\xf3\x0f\x59\x8e\xb8\x81\xac\xff" // mulss xmm1, dword ptr [esi-0x537E48] ; original should point to 1.3
+					"verify"	"\xf3\x0f\x59\x8e\x2a\x2a\x2a\x2a" // mulss xmm1, dword ptr [esi-XXXXXXXX] ; original should point to 1.3
 					"patch"		"\xf3\x0f\x59\x0d\x00\x00\x00\x00" // mulss xmm1, dword ptr [0] ; retrieve from plugin
 				}
 				"windows"
@@ -257,7 +257,7 @@
 				"linux"
 				{
 					"offset"	"1526"
-					"verify"	"\xf3\x0f\x10\x87\xe4\xe4\xab\xff" // movss xmm0, [edi-0x541B1C] (0.02618f, PIC-relative)
+					"verify"	"\xf3\x0f\x10\x87\x2a\x2a\x2a\x2a" // movss xmm0, [esi-XXXXXXXX] (0.02618f, PIC-relative)
 					"patch"		"\xf3\x0f\x10\x05\x00\x00\x00\x00" // movss xmm0, [0] (retrieve from plugin)
 				}
 			}
