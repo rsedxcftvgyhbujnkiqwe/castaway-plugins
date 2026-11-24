@@ -96,6 +96,14 @@ stock TFCond TF2Util_GetLastCondition() {
 native int TF2Util_GetConditionName(TFCond cond, char[] buffer, int maxlen);
 
 /**
+ * Given a valid condition name (case-insensitive), return its index.
+ * 
+ * @param name         Condition name.
+ * @return             Condition index, or -1 on an invalid name.
+ */
+native TFCond TF2Util_GetConditionFromName(const char[] name);
+
+/**
  * Returns the remaining time on a player condition, or 0.0 if the condition is not active.
  * 
  * This is just a wrapper around the internal condition list; some conditions may not accurately
@@ -442,6 +450,30 @@ native bool TF2Util_IsPointInRespawnRoom(const float position[3],
 		int entity = INVALID_ENT_REFERENCE, bool bRestrictToSameTeam = false);
 
 /**
+ * Rewinds all players' properties (position, hitbox, etc) back to the point in time when the
+ * specified player issued the command currently being processed.
+ * 
+ * See: https://developer.valvesoftware.com/wiki/Lag_Compensation
+ * 
+ * @note            TF2Util_FinishLagCompensation must be called afterwards.
+ * @param client    Client index.
+ * 
+ * @error           Invalid client.
+ */
+native void TF2Util_StartLagCompensation(int client);
+
+/**
+ * Undoes the effects of TF2Util_StartLagCompensation, winding player properties forward up to
+ * the current time on the server.
+ * 
+ * @note            TF2Util_StartLagCompensation must have been called beforehand.
+ * @param client    Client index.
+ * 
+ * @error           Invalid client.
+ */
+native void TF2Util_FinishLagCompensation(int client);
+
+/**
  * Returns whether or not the given custom damage type is for a "damage over time" effect.
  * This is provided to allow plugins to identify periodic damage events without hardcoding that
  * information themselves.
@@ -484,3 +516,58 @@ public SharedPlugin __pl_tf2utils = {
 	required = 0,
 #endif
 };
+
+#if !defined REQUIRE_PLUGIN
+public void __pl_tf2utils_SetNTVOptional()
+{
+	MarkNativeAsOptional("TF2Util_TakeHealth");
+	MarkNativeAsOptional("TF2Util_GetPlayerMaxAmmo");
+	MarkNativeAsOptional("TF2Util_SetPlayerActiveWeapon");
+	MarkNativeAsOptional("TF2Util_GetEntityMaxHealth");
+	MarkNativeAsOptional("TF2Util_GetPlayerMaxHealthBoost");
+	MarkNativeAsOptional("TF2Util_GetConditionCount");
+	MarkNativeAsOptional("TF2Util_GetConditionName");
+	MarkNativeAsOptional("TF2Util_GetConditionFromName");
+	MarkNativeAsOptional("TF2Util_GetPlayerConditionDuration");
+	MarkNativeAsOptional("TF2Util_SetPlayerConditionDuration");
+	MarkNativeAsOptional("TF2Util_GetPlayerConditionProvider");
+	MarkNativeAsOptional("TF2Util_SetPlayerConditionProvider");
+	MarkNativeAsOptional("TF2Util_GetPlayerBurnDuration");
+	MarkNativeAsOptional("TF2Util_SetPlayerBurnDuration");
+	MarkNativeAsOptional("TF2Util_IgnitePlayer");
+	MarkNativeAsOptional("TF2Util_GetPlayerActiveBleedCount");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedAttacker");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedWeapon");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedNextDamageTick");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedDuration");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedDamage");
+	MarkNativeAsOptional("TF2Util_GetPlayerBleedCustomDamageType");
+	MarkNativeAsOptional("TF2Util_MakePlayerBleed");
+	MarkNativeAsOptional("TF2Util_IsPlayerImmuneToPushback");
+	MarkNativeAsOptional("TF2Util_GetPlayerRespawnTimeOverride");
+	MarkNativeAsOptional("TF2Util_SetPlayerRespawnTimeOverride");
+	MarkNativeAsOptional("TF2Util_GetPlayerShootPosition");
+	MarkNativeAsOptional("TF2Util_GetPlayerObject");
+	MarkNativeAsOptional("TF2Util_GetPlayerObjectCount");
+	MarkNativeAsOptional("TF2Util_GetPlayerHealer");
+	MarkNativeAsOptional("TF2Util_GetPlayerLastDamageReceivedTime");
+	MarkNativeAsOptional("TF2Util_IsEntityWeapon");
+	MarkNativeAsOptional("TF2Util_IsEntityWearable");
+	MarkNativeAsOptional("TF2Util_GetWeaponSlot");
+	MarkNativeAsOptional("TF2Util_GetWeaponID");
+	MarkNativeAsOptional("TF2Util_GetWeaponMaxClip");
+	MarkNativeAsOptional("TF2Util_CanWeaponAttack");
+	MarkNativeAsOptional("TF2Util_GetPlayerWearable");
+	MarkNativeAsOptional("TF2Util_GetPlayerWearableCount");
+	MarkNativeAsOptional("TF2Util_GetPlayerLoadoutEntity");
+	MarkNativeAsOptional("TF2Util_EquipPlayerWearable");
+	MarkNativeAsOptional("TF2Util_SetWearableAlwaysValid");
+	MarkNativeAsOptional("TF2Util_UpdatePlayerSpeed");
+	MarkNativeAsOptional("TF2Util_IsPointInRespawnRoom");
+	MarkNativeAsOptional("TF2Util_StartLagCompensation");
+	MarkNativeAsOptional("TF2Util_FinishLagCompensation");
+	MarkNativeAsOptional("TF2Util_IsCustomDamageTypeDOT");
+	MarkNativeAsOptional("TF2Util_GetPlayerFromSharedAddress");
+	MarkNativeAsOptional("TF2Util_GetPlayerMaxHealth");
+}
+#endif

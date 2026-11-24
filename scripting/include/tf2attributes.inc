@@ -242,7 +242,7 @@ native bool TF2Attrib_IsIntegerValue(int iDefIndex);
  */
 native bool TF2Attrib_IsValidAttributeName(const char[] strAttrib);
 
-/** 
+/**
  * Adds a custom, potentially temporary attribute to a player.
  * 
  * @param client			Client index to set the attribute on.
@@ -346,7 +346,6 @@ public void __pl_tf2attributes_SetNTVOptional()
 	MarkNativeAsOptional("TF2Attrib_RemoveCustomPlayerAttribute");
 	MarkNativeAsOptional("TF2Attrib_HookValueFloat");
 	MarkNativeAsOptional("TF2Attrib_HookValueInt");
-	
 	MarkNativeAsOptional("TF2Attrib_IsReady");
 }
 #endif
