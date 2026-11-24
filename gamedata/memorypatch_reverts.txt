@@ -48,12 +48,6 @@
 				"linux"		"@_ZN16CTFWeaponBaseGun12FirePipeBombEP9CTFPlayeri"
 				"windows"	"\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF0\x83\xC4\x04\x55\x8B\x6B\x2A\x89\x6C\x24\x2A\x8B\xEC\x81\xEC\x68\x01\x00\x00\x56\x8B\xF1"
 			}
-			"CTFPlayer::DoClassSpecialSkill" // Search for the string cannot_pick_up_buildings, in it's FUN, it's the XREF FUN_ that has around 60-80 lines of code in decompiler (Ghidra).
-			{
-				"library" "server"
-				"windows" "\x56\x8B\xF1\x8B\x06\x8B\x80\x2A\x2A\x2A\x2A\xFF\xD0\x84\xC0\x0F\x84\x2A\x2A\x2A\x2A\xF7\x86\x2A\x2A\x2A\x2A\x00\x00\x04\x00"
-				"linux"   "@_ZN9CTFPlayer19DoClassSpecialSkillEv"
-			}
 			"CTFPlayer::OnTakeDamage" // search for the string lose_hype_on_take_damage. Function will likely be Undefined, it should also contain fish_damage_override and no_self_blast_dmg
 			{
 				"library" "server"
@@ -294,61 +288,6 @@
 			}
 			
 			// ╔══════════════════════════════════════════════╗
-			// ║                    Medic                     ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Medic at the moment.
-
-			// ╔══════════════════════════════════════════════╗
-			// ║                   Sniper                     ║
-			// ╚══════════════════════════════════════════════╝
-
-			// No patches for Sniper at the moment.
-
-			// ╔══════════════════════════════════════════════╗
-			// ║                     Spy                      ║
-			// ╚══════════════════════════════════════════════╝
-
-			//  Spy related MemoryPatches go here.
-			// ================================================
-			//  Spy cannot taunt and cloak check, removal.
-			//  Basically restores so the Spy can do this:
-			//  https://www.youtube.com/watch?v=L_aFprOzvUA
-
-			"CTFPlayer::DoClassSpecialSkill_RemoveInCondStealthCheck"
-			{
-				"signature" "CTFPlayer::DoClassSpecialSkill"
-				"linux"
-				{
-					"offset"    "288"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x106
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}
-				"windows"
-				{
-					"offset"    "173"
-					"verify"    "\x75\x50" // JNZ 0x50
-					"patch"     "\x90\x90" // NOP x2
-				}
-			}
-			"CTFPlayer::OnTakeDamage_RemoveInCondTauntingCheck_Deadringer"
-			{
-				"signature" "CTFPlayer::OnTakeDamage"
-				"linux"
-				{
-					"offset"    "15807"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // JNZ -0x2653
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}
-				"windows"
-				{
-					"offset"    "9621"
-					"verify"    "\x0F\x85\x2A\x2A\x2A\x2A" // 0x210
-					"patch"     "\x90\x90\x90\x90\x90\x90" // NOP x6
-				}	
-			}
-
-			// ╔══════════════════════════════════════════════╗
 			// ║                    Misc                      ║
 			// ╚══════════════════════════════════════════════╝
 		
@@ -385,13 +324,6 @@
 			"CTFAmmoPack::MakeHolidayPack"
 			{
 				"signature" "CTFAmmoPack::MakeHolidayPack"
-				"callconv"  "thiscall"
-				"this"      "entity"
-				"return"    "void"
-			}
-			"CTFPlayer::DoClassSpecialSkill"
-			{
-				"signature" "CTFPlayer::DoClassSpecialSkill"
 				"callconv"  "thiscall"
 				"this"      "entity"
 				"return"    "void"
