@@ -3057,9 +3057,16 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 6, 1.0); // fire rate bonus
 			TF2Attrib_SetByDefIndex(entity, 120, 0.4); // sticky arm time penalty
 		}}
-		case 528: { if (GetItemVariant(Wep_ShortCircuit) == 1) {
-			TF2Attrib_SetByDefIndex(entity, 614, 1.0); // no metal from dispensers while active
-		}}
+		case 528: {
+			// make the alt-fire kill vaporize the victim
+			if (ItemIsEnabled(Wep_ShortCircuit)) {
+				TF2Attrib_SetByDefIndex(entity, 436, 1.0); // ragdolls plasma effect
+			}
+			// pre-GM
+			if (GetItemVariant(Wep_ShortCircuit) == 1) {
+				TF2Attrib_SetByDefIndex(entity, 614, 1.0); // no metal from dispensers while active
+			}
+		}
 		case 220: {
 			// common (also pre-Manniversary Shortstop)
 			if (ItemIsEnabled(Wep_Shortstop)) {
@@ -5589,7 +5596,6 @@ void ToggleMoonshotMessage(int client) {
  * @param base_amount			Amount of metal to consume on use (default 0 for none).
  * @param amount_per_destroyed	Additional metal to consume per destroyed projectile (default 0 for none).
  * @param damage				Damage to apply to players hit (default 0.0 for none).
- *
  */
 void ShortCircuitShockAttack(int owner, int weapon, int base_amount = 0, int amount_per_destroyed = 0, float damage = 0.0) {
 	// Old Short Circuit logic, derived from the pre-JI leak
@@ -5597,9 +5603,11 @@ void ShortCircuitShockAttack(int owner, int weapon, int base_amount = 0, int amo
 	players[owner].circuit_collected_entcount = 0;
 
 	// Always consume base amount
-	int ammo_type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
-	int ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
-	SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - base_amount, 0), 4, ammo_type);
+	if (base_amount) {
+		int ammo_type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+		int ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
+		SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - base_amount, 0), 4, ammo_type);
+	}
 
 	TF2Util_StartLagCompensation(owner);
 
@@ -5679,16 +5687,7 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 		return true;
 	}
 
-	// WorldSpaceCenter(), i.e. the center of the collision bounds.
-	float offset[3], mins[3], maxs[3], center_offset[3];
-	GetEntPropVector(entity, Prop_Send, "m_vecOrigin", offset);
-	GetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
-	GetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
-	AddVectors(mins, maxs, center_offset);
-	ScaleVector(center_offset, 0.5);
-	AddVectors(offset, center_offset, offset);
-
-	// Require a clear line of sight to the target, traced against world brushes only.
+	// Require a clear line of sight to the target
 	float eyepos[3], los_target[3];
 	GetClientEyePosition(owner, eyepos);
 	if (is_player) {
@@ -5718,6 +5717,15 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 		return false; // Not enough ammo, stop here
 	}
 
+	// offset = WorldSpaceCenter() for damage position and particle effect
+	float offset[3], mins[3], maxs[3], center_offset[3];
+	GetEntPropVector(entity, Prop_Send, "m_vecOrigin", offset);
+	GetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
+	GetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
+	AddVectors(mins, maxs, center_offset);
+	ScaleVector(center_offset, 0.5);
+	AddVectors(offset, center_offset, offset);
+
 	bool hit = false;
 	if (is_player) {
 		hit = true;
@@ -5742,7 +5750,9 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 
 	if (hit) {
 		// remove ammo per hit
-		SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - amount_per_destroyed, 0), 4, ammo_type);
+		if (amount_per_destroyed > 0) {
+			SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - amount_per_destroyed, 0), 4, ammo_type);
+		}
 
 		// play sound where the target is
 		EmitGameSoundToAll("Weapon_BarretsArm.Shot", entity);
@@ -5775,18 +5785,18 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 }
 
 bool TraceFilter_ShortCircuitLOS(int entity, int contentsmask, any data) {
-	// The victim is passed through so the ray can reach its eyes.
+	// ignore target itself
 	if (entity == data) {
 		return false;
 	}
 
-	// The world always blocks.
+	// ignore world
 	if (entity == 0) {
 		return true;
 	}
 
-	// Players never block: they aren't brush models and BlocksLOS is off.
-	if (entity <= MaxClients) {
+	// ignore players
+	if (entity >= 1 && entity <= MaxClients) {
 		return false;
 	}
 
