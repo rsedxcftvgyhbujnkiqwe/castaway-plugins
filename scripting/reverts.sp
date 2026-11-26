@@ -59,6 +59,9 @@ public Plugin myinfo = {
 #define MAX_VARIANTS 3 // not including base version, increase as needed
 #define TF_COND_RESIST_OFFSET 58
 #define STUNFLAG_RESIST_DAMAGE (1 << 9) // No such flag exists in the game, used here for 2009 Sandman
+#define SOLID_BSP 1 // brush model
+#define FSOLID_NOT_SOLID 0x0004
+#define TFCOLLISION_GROUP_RESPAWNROOMS 25 // only collides with players
 
 enum
 {
@@ -5772,11 +5775,36 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 }
 
 bool TraceFilter_ShortCircuitLOS(int entity, int contentsmask, any data) {
-	// Skip the target itself, and let players through
+	// The victim is passed through so the ray can reach its eyes.
 	if (entity == data) {
 		return false;
 	}
-	return entity < 1 || entity > MaxClients;
+
+	// The world always blocks.
+	if (entity == 0) {
+		return true;
+	}
+
+	// Players never block: they aren't brush models and BlocksLOS is off.
+	if (entity <= MaxClients) {
+		return false;
+	}
+
+	// MASK_SOLID_BRUSHONLY only tests solid brush models. This skips buildings,
+	// projectiles, props and non-solid brushes.
+	if (
+		GetEntProp(entity, Prop_Send, "m_nSolidType") != SOLID_BSP ||
+		(GetEntProp(entity, Prop_Send, "m_usSolidFlags") & FSOLID_NOT_SOLID)
+	) {
+		return false;
+	}
+
+	// Respawn room brushes only collide with players.
+	if (GetEntProp(entity, Prop_Send, "m_CollisionGroup") == TFCOLLISION_GROUP_RESPAWNROOMS) {
+		return false;
+	}
+
+	return true;
 }
 
 int GetChargeType(int entity)
