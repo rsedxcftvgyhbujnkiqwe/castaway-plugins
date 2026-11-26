@@ -5619,10 +5619,10 @@ void ShortCircuitShockAttack(int owner, int weapon, int base_amount = 0, int amo
 	// Enumerate entities within the box. Rest of the logic is handled in the callback.
 	DataPack pack = new DataPack();
 	pack.Reset();
+	pack.WriteFloat(damage);
 	pack.WriteCell(owner);
 	pack.WriteCell(weapon);
 	pack.WriteCell(amount_per_destroyed);
-	pack.WriteFloat(damage);
 	TR_EnumerateEntitiesBox(mins, maxs, PARTITION_NON_STATIC_EDICTS, TraceEnumerator_ShortCircuit, pack);
 	delete pack;
 
@@ -5639,8 +5639,20 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 		return true; // skip
 	}
 
-	bool is_player = entity >= 1 && entity <= MaxClients && IsPlayerAlive(entity);
-	GetEntityClassname(entity, class, sizeof(class));
+	DataPack pack = data;
+	pack.Reset();
+	float damage = pack.ReadFloat();
+
+	// Only consider players if damage should be dealt to them
+	bool is_player = (
+		entity >= 1 && entity <= MaxClients &&
+		IsPlayerAlive(entity) && damage > 0.0
+	);
+
+	if (!is_player) {
+		GetEntityClassname(entity, class, sizeof(class));
+	}
+
 	// Skip entities that are neither valid players nor relevant projectiles.
 	if (
 		!is_player &&
@@ -5655,8 +5667,6 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 		return true;
 	}
 
-	DataPack pack = data;
-	pack.Reset();
 	int owner = pack.ReadCell();
 	if (
 		owner == entity ||
@@ -5695,7 +5705,6 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 
 	int weapon = pack.ReadCell();
 	int amount_per_destroyed = pack.ReadCell();
-	float damage = pack.ReadFloat();
 
 	int ammo_type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
 	int ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
@@ -5707,7 +5716,7 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 	}
 
 	bool hit = false;
-	if (damage > 0.0 && is_player) {
+	if (is_player) {
 		hit = true;
 
 		// damage players
