@@ -57,12 +57,11 @@ public Plugin myinfo = {
 
 #define MAX_NETWORKED_ENTITIES 2048
 #define MAX_VARIANTS 3 // not including base version, increase as needed
-#define BALANCE_CIRCUIT_METAL 15
-#define BALANCE_CIRCUIT_DAMAGE 20.0
-#define BALANCE_CIRCUIT_RECOVERY 0.67
-#define PLAYER_CENTER_HEIGHT (82.0 / 2.0) // constant for tf2 players
 #define TF_COND_RESIST_OFFSET 58
 #define STUNFLAG_RESIST_DAMAGE (1 << 9) // No such flag exists in the game, used here for 2009 Sandman
+#define SOLID_BSP 1 // brush model
+#define FSOLID_NOT_SOLID 0x0004
+#define TFCOLLISION_GROUP_RESPAWNROOMS 25 // only collides with players
 
 enum
 {
@@ -204,6 +203,21 @@ enum
 	TF_GL_MODE_CANNONBALL,
 };
 
+enum
+{
+	PATTACH_ABSORIGIN = 0,			// Create at absorigin, but don't follow
+	PATTACH_ABSORIGIN_FOLLOW,		// Create at absorigin, and update to follow the entity
+	PATTACH_CUSTOMORIGIN,			// Create at a custom origin, but don't follow
+	PATTACH_POINT,					// Create on attachment point, but don't follow
+	PATTACH_POINT_FOLLOW,			// Create on attachment point, and update to follow the entity
+
+	PATTACH_WORLDORIGIN,			// Used for control points that don't attach to an entity
+
+	PATTACH_ROOTBONE_FOLLOW,		// Create at the root bone of the entity, and update to follow
+
+	MAX_PATTACH_TYPES,
+};
+
 enum OperatingSystem
 {
 	LINUX = 0,
@@ -279,6 +293,7 @@ enum struct Player {
 	int powerjack_frame;
 	int feign_frame;
 	int no_effect_stun_frame;
+	int circuit_collected_entcount;
 }
 
 enum struct Entity {
@@ -1458,12 +1473,11 @@ void ToggleMemoryPatchReverts(bool enable, int wep_enum) {
 #endif
 
 public void OnMapStart() {
-	PrecacheSound("items/ammo_pickup.wav");
-	PrecacheSound("items/gunpickup2.wav");
 	PrecacheSound("misc/banana_slip.wav");
 	PrecacheScriptSound("BaseCombatCharacter.AmmoPickup");
 	PrecacheScriptSound("Jar.Explode");
 	PrecacheScriptSound("Player.ResistanceLight");
+	PrecacheScriptSound("Weapon_BarretsArm.Shot");
 	PrecacheParticleSystem("doublejump_puff_alt");
 	PrecacheParticleSystem("dxhr_arm_muzzleflash");
 	PrecacheParticleSystem("peejar_impact_small");
@@ -3043,9 +3057,16 @@ public void ApplyRevertsToItem(int entity) {
 			TF2Attrib_SetByDefIndex(entity, 6, 1.0); // fire rate bonus
 			TF2Attrib_SetByDefIndex(entity, 120, 0.4); // sticky arm time penalty
 		}}
-		case 528: { if (GetItemVariant(Wep_ShortCircuit) == 1) {
-			TF2Attrib_SetByDefIndex(entity, 614, 1.0); // no metal from dispensers while active
-		}}
+		case 528: {
+			// make the alt-fire kill vaporize the victim
+			if (ItemIsEnabled(Wep_ShortCircuit)) {
+				TF2Attrib_SetByDefIndex(entity, 436, 1.0); // ragdolls plasma effect
+			}
+			// pre-GM
+			if (GetItemVariant(Wep_ShortCircuit) == 1) {
+				TF2Attrib_SetByDefIndex(entity, 614, 1.0); // no metal from dispensers while active
+			}
+		}
 		case 220: {
 			// common (also pre-Manniversary Shortstop)
 			if (ItemIsEnabled(Wep_Shortstop)) {
@@ -3847,7 +3868,7 @@ Action OnSoundNormal(
 			ItemIsEnabled(Wep_Huntsman) &&
 			StrStartsWith(sample, "player/pl_impact_stun") &&
 			players[entity].no_effect_stun_frame == GetGameTickCount()
-		) {	
+		) {
 			players[entity].no_effect_stun_frame = 0;
 
 			// cancel stun sound from no-effect stun, usually from taunt kills
@@ -5567,35 +5588,239 @@ void ToggleMoonshotMessage(int client) {
 
 // miscellaneous functions
 
-bool TraceFilter_CustomShortCircuit(int entity, int contentsmask, any data) {
-	char class[64];
+/**
+ * Removes projectiles and optionally damages players in front of the Short Circuit user.
+ *
+ * @param owner					Client index of the player using the Short Circuit.
+ * @param weapon				Entity index of the Short Circuit weapon being used.
+ * @param base_amount			Amount of metal to consume on use (default 0 for none).
+ * @param amount_per_destroyed	Additional metal to consume per destroyed projectile (default 0 for none).
+ * @param damage				Damage to apply to players hit (default 0.0 for none).
+ */
+void ShortCircuitShockAttack(int owner, int weapon, int base_amount = 0, int amount_per_destroyed = 0, float damage = 0.0) {
+	// Old Short Circuit logic, derived from the pre-JI leak
 
-	// ignore the target projectile
+	players[owner].circuit_collected_entcount = 0;
+
+	// Always consume base amount
+	if (base_amount) {
+		int ammo_type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+		int ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
+		SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - base_amount, 0), 4, ammo_type);
+	}
+
+	TF2Util_StartLagCompensation(owner);
+
+	// Setup box
+	float angles[3], fwd[3];
+	GetClientEyeAngles(owner, angles);
+	GetAngleVectors(angles, fwd, NULL_VECTOR, NULL_VECTOR);
+
+	float size[3] = {128.0, 128.0, 64.0};
+	ScaleVector(fwd, 128.0); // Valve's code chose the largest dimension to determine the effect area size
+
+	float eyepos[3], center[3];
+	GetClientEyePosition(owner, eyepos);
+	AddVectors(eyepos, fwd, center);
+
+	float mins[3], maxs[3];
+	SubtractVectors(center, size, mins);
+	AddVectors(center, size, maxs);
+
+	// Enumerate entities within the box. Rest of the logic is handled in the callback.
+	DataPack pack = new DataPack();
+	pack.Reset();
+	pack.WriteFloat(damage);
+	pack.WriteCell(owner);
+	pack.WriteCell(weapon);
+	pack.WriteCell(amount_per_destroyed);
+	TR_EnumerateEntitiesBox(mins, maxs, PARTITION_NON_STATIC_EDICTS, TraceEnumerator_ShortCircuit, pack);
+	delete pack;
+
+	TF2Util_FinishLagCompensation(owner);
+}
+
+bool TraceEnumerator_ShortCircuit(int entity, any data) {
+	char class[64];
+	if (
+		!IsValidEntity(entity) ||
+		!(GetEntityFlags(entity) & (FL_CLIENT|FL_FAKECLIENT|FL_GRENADE))
+		// ^ Valve passed these entity flags for the UTIL_EntitiesInBox call
+	) {
+		return true; // skip
+	}
+
+	DataPack pack = data;
+	pack.Reset();
+	float damage = pack.ReadFloat();
+
+	// Only consider players if damage should be dealt to them
+	bool is_player = (
+		entity >= 1 && entity <= MaxClients &&
+		IsPlayerAlive(entity) && damage > 0.0
+	);
+
+	if (!is_player) {
+		GetEntityClassname(entity, class, sizeof(class));
+	}
+
+	// Skip entities that are neither valid players nor relevant projectiles.
+	if (
+		!is_player &&
+		(
+			!StrStartsWith(class, "tf_projectile_") ||
+			StrStartsWith(class, "tf_projectile_spell") ||
+			StrEqual(class, "tf_projectile_energy_ring") ||
+			StrEqual(class, "tf_projectile_grapplinghook") ||
+			StrEqual(class, "tf_projectile_syringe") ||
+			// Don't target arrows that have hit something
+			(
+				GetEntityMoveType(entity) == MOVETYPE_NONE &&
+				(
+					StrEqual(class, "tf_projectile_arrow") ||
+					StrEqual(class, "tf_projectile_healing_bolt")
+				)
+			)
+		)
+	) {
+		return true;
+	}
+
+	int owner = pack.ReadCell();
+	if (
+		owner == entity ||
+		AreEntitiesOnSameTeam(owner, entity) ||
+		is_player && GetClientTeam(entity) == view_as<int>(TFTeam_Spectator)
+	) {
+		return true;
+	}
+
+	// Require a clear line of sight to the target
+	float eyepos[3], los_target[3];
+	GetClientEyePosition(owner, eyepos);
+	if (is_player) {
+		GetClientEyePosition(entity, los_target); // eye to eye
+	} else {
+		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", los_target);
+	}
+	TR_TraceRayFilter(eyepos, los_target, MASK_SOLID_BRUSHONLY, RayType_EndPoint, TraceFilter_ShortCircuitLOS, entity);
+	if (TR_DidHit()) {
+		return true; // no line of sight
+	}
+
+	players[owner].circuit_collected_entcount++;
+	if (players[owner].circuit_collected_entcount > 64) {
+		return false; // stop enumerating, we're done
+	}
+
+	int weapon = pack.ReadCell();
+	int amount_per_destroyed = pack.ReadCell();
+
+	int ammo_type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
+	int ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
+	if (
+		amount_per_destroyed > 0 &&
+		ammo < amount_per_destroyed
+	) {
+		return false; // Not enough ammo, stop here
+	}
+
+	// offset = WorldSpaceCenter() for damage position and particle effect
+	float offset[3], mins[3], maxs[3], center_offset[3];
+	GetEntPropVector(entity, Prop_Send, "m_vecOrigin", offset);
+	GetEntPropVector(entity, Prop_Send, "m_vecMins", mins);
+	GetEntPropVector(entity, Prop_Send, "m_vecMaxs", maxs);
+	AddVectors(mins, maxs, center_offset);
+	ScaleVector(center_offset, 0.5);
+	AddVectors(offset, center_offset, offset);
+
+	bool hit = false;
+	if (is_player) {
+		hit = true;
+
+		// damage players
+		SDKHooks_TakeDamage(entity, weapon, owner, damage, DMG_SHOCK, weapon, NULL_VECTOR, offset, false);
+	}
+	else if (entity > MaxClients) {
+		hit = true;
+
+		// destroy projectiles
+		if (
+			StrEqual(class, "tf_projectile_pipe_remote") &&
+			GetEntProp(entity, Prop_Send, "m_bTouched")
+		) {
+			// deal damage to stickies to award achievement progress
+			SDKHooks_TakeDamage(entity, weapon, owner, 1.0, DMG_BULLET, weapon, NULL_VECTOR, offset);
+		} else {
+			RemoveEntity(entity);
+		}
+	}
+
+	if (hit) {
+		// remove ammo per hit
+		if (amount_per_destroyed > 0) {
+			SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(ammo - amount_per_destroyed, 0), 4, ammo_type);
+		}
+
+		// play sound where the target is
+		EmitGameSoundToAll("Weapon_BarretsArm.Shot", entity);
+
+		// "Horribly hacked muzzle position" t. Valve
+		float start[3], fwd[3], right[3], up[3];
+		GetClientEyeAngles(owner, start);
+		GetAngleVectors(start, fwd, right, up);
+
+		ScaleVector(fwd, 40.0);
+		ScaleVector(right, 15.0);
+		ScaleVector(up, -10.0);
+
+		GetClientEyePosition(owner, start);
+		AddVectors(start, fwd, start);
+		AddVectors(start, right, start);
+		AddVectors(start, up, start);
+
+		// show particle effect
+		ParticleEffectComplex(
+			"dxhr_arm_muzzleflash",
+			start,
+			.entity = entity,
+			.attach_type = PATTACH_CUSTOMORIGIN,
+			.control_point1_attach_type = PATTACH_WORLDORIGIN,
+			.control_point1_offset = offset
+		);
+	}
+	return true; // Continue enumerating
+}
+
+bool TraceFilter_ShortCircuitLOS(int entity, int contentsmask, any data) {
+	// ignore target itself
 	if (entity == data) {
 		return false;
 	}
 
+	// ignore world
+	if (entity == 0) {
+		return true;
+	}
+
 	// ignore players
-	if (entity <= MaxClients) {
+	if (entity >= 1 && entity <= MaxClients) {
 		return false;
 	}
 
-	GetEntityClassname(entity, class, sizeof(class));
-
-	// ignore buildings and other projectiles
+	// MASK_SOLID_BRUSHONLY only tests solid brush models. This skips buildings,
+	// projectiles, props and non-solid brushes.
 	if (
-		StrStartsWith(class, "obj_") ||
-		StrStartsWith(class, "tf_projectile_")
+		GetEntProp(entity, Prop_Send, "m_nSolidType") != SOLID_BSP ||
+		(GetEntProp(entity, Prop_Send, "m_usSolidFlags") & FSOLID_NOT_SOLID)
 	) {
 		return false;
 	}
 
-	// ignore respawn room visualizers
-	if (StrEqual(class, "func_respawnroomvisualizer")) {
+	// Respawn room brushes only collide with players.
+	if (GetEntProp(entity, Prop_Send, "m_CollisionGroup") == TFCOLLISION_GROUP_RESPAWNROOMS) {
 		return false;
 	}
-
-	//PrintToChatAll("Short Circuit trace hit blocked by %s", class);
 
 	return true;
 }
@@ -5713,10 +5938,13 @@ MRESReturn DHookCallback_CTFWeaponBase_PrimaryAttack_Pre(int entity) {
 			// Base amount is 0 because we rely on the default primary fire metal consumption (5)
 			switch (GetItemVariant(Wep_ShortCircuit)) {
 				case 1, 2: {
-					DoShortCircuitProjectileRemoval(owner, entity, 0, 15);
+					if (GetEntProp(owner, Prop_Data, "m_nWaterLevel") != 3) {
+						ShortCircuitShockAttack(owner, entity, .amount_per_destroyed = 15);
+					}
 				}
 				case 3: {
-					DoShortCircuitProjectileRemoval(owner, entity, 0, 0);
+					// Smissmas 2013 allows firing underwater
+					ShortCircuitShockAttack(owner, entity);
 				}
 			}
 		}
@@ -5737,7 +5965,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 	int idx;
 	int owner;
 	char class[64];
-	int metal;
+	int ammo;
 
 	GetEntityClassname(entity, class, sizeof(class));
 
@@ -5771,24 +5999,28 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 
 			if (GetItemVariant(Wep_ShortCircuit) == 0) {
 
-				SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
-				SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", (GetGameTime() + BALANCE_CIRCUIT_RECOVERY));
+				SetEntPropFloat(entity, Prop_Send, "m_flNextPrimaryAttack", GetGameTime() + 0.67);
+				SetEntPropFloat(entity, Prop_Send, "m_flNextSecondaryAttack", GetGameTime() + 0.67);
 
-				metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
+				int ammo_type = GetEntProp(entity, Prop_Send, "m_iPrimaryAmmoType");
+				ammo = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, ammo_type);
 
-				if (metal >= BALANCE_CIRCUIT_METAL) {
+				if (
+					ammo >= 15 &&
+					GetEntProp(owner, Prop_Data, "m_nWaterLevel") != 3
+				) {
 					for (idx = 1; idx <= MaxClients; idx++) {
 						if (
 							IsClientInGame(idx) &&
 							(
 								idx != owner ||
-								metal < 65
+								ammo < 65
 							)
 						) {
 							EmitGameSoundToClient(idx, "Weapon_BarretsArm.Shot", owner);
 						}
 					}
-					DoShortCircuitProjectileRemoval(owner, entity, BALANCE_CIRCUIT_METAL, 0, BALANCE_CIRCUIT_DAMAGE);
+					ShortCircuitShockAttack(owner, entity, 15, .damage = 20.0);
 				}
 			}
 
@@ -5820,136 +6052,6 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 		}
 	}
 	return MRES_Ignored;
-}
-
-/**
- * Removes projectiles and optionally damages players in front of the Short Circuit user.
- *
- * @param owner					Client index of the player using the Short Circuit.
- * @param entity				Entity index of the Short Circuit weapon.
- * @param base_amount			Amount of metal to consume on use (0 for none).
- * @param amount_per_destroyed	Additional metal to consume per destroyed projectile (0 for none).
- * @param damage				Damage to apply to players hit (default 0.0 for none).
- *
- * @return True if hit a player or destroyed a projectile, false otherwise.
- */
-bool DoShortCircuitProjectileRemoval(int owner, int entity, int base_amount, int amount_per_destroyed, float damage = 0.0) {
-	int idx;
-	char class[64];
-	float player_pos[3];
-	float target_pos[3];
-	float angles1[3];
-	float angles2[3];
-	float vector[3];
-	float distance;
-	float limit;
-	int metal;
-	bool hit = false;
-
-	metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
-
-	if (base_amount) {
-		SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(metal - base_amount, 0), 4, TF_AMMO_METAL);
-	}
-
-	GetClientEyePosition(owner, player_pos);
-	GetClientEyeAngles(owner, angles1);
-
-	// scan for entities to hit
-	for (idx = 1; idx < MAX_NETWORKED_ENTITIES; idx++) {
-		if (IsValidEntity(idx)) {
-			GetEntityClassname(idx, class, sizeof(class));
-
-			// only hit players and some projectiles
-			if (
-				(idx <= MaxClients) ||
-				StrStartsWith(class, "tf_projectile_") &&
-				StrContains(class, "tf_projectile_spell") == -1 &&
-				!StrEqual(class, "tf_projectile_energy_ring") &&
-				!StrEqual(class, "tf_projectile_grapplinghook") &&
-				!StrEqual(class, "tf_projectile_syringe")
-			) {
-				// don't hit stuff on the same team
-				if (GetEntProp(idx, Prop_Send, "m_iTeamNum") != GetClientTeam(owner)) {
-					GetEntPropVector(idx, Prop_Send, "m_vecOrigin", target_pos);
-
-					// if hitting a player, compare to center
-					if (idx <= MaxClients) {
-						target_pos[2] += PLAYER_CENTER_HEIGHT;
-					}
-
-					distance = GetVectorDistance(player_pos, target_pos);
-
-					// absolute max distance
-					if (distance < 300.0) {
-						MakeVectorFromPoints(player_pos, target_pos, vector);
-
-						GetVectorAngles(vector, angles2);
-
-						angles2[1] = FixViewAngleY(angles2[1]);
-
-						angles1[0] = 0.0;
-						angles2[0] = 0.0;
-
-						// more strict angles vs players than projectiles
-						if (idx <= MaxClients) {
-							limit = ValveRemapVal(distance, 0.0, 150.0, 70.0, 25.0);
-						} else {
-							limit = ValveRemapVal(distance, 0.0, 200.0, 80.0, 40.0);
-						}
-
-						// check if view angle relative to target is in range
-						if (CalcViewsOffset(angles1, angles2) < limit) {
-							// trace from player camera pos to target
-							TR_TraceRayFilter(player_pos, target_pos, MASK_SOLID, RayType_EndPoint, TraceFilter_CustomShortCircuit, idx);
-
-							// didn't hit anything on the way to the target, so proceed
-							if (TR_DidHit() == false) {
-								if (idx <= MaxClients) {
-									if (
-										damage != 0.0 &&
-										IsPlayerAlive(idx)
-									) {
-										hit = true;
-
-										// damage players
-										SDKHooks_TakeDamage(idx, entity, owner, damage, DMG_SHOCK, entity, NULL_VECTOR, target_pos, false);
-									}
-								} else {
-									hit = true;
-
-									// delete projectiles
-									if (amount_per_destroyed)
-									{
-										metal = GetEntProp(owner, Prop_Data, "m_iAmmo", 4, TF_AMMO_METAL);
-										if (metal < (base_amount + amount_per_destroyed)) break;
-										SetEntProp(owner, Prop_Data, "m_iAmmo", intMax(metal - amount_per_destroyed, 0), 4, TF_AMMO_METAL);
-									}
-
-									RemoveEntity(idx);
-								}
-
-								if (hit) {
-									// add an offset to the player position
-									vector[0] = 10.0;
-									vector[1] = -10.0;
-									vector[2] = -20.0;
-
-									RotateVectorAroundZAxis(vector, angles1[1], vector);
-									AddVectors(player_pos, vector, player_pos);
-
-									// show particle effect
-									ParticleShow("dxhr_arm_muzzleflash", player_pos, target_pos, angles1);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return hit;
 }
 
 MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Post(int entity) {
@@ -7597,70 +7699,63 @@ stock bool PlayerIsCritboosted(int client) {
 	return false;
 }
 
-stock void ParticleShowSimple(const char[] name, float position[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
-
-	if (particle >= 0) {
-		TE_Start("TFParticleEffect");
-		TE_WriteFloat("m_vecOrigin[0]", position[0]);
-		TE_WriteFloat("m_vecOrigin[1]", position[1]);
-		TE_WriteFloat("m_vecOrigin[2]", position[2]);
-		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(position, RangeType_Visibility, 0.0);
-	}
+stock void ParticleShowSimple(const char[] name, float origin[3]) {
+	ParticleEffectComplex(name, origin);
 }
 
-stock void ParticleShow(const char[] name, float origin[3], float start[3], float angles[3]) {
-	int idx;
-	int table;
-	int strings;
-	int particle;
-	char tmp[64];
-
-	table = FindStringTable("ParticleEffectNames");
-	strings = GetStringTableNumStrings(table);
-
-	particle = -1;
-
-	for (idx = 0; idx < strings; idx++) {
-		ReadStringTable(table, idx, tmp, sizeof(tmp));
-
-		if (StrEqual(tmp, name)) {
-			particle = idx;
-			break;
-		}
-	}
+stock void ParticleEffectComplex(
+	const char[] name, float origin[3], float angles[3] = NULL_VECTOR, float start[3] = NULL_VECTOR,
+	int entity = -1, int attach_type = PATTACH_CUSTOMORIGIN, float delay = 0.0,
+	int control_point1_attach_type = -1, float control_point1_offset[3] = NULL_VECTOR
+) {
+	int particle = GetParticleSystemIndex(name);
 
 	if (particle >= 0) {
 		TE_Start("TFParticleEffect");
+
 		TE_WriteFloat("m_vecOrigin[0]", origin[0]);
 		TE_WriteFloat("m_vecOrigin[1]", origin[1]);
 		TE_WriteFloat("m_vecOrigin[2]", origin[2]);
-		TE_WriteFloat("m_vecStart[0]", start[0]);
-		TE_WriteFloat("m_vecStart[1]", start[1]);
-		TE_WriteFloat("m_vecStart[2]", start[2]);
-		TE_WriteVector("m_vecAngles", angles);
+
+		if (!IsNullVector(start)) {
+			TE_WriteFloat("m_vecStart[0]", start[0]);
+			TE_WriteFloat("m_vecStart[1]", start[1]);
+			TE_WriteFloat("m_vecStart[2]", start[2]);
+		}
+
+		if (!IsNullVector(angles)) {
+			TE_WriteAngles("m_vecAngles", angles);
+		}
+
 		TE_WriteNum("m_iParticleSystemIndex", particle);
-		TE_SendToAllInRange(origin, RangeType_Visibility, 0.0);
+
+		if (entity > 0) {
+			TE_WriteNum("entindex", entity);
+			TE_WriteNum("m_iAttachType", attach_type);
+		}
+
+		if (control_point1_attach_type >= 0) {
+			TE_WriteNum("m_bControlPoint1", 1);
+			TE_WriteNum("m_ControlPoint1.m_eParticleAttachment", control_point1_attach_type);
+			TE_WriteFloat("m_ControlPoint1.m_vecOffset[0]", control_point1_offset[0]);
+			TE_WriteFloat("m_ControlPoint1.m_vecOffset[1]", control_point1_offset[1]);
+			TE_WriteFloat("m_ControlPoint1.m_vecOffset[2]", control_point1_offset[2]);
+		}
+
+		TE_SendToAllInRange(origin, RangeType_Visibility, delay);
 	}
+}
+
+stock int GetParticleSystemIndex(const char[] name) {
+	static int particleEffectNames = INVALID_STRING_TABLE;
+
+	if (particleEffectNames == INVALID_STRING_TABLE) {
+		if ((particleEffectNames = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
+			return INVALID_STRING_INDEX;
+		}
+	}
+
+	return FindStringIndex2(particleEffectNames, name);
 }
 
 stock int PrecacheParticleSystem(const char[] particleSystem)
@@ -7687,12 +7782,11 @@ stock int PrecacheParticleSystem(const char[] particleSystem)
 	return index;
 }
 
-stock int FindStringIndex2(int tableidx, const char[] str)
-{
+stock int FindStringIndex2(int tableidx, const char[] str) {
 	char buf[1024];
 
 	int numStrings = GetStringTableNumStrings(tableidx);
-	for (int i=0; i < numStrings; i++) {
+	for (int i = 0; i < numStrings; i++) {
 		ReadStringTable(tableidx, i, buf, sizeof(buf));
 
 		if (StrEqual(buf, str)) {
@@ -7777,22 +7871,6 @@ stock bool StrStartsWith(const char[] str, const char[] prefix) {
 	return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
-stock float CalcViewsOffset(float angle1[3], float angle2[3]) {
-	float v1;
-	float v2;
-
-	v1 = FloatAbs(angle1[0] - angle2[0]);
-	v2 = FloatAbs(angle1[1] - angle2[1]);
-
-	v2 = FixViewAngleY(v2);
-
-	return SquareRoot(Pow(v1, 2.0) + Pow(v2, 2.0));
-}
-
-stock float FixViewAngleY(float angle) {
-	return (angle > 180.0 ? (angle - 360.0) : angle);
-}
-
 stock float ValveRemapVal(float val, float a, float b, float c, float d) {
 	// https://github.com/ValveSoftware/source-sdk-2013/blob/master/sp/src/public/mathlib/mathlib.h#L648
 
@@ -7808,9 +7886,4 @@ stock float ValveRemapVal(float val, float a, float b, float c, float d) {
 	if (tmp > 1.0) tmp = 1.0;
 
 	return (c + ((d - c) * tmp));
-}
-
-stock void RotateVectorAroundZAxis(float vector[3], float angle, float output[3]) {
-	output[0] = vector[0] * Cosine(DegToRad(angle)) - vector[1] * Sine(DegToRad(angle));
-	output[1] = vector[0] * Sine(DegToRad(angle)) + vector[1] * Cosine(DegToRad(angle));
 }
