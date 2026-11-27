@@ -329,7 +329,6 @@ Handle sdkcall_GetMaxHealth;
 Handle sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed;
 Handle sdkcall_CTFWeaponBaseGun_GetProjectileDamage;
 Handle sdkcall_CTFWeaponBaseGun_GetWeaponSpread;
-Handle sdkcall_CWeaponMedigun_CanAttack;
 Handle sdkcall_CTFSniperRifle_SniperRifleChargeRateMod;
 Handle sdkcall_CTFWeaponBase_SecondaryAttack;
 
@@ -974,11 +973,6 @@ public void OnPluginStart() {
 		sdkcall_CTFWeaponBaseGun_GetWeaponSpread = EndPrepSDKCall();
 
 		StartPrepSDKCall(SDKCall_Entity);
-		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CWeaponMedigun::CanAttack");
-		PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
-		sdkcall_CWeaponMedigun_CanAttack = EndPrepSDKCall();
-
-		StartPrepSDKCall(SDKCall_Entity);
 		PrepSDKCall_SetFromConf(conf, SDKConf_Virtual, "CTFSniperRifle::SniperRifleChargeRateMod");
 		PrepSDKCall_SetReturnInfo(SDKType_Float, SDKPass_Plain);
 		sdkcall_CTFSniperRifle_SniperRifleChargeRateMod = EndPrepSDKCall();
@@ -1131,7 +1125,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(sdkcall_CBaseObject_GetReversesBuildingConstructionSpeed);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetProjectileDamage);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBaseGun_GetWeaponSpread);
-	VALIDATE_HANDLE(sdkcall_CWeaponMedigun_CanAttack);
 	VALIDATE_HANDLE(sdkcall_CTFSniperRifle_SniperRifleChargeRateMod);
 	VALIDATE_HANDLE(sdkcall_CTFWeaponBase_SecondaryAttack);
 
@@ -2142,14 +2135,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].bolt_heal = false;
 
 	if (
-		(
-			StrStartsWith(class, "tf_weapon") ||
-			StrEqual(class, "saxxy") ||
-			(
-				StrStartsWith(class, "tf_wearable") &&
-				!StrEqual(class, "tf_wearable_vm")
-			)
-		) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")
+		TF2Util_IsEntityWeapon(entity) ||
+		TF2Util_IsEntityWearable(entity)
 	) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 	}
@@ -5811,7 +5798,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Pre(int entity) {
 				return MRES_Supercede;
 			else if (
 				GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel") >= 0.25 &&
-				SDKCall(sdkcall_CWeaponMedigun_CanAttack, entity)
+				TF2Util_CanWeaponAttack(entity)
 			) {
 				players[owner].using_vaccinator_uber = true;
 				players[owner].vaccinator_charge = float(RoundToFloor(GetEntPropFloat(entity, Prop_Send, "m_flChargeLevel") * 4.0)) * 0.25;
@@ -7722,45 +7709,39 @@ stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
 	return (team1 == team2);
 }
 
-// Get the sentry of a specific engineer
-// WARNING: Do not use in MVM!
-stock int FindSentryGunOwnedByClient(int client)
-{
-	if (playing_mvm)
-		return -1;
-
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_sentrygun")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (owner == client)
-			return ent;
+// Get the sentry of a specific client
+stock int FindSentryGunOwnedByClient(int client) {
+	if (IsClientInGame(client)) {
+		int count = TF2Util_GetPlayerObjectCount(client);
+		for (int i = 0; i < count; i++) {
+			int obj = TF2Util_GetPlayerObject(client, i);
+			if (
+				obj > 0 &&
+				GetEntProp(obj, Prop_Send, "m_iObjectType") == view_as<int>(TFObject_Sentry)
+			) {
+				return obj;
+			}
+		}
 	}
-
 	return -1;
 }
 
-// Get the built (construction finished) teleporter exit of a specific engineer
-stock int FindBuiltTeleporterExitOwnedByClient(int client)
-{
-	if (!IsClientInGame(client) || GetClientTeam(client) < 2)
-		return -1;
-
-	int ent = -1;
-	while ((ent = FindEntityByClassname(ent, "obj_teleporter")) != -1)
-	{
-		int owner = GetEntPropEnt(ent,Prop_Send,"m_hBuilder");
-		if (
-			owner == client &&
-			GetEntProp(ent, Prop_Send, "m_iState") != 0 && // TELEPORTER_STATE_BUILDING
-			GetEntProp(ent, Prop_Data, "m_iTeleportType") == 2 // TTYPE_EXIT
-		)
-			return ent;
-	}
-
+// Get the built (construction finished) teleporter exit of a specific client
+stock int FindBuiltTeleporterExitOwnedByClient(int client) {
+	if (IsClientInGame(client)) {
+		int count = TF2Util_GetPlayerObjectCount(client);
+		for (int i = 0; i < count; i++) {
+			int obj = TF2Util_GetPlayerObject(client, i);
+			if (
+				obj > 0 &&
+				GetEntProp(obj, Prop_Send, "m_iObjectType") == view_as<int>(TFObject_Teleporter) &&
+				GetEntProp(obj, Prop_Send, "m_iObjectMode") == view_as<int>(TFObjectMode_Exit) &&
+				GetEntProp(obj, Prop_Send, "m_iState") != 0 // TELEPORTER_STATE_BUILDING
+			) {
+				return obj;
+			}
+		}
+	}	
 	return -1;
 }
 

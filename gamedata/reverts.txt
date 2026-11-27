@@ -285,11 +285,6 @@
 				"windows"	"482"
 				"linux"		"489"
 			}
-			"CWeaponMedigun::CanAttack"
-			{
-				"windows"	"428"
-				"linux"		"435"
-			}
 			"CBaseCombatWeapon::ItemPostFrame"
 			{
 				"windows"	"273"
