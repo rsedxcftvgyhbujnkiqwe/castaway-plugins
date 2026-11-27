@@ -336,9 +336,9 @@ DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFWeaponBase_CanAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
 DynamicHook dhook_CTFPowerup_MyTouch;
-DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
+DynamicHook dhook_CBaseObject_OnWrenchHit;
 DynamicHook dhook_CTFSniperRifle_SniperRifleChargeRateMod;
-DynamicHook dhook_CObjectSentrygun_StartBuilding;
+DynamicHook dhook_CBaseObject_StartBuilding;
 DynamicHook dhook_CBaseObject_Construct;
 DynamicHook dhook_CTFMinigun_GetProjectileDamage;
 DynamicHook dhook_CTFMinigun_GetWeaponSpread;
@@ -349,7 +349,7 @@ DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
 DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
 DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
 DynamicHook dhook_CBaseObject_Command_Repair;
-DynamicHook dhook_CWeaponMedigun_WeaponReset;
+DynamicHook dhook_CTFWeaponBase_WeaponReset;
 DynamicHook dhook_CTFPlayer_Event_KilledOther;
 DynamicHook dhook_CTFPlayer_TakeHealth;
 DynamicHook dhook_CBaseCombatWeapon_Deploy;
@@ -979,9 +979,9 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
 		dhook_CTFPowerup_MyTouch = DynamicHook.FromConf(conf, "CTFPowerup::MyTouch");
-		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
+		dhook_CBaseObject_OnWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::OnWrenchHit");
 		dhook_CTFSniperRifle_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifle::SniperRifleChargeRateMod");
-		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
+		dhook_CBaseObject_StartBuilding = DynamicHook.FromConf(conf, "CBaseObject::StartBuilding");
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
 		dhook_CTFMinigun_GetProjectileDamage = DynamicHook.FromConf(conf, "CTFMinigun::GetProjectileDamage");
 		dhook_CTFMinigun_GetWeaponSpread = DynamicHook.FromConf(conf, "CTFMinigun::GetWeaponSpread");
@@ -992,7 +992,7 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage = DynamicHook.FromConf(conf, "CTFWeaponBaseMelee::GetMeleeDamage");
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
 		dhook_CBaseObject_Command_Repair = DynamicHook.FromConf(conf, "CBaseObject::Command_Repair");
-		dhook_CWeaponMedigun_WeaponReset = DynamicHook.FromConf(conf, "CWeaponMedigun::WeaponReset");
+		dhook_CTFWeaponBase_WeaponReset = DynamicHook.FromConf(conf, "CTFWeaponBase::WeaponReset");
 		dhook_CTFPlayer_Event_KilledOther = DynamicHook.FromConf(conf, "CTFPlayer::Event_KilledOther");
 		dhook_CTFPlayer_TakeHealth = DynamicHook.FromConf(conf, "CTFPlayer::TakeHealth");
 		dhook_CBaseCombatWeapon_Deploy = DynamicHook.FromConf(conf, "CBaseCombatWeapon::Deploy");
@@ -1120,9 +1120,9 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
 	VALIDATE_HANDLE(dhook_CTFBaseRocket_GetRadius);
 	VALIDATE_HANDLE(dhook_CTFPowerup_MyTouch);
-	VALIDATE_HANDLE(dhook_CObjectSentrygun_OnWrenchHit);
+	VALIDATE_HANDLE(dhook_CBaseObject_OnWrenchHit);
 	VALIDATE_HANDLE(dhook_CTFSniperRifle_SniperRifleChargeRateMod);
-	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
+	VALIDATE_HANDLE(dhook_CBaseObject_StartBuilding);
 	VALIDATE_HANDLE(dhook_CBaseObject_Construct);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetProjectileDamage);
 	VALIDATE_HANDLE(dhook_CTFMinigun_GetWeaponSpread);
@@ -1133,7 +1133,7 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_GetMeleeDamage);
 	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
 	VALIDATE_HANDLE(dhook_CBaseObject_Command_Repair);
-	VALIDATE_HANDLE(dhook_CWeaponMedigun_WeaponReset);
+	VALIDATE_HANDLE(dhook_CTFWeaponBase_WeaponReset);
 	VALIDATE_HANDLE(dhook_CTFPlayer_Event_KilledOther);
 	VALIDATE_HANDLE(dhook_CTFPlayer_TakeHealth);
 	VALIDATE_HANDLE(dhook_CBaseCombatWeapon_Deploy);
@@ -2156,11 +2156,11 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CBaseObject_Command_Repair.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Command_Repair_Pre);
 
 		if (StrEqual(class, "obj_sentrygun")) {
-			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
-			dhook_CObjectSentrygun_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
-			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding_Post);
-			dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
-			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
+			dhook_CBaseObject_OnWrenchHit.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Pre);
+			dhook_CBaseObject_OnWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_OnWrenchHit_Post);
+			dhook_CBaseObject_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding_Post);
+			dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CObjectSentrygun_Construct_Pre);
+			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_Construct_Post);
 		}
 	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
@@ -2200,8 +2200,8 @@ public void OnEntityCreated(int entity, const char[] class) {
 	else if (StrEqual(class, "tf_weapon_medigun")) {
 		dhook_CTFWeaponBase_SecondaryAttack.HookEntity(Hook_Pre, entity, DHookCallback_CTFWeaponBase_SecondaryAttack_Pre);
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Pre, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Pre);
-		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
-		dhook_CWeaponMedigun_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
+		dhook_CTFWeaponBase_WeaponReset.HookEntity(Hook_Pre, entity, DHookCallback_CWeaponMedigun_WeaponReset_Pre);
+		dhook_CTFWeaponBase_WeaponReset.HookEntity(Hook_Post, entity, DHookCallback_CWeaponMedigun_WeaponReset_Post);
 	}
 	else if (StrStartsWith(class, "tf_weapon_sniperrifle")) {
 		dhook_CBaseCombatWeapon_ItemPostFrame.HookEntity(Hook_Post, entity, DHookCallback_CBaseCombatWeapon_ItemPostFrame_Post);
@@ -6432,7 +6432,7 @@ MRESReturn DHookCallback_CObjectSentrygun_StartBuilding_Post(int entity, DHookRe
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_Construct_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&
@@ -6443,7 +6443,7 @@ MRESReturn DHookCallback_CBaseObject_Construct_Pre(int entity, DHookReturn retur
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
+MRESReturn DHookCallback_CObjectSentrygun_Construct_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
 		GetEntProp(entity, Prop_Send, "m_bBuilding") &&

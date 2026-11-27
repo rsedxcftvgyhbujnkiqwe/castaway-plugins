@@ -218,6 +218,9 @@
 
 		"Offsets"
 		{
+			// CBaseObject windows offsets: asherkin's dumper gives incorrect values,
+			// derive the offset from e.g. CObjectSentrygun as the offset directly from CBaseObject is incorrect
+
 			"CTFWeaponBase::PrimaryAttack"
 			{
 				"windows"	"287"
@@ -238,7 +241,7 @@
 				"windows"	"229"
 				"linux"		"230"
 			}
-			"CObjectSentrygun::OnWrenchHit"
+			"CBaseObject::OnWrenchHit"
 			{
 				"windows"	"365"
 				"linux"		"367"
@@ -253,12 +256,12 @@
 				"windows"	"498"
 				"linux"		"505"
 			}
-			"CObjectSentrygun::StartBuilding"
+			"CBaseObject::StartBuilding"
 			{
 				"windows"	"342"
 				"linux"		"344"
 			}
-			"CBaseObject::Construct" // windows offset on CBaseObject via asherkin's dumper is incorrect
+			"CBaseObject::Construct"
 			{
 				"windows"	"350"
 				"linux"		"352"
@@ -298,12 +301,12 @@
 				"windows"	"256"
 				"linux"		"259"
 			}
-			"CBaseObject::Command_Repair" // windows offset on CBaseObject via asherkin's dumper is incorrect
+			"CBaseObject::Command_Repair"
 			{
 				"windows"	"367"
 				"linux"		"369"
 			}
-			"CWeaponMedigun::WeaponReset"
+			"CTFWeaponBase::WeaponReset"
 			{
 				"windows"	"430"
 				"linux"		"437"
@@ -455,9 +458,9 @@
 					}
 				}
 			}
-			"CObjectSentrygun::OnWrenchHit"
+			"CBaseObject::OnWrenchHit"
 			{
-				"offset"	"CObjectSentrygun::OnWrenchHit"
+				"offset"	"CBaseObject::OnWrenchHit"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -478,9 +481,9 @@
 					}
 				}
 			}
-			"CObjectSentrygun::StartBuilding"
+			"CBaseObject::StartBuilding"
 			{
-				"offset"	"CObjectSentrygun::StartBuilding"
+				"offset"	"CBaseObject::StartBuilding"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -639,9 +642,9 @@
 					}
 				}
 			}
-			"CWeaponMedigun::WeaponReset"
+			"CTFWeaponBase::WeaponReset"
 			{
-				"offset"	"CWeaponMedigun::WeaponReset"
+				"offset"	"CTFWeaponBase::WeaponReset"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
