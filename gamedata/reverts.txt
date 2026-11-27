@@ -305,11 +305,6 @@
 				"windows"	"256"
 				"linux"		"259"
 			}
-			"CBaseObject::InputWrenchHit" // windows offset on CBaseObject via asherkin's dumper is incorrect
-			{
-				"windows"	"364"
-				"linux"		"366"
-			}
 			"CBaseObject::Command_Repair" // windows offset on CBaseObject via asherkin's dumper is incorrect
 			{
 				"windows"	"367"
@@ -623,29 +618,6 @@
 					"pOther"
 					{
 						"type"	"cbaseentity"
-					}
-				}
-			}
-			"CBaseObject::InputWrenchHit"
-			{
-				"offset"	"CBaseObject::InputWrenchHit"
-				"hooktype"	"entity"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-					"pWrench"
-					{
-						"type"	"cbaseentity"
-					}
-					"hitLoc"
-					{
-						"type"	"object"
-						"size"	"12"
 					}
 				}
 			}

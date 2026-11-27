@@ -279,6 +279,7 @@ enum struct Player {
 	int powerjack_frame;
 	int feign_frame;
 	int no_effect_stun_frame;
+	int minisentry_hit_frame;
 }
 
 enum struct Entity {
@@ -288,7 +289,6 @@ enum struct Entity {
 	int patient;
 	bool has_run_post;
 	float prev_charge;
-	bool construction_hit;
 	bool bolt_heal;
 }
 
@@ -349,7 +349,6 @@ DynamicHook dhook_CTFStunBall_ApplyBallImpactEffectOnVictim;
 DynamicHook dhook_CTFWeaponBaseGrenadeProj_GetEnemy;
 DynamicHook dhook_CTFWeaponBaseMelee_GetMeleeDamage;
 DynamicHook dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer;
-DynamicHook dhook_CBaseObject_InputWrenchHit;
 DynamicHook dhook_CBaseObject_Command_Repair;
 DynamicHook dhook_CWeaponMedigun_WeaponReset;
 DynamicHook dhook_CTFPlayer_Event_KilledOther;
@@ -995,7 +994,6 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBaseGrenadeProj_GetEnemy = DynamicHook.FromConf(conf, "CTFWeaponBaseGrenadeProj::GetEnemy");
 		dhook_CTFWeaponBaseMelee_GetMeleeDamage = DynamicHook.FromConf(conf, "CTFWeaponBaseMelee::GetMeleeDamage");
 		dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer = DynamicHook.FromConf(conf, "CTFProjectile_HealingBolt::ImpactTeamPlayer");
-		dhook_CBaseObject_InputWrenchHit = DynamicHook.FromConf(conf, "CBaseObject::InputWrenchHit");
 		dhook_CBaseObject_Command_Repair = DynamicHook.FromConf(conf, "CBaseObject::Command_Repair");
 		dhook_CWeaponMedigun_WeaponReset = DynamicHook.FromConf(conf, "CWeaponMedigun::WeaponReset");
 		dhook_CTFPlayer_Event_KilledOther = DynamicHook.FromConf(conf, "CTFPlayer::Event_KilledOther");
@@ -1140,7 +1138,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseGrenadeProj_GetEnemy);
 	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_GetMeleeDamage);
 	VALIDATE_HANDLE(dhook_CTFProjectile_HealingBolt_ImpactTeamPlayer);
-	VALIDATE_HANDLE(dhook_CBaseObject_InputWrenchHit);
 	VALIDATE_HANDLE(dhook_CBaseObject_Command_Repair);
 	VALIDATE_HANDLE(dhook_CWeaponMedigun_WeaponReset);
 	VALIDATE_HANDLE(dhook_CTFPlayer_Event_KilledOther);
@@ -2124,7 +2121,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 	entities[entity].patient = -1;
 	entities[entity].has_run_post = false;
 	entities[entity].prev_charge = 0.0;
-	entities[entity].construction_hit = false;
 	entities[entity].bolt_heal = false;
 
 	if (
@@ -2173,7 +2169,6 @@ public void OnEntityCreated(int entity, const char[] class) {
 			dhook_CObjectSentrygun_StartBuilding.HookEntity(Hook_Post, entity, DHookCallback_CObjectSentrygun_StartBuilding_Post);
 			dhook_CBaseObject_Construct.HookEntity(Hook_Pre, entity, DHookCallback_CBaseObject_Construct_Pre);
 			dhook_CBaseObject_Construct.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_Construct_Post);
-			dhook_CBaseObject_InputWrenchHit.HookEntity(Hook_Post, entity, DHookCallback_CBaseObject_InputWrenchHit_Post);
 		}
 	}
 	else if (StrEqual(class, "instanced_scripted_scene")) {
@@ -3821,6 +3816,7 @@ Action OnSoundNormal(
 	int clients[MAXPLAYERS], int& clients_num, char sample[PLATFORM_MAX_PATH], int& entity, int& channel,
 	float& volume, int& level, int& pitch, int& flags, char soundentry[PLATFORM_MAX_PATH], int& seed
 ) {
+	char path[64];
 	if (
 		entity >= 1 && entity <= MaxClients &&
 		IsClientInGame(entity)
@@ -3864,8 +3860,20 @@ Action OnSoundNormal(
 			TF2_IsPlayerInCondition(entity, TFCond_Charging) &&
 			GetEntPropFloat(entity, Prop_Send, "m_flChargeMeter") > 40.0
 		) {
-			char path[64];
 			Format(path, sizeof(path), "weapons/demo_charge_hit_flesh%d.wav", GetRandomInt(1, 3));
+			strcopy(sample, PLATFORM_MAX_PATH, path);
+			return Plugin_Changed;
+		}
+
+		// play the ding sound when hitting minisentries
+		if (
+			ItemIsEnabled(Wep_Gunslinger) &&
+			StrStartsWith(sample, "weapons/wrench_hit_build_success") &&
+			players[entity].minisentry_hit_frame == GetGameTickCount()
+		) {
+			players[entity].minisentry_hit_frame = 0;
+
+			Format(path, sizeof(path), "weapons/wrench_hit_build_fail.wav");
 			strcopy(sample, PLATFORM_MAX_PATH, path);
 			return Plugin_Changed;
 		}
@@ -6481,29 +6489,17 @@ MRESReturn DHookCallback_CBaseObject_Construct_Post(int entity, DHookReturn retu
 }
 
 MRESReturn DHookCallback_CBaseObject_OnConstructionHit_Pre(int entity, DHookParam parameters) {
-	char class[64];
-	entities[entity].construction_hit = false;
 	if (
 		ItemIsEnabled(Wep_Gunslinger) &&
-		GetEntProp(entity, Prop_Send, "m_bMiniBuilding")
+		GetEntProp(entity, Prop_Send, "m_bMiniBuilding") &&
+		HasEntProp(entity, Prop_Send, "m_nShieldLevel")
 	) {
-		GetEntityClassname(entity, class, sizeof(class));
-		if (StrEqual(class, "obj_sentrygun")) {
-			// Do not allow mini sentries to be construction boosted.
-			entities[entity].construction_hit = true;
-			return MRES_Supercede;
+		int client = parameters.Get(1);
+		if (client >= 1 && client <= MaxClients) {
+			players[client].minisentry_hit_frame = GetGameTickCount();
 		}
-	}
-	return MRES_Ignored;
-}
-
-MRESReturn DHookCallback_CBaseObject_InputWrenchHit_Post(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (entities[entity].construction_hit) {
-		entities[entity].construction_hit = false;
-
-		// Return false such that the 'ding' plays instead of the regular wrench hit sound
-		returnValue.Value = false;
-		return MRES_Override;
+		// Do not allow mini sentries to be construction boosted.
+		return MRES_Supercede;
 	}
 	return MRES_Ignored;
 }
