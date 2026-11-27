@@ -193,13 +193,6 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
 				"linux"		"@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
 			}
-			// "speed_buff_ally"
-			"CTFWeaponBaseMelee::OnSwingHit"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
-				"linux"		"@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
-			}
 			// "mult_dmgself_push_force"
 			"CTFPlayer::ApplyPushFromDamage"
 			{
@@ -380,11 +373,6 @@
 			{
 				"windows"	"8516"
 				"linux"		"8524"
-			}
-			"CGameTrace.m_pEnt"
-			{
-				"windows"	"76"
-				"linux"		"76"
 			}
 			"CTakeDamageInfo.m_hWeapon"
 			{
@@ -1098,20 +1086,6 @@
 					"flImpulse"
 					{
 						"type"	"float"
-					}
-				}
-			}
-			"CTFWeaponBaseMelee::OnSwingHit"
-			{
-				"signature"	"CTFWeaponBaseMelee::OnSwingHit"
-				"callconv"	"thiscall"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"trace"
-					{
-						"type"	"int"
 					}
 				}
 			}

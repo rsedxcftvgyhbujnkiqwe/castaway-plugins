@@ -271,7 +271,6 @@ enum struct Player {
 	float vaccinator_charge_end;
 	int stun_frame;
 	int stun_inflictor;
-	int whip_frame;
 	int fireproof_frame;
 	int cannonball_frame;
 	int old_metal;
@@ -378,7 +377,6 @@ DynamicDetour dhook_CTFPlayerShared_StunPlayer;
 DynamicDetour dhook_CTFPlayerShared_AddCond;
 DynamicDetour dhook_CTFPlayerShared_RemoveCond;
 DynamicDetour dhook_CTFPlayer_ApplyPunchImpulseX;
-DynamicDetour dhook_CTFWeaponBaseMelee_OnSwingHit;
 DynamicDetour dhook_CTFPlayer_ApplyPushFromDamage;
 DynamicDetour dhook_CTFPlayer_ApplyAbsVelocityImpulse;
 DynamicDetour dhook_CTFProjectile_EnergyRing_ShouldPenetrate;
@@ -427,7 +425,6 @@ int CTFPlayer_m_eEurekaTeleportTarget;
 
 // Offsets loaded from gamedata
 int CTFPlayer_m_flTauntNextStartTime;
-Address CGameTrace_m_pEnt;
 Address CTakeDamageInfo_m_hWeapon;
 Address CTakeDamageInfo_m_flDamage;
 Address CTakeDamageInfo_m_bitsDamageType;
@@ -1024,7 +1021,6 @@ public void OnPluginStart() {
 		dhook_CTFPlayerShared_AddCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::AddCond");
 		dhook_CTFPlayerShared_RemoveCond = DynamicDetour.FromConf(conf, "CTFPlayerShared::RemoveCond");
 		dhook_CTFPlayer_ApplyPunchImpulseX = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPunchImpulseX");
-		dhook_CTFWeaponBaseMelee_OnSwingHit = DynamicDetour.FromConf(conf, "CTFWeaponBaseMelee::OnSwingHit");
 		dhook_CTFPlayer_ApplyPushFromDamage = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyPushFromDamage");
 		dhook_CTFPlayer_ApplyAbsVelocityImpulse = DynamicDetour.FromConf(conf, "CTFPlayer::ApplyAbsVelocityImpulse");
 		dhook_CTFProjectile_EnergyRing_ShouldPenetrate = DynamicDetour.FromConf(conf, "CTFProjectile_EnergyRing::ShouldPenetrate");
@@ -1032,14 +1028,12 @@ public void OnPluginStart() {
 		#define VALIDATE_OFFSET(%1) hook_fail |= ValidateOffset(#%1, %1)
 
 		CTFPlayer_m_flTauntNextStartTime = GameConfGetOffset(conf, "CTFPlayer.m_flTauntNextStartTime");
-		CGameTrace_m_pEnt = view_as<Address>(GameConfGetOffset(conf, "CGameTrace.m_pEnt"));
 		CTakeDamageInfo_m_hWeapon = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_hWeapon"));
 		CTakeDamageInfo_m_flDamage = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_flDamage"));
 		CTakeDamageInfo_m_bitsDamageType = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_bitsDamageType"));
 		CTakeDamageInfo_m_iDamageCustom = view_as<Address>(GameConfGetOffset(conf, "CTakeDamageInfo.m_iDamageCustom"));
 
 		VALIDATE_OFFSET(CTFPlayer_m_flTauntNextStartTime);
-		VALIDATE_OFFSET(CGameTrace_m_pEnt);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_hWeapon);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_flDamage);
 		VALIDATE_OFFSET(CTakeDamageInfo_m_bitsDamageType);
@@ -1168,7 +1162,6 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFPlayerShared_AddCond);
 	VALIDATE_HANDLE(dhook_CTFPlayerShared_RemoveCond);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPunchImpulseX);
-	VALIDATE_HANDLE(dhook_CTFWeaponBaseMelee_OnSwingHit);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyPushFromDamage);
 	VALIDATE_HANDLE(dhook_CTFPlayer_ApplyAbsVelocityImpulse);
 	VALIDATE_HANDLE(dhook_CTFProjectile_EnergyRing_ShouldPenetrate);
@@ -1222,7 +1215,6 @@ public void OnPluginStart() {
 	dhook_CTFPlayerShared_AddCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_AddCond_Pre);
 	dhook_CTFPlayerShared_RemoveCond.Enable(Hook_Pre, DHookCallback_CTFPlayerShared_RemoveCond_Pre);
 	dhook_CTFPlayer_ApplyPunchImpulseX.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPunchImpulseX_Pre);
-	dhook_CTFWeaponBaseMelee_OnSwingHit.Enable(Hook_Pre, DHookCallback_CTFWeaponBaseMelee_OnSwingHit_Pre);
 	dhook_CTFPlayer_ApplyPushFromDamage.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre);
 	dhook_CTFPlayer_ApplyAbsVelocityImpulse.Enable(Hook_Pre, DHookCallback_CTFPlayer_ApplyAbsVelocityImpulse_Pre);
 	dhook_CTFProjectile_EnergyRing_ShouldPenetrate.Enable(Hook_Pre, DHookCallback_CTFProjectile_EnergyRing_ShouldPenetrate_Pre);
@@ -2429,20 +2421,6 @@ Action OnAddCondition(int client, TFCond &condition, float &time, int &provider)
 					SetEntPropFloat(weapon, Prop_Send, "m_flMinicritCharge", 99.5);
 				}
 			}
-		}
-	}
-	{
-		// 3 seconds of speed buff for reverted whip
-		if (
-			ItemIsEnabled(Wep_Disciplinary) &&
-			players[client].whip_frame == GetGameTickCount() &&
-			condition == TFCond_SpeedBuffAlly &&
-			time == 2.0
-		) {
-			players[client].whip_frame = 0;
-
-			time = 3.0;
-			return Plugin_Changed;
 		}
 	}
 	{
@@ -4045,16 +4023,37 @@ Action SDKHookCB_TraceAttack(
 		victim >= 1 && victim <= MaxClients &&
 		attacker >= 1 && attacker <= MaxClients
 	) {
-		if (hitgroup == 1) {
-			if (
+		if (
+			hitgroup == 1 &&
+			(
 				damage_type & DMG_USE_HITLOCATIONS != 0 ||
 				TF2_GetPlayerClass(attacker) == TFClass_Sniper
-			) {
-				players[attacker].headshot_frame = GetGameTickCount();
-				players[victim].hit_by_headshot = true;
-			}
+			)
+		) {
+			players[attacker].headshot_frame = GetGameTickCount();
+			players[victim].hit_by_headshot = true;
 		} else {
 			players[victim].hit_by_headshot = false;
+		}
+
+		// This runs after the game has applied its own speed boost
+		// Doesn't matter here as we apply a longer buff and condition timers don't stack
+		if (
+			ItemIsEnabled(Wep_Disciplinary) &&
+			(
+				AreEntitiesOnSameTeam(attacker, victim) ||
+				IsSpyDisguisedAsFriendly(attacker, victim)
+			)
+		) {
+			int weapon = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
+			if (
+				weapon > 0 &&
+				weapon == GetPlayerWeaponSlot(attacker, TFWeaponSlot_Melee) &&
+				TF2Attrib_HookValueInt(0, "speed_buff_ally", weapon) > 0
+			) {
+				// Only apply to target as the attacker already has the boost
+				TF2_AddCondition(victim, TFCond_SpeedBuffAlly, 3.0);
+			}
 		}
 	}
 
@@ -7149,20 +7148,6 @@ MRESReturn DHookCallback_CTFPlayer_ApplyPunchImpulseX_Pre(int client, DHookRetur
 	return MRES_Ignored;
 }
 
-MRESReturn DHookCallback_CTFWeaponBaseMelee_OnSwingHit_Pre(int entity, DHookReturn returnValue, DHookParam parameters) {
-	if (ItemIsEnabled(Wep_Disciplinary)) {
-		Address trace = parameters.Get(1);
-		int target = GetEntityFromAddress(LoadFromAddress(trace + CGameTrace_m_pEnt, NumberType_Int32));
-		if (
-			target >= 1 &&
-			target <= MaxClients
-		) {
-			players[target].whip_frame = GetGameTickCount();
-		}
-	}
-	return MRES_Ignored;
-}
-
 MRESReturn DHookCallback_CTFPlayer_ApplyPushFromDamage_Pre(int client, DHookParam parameters) {
 	cvar_ref_tf_damageforcescale_other.RestoreDefault();
 
@@ -7688,15 +7673,18 @@ stock int GetEntityOwner(int entity)
 	return GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 }
 
-stock bool AreEntitiesOnSameTeam(int entity1, int entity2)
-{
-	if (!IsValidEntity(entity1) || !IsValidEntity(entity2))
+stock bool AreEntitiesOnSameTeam(int ent1, int ent2) {
+	if (!IsValidEntity(ent1) || !IsValidEntity(ent2))
 		return false;
 
-	int team1 = GetEntProp(entity1, Prop_Send, "m_iTeamNum");
-	int team2 = GetEntProp(entity2, Prop_Send, "m_iTeamNum");
+	return GetEntProp(ent1, Prop_Send, "m_iTeamNum") == GetEntProp(ent2, Prop_Send, "m_iTeamNum");
+}
 
-	return (team1 == team2);
+stock bool IsSpyDisguisedAsFriendly(int client, int spy) {
+	if (!IsClientInGame(client) || !IsClientInGame(spy))
+		return false;
+
+	return GetClientTeam(client) == GetEntProp(spy, Prop_Send, "m_nDisguiseTeam");
 }
 
 // Get the sentry of a specific client
