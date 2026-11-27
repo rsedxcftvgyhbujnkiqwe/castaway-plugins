@@ -4072,15 +4072,7 @@ Action SDKHookCB_OnTakeDamage(
 	float damage1;
 	int weapon1;
 
-	// bool resist_damage = false;
-	// if (weapon > 0) {
-	// 	// Don't resist if weapon pierces resists (vanilla Enforcer)
-	// 	if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-	// 		resist_damage = true;
-	// 	}
-	// } else {
-	// 	resist_damage = true;
-	// }
+	// bool resist_damage = weapon <= 0 || TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0;
 
 	if (
 		victim >= 1 &&
@@ -4608,15 +4600,7 @@ Action SDKHookCB_OnTakeDamageAlive(
 	int healer;
 	float rage;
 
-	bool resist_damage = false;
-	if (weapon > 0) {
-		// Don't resist if weapon pierces resists (vanilla Enforcer)
-		if (TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0) {
-			resist_damage = true;
-		}
-	} else {
-		resist_damage = true;
-	}
+	bool resist_damage = weapon <= 0 || TF2Attrib_HookValueInt(0, "mod_pierce_resists_absorbs", weapon) == 0;
 
 	if (
 		victim >= 1 &&
