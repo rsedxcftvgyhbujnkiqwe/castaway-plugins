@@ -336,9 +336,8 @@ DynamicHook dhook_CTFWeaponBase_PrimaryAttack;
 DynamicHook dhook_CTFWeaponBase_SecondaryAttack;
 DynamicHook dhook_CTFWeaponBase_CanAttack;
 DynamicHook dhook_CTFBaseRocket_GetRadius;
-DynamicHook dhook_CAmmoPack_MyTouch;
+DynamicHook dhook_CTFPowerup_MyTouch;
 DynamicHook dhook_CObjectSentrygun_OnWrenchHit;
-DynamicHook dhook_CHealthKit_MyTouch;
 DynamicHook dhook_CTFSniperRifle_SniperRifleChargeRateMod;
 DynamicHook dhook_CObjectSentrygun_StartBuilding;
 DynamicHook dhook_CBaseObject_Construct;
@@ -983,9 +982,8 @@ public void OnPluginStart() {
 		dhook_CTFWeaponBase_PrimaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::PrimaryAttack");
 		dhook_CTFWeaponBase_SecondaryAttack = DynamicHook.FromConf(conf, "CTFWeaponBase::SecondaryAttack");
 		dhook_CTFBaseRocket_GetRadius = DynamicHook.FromConf(conf, "CTFBaseRocket::GetRadius");
-		dhook_CAmmoPack_MyTouch = DynamicHook.FromConf(conf, "CAmmoPack::MyTouch");
+		dhook_CTFPowerup_MyTouch = DynamicHook.FromConf(conf, "CTFPowerup::MyTouch");
 		dhook_CObjectSentrygun_OnWrenchHit = DynamicHook.FromConf(conf, "CObjectSentrygun::OnWrenchHit");
-		dhook_CHealthKit_MyTouch = DynamicHook.FromConf(conf, "CHealthKit::MyTouch");
 		dhook_CTFSniperRifle_SniperRifleChargeRateMod = DynamicHook.FromConf(conf, "CTFSniperRifle::SniperRifleChargeRateMod");
 		dhook_CObjectSentrygun_StartBuilding = DynamicHook.FromConf(conf, "CObjectSentrygun::StartBuilding");
 		dhook_CBaseObject_Construct = DynamicHook.FromConf(conf, "CBaseObject::Construct");
@@ -1129,9 +1127,8 @@ public void OnPluginStart() {
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_PrimaryAttack);
 	VALIDATE_HANDLE(dhook_CTFWeaponBase_SecondaryAttack);
 	VALIDATE_HANDLE(dhook_CTFBaseRocket_GetRadius);
-	VALIDATE_HANDLE(dhook_CAmmoPack_MyTouch);
+	VALIDATE_HANDLE(dhook_CTFPowerup_MyTouch);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_OnWrenchHit);
-	VALIDATE_HANDLE(dhook_CHealthKit_MyTouch);
 	VALIDATE_HANDLE(dhook_CTFSniperRifle_SniperRifleChargeRateMod);
 	VALIDATE_HANDLE(dhook_CObjectSentrygun_StartBuilding);
 	VALIDATE_HANDLE(dhook_CBaseObject_Construct);
@@ -2231,7 +2228,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 		dhook_CTFRevolver_CanFireCriticalShot.HookEntity(Hook_Pre, entity, DHookCallback_CTFRevolver_CanFireCriticalShot_Pre);
 	}
 	else if (StrStartsWith(class, "item_ammopack")) {
-		dhook_CAmmoPack_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
+		dhook_CTFPowerup_MyTouch.HookEntity(Hook_Pre, entity, DHookCallback_CAmmoPack_MyTouch_Pre);
 	}
 }
 
@@ -5977,7 +5974,7 @@ MRESReturn DHookCallback_CTFWeaponBase_SecondaryAttack_Post(int entity) {
 				GetItemVariant(Wep_BuffaloSteak) >= 1 && player_weapons[owner][Wep_BuffaloSteak]
 			)
 		) {
-			dhook_CHealthKit_MyTouch.HookEntity(Hook_Pre, lunchbox, DHookCallback_CHealthKit_MyTouch_Pre);
+			dhook_CTFPowerup_MyTouch.HookEntity(Hook_Pre, lunchbox, DHookCallback_CHealthKit_MyTouch_Pre);
 		}
 	}
 	return MRES_Ignored;

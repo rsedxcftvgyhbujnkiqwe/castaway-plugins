@@ -240,7 +240,7 @@
 				"windows"	"244"
 				"linux"		"245"
 			}
-			"CAmmoPack::MyTouch"
+			"CTFPowerup::MyTouch"
 			{
 				"windows"	"229"
 				"linux"		"230"
@@ -249,11 +249,6 @@
 			{
 				"windows"	"365"
 				"linux"		"367"
-			}
-			"CHealthKit::MyTouch"
-			{
-				"windows"	"229"
-				"linux"		"230"
 			}
 			"CTFRevolver::CanFireCriticalShot"
 			{
@@ -449,9 +444,9 @@
 				"this"		"entity"
 				"return" 	"float"
 			}
-			"CAmmoPack::MyTouch"
+			"CTFPowerup::MyTouch"
 			{
-				"offset"	"CAmmoPack::MyTouch"
+				"offset"	"CTFPowerup::MyTouch"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -548,20 +543,6 @@
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
-			}
-			"CHealthKit::MyTouch"
-			{
-				"offset"	"CHealthKit::MyTouch"
-				"hooktype"	"entity"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-				}
 			}
 			"CTFRevolver::CanFireCriticalShot"
 			{
