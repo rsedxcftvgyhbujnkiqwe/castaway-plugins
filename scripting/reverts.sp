@@ -5672,7 +5672,15 @@ bool TraceEnumerator_ShortCircuit(int entity, any data) {
 			StrStartsWith(class, "tf_projectile_spell") ||
 			StrEqual(class, "tf_projectile_energy_ring") ||
 			StrEqual(class, "tf_projectile_grapplinghook") ||
-			StrEqual(class, "tf_projectile_syringe")
+			StrEqual(class, "tf_projectile_syringe") ||
+			// Don't target arrows that have hit something
+			(
+				GetEntityMoveType(entity) == MOVETYPE_NONE &&
+				(
+					StrEqual(class, "tf_projectile_arrow") ||
+					StrEqual(class, "tf_projectile_healing_bolt")
+				)
+			)
 		)
 	) {
 		return true;
