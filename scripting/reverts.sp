@@ -2351,7 +2351,7 @@ public void TF2_OnConditionRemoved(int client, TFCond condition) {
 	}
 }
 
-public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &provider) {
+Action OnAddCondition(int client, TFCond &condition, float &time, int &provider) {
 	{
 		// Old Dead Ringer feign
 		if (
@@ -2465,9 +2465,11 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 		) {
 			if (
 				condition == TFCond_FireImmune &&
-				time == 1.0
+				time == 1.0 &&
+				players[client].fireproof_frame != GetGameTickCount()
 			) {
 				players[client].fireproof_frame = GetGameTickCount();
+				return Plugin_Handled;
 			}
 
 			if (
@@ -2485,7 +2487,7 @@ public Action TF2_OnAddCond(int client, TFCond &condition, float &time, int &pro
 	return Plugin_Continue;
 }
 
-public Action TF2_OnRemoveCond(int client, TFCond &condition, float &timeleft, int &provider) {
+Action OnRemoveCondition(int client, TFCond &condition, float &timeleft, int &provider) {
 	{
 		// prevent debuff removal for shields
 		if (
@@ -7096,18 +7098,15 @@ MRESReturn DHookCallback_CTFPlayerShared_StunPlayer_Pre(Address pThis, DHookPara
 MRESReturn DHookCallback_CTFPlayerShared_AddCond_Pre(Address pThis, DHookParam parameters) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
 	if (
-		client >= 1 &&
-		client <= MaxClients &&
-		IsClientInGame(client) &&
-		IsPlayerAlive(client)
+		client >= 1 && client <= MaxClients &&
+		IsClientInGame(client) && IsPlayerAlive(client)
 	) {
 		TFCond cond = parameters.Get(1);
 		float duration = parameters.Get(2);
 		int provider = GetEntityFromAddress(parameters.Get(3));
-		Action action = TF2_OnAddCond(client, cond, duration, provider);
 
-		if (action == Plugin_Changed)
-		{
+		Action action = OnAddCondition(client, cond, duration, provider);
+		if (action == Plugin_Changed) {
 			parameters.Set(1, cond);
 			parameters.Set(2, duration);
 			if (provider == -1 || provider == 0xFFF)
@@ -7124,18 +7123,32 @@ MRESReturn DHookCallback_CTFPlayerShared_AddCond_Pre(Address pThis, DHookParam p
 MRESReturn DHookCallback_CTFPlayerShared_RemoveCond_Pre(Address pThis, DHookParam parameters) {
 	int client = TF2Util_GetPlayerFromSharedAddress(pThis);
 	if (
-		client >= 1 &&
-		client <= MaxClients &&
-		IsClientInGame(client) &&
-		IsPlayerAlive(client)
+		client >= 1 && client <= MaxClients &&
+		IsClientInGame(client) && IsPlayerAlive(client)
 	) {
-		// This is vastly incomplete for the moment. If other functionality from TF2CondHooks is needed just add it here.
 		TFCond cond = parameters.Get(1);
-		float timeleft = 0.0;
-		int provider = 0;
-		Action action = TF2_OnRemoveCond(client, cond, timeleft, provider);
+		float timeleft = TF2Util_GetPlayerConditionDuration(client, cond);
+		int provider = TF2Util_GetPlayerConditionProvider(client, cond);
 
-		if (action >= Plugin_Handled)
+		TFCond oldcond = cond;
+		float oldtime = timeleft;
+
+		Action action = OnRemoveCondition(client, cond, timeleft, provider);
+		if (action == Plugin_Changed) {
+			parameters.Set(1, cond);
+
+			if (TF2_IsPlayerInCondition(client, cond)) {
+				TF2Util_SetPlayerConditionDuration(client, cond, timeleft);
+				if (provider == -1 || provider == 0xFFF)
+					provider = 0;
+				TF2Util_SetPlayerConditionProvider(client, cond, provider);
+			}
+
+			if (timeleft != oldtime && cond == oldcond)
+				return MRES_Supercede;
+			return MRES_ChangedHandled;
+		}
+		else if (action >= Plugin_Handled)
 			return MRES_Supercede;
 	}
 	return MRES_Ignored;
