@@ -2117,7 +2117,7 @@ public void OnEntityCreated(int entity, const char[] class) {
 
 	if (
 		TF2Util_IsEntityWeapon(entity) ||
-		TF2Util_IsEntityWearable(entity)
+		TF2Util_IsEntityWearable(entity) && !StrEqual(class, "tf_wearable_vm")
 	) {
 		SDKHook(entity, SDKHook_SpawnPost, SDKHookCB_SpawnPostWeapon);
 	}
