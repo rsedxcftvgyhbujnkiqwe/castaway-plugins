@@ -193,13 +193,6 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\xF1\xB3\x01"
 				"linux"		"@_ZN9CTFPlayer18ApplyPunchImpulseXEf"
 			}
-			// "speed_buff_ally"
-			"CTFWeaponBaseMelee::OnSwingHit"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x81\xEC\x50\x01\x00\x00\x53\x56\x57"
-				"linux"		"@_ZN18CTFWeaponBaseMelee10OnSwingHitER10CGameTrace"
-			}
 			// "mult_dmgself_push_force"
 			"CTFPlayer::ApplyPushFromDamage"
 			{
@@ -225,6 +218,9 @@
 
 		"Offsets"
 		{
+			// CBaseObject windows offsets: asherkin's dumper gives incorrect values,
+			// derive the offset from e.g. CObjectSentrygun as the offset directly from CBaseObject is incorrect
+
 			"CTFWeaponBase::PrimaryAttack"
 			{
 				"windows"	"287"
@@ -240,20 +236,15 @@
 				"windows"	"244"
 				"linux"		"245"
 			}
-			"CAmmoPack::MyTouch"
+			"CTFPowerup::MyTouch"
 			{
 				"windows"	"229"
 				"linux"		"230"
 			}
-			"CObjectSentrygun::OnWrenchHit"
+			"CBaseObject::OnWrenchHit"
 			{
 				"windows"	"365"
 				"linux"		"367"
-			}
-			"CHealthKit::MyTouch"
-			{
-				"windows"	"229"
-				"linux"		"230"
 			}
 			"CTFRevolver::CanFireCriticalShot"
 			{
@@ -265,12 +256,12 @@
 				"windows"	"498"
 				"linux"		"505"
 			}
-			"CObjectSentrygun::StartBuilding"
+			"CBaseObject::StartBuilding"
 			{
 				"windows"	"342"
 				"linux"		"344"
 			}
-			"CBaseObject::Construct" // windows offset on CBaseObject via asherkin's dumper is incorrect
+			"CBaseObject::Construct"
 			{
 				"windows"	"350"
 				"linux"		"352"
@@ -284,11 +275,6 @@
 			{
 				"windows"	"482"
 				"linux"		"489"
-			}
-			"CWeaponMedigun::CanAttack"
-			{
-				"windows"	"428"
-				"linux"		"435"
 			}
 			"CBaseCombatWeapon::ItemPostFrame"
 			{
@@ -315,17 +301,12 @@
 				"windows"	"256"
 				"linux"		"259"
 			}
-			"CBaseObject::InputWrenchHit" // windows offset on CBaseObject via asherkin's dumper is incorrect
-			{
-				"windows"	"364"
-				"linux"		"366"
-			}
-			"CBaseObject::Command_Repair" // windows offset on CBaseObject via asherkin's dumper is incorrect
+			"CBaseObject::Command_Repair"
 			{
 				"windows"	"367"
 				"linux"		"369"
 			}
-			"CWeaponMedigun::WeaponReset"
+			"CTFWeaponBase::WeaponReset"
 			{
 				"windows"	"430"
 				"linux"		"437"
@@ -396,11 +377,6 @@
 				"windows"	"8516"
 				"linux"		"8524"
 			}
-			"CGameTrace.m_pEnt"
-			{
-				"windows"	"76"
-				"linux"		"76"
-			}
 			"CTakeDamageInfo.m_hWeapon"
 			{
 				"windows"	"44"
@@ -454,9 +430,9 @@
 				"this"		"entity"
 				"return" 	"float"
 			}
-			"CAmmoPack::MyTouch"
+			"CTFPowerup::MyTouch"
 			{
-				"offset"	"CAmmoPack::MyTouch"
+				"offset"	"CTFPowerup::MyTouch"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -482,9 +458,9 @@
 					}
 				}
 			}
-			"CObjectSentrygun::OnWrenchHit"
+			"CBaseObject::OnWrenchHit"
 			{
-				"offset"	"CObjectSentrygun::OnWrenchHit"
+				"offset"	"CBaseObject::OnWrenchHit"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -505,9 +481,9 @@
 					}
 				}
 			}
-			"CObjectSentrygun::StartBuilding"
+			"CBaseObject::StartBuilding"
 			{
-				"offset"	"CObjectSentrygun::StartBuilding"
+				"offset"	"CBaseObject::StartBuilding"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"bool"
@@ -553,20 +529,6 @@
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
-			}
-			"CHealthKit::MyTouch"
-			{
-				"offset"	"CHealthKit::MyTouch"
-				"hooktype"	"entity"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-				}
 			}
 			"CTFRevolver::CanFireCriticalShot"
 			{
@@ -650,29 +612,6 @@
 					}
 				}
 			}
-			"CBaseObject::InputWrenchHit"
-			{
-				"offset"	"CBaseObject::InputWrenchHit"
-				"hooktype"	"entity"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"pPlayer"
-					{
-						"type"	"cbaseentity"
-					}
-					"pWrench"
-					{
-						"type"	"cbaseentity"
-					}
-					"hitLoc"
-					{
-						"type"	"object"
-						"size"	"12"
-					}
-				}
-			}
 			"CBaseObject::Command_Repair"
 			{
 				"offset"	"CBaseObject::Command_Repair"
@@ -703,9 +642,9 @@
 					}
 				}
 			}
-			"CWeaponMedigun::WeaponReset"
+			"CTFWeaponBase::WeaponReset"
 			{
-				"offset"	"CWeaponMedigun::WeaponReset"
+				"offset"	"CTFWeaponBase::WeaponReset"
 				"hooktype"	"entity"
 				"this"		"entity"
 				"return"	"void"
@@ -1150,20 +1089,6 @@
 					"flImpulse"
 					{
 						"type"	"float"
-					}
-				}
-			}
-			"CTFWeaponBaseMelee::OnSwingHit"
-			{
-				"signature"	"CTFWeaponBaseMelee::OnSwingHit"
-				"callconv"	"thiscall"
-				"this"		"entity"
-				"return"	"bool"
-				"arguments"
-				{
-					"trace"
-					{
-						"type"	"int"
 					}
 				}
 			}
