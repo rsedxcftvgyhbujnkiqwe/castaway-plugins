@@ -7695,7 +7695,8 @@ stock int FindSentryGunOwnedByClient(int client) {
 			int obj = TF2Util_GetPlayerObject(client, i);
 			if (
 				obj > 0 &&
-				GetEntProp(obj, Prop_Send, "m_iObjectType") == view_as<int>(TFObject_Sentry)
+				GetEntProp(obj, Prop_Send, "m_iObjectType") == view_as<int>(TFObject_Sentry) &&
+				GetEntProp(obj, Prop_Send, "m_bDisposableBuilding") == 0
 			) {
 				return obj;
 			}
